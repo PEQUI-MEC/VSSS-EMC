@@ -64,8 +64,6 @@ public Gtk::HBox {
 	
 		vector<Tag> tag_list;
 		Gtk::Frame fm;
-		Gtk::Frame info_fm;
-		Gtk::VBox vbox;
 		sigc::connection con;
 		unsigned char * data;
 		int width, height;
@@ -96,7 +94,7 @@ public Gtk::HBox {
 		
 				width = v.vcap.format_dest.fmt.pix.width;
 				height = v.vcap.format_dest.fmt.pix.height;
-				threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));
+			
 				Tag t;
 				tag_list.push_back(t);
 				tag_list.push_back(t);
@@ -114,7 +112,7 @@ public Gtk::HBox {
 					iv.adjust_mat[i][1] = -1;
 					}
 		
-				
+			threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));		
 			for(int i = 0; i < 6; i++)
 			{
 				threshold[i] =  (unsigned char*) malloc((3*(width*height + width) +3) * sizeof(unsigned char));
@@ -200,10 +198,14 @@ public Gtk::HBox {
 				line(image,tag_list[2].position,tag_list[2].secundary,cv::Scalar(102,255,102), 2);
 				
 				circle(image,Ball, 5, cv::Scalar(255,255,255), 2);
+				
+				
 				if(v.HSV_calib_event_flag){
 				for(int i=0;i<3*(width*height + width) +2;i++){
 					d[i]=threshold[v.Img_id][i];
 					}}
+					
+					
 		//PRINT RAW POSITIONS
 		/*	 cout<<"--------------------------------------------------------------- "<<endl; 
 			 cout<<"Team Size "<<Team_Main.size()<<endl;
@@ -609,16 +611,11 @@ public Gtk::HBox {
 					
 			fm.set_label("Image");
 			fm.add(iv);
-			info_fm.set_label("INFO");
 			notebook.append_page(v, "Vision");
 			notebook.append_page(control, "Control");
 			notebook.append_page(strategy, "Strategy");
-
 			
-			vbox.pack_start(fm, false, true, 5);
-			vbox.pack_start(info_fm, false, true, 5);
-
-			pack_start(vbox, false, true, 5);
+			pack_start(fm, true, true, 10);
 			pack_start(notebook, false, false, 10);
 
 			v.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));

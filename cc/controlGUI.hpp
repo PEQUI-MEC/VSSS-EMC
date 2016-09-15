@@ -21,17 +21,30 @@
 #include <string>
 #include "opencv2/opencv.hpp"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 class ControlGUI: public Gtk::VBox
 {
 public:
 	// Flag para saber se o botão PID está pressionado ou não.
 	bool PID_bt_event_flag = false;
-	
+	bool Serial_Enabled;
 	// Containers para o conteúdo da interface gráfica
 	Gtk::Frame PID_fm;
+	Gtk::Frame Serial_fm;
+	Gtk::VBox Serial_vbox;
+	Gtk::HBox Serial_hbox; 
 	Gtk::VBox PID_vbox;
 	Gtk::HBox PID_hbox[10]; 
 	Gtk::Label *label;
+	
+	// Botões e combo box Rádio
+	Gtk::Button bt_Serial_Start;
+	Gtk::Button bt_Serial_Refresh;
+	Gtk::ComboBoxText cb_serial;
 	
 	// Botões PID, save e load
 	Gtk::ToggleButton PID_bt;
@@ -56,11 +69,30 @@ public:
 
 	ControlGUI()
 	{
+		
+		Serial_Enabled=false;
+		// Adicionar o frame do Serial e sua VBOX
+		pack_start(Serial_fm, false, true, 5);
+		Serial_fm.set_label("Serial");
+		Serial_fm.add(Serial_vbox);
+		
+		
+		Serial_hbox.pack_start(cb_serial, false, true, 5);
+		Serial_hbox.pack_start(bt_Serial_Start, false, true, 5);
+		Serial_hbox.pack_start(bt_Serial_Refresh, false, true, 5);
+		Serial_vbox.pack_start(Serial_hbox, false, true, 5);
+		
+		
+		
+		bt_Serial_Start.set_label("Start");
+		bt_Serial_Refresh.set_label("Refresh");
+		
+		
 		// Adicionar o frame do PID e sua VBOX
 		pack_start(PID_fm, false, true, 5);
 		PID_fm.set_label("PID");
 		PID_fm.add(PID_vbox);
-		
+	
 		// Primeira Hbox com o botão PID Config, Save e Load
 		PID_bt.set_label("PID Config");
 		//PID_bt.set_margin_right(200);
@@ -270,8 +302,11 @@ public:
 		
 		
 		
-		
+		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
+		
+		bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
+		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
 		PID_bt.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::event_PID_bt_pressed));
 		save_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::event_save_bt_signal_clicked));
 		load_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::event_load_bt_signal_clicked));
@@ -296,6 +331,9 @@ public:
 		buttonD_ojuara.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::event_buttonD_ojuara_signal_clicked));
 		//boxP_goleiro.signal_key_press_event().connect(sigc::mem_fun(*this, &ControlGUI::event_boxP_goleiro_signal_key_press), false);	
 
+
+
+		
 	}
 	
 	void event_PID_bt_pressed() {
@@ -602,7 +640,40 @@ void event_buttonD_ojuara_signal_clicked() {
 		} catch (const std::invalid_argument&) {
 	};
 }
+void _start_serial(){
+int fd;	
+		Glib::ustring serial = cb_serial.get_active_text();
+		
+		if (serial.size() < 1) return;
+		
+	 fd = open(serial.c_str(), O_RDWR);
+    if(fd != -1)
+    {
+		 std::cout<<serial<<" - Connected"<<std::endl;
+        Serial_Enabled=true;
+    }
+	
+	
+	}
+void _update_cb_serial(){
 
+std::string port;
+int fd;
+cb_serial.remove_all();
+for(int i = 0; i < 256; ++i)
+	{
+    port.clear();
+    port.append("/dev/ttyUSB");
+    port.append(std::to_string(i));
+   
+    fd = open(port.c_str(), O_RDWR);
+    if(fd != -1)
+    {
+		 std::cout<<port<<std::endl;
+        cb_serial.append(port);
+    }
+	}	
+}
 /*void event_boxP_goleiro_signal_key_press(GdkEventKey* event)
 {
 		//if (event.keyval == 13)
