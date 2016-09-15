@@ -9,13 +9,13 @@
 - git status
 - git add [arquivo]
 - git commit (vai abrir um arquivo para que você digite o as alterações ou adições feitas)
-- Digite as alterações e salve.
+- Digite as alterações, salve e fecha.
 - git remote -v
 - git push origin [nome da branch]
 - digitar login e senha
 
 # Como configurar seu gitlab
 - git config --global user.name "seu nome"
-- git config --global user.email "seu@email"
+- git config --global user.email "seu email"
 - git config --global core.editor [nome do seu editor de texto]
 
