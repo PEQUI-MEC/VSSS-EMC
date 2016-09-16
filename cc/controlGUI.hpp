@@ -819,10 +819,10 @@ for(int i = 0; i < 256; ++i)
 	}
 		bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
 		cb_serial.set_state(Gtk::STATE_NORMAL);
+		bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 		
 		Tbox_V1.set_state(Gtk::STATE_INSENSITIVE);
 		Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
-		bt_Serial_Refresh.set_state(Gtk::STATE_INSENSITIVE);
 		bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
 		cb_test.set_state(Gtk::STATE_INSENSITIVE);	
 		
