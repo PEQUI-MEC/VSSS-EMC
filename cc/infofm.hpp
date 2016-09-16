@@ -10,13 +10,18 @@ public:
 	Gtk::Label *label;
 	Gtk::VBox main_vbox;
 	Gtk::HBox robots_pos_hbox;
+
+	vector<Tag> tag_list;
 	
+	void setTagList(vector<Tag> list)
+	{
+		tag_list = list;
+	}
 	
 	InfoFm()
 	{
 		pack_start(main_vbox, false, true, 5);
 		
-		while (1)
 	}
 	
 	

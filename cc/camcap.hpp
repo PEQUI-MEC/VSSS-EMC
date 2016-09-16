@@ -69,6 +69,15 @@ public Gtk::HBox {
 		sigc::connection con;
 		unsigned char * data;
 		int width, height;
+
+		// VARIÁVEIS PARA A FRAME INFO
+		Gtk::Label *label;
+		Gtk::VBox info_vbox;
+		Gtk::HBox robots_pos_hbox;
+		Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
+		vector<string> robot_pos;
+
+
 		
 		virtual bool on_key_release_event(GdkEventKey *event)
 		{
@@ -79,15 +88,6 @@ public Gtk::HBox {
 
 			}
 			
-		// Função para retornar a posição de um robo
-		cv::Point getRobotPosition(int tag_list_index)
-		{
-			return tag_list[tag_list_index].position;
-		}
-
-
-		
-
 
 		bool start_signal(bool b) {
 			if (b) {
@@ -248,6 +248,7 @@ public Gtk::HBox {
 			Tag tag;
 			cv::Point secundary;
 			int index[2];
+			
 
 			float distanceRef = 999999999.0;
 			float distance = 0;
@@ -270,7 +271,21 @@ public Gtk::HBox {
 				tag_list[index[0]].primary = tag.primary; // colocar em um vetor
 				tag_list[index[0]].secundary = tag.secundary; // colocar em um vetor
 				calcOrientation(index[0]);
+
+				
 			}
+			// Atualizar as labels de posição dos robos
+			stringstream aux1;
+			aux1 << "(" << tag_list[0].primary.x << "," << tag_list[0].primary.y << ")";
+			robot1_pos_lb->set_text(aux1.str());
+
+			stringstream aux2;
+			aux2 << "(" << tag_list[1].primary.x << "," << tag_list[1].primary.y << ")";
+			robot2_pos_lb->set_text(aux2.str());
+
+			stringstream aux3;
+			aux3 << "(" << tag_list[2].primary.x << "," << tag_list[2].primary.y << ")";
+			robot3_pos_lb->set_text(aux3.str());
 			
 	}	
 
@@ -623,9 +638,33 @@ public Gtk::HBox {
 			notebook.append_page(v, "Vision");
 			notebook.append_page(control, "Control");
 			notebook.append_page(strategy, "Strategy");
+
+
+
 			
 			camera_vbox.pack_start(fm, false, true, 10);
 			camera_vbox.pack_start(info_fm, false, true, 10);
+
+			info_fm.add(info_vbox);
+			info_vbox.pack_start(robots_pos_hbox, false, true, 5);
+
+			label = new Gtk::Label("Secundary 1:");
+			robots_pos_hbox.pack_start(*label, false, true, 5);
+
+			robot1_pos_lb = new Gtk::Label("-");
+			robots_pos_hbox.pack_start(*robot1_pos_lb, false, true, 5);
+
+			label = new Gtk::Label("Secundary 2:");
+			robots_pos_hbox.pack_start(*label, false, true, 5);
+
+			robot2_pos_lb = new Gtk::Label("-");
+			robots_pos_hbox.pack_start(*robot2_pos_lb, false, true, 5);
+
+			label = new Gtk::Label("Secundary 3:");
+			robots_pos_hbox.pack_start(*label, false, true, 5);
+
+			robot3_pos_lb = new Gtk::Label("-");
+			robots_pos_hbox.pack_start(*robot3_pos_lb, false, true, 5);
 			
 			pack_start(camera_vbox, true, true, 10);
 			pack_start(notebook, false, false, 10);
