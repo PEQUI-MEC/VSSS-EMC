@@ -12,20 +12,20 @@ class SerialW
 {
 public:
 	bool Serial_Enabled;
+	int	USB;
 	std::string port;
 SerialW()
 	{
 		Serial_Enabled =false;
 	}
-}
+
 int start(std::string serial){
-	port = serial;
 	struct termios tty;
 	struct termios tty_old;
 	memset (&tty, 0, sizeof tty);
 	
-int	USB = open(serial.c_str(), O_RDWR| O_NOCTTY);
-    if(fd != -1)
+	USB = open(serial.c_str(), O_RDWR| O_NOCTTY);
+    if(USB != -1)
     {
         Serial_Enabled=true;
     }else{
@@ -45,8 +45,8 @@ if ( tcgetattr ( USB, &tty ) != 0 ) {
 tty_old = tty;
 
 /* Set Baud Rate */
-cfsetospeed (&tty, (speed_t)B9600);
-cfsetispeed (&tty, (speed_t)B9600);
+cfsetospeed (&tty, (speed_t)B57600);
+cfsetispeed (&tty, (speed_t)B57600);
 
 /* Setting other Port Stuff */
 tty.c_cflag     &=  ~PARENB;            // Make 8n1
@@ -71,13 +71,13 @@ if ( tcsetattr ( USB, TCSANOW, &tty ) != 0) {
 return USB;	
 	}
 	
-void send(std::string cmd){
+void sendSerial(std::string cmd){
 
 int n_written = write( USB, cmd.c_str(),cmd.size());
 	
 	}
 	
-std::string read(){
+std::string readSerial(){
 	
 	int n = 0,
     spot = 0;
@@ -106,4 +106,5 @@ else {
 	return std::string(response);
 	
 	}	
+};
 #endif /* CONTROLGUI_HPP_ */

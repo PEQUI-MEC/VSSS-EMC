@@ -69,7 +69,7 @@ public Gtk::HBox {
 		sigc::connection con;
 		unsigned char * data;
 		int width, height;
-		
+	/*	
 		virtual bool on_key_release_event(GdkEventKey *event)
 		{
 
@@ -78,7 +78,7 @@ public Gtk::HBox {
 			return true;
 
 			}
-			
+			*/
 		// Função para retornar a posição de um robo
 		cv::Point getRobotPosition(int tag_list_index)
 		{
