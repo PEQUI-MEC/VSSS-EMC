@@ -78,6 +78,12 @@ public Gtk::HBox {
 			return true;
 
 			}
+			
+		// Função para retornar a posição de um robo
+		cv::Point getRobotPosition(int tag_list_index)
+		{
+			return tag_list[tag_list_index].position;
+		}
 
 
 		
