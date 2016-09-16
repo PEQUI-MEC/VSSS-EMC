@@ -64,6 +64,8 @@ public Gtk::HBox {
 	
 		vector<Tag> tag_list;
 		Gtk::Frame fm;
+		Gtk::Frame info_fm;
+		Gtk::VBox camera_vbox;
 		sigc::connection con;
 		unsigned char * data;
 		int width, height;
@@ -611,11 +613,15 @@ public Gtk::HBox {
 					
 			fm.set_label("Image");
 			fm.add(iv);
+			info_fm.set_label("Info");
 			notebook.append_page(v, "Vision");
 			notebook.append_page(control, "Control");
 			notebook.append_page(strategy, "Strategy");
 			
-			pack_start(fm, true, true, 10);
+			camera_vbox.pack_start(fm, false, true, 10);
+			camera_vbox.pack_start(info_fm, false, true, 10);
+			
+			pack_start(camera_vbox, true, true, 10);
 			pack_start(notebook, false, false, 10);
 
 			v.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
