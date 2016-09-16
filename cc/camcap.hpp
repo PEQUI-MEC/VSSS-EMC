@@ -69,6 +69,7 @@ public Gtk::HBox {
 		sigc::connection con;
 		unsigned char * data;
 		int width, height;
+<<<<<<< HEAD
 
 		// VARIÁVEIS PARA A FRAME INFO
 		Gtk::Label *label;
@@ -79,6 +80,9 @@ public Gtk::HBox {
 
 
 		
+=======
+	/*	
+>>>>>>> 4ceff889092668566de29fa7c8d610aaa2012a4b
 		virtual bool on_key_release_event(GdkEventKey *event)
 		{
 
@@ -87,7 +91,20 @@ public Gtk::HBox {
 			return true;
 
 			}
+<<<<<<< HEAD
 			
+=======
+			*/
+		// Função para retornar a posição de um robo
+		cv::Point getRobotPosition(int tag_list_index)
+		{
+			return tag_list[tag_list_index].position;
+		}
+
+
+		
+
+>>>>>>> 4ceff889092668566de29fa7c8d610aaa2012a4b
 
 		bool start_signal(bool b) {
 			if (b) {
