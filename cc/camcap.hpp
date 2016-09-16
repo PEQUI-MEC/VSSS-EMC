@@ -69,7 +69,7 @@ public Gtk::HBox {
 		sigc::connection con;
 		unsigned char * data;
 		int width, height;
-<<<<<<< HEAD
+//<<<<<<< HEAD
 
 		// VARIÁVEIS PARA A FRAME INFO
 		Gtk::Label *label;
@@ -80,7 +80,7 @@ public Gtk::HBox {
 
 
 		
-=======
+//=======
 	/*	
 >>>>>>> 4ceff889092668566de29fa7c8d610aaa2012a4b
 		virtual bool on_key_release_event(GdkEventKey *event)
@@ -104,7 +104,7 @@ public Gtk::HBox {
 
 		
 
->>>>>>> 4ceff889092668566de29fa7c8d610aaa2012a4b
+//>>>>>>> 4ceff889092668566de29fa7c8d610aaa2012a4b
 
 		bool start_signal(bool b) {
 			if (b) {
@@ -120,23 +120,7 @@ public Gtk::HBox {
 				width = v.vcap.format_dest.fmt.pix.width;
 				height = v.vcap.format_dest.fmt.pix.height;
 			
-				Tag t;
-				tag_list.push_back(t);
-				tag_list.push_back(t);
-				tag_list.push_back(t);
-
 				
-				vector< cv::Point > p;
-				p.push_back(cv::Point(0,0));
-				Team_Sec.push_back(p);
-				Team_Sec.push_back(p);
-				Team_Sec.push_back(p);
-				
-				for(int i=0; i<4;i++){
-					iv.adjust_mat[i][0] = -1;
-					iv.adjust_mat[i][1] = -1;
-					}
-		
 			threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));		
 			for(int i = 0; i < 6; i++)
 			{
@@ -655,7 +639,23 @@ public Gtk::HBox {
 			notebook.append_page(v, "Vision");
 			notebook.append_page(control, "Control");
 			notebook.append_page(strategy, "Strategy");
+			Tag t;
+				tag_list.push_back(t);
+				tag_list.push_back(t);
+				tag_list.push_back(t);
 
+				
+				vector< cv::Point > p;
+				p.push_back(cv::Point(0,0));
+				Team_Sec.push_back(p);
+				Team_Sec.push_back(p);
+				Team_Sec.push_back(p);
+				
+				for(int i=0; i<4;i++){
+					iv.adjust_mat[i][0] = -1;
+					iv.adjust_mat[i][1] = -1;
+					}
+		
 
 
 			
