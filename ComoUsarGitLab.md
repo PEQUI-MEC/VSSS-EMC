@@ -42,3 +42,13 @@ o próprio git vai te sugerir.
 Será necessário digitar seu usuário e senha do gitlab após enviar o comando abaixo.
 - git push origin vsss
 
+### Falha ao enviar o projeto: conflitos
+Caso, ao tentar enviar as suas mudanças, o comando git push falhar por causa de conflitos de arquivos, dê um **git pull**. 
+O git pull também retornará conflitos, é normal. Depois disso, dê o **git push** como especificado no subtópico acima e
+deve funcionar.
+
+### Script para submeter as mudanças feitas no projeto
+Dentro do projeto, há o arquivo **VSS_GIT.sh**. Ele contém um script para envio automático das mudanças.
+Para rodá-lo, basta digitar **sh VSS_GIT.sh**. Todas as mudanças realizadas por esse script serão cadastradas
+pela conta do Pequi Mecânico (pqverysmall@gmail.com).
+
