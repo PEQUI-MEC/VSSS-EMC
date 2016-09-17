@@ -30,7 +30,7 @@ o próprio git vai te sugerir.
 
 ### Adicionar arquivos para serem enviados para o projeto
 - git add [nome do arquivo]
-⋅⋅Caso queira enviar todos os arquivos (ele sabe quais foram modificados ou não), digite o comando abaixo:⋅⋅
+    * Caso queira enviar todos os arquivos (ele sabe quais foram modificados ou não), digite o comando abaixo:
 - git add --all
 
 ### Fazer um commit (dizer quais foram as mudanças feitas por você)
