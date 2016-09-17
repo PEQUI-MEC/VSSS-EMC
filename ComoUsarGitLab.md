@@ -12,7 +12,10 @@
 ## Clonar o projeto do gitlab
 - git clone [url do projeto] -b [nome da branch]
 
-## Atualizar o nosso projeto na sua máquina
+## Baixar a última versão do projeto no seu computador
+Se você tentar baixar a última versão do projeto, o git provavelmente vai dizer que não pode fazer isso porque há arquivos no seu computador que estão diferentes do projeto. Neste caso,
+se você tem certeza de que essas mudanças são descartáveis, dê o comando **git checkout .** para que ele ignore as mudanças. Caso as mudanças sejam importantes, dê um commit nelas, como
+o próprio git vai te sugerir.
 - git pull
 
 ## Adicionar um arquivo no projeto
