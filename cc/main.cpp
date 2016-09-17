@@ -21,6 +21,7 @@ using namespace std;
 #include "vision.hpp"
 #include <gtkmm.h>
 #include "camcap.hpp"
+#include "opencv2/opencv.hpp"
 
 
 int main(int argc, char ** argv) {
