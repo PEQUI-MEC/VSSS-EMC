@@ -49,6 +49,6 @@ deve funcionar.
 
 ### Script para submeter as mudanças feitas no projeto
 Dentro do projeto, há o arquivo **VSS_GIT.sh**. Ele contém um script para envio automático das mudanças.
-Para rodá-lo, basta digitar **sh VSS_GIT.sh**. Todas as mudanças realizadas por esse script serão cadastradas
+Para rodá-lo, basta digitar **sh VSS_GIT.sh "Relate as mudanças que você fez aqui, entre aspas duplas"**. Todas as mudanças realizadas por esse script serão cadastradas
 pela conta do Pequi Mecânico (pqverysmall@gmail.com).
 
