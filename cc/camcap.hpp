@@ -19,6 +19,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
 #include <vector>
+#include <tgmath.h>
 #include <gtkmm.h>
 #include <math.h>
 
@@ -273,15 +274,15 @@ public Gtk::HBox {
 			}
 			// Atualizar as labels de posição dos robos
 			stringstream aux1;
-			aux1 << "(" << tag_list[0].primary.x << "," << tag_list[0].primary.y << ")";
+			aux1 << "(" << tag_list[0].primary.x << "," << tag_list[0].primary.y << "," << round(tag_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
 			stringstream aux2;
-			aux2 << "(" << tag_list[1].primary.x << "," << tag_list[1].primary.y << ")";
+			aux2 << "(" << tag_list[1].primary.x << "," << tag_list[1].primary.y << "," << round((tag_list[1].orientation*(180/PI))) << ")";
 			robot2_pos_lb->set_text(aux2.str());
 
 			stringstream aux3;
-			aux3 << "(" << tag_list[2].primary.x << "," << tag_list[2].primary.y << ")";
+			aux3 << "(" << tag_list[2].primary.x << "," << tag_list[2].primary.y << "," <<  round((tag_list[2].orientation*(180/PI))) << ")";
 			robot3_pos_lb->set_text(aux3.str());
 			
 	}	
@@ -398,6 +399,9 @@ public Gtk::HBox {
 			//Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
 			if(area >= v.Amin[color_id]/100){
 				Ball = cv::Point(moment.m10/area,moment.m01/area);
+				stringstream aux1;
+				aux1 << "(" << Ball.x << "," << Ball.y << ")";
+				ball_pos_lb->set_text(aux1.str());
 			}
 	}
 		break;
