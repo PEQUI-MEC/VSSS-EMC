@@ -74,9 +74,10 @@ public Gtk::HBox {
 
 		// VARIÁVEIS PARA A FRAME INFO
 		Gtk::Label *label;
-		Gtk::VBox info_vbox;
-		Gtk::HBox robots_pos_hbox;
-		Gtk::HBox start_game_hbox;
+		Gtk::HBox info_hbox;
+		Gtk::VBox robots_pos_vbox;
+		Gtk::HBox robots_pos_hbox[7];
+		Gtk::HBox start_game_vbox;
 		Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
 		Gtk::Label *opponent1_pos_lb, *opponent2_pos_lb, *opponent3_pos_lb;
 		Gtk::Label *ball_pos_lb;
@@ -662,58 +663,59 @@ public Gtk::HBox {
 			camera_vbox.pack_start(fm, false, true, 10);
 			camera_vbox.pack_start(info_fm, false, true, 10);
 
-			info_fm.add(info_vbox);
-			info_vbox.pack_start(robots_pos_hbox, false, true, 5);
-			robots_pos_hbox.set_halign(Gtk::ALIGN_CENTER);
+			info_fm.add(info_hbox);
+			info_hbox.pack_start(robots_pos_vbox, false, true, 5);
+
 
 			label = new Gtk::Label("Robot 1:");
-			robots_pos_hbox.pack_start(*label, false, true, 5);
-
 			robot1_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox.pack_start(*robot1_pos_lb, false, true, 5);
+			robots_pos_hbox[0].pack_start(*label, false, true, 5);
+			robots_pos_hbox[0].pack_start(*robot1_pos_lb, false, true, 5);
+			robots_pos_vbox.pack_start(robots_pos_hbox[0], false, true, 5);
+
 
 			label = new Gtk::Label("Robot 2:");
-			robots_pos_hbox.pack_start(*label, false, true, 5);
-
 			robot2_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox.pack_start(*robot2_pos_lb, false, true, 5);
+			robots_pos_hbox[1].pack_start(*label, false, true, 5);
+			robots_pos_hbox[1].pack_start(*robot2_pos_lb, false, true, 5);
+			robots_pos_vbox.pack_start(robots_pos_hbox[1], false, true, 5);
+
 
 			label = new Gtk::Label("Robot 3:");
-			robots_pos_hbox.pack_start(*label, false, true, 5);
-
 			robot3_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox.pack_start(*robot3_pos_lb, false, true, 5);
-
+			robots_pos_hbox[2].pack_start(*label, false, true, 5);
+			robots_pos_hbox[2].pack_start(*robot3_pos_lb, false, true, 5);
+			robots_pos_vbox.pack_start(robots_pos_hbox[2], false, true, 5);
 
 			label = new Gtk::Label("Ball:");
-			robots_pos_hbox.pack_start(*label, false, true, 5);
-
 			ball_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox.pack_start(*ball_pos_lb, false, true, 5);
+			robots_pos_hbox[3].pack_start(*label, false, true, 5);
+			robots_pos_hbox[3].pack_start(*ball_pos_lb, false, true, 5);
+			robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
 
 			label = new Gtk::Label("Loser 1:");
-			robots_pos_hbox.pack_start(*label, false, true, 5);
-
 			opponent1_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox.pack_start(*opponent1_pos_lb, false, true, 5);
+			robots_pos_hbox[4].pack_start(*label, false, true, 5);
+			robots_pos_hbox[4].pack_start(*opponent1_pos_lb, false, true, 5);
+			robots_pos_vbox.pack_start(robots_pos_hbox[4], false, true, 5);
 
 			label = new Gtk::Label("Loser 2:");
-			robots_pos_hbox.pack_start(*label, false, true, 5);
-
 			opponent2_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox.pack_start(*opponent2_pos_lb, false, true, 5);
+			robots_pos_hbox[5].pack_start(*label, false, true, 5);
+			robots_pos_hbox[5].pack_start(*opponent2_pos_lb, false, true, 5);
+			robots_pos_vbox.pack_start(robots_pos_hbox[5], false, true, 5);
 
 			label = new Gtk::Label("Loser 3:");
-			robots_pos_hbox.pack_start(*label, false, true, 5);
-
 			opponent3_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox.pack_start(*opponent3_pos_lb, false, true, 5);
+			robots_pos_hbox[6].pack_start(*label, false, true, 5);
+			robots_pos_hbox[6].pack_start(*opponent3_pos_lb, false, true, 5);
+			robots_pos_vbox.pack_start(robots_pos_hbox[6], false, true, 5);
 
-			info_vbox.pack_start(start_game_hbox, false, true, 5);
-			start_game_hbox.set_halign(Gtk::ALIGN_CENTER);
-			start_game_hbox.pack_start(start_game_bt, false, true, 5);
+			//info_hbox.pack_start(start_game_vbox, false, true, 5);
+			//start_game_vbox.set_halign(Gtk::ALIGN_CENTER);
+			info_hbox.pack_start(start_game_bt, false, true, 5);
 			start_game_bt.set_label("BRING IT ON!");
-			start_game_bt.set_size_request(150,50);
+			start_game_bt.set_size_request(-1,-1);
 
 
 			
