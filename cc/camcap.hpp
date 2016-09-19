@@ -75,8 +75,12 @@ public Gtk::HBox {
 		Gtk::Label *label;
 		Gtk::VBox info_vbox;
 		Gtk::HBox robots_pos_hbox;
+		Gtk::HBox start_game_hbox;
 		Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
+		Gtk::Label *opponent1_pos_lb, *opponent2_pos_lb, *opponent3_pos_lb;
+		Gtk::Label *ball_pos_lb;
 		vector<string> robot_pos;
+		Gtk::Button start_game_bt;
 
 
 	/*	
@@ -656,29 +660,65 @@ public Gtk::HBox {
 
 			info_fm.add(info_vbox);
 			info_vbox.pack_start(robots_pos_hbox, false, true, 5);
+			robots_pos_hbox.set_halign(Gtk::ALIGN_CENTER);
 
-			label = new Gtk::Label("Secundary 1:");
+			label = new Gtk::Label("Robot 1:");
 			robots_pos_hbox.pack_start(*label, false, true, 5);
 
 			robot1_pos_lb = new Gtk::Label("-");
 			robots_pos_hbox.pack_start(*robot1_pos_lb, false, true, 5);
 
-			label = new Gtk::Label("Secundary 2:");
+			label = new Gtk::Label("Robot 2:");
 			robots_pos_hbox.pack_start(*label, false, true, 5);
 
 			robot2_pos_lb = new Gtk::Label("-");
 			robots_pos_hbox.pack_start(*robot2_pos_lb, false, true, 5);
 
-			label = new Gtk::Label("Secundary 3:");
+			label = new Gtk::Label("Robot 3:");
 			robots_pos_hbox.pack_start(*label, false, true, 5);
 
 			robot3_pos_lb = new Gtk::Label("-");
 			robots_pos_hbox.pack_start(*robot3_pos_lb, false, true, 5);
+
+
+			label = new Gtk::Label("Ball:");
+			robots_pos_hbox.pack_start(*label, false, true, 5);
+
+			ball_pos_lb = new Gtk::Label("-");
+			robots_pos_hbox.pack_start(*ball_pos_lb, false, true, 5);
+
+			label = new Gtk::Label("Loser 1:");
+			robots_pos_hbox.pack_start(*label, false, true, 5);
+
+			opponent1_pos_lb = new Gtk::Label("-");
+			robots_pos_hbox.pack_start(*opponent1_pos_lb, false, true, 5);
+
+			label = new Gtk::Label("Loser 2:");
+			robots_pos_hbox.pack_start(*label, false, true, 5);
+
+			opponent2_pos_lb = new Gtk::Label("-");
+			robots_pos_hbox.pack_start(*opponent2_pos_lb, false, true, 5);
+
+			label = new Gtk::Label("Loser 3:");
+			robots_pos_hbox.pack_start(*label, false, true, 5);
+
+			opponent3_pos_lb = new Gtk::Label("-");
+			robots_pos_hbox.pack_start(*opponent3_pos_lb, false, true, 5);
+
+			info_vbox.pack_start(start_game_hbox, false, true, 5);
+			start_game_hbox.set_halign(Gtk::ALIGN_CENTER);
+			start_game_hbox.pack_start(start_game_bt, false, true, 5);
+			start_game_bt.set_label("BRING IT ON!");
+			start_game_bt.set_size_request(150,50);
+
+
 			
 			pack_start(camera_vbox, true, true, 10);
 			pack_start(notebook, false, false, 10);
 
 			v.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
+			start_game_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_start_game_bt_signal_clicked));
+
 
 		}
 
@@ -691,6 +731,11 @@ public Gtk::HBox {
 			free(threshold[i]); 
 			free(threshold);	
 			data = 0;
+		}
+
+		void event_start_game_bt_signal_clicked()
+		{
+			cout << "BRING IT ON!" <<std::endl;
 		}
 
 };
