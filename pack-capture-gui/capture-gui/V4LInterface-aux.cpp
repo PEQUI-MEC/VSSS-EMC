@@ -162,7 +162,30 @@ void V4LInterface::HScale_offsetL_value_changed(){
 
 		Gtk::Label * label;
 		Gtk::Table * table;
-
+		Gtk::HBox * hbox;
+		Gtk::VBox * vbox;
+		
+		// Adiciona a vbox (principal) no frame
+		vbox = new Gtk::VBox();
+		
+		
+		// Primeira Hbox com oos botões Warp, Reset, Save, Load, Adjust
+		hbox = new Gtk::HBox();
+		hbox->set_border_width(5);
+		hbox->set_halign(Gtk::ALIGN_CENTER);
+		
+		
+		
+		bt_save_cam_prop.set_label("Save");
+		hbox->pack_start(bt_save_cam_prop, false, true, 5);
+		bt_load_cam_prop.set_label("Load");
+		hbox->pack_start(bt_load_cam_prop, false, true, 5);
+		vbox->pack_start(*hbox, false, true, 0);
+		frm_device_prop.add(*vbox);
+		vbox->pack_start(notebook, false, true, 5);
+		
+		
+		
 		table = new Gtk::Table(4, 4, false);
 
 		label = new Gtk::Label("Input: ");
@@ -197,8 +220,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		table->attach(sp_height, 5, 6, 3, 4, Gtk::FILL, Gtk::EXPAND, 0, 0);
 
 		notebook.append_page(*table, "Properties");
-
-		frm_device_prop.add(notebook);
+		
 		
 		frm_device_prop.set_label("Device Prop");
 
@@ -970,7 +992,6 @@ void V4LInterface::HScale_offsetL_value_changed(){
 
 				case V4L2_CTRL_TYPE_BOOLEAN:
 
-					// Comentamos a linha de baixo para deixar as check boxes desmarcadas ao iniciar
 					static_cast<Gtk::CheckButton *>(wctrl)->set_active(control.value == 1);
 					break;
 
@@ -1081,6 +1102,10 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		__create_frm_calibration();
 
 		__update_cb_device();
+
+
+		bt_save_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_cam_prop_clicked));
+		bt_load_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_cam_prop_clicked));
 
 		bt_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_start_clicked));
 		bt_warp.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_clicked));
