@@ -1,5 +1,4 @@
 # Como Usar o GitLab
-<<<<<<< HEAD
 
 ### Instalar o GitLab no Ubuntu
 - sudo apt-get install git
@@ -81,16 +80,12 @@ o próprio git vai te sugerir.
 
 ### Visualizar as mudanças do projeto feitas no seu computador
 - git status
-<<<<<<< HEAD
 - git add [arquivo]
 - git commit (vai abrir um arquivo para que você digite o as alterações ou adições feitas)
 - Digite as alterações, salve e fecha.
 - git remote -v
 - git push origin [nome da branch]
 - digitar login e senha
->>>>>>> vsss
-=======
->>>>>>> vsss
 
 ### Adicionar arquivos para serem enviados para o projeto
 - git add [nome do arquivo]
