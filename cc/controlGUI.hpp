@@ -22,11 +22,14 @@
 #include <fstream>
 #include <string>
 #include "SerialW.hpp"
+#include "filechooser.cpp"
 
 class ControlGUI: public Gtk::VBox
 {
 public:
 	SerialW s;
+
+
 	// Flag para saber se o botão PID está pressionado ou não.
 	bool PID_bt_event_flag = false;
 	bool Serial_Enabled;
@@ -36,7 +39,7 @@ public:
 	Gtk::VBox Serial_vbox;
 	Gtk::HBox Serial_hbox[2]; 
 	Gtk::VBox PID_vbox;
-	Gtk::HBox PID_hbox[11]; 
+	Gtk::HBox PID_hbox[10]; 
 	Gtk::Label *label;
 
 
@@ -156,7 +159,6 @@ public:
 		
 		// Label "Goleiro:"
 		label = new Gtk::Label("Goleiro:");
-		label->set_padding(5,5);
 		PID_vbox.pack_start(*label, false, true, 5);
 		
 		// Hbox com o P do goleiro (label, Hscale [bar], Entry e button)
@@ -212,7 +214,6 @@ public:
 		
 		// Label "Lenhador:"
 		label = new Gtk::Label("Lenhador:");
-		label->set_padding(5,5);
 		PID_vbox.pack_start(*label, false, true, 5);
 		
 		// Hbox com o P do lenhador (label, Hscale [bar], Entry e button)
@@ -269,7 +270,6 @@ public:
 		
 		// Label "Ojuara:"
 		label = new Gtk::Label("Ojuara:");
-		label->set_padding(5,5);
 		PID_vbox.pack_start(*label, false, true, 5);
 		
 		// Hbox com o P do Ojuara (label, Hscale [bar], Entry e button)
@@ -473,8 +473,14 @@ public:
 
 void event_save_bt_signal_clicked() {
 	// Salva os valores do PID de cada jogador no arquivo PID_config.txt
+
+	FileChooser loadWindow;
+
 	ofstream txtFile;
-	txtFile.open("PID_config.txt");
+	if (loadWindow.result == Gtk::RESPONSE_OK)
+		txtFile.open(loadWindow.filename);
+	else
+		return;
 
 	txtFile << goleiro_pos_PID[0] <<std::endl;
 	txtFile << goleiro_pos_PID[1] <<std::endl;
@@ -501,10 +507,14 @@ void event_save_bt_signal_clicked() {
 }
 
 void event_load_bt_signal_clicked() {
+	FileChooser loadWindow;
 	// Carrega os valores do PID de cada jogador do arquivo PID_config.txt
 	ifstream txtFile;
 	string linha;
-	txtFile.open("PID_config.txt");
+	if (loadWindow.result == Gtk::RESPONSE_OK)
+		txtFile.open(loadWindow.filename);
+	else
+		return;
 
 	getline(txtFile, linha); goleiro_pos_PID[0] = std::stod(linha.c_str());
 	getline(txtFile, linha); goleiro_pos_PID[1] = std::stod(linha.c_str());
@@ -804,7 +814,7 @@ void event_buttonP_ojuara_signal_clicked() {
 
 
 void event_buttonI_ojuara_signal_clicked() {
-			// Essa função pega o conteúdo da text box (entry) I do ojuara,
+	// Essa função pega o conteúdo da text box (entry) I do ojuara,
 	// converte para string, muda o '.' para ',' (para não dar merda depois),
 	// e passa o valor para a barra I do ojuara.
 	std::string s = boxI_ojuara.get_text();

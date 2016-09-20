@@ -13,6 +13,7 @@
 #include "opencv2/opencv.hpp"
 #include "strategyGUI.hpp"
 #include "controlGUI.hpp"
+//#include "filechooser.cpp"
 #include <capture-gui/V4LInterface.hpp>
 #include <capture-gui/ImageView.hpp>
 #include <boost/thread/thread.hpp>
@@ -22,6 +23,7 @@
 #include <tgmath.h>
 #include <gtkmm.h>
 #include <math.h>
+#include <fstream>
 
 boost::mutex io_mutex;
  boost::thread_group threshold_threads;
@@ -474,8 +476,19 @@ public Gtk::HBox {
 		
 		void save_warp(){
 			
-			std::ofstream txtFile;
-			txtFile.open("warp_config.txt");
+			FileChooser loadWindow1;
+	
+			ofstream txtFile;
+			if (loadWindow1.result == Gtk::RESPONSE_OK)
+			{
+				txtFile.open(loadWindow1.filename);
+			}
+			else
+			{
+				v.save_warp_flag = false;
+				return;
+			}
+
 			txtFile << iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
 			txtFile << iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
 			txtFile << iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
@@ -491,8 +504,19 @@ public Gtk::HBox {
 			
 		void save_HSV(){
 			
-			std::ofstream txtFile;
-			txtFile.open("HSV_calib.txt");
+			FileChooser loadWindow2;
+	
+			ofstream txtFile;
+			if (loadWindow2.result == Gtk::RESPONSE_OK)
+			{
+				txtFile.open(loadWindow2.filename);
+			}
+			else
+			{
+				v.save_HSV_calib_flag = false;
+				return;
+			}
+
 			for(int i=0;i<6;i++){
 			txtFile <<v.H[i][0]<<std::endl<<v.H[i][1]<<std::endl;
 			txtFile <<v.S[i][0]<<std::endl<<v.S[i][1]<<std::endl;
@@ -507,9 +531,20 @@ public Gtk::HBox {
 			
 		void load_HSV(){	
 	
-			std::ifstream txtFile;
+			FileChooser loadWindow3;
+	
+			ifstream txtFile;
+			if (loadWindow3.result == Gtk::RESPONSE_OK)
+			{
+				txtFile.open(loadWindow3.filename);
+			}
+			else
+			{
+				v.load_HSV_calib_flag = false;	
+				return;
+			}
+
 			string linha;
-			txtFile.open("HSV_calib.txt");
 			for(int i=0;i<6;i++){
 				getline(txtFile, linha); v.H[i][0]=atoi(linha.c_str());
 				getline(txtFile, linha); v.H[i][1]=atoi(linha.c_str());
@@ -536,9 +571,20 @@ public Gtk::HBox {
 				}
 		
 		void load_warp(){	
-		std::ifstream txtFile;
+		FileChooser loadWindow4;
+	
+		ifstream txtFile;
+		if (loadWindow4.result == Gtk::RESPONSE_OK)
+		{
+				txtFile.open(loadWindow4.filename);
+		}
+		else
+		{
+			v.load_warp_flag = false;
+			return;
+		}
+
 		string linha;
-		txtFile.open("warp_config.txt");
 
 		getline(txtFile, linha); iv.warp_mat[0][0] = atoi(linha.c_str());
 		getline(txtFile, linha); iv.warp_mat[0][1] = atoi(linha.c_str());
