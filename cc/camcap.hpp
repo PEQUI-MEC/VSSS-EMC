@@ -79,7 +79,8 @@ public Gtk::HBox {
 		Gtk::HBox info_hbox;
 		Gtk::VBox robots_pos_vbox;
 		Gtk::HBox robots_pos_hbox[7];
-		Gtk::HBox start_game_vbox;
+		Gtk::HBox start_game_hbox;
+		Gtk::VBox buttons_vbox;
 		Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
 		Gtk::Label *opponent1_pos_lb, *opponent2_pos_lb, *opponent3_pos_lb;
 		Gtk::Label *ball_pos_lb;
@@ -711,6 +712,7 @@ public Gtk::HBox {
 
 			info_fm.add(info_hbox);
 			info_hbox.pack_start(robots_pos_vbox, false, true, 5);
+			robots_pos_vbox.set_size_request(170,-1);
 
 
 			label = new Gtk::Label("Robot 1:");
@@ -757,11 +759,12 @@ public Gtk::HBox {
 			robots_pos_hbox[6].pack_start(*opponent3_pos_lb, false, true, 5);
 			robots_pos_vbox.pack_start(robots_pos_hbox[6], false, true, 5);
 
-			info_hbox.pack_start(start_game_vbox, false, true, 5);
-			start_game_vbox.set_halign(Gtk::ALIGN_CENTER);
-			info_hbox.pack_start(start_game_bt, false, true, 5);
+			info_hbox.pack_start(buttons_vbox, false, true, 5);
+			buttons_vbox.pack_start(start_game_hbox, false, true, 5);
+			start_game_hbox.pack_start(start_game_bt, false, true, 5);
+			buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
 			start_game_bt.set_label("BRING IT ON!");
-			start_game_bt.set_size_request(-1,-1);
+			start_game_bt.set_size_request(50,100);
 
 
 			
