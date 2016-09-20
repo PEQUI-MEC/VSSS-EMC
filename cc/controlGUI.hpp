@@ -48,6 +48,7 @@ public:
 
 	//Botoes para alterar entre PID de posição e de velocidade
 	Gtk::ToggleButton button_vel_PID, button_pos_PID;
+	bool PID_flag = true;
 	
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
@@ -145,18 +146,17 @@ public:
 		PID_hbox[0].pack_start(save_bt, false, true, 5);
 		PID_hbox[0].pack_start(load_bt, false, true, 5);
 		PID_vbox.pack_start(PID_hbox[0], false, true, 5);
-
 		// Botões para mudar entre PID de posição e de velocidade
+		label = new Gtk::Label("Selected PID:");
 		button_pos_PID.set_label("Position");
 		button_vel_PID.set_label("Speed");
-		PID_hbox[10].set_halign(Gtk::ALIGN_CENTER);
-		PID_hbox[10].pack_start(button_pos_PID, false, true, 5);
-		PID_hbox[10].pack_start(button_vel_PID, false, true, 5);
-		PID_vbox.pack_start(PID_hbox[10], false, true, 5);
+		PID_hbox[0].pack_start(*label, false, true, 5);
+		PID_hbox[0].pack_start(button_pos_PID, false, true, 5);
+		PID_hbox[0].pack_start(button_vel_PID, false, true, 5);
 		
 		// Label "Goleiro:"
 		label = new Gtk::Label("Goleiro:");
-		label->set_padding(5,15);
+		label->set_padding(5,5);
 		PID_vbox.pack_start(*label, false, true, 5);
 		
 		// Hbox com o P do goleiro (label, Hscale [bar], Entry e button)
@@ -212,7 +212,7 @@ public:
 		
 		// Label "Lenhador:"
 		label = new Gtk::Label("Lenhador:");
-		label->set_padding(5,15);
+		label->set_padding(5,5);
 		PID_vbox.pack_start(*label, false, true, 5);
 		
 		// Hbox com o P do lenhador (label, Hscale [bar], Entry e button)
@@ -229,7 +229,8 @@ public:
 		PID_vbox.pack_start(PID_hbox[4], false, true, 5);
 		PID_hbox[4].pack_start(*label, false, true, 5);
 		PID_hbox[4].pack_start(barP_lenhador, false, true, 5);
-		PID_hbox[4].pack_start(boxP_lenhador, false, true, 5);
+		PID_hbox[4].pack_start(boxP_lenhador, false, true
+			, 5);
 		PID_hbox[4].pack_start(buttonP_lenhador, false, true, 5);
 		
 		// Hbox com o I do lenhador (label, Hscale [bar], Entry e button)
@@ -268,7 +269,7 @@ public:
 		
 		// Label "Ojuara:"
 		label = new Gtk::Label("Ojuara:");
-		label->set_padding(5,15);
+		label->set_padding(5,5);
 		PID_vbox.pack_start(*label, false, true, 5);
 		
 		// Hbox com o P do Ojuara (label, Hscale [bar], Entry e button)
@@ -548,6 +549,7 @@ void event_load_bt_signal_clicked() {
 		barD_goleiro.set_value(goleiro_pos_PID[2]);
 
 		barP_lenhador.set_value(lenhador_pos_PID[0]);
+
 		barI_lenhador.set_value(lenhador_pos_PID[1]);
 		barD_lenhador.set_value(lenhador_pos_PID[2]);
 
@@ -560,10 +562,12 @@ void event_load_bt_signal_clicked() {
 	txtFile.close();
 }
 
-void event_button_vel_PID_pressed() {
-	if (button_pos_PID.get_active())
+void event_button_vel_PID_pressed()
+{
+	if (PID_flag)
 	{
 		button_pos_PID.set_active(false);
+		PID_flag = false;
 
 		barP_goleiro.set_value(goleiro_vel_PID[0]);
 		barI_goleiro.set_value(goleiro_vel_PID[1]);
@@ -576,15 +580,19 @@ void event_button_vel_PID_pressed() {
 		barP_ojuara.set_value(ojuara_vel_PID[0]);
 		barI_ojuara.set_value(ojuara_vel_PID[1]);
 		barD_ojuara.set_value(ojuara_vel_PID[2]);
-
-		cout << "VEL " << goleiro_vel_PID[0] << endl;
+	}
+	else
+	{
+		button_vel_PID.set_active(false);
 	}
 }
 
-void event_button_pos_PID_pressed() {
-	if (button_vel_PID.get_active())
+void event_button_pos_PID_pressed() 
+{
+	if (!PID_flag)
 	{
 		button_vel_PID.set_active(false);
+		PID_flag = true;
 
 		barP_goleiro.set_value(goleiro_pos_PID[0]);
 		barI_goleiro.set_value(goleiro_pos_PID[1]);
@@ -597,8 +605,10 @@ void event_button_pos_PID_pressed() {
 		barP_ojuara.set_value(ojuara_pos_PID[0]);
 		barI_ojuara.set_value(ojuara_pos_PID[1]);
 		barD_ojuara.set_value(ojuara_pos_PID[2]);
-
-		cout << "POS: " << goleiro_pos_PID[0] << endl;
+	}
+	else
+	{
+		button_pos_PID.set_active(false);
 	}
 }
 
