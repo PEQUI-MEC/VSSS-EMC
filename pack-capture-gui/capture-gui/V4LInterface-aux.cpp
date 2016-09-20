@@ -1048,6 +1048,23 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			HSV_calib_event_flag=false;
 			save_HSV_calib_flag=false;
 			load_HSV_calib_flag=false;
+
+			cb_device.set_sensitive(true);
+			cb_input.set_sensitive(true);
+			cb_standard.set_sensitive(true);
+			cb_frame_size.set_sensitive(true);
+			cb_format_desc.set_sensitive(true);
+			sp_width.set_sensitive(true);
+			sp_height.set_sensitive(true);
+			cb_frame_interval.set_sensitive(true);
+			bt_HSV_calib.set_sensitive(false);
+			bt_warp.set_sensitive(false);
+			bt_save_cam_prop.set_sensitive(false);
+			bt_load_cam_prop.set_sensitive(false);
+			bt_reset_warp.set_sensitive(false);
+			bt_load_warp.set_sensitive(false);
+			bt_save_warp.set_sensitive(false);
+			m_signal_start.emit(false);
 			
 			HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);

@@ -13,6 +13,7 @@
 #include "opencv2/opencv.hpp"
 #include "strategyGUI.hpp"
 #include "controlGUI.hpp"
+//#include "filechooser.cpp"
 #include <capture-gui/V4LInterface.hpp>
 #include <capture-gui/ImageView.hpp>
 #include <boost/thread/thread.hpp>
@@ -22,6 +23,7 @@
 #include <tgmath.h>
 #include <gtkmm.h>
 #include <math.h>
+#include <fstream>
 
 boost::mutex io_mutex;
  boost::thread_group threshold_threads;
@@ -78,9 +80,9 @@ public Gtk::HBox {
 		Gtk::HBox info_hbox;
 		Gtk::VBox robots_pos_vbox;
 		Gtk::HBox robots_pos_hbox[7];
-		Gtk::HBox start_game_vbox;
+		Gtk::HBox start_game_hbox;
+		Gtk::VBox buttons_vbox;
 		Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
-		Gtk::Label *opponent1_pos_lb, *opponent2_pos_lb, *opponent3_pos_lb;
 		Gtk::Label *ball_pos_lb;
 		vector<string> robot_pos;
 		Gtk::Button start_game_bt;
@@ -334,6 +336,7 @@ public Gtk::HBox {
 			}
 			// Atualizar as labels de posição dos robos
 			stringstream aux1;
+<<<<<<< HEAD
 			aux1 << "(" << robot_list[0].primary.x << "," << robot_list[0].primary.y << "," << round(robot_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
@@ -343,6 +346,17 @@ public Gtk::HBox {
 
 			stringstream aux3;
 			aux3 << "(" << robot_list[2].primary.x << "," << robot_list[2].primary.y << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
+=======
+			aux1 << "(" << (tag_list[0].primary.x)*(170/width) << "," << (tag_list[0].primary.y)*(130/height) << "," << round(tag_list[0].orientation*(180/PI)) << ")";
+			robot1_pos_lb->set_text(aux1.str());
+
+			stringstream aux2;
+			aux2 << "(" << (tag_list[1].primary.x)*(170/width) << "," << (tag_list[1].primary.y)*(130/height) << "," << round((tag_list[1].orientation*(180/PI))) << ")";
+			robot2_pos_lb->set_text(aux2.str());
+
+			stringstream aux3;
+			aux3 << "(" << (tag_list[2].primary.x)*(170/width) << "," << (tag_list[2].primary.y)*(130/height) << "," <<  round((tag_list[2].orientation*(180/PI))) << ")";
+>>>>>>> 3b9a50cf8de7b4492cc0dff82e5dd6e5f6c1bd54
 			robot3_pos_lb->set_text(aux3.str());
 			
 	}	
@@ -460,7 +474,7 @@ public Gtk::HBox {
 			if(area >= v.Amin[color_id]/100){
 				Ball = cv::Point(moment.m10/area,moment.m01/area);
 			     stringstream aux1;
-				aux1 << "(" << Ball.x << "," << Ball.y << ")";
+				aux1 << "(" << (Ball.x)*(170/width) << "," << (Ball.y)*(130/height) << ")";
 				ball_pos_lb->set_text(aux1.str());
 			}
 	}
@@ -533,8 +547,19 @@ public Gtk::HBox {
 		
 		void save_warp(){
 			
-			std::ofstream txtFile;
-			txtFile.open("warp_config.txt");
+			FileChooser loadWindow1;
+	
+			ofstream txtFile;
+			if (loadWindow1.result == Gtk::RESPONSE_OK)
+			{
+				txtFile.open(loadWindow1.filename);
+			}
+			else
+			{
+				v.save_warp_flag = false;
+				return;
+			}
+
 			txtFile << iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
 			txtFile << iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
 			txtFile << iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
@@ -550,8 +575,19 @@ public Gtk::HBox {
 			
 		void save_HSV(){
 			
-			std::ofstream txtFile;
-			txtFile.open("HSV_calib.txt");
+			FileChooser loadWindow2;
+	
+			ofstream txtFile;
+			if (loadWindow2.result == Gtk::RESPONSE_OK)
+			{
+				txtFile.open(loadWindow2.filename);
+			}
+			else
+			{
+				v.save_HSV_calib_flag = false;
+				return;
+			}
+
 			for(int i=0;i<6;i++){
 			txtFile <<v.H[i][0]<<std::endl<<v.H[i][1]<<std::endl;
 			txtFile <<v.S[i][0]<<std::endl<<v.S[i][1]<<std::endl;
@@ -566,9 +602,20 @@ public Gtk::HBox {
 			
 		void load_HSV(){	
 	
-			std::ifstream txtFile;
+			FileChooser loadWindow3;
+	
+			ifstream txtFile;
+			if (loadWindow3.result == Gtk::RESPONSE_OK)
+			{
+				txtFile.open(loadWindow3.filename);
+			}
+			else
+			{
+				v.load_HSV_calib_flag = false;	
+				return;
+			}
+
 			string linha;
-			txtFile.open("HSV_calib.txt");
 			for(int i=0;i<6;i++){
 				getline(txtFile, linha); v.H[i][0]=atoi(linha.c_str());
 				getline(txtFile, linha); v.H[i][1]=atoi(linha.c_str());
@@ -595,9 +642,20 @@ public Gtk::HBox {
 				}
 		
 		void load_warp(){	
-		std::ifstream txtFile;
+		FileChooser loadWindow4;
+	
+		ifstream txtFile;
+		if (loadWindow4.result == Gtk::RESPONSE_OK)
+		{
+				txtFile.open(loadWindow4.filename);
+		}
+		else
+		{
+			v.load_warp_flag = false;
+			return;
+		}
+
 		string linha;
-		txtFile.open("warp_config.txt");
 
 		getline(txtFile, linha); iv.warp_mat[0][0] = atoi(linha.c_str());
 		getline(txtFile, linha); iv.warp_mat[0][1] = atoi(linha.c_str());
@@ -728,6 +786,7 @@ public Gtk::HBox {
 
 			info_fm.add(info_hbox);
 			info_hbox.pack_start(robots_pos_vbox, false, true, 5);
+			robots_pos_vbox.set_size_request(170,-1);
 
 
 			label = new Gtk::Label("Robot 1:");
@@ -756,29 +815,12 @@ public Gtk::HBox {
 			robots_pos_hbox[3].pack_start(*ball_pos_lb, false, true, 5);
 			robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
 
-			label = new Gtk::Label("Loser 1:");
-			opponent1_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox[4].pack_start(*label, false, true, 5);
-			robots_pos_hbox[4].pack_start(*opponent1_pos_lb, false, true, 5);
-			robots_pos_vbox.pack_start(robots_pos_hbox[4], false, true, 5);
-
-			label = new Gtk::Label("Loser 2:");
-			opponent2_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox[5].pack_start(*label, false, true, 5);
-			robots_pos_hbox[5].pack_start(*opponent2_pos_lb, false, true, 5);
-			robots_pos_vbox.pack_start(robots_pos_hbox[5], false, true, 5);
-
-			label = new Gtk::Label("Loser 3:");
-			opponent3_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox[6].pack_start(*label, false, true, 5);
-			robots_pos_hbox[6].pack_start(*opponent3_pos_lb, false, true, 5);
-			robots_pos_vbox.pack_start(robots_pos_hbox[6], false, true, 5);
-
-			info_hbox.pack_start(start_game_vbox, false, true, 5);
-			start_game_vbox.set_halign(Gtk::ALIGN_CENTER);
-			info_hbox.pack_start(start_game_bt, false, true, 5);
+			info_hbox.pack_start(buttons_vbox, false, true, 5);
+			buttons_vbox.pack_start(start_game_hbox, false, true, 5);
+			start_game_hbox.pack_start(start_game_bt, false, true, 5);
+			buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
 			start_game_bt.set_label("BRING IT ON!");
-			start_game_bt.set_size_request(-1,-1);
+			start_game_bt.set_size_request(50,100);
 
 
 			

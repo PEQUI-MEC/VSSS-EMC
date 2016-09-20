@@ -6,8 +6,9 @@
  */
 
 #include "V4LInterface.hpp"
-
+#include "../../cc/filechooser.hpp"
 #include <iostream>
+#include <fstream>
 
 #define DEFAULT_STR " - "
 
@@ -17,10 +18,16 @@ namespace capture {
 	
 	void V4LInterface::__event_bt_save_cam_prop_clicked() {
 		std::cout<<"saving cam prop"<<std::endl;
-			std::ofstream txtFile;
+		FileChooser loadWindow;
+
+		std::ofstream txtFile;
+		if (loadWindow.result == Gtk::RESPONSE_OK)
+			txtFile.open(loadWindow.filename);
+		else
+			return;
+
 			struct v4l2_queryctrl qctrl;
 			struct v4l2_control control;
-			txtFile.open("Cam_calib.txt");
 			std::list<ControlHolder>::iterator iter;
 			
 			for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
@@ -33,9 +40,15 @@ namespace capture {
 		}
 	void V4LInterface::__event_bt_load_cam_prop_clicked() {
 		std::cout<<"loading cam prop"<<std::endl;
-			std::ifstream txtFile;
+		FileChooser loadWindow;
+
+		std::ifstream txtFile;
+		if (loadWindow.result == Gtk::RESPONSE_OK)
+			txtFile.open(loadWindow.filename);
+		else
+			return;
+
 			std::string linha;
-			txtFile.open("Cam_calib.txt");
 			
 			struct v4l2_queryctrl qctrl;
 			struct v4l2_control control;
@@ -102,6 +115,10 @@ namespace capture {
 			sp_width.set_sensitive(false);
 			sp_height.set_sensitive(false);
 			cb_frame_interval.set_sensitive(false);
+			bt_HSV_calib.set_sensitive(true);
+			bt_warp.set_sensitive(true);
+			bt_save_cam_prop.set_sensitive(true);
+			bt_load_cam_prop.set_sensitive(true);
 			m_signal_start.emit(true);
 
 		} else {
@@ -125,6 +142,10 @@ namespace capture {
 			sp_width.set_sensitive(true);
 			sp_height.set_sensitive(true);
 			cb_frame_interval.set_sensitive(true);
+			bt_HSV_calib.set_sensitive(false);
+			bt_warp.set_sensitive(false);
+			bt_save_cam_prop.set_sensitive(false);
+			bt_load_cam_prop.set_sensitive(false);
 			m_signal_start.emit(false);
 		}
 
@@ -134,10 +155,16 @@ namespace capture {
 	
 	void V4LInterface::__event_bt_warp_clicked(){
 	std::cout<<"Warp drive engaged"<<std::endl;
-	if (bt_warp.get_state() == Gtk::STATE_ACTIVE){
+	if (!warp_event_flag){
 	warp_event_flag=true;
+	bt_reset_warp.set_sensitive(true);
+	bt_load_warp.set_sensitive(true);
+	bt_save_warp.set_sensitive(true);
 	}else{
 	warp_event_flag=false;
+	bt_reset_warp.set_sensitive(false);
+	bt_load_warp.set_sensitive(false);
+	bt_save_warp.set_sensitive(false);
 }
 		}
 		
