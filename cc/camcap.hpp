@@ -277,15 +277,15 @@ public Gtk::HBox {
 			}
 			// Atualizar as labels de posição dos robos
 			stringstream aux1;
-			aux1 << "(" << tag_list[0].primary.x << "," << tag_list[0].primary.y << "," << round(tag_list[0].orientation*(180/PI)) << ")";
+			aux1 << "(" << (tag_list[0].primary.x)*(170/width) << "," << (tag_list[0].primary.y)*(130/height) << "," << round(tag_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
 			stringstream aux2;
-			aux2 << "(" << tag_list[1].primary.x << "," << tag_list[1].primary.y << "," << round((tag_list[1].orientation*(180/PI))) << ")";
+			aux2 << "(" << (tag_list[1].primary.x)*(170/width) << "," << (tag_list[1].primary.y)*(130/height) << "," << round((tag_list[1].orientation*(180/PI))) << ")";
 			robot2_pos_lb->set_text(aux2.str());
 
 			stringstream aux3;
-			aux3 << "(" << tag_list[2].primary.x << "," << tag_list[2].primary.y << "," <<  round((tag_list[2].orientation*(180/PI))) << ")";
+			aux3 << "(" << (tag_list[2].primary.x)*(170/width) << "," << (tag_list[2].primary.y)*(130/height) << "," <<  round((tag_list[2].orientation*(180/PI))) << ")";
 			robot3_pos_lb->set_text(aux3.str());
 			
 	}	
@@ -403,7 +403,7 @@ public Gtk::HBox {
 			if(area >= v.Amin[color_id]/100){
 				Ball = cv::Point(moment.m10/area,moment.m01/area);
 			     stringstream aux1;
-				aux1 << "(" << Ball.x << "," << Ball.y << ")";
+				aux1 << "(" << (Ball.x)*(170/width) << "," << (Ball.y)*(130/height) << ")";
 				ball_pos_lb->set_text(aux1.str());
 			}
 	}
