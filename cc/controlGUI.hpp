@@ -31,18 +31,22 @@ public:
 
 
 	// Flag para saber se o botão PID está pressionado ou não.
-	bool PID_bt_event_flag = false;
+
 	bool Serial_Enabled;
+	bool PID_bt_event_flag = false;
+	bool PID_test_flag = false;
 	// Containers para o conteúdo da interface gráfica
 	Gtk::Frame PID_fm;
 	Gtk::Frame Serial_fm;
+	Gtk::Frame Test_fm;
+	Gtk::HBox Top_hbox;
 	Gtk::VBox Serial_vbox;
+	Gtk::VBox Test_vbox;
 	Gtk::HBox Serial_hbox[2]; 
 	Gtk::VBox PID_vbox;
 	Gtk::HBox PID_hbox[10]; 
 	Gtk::Label *label;
-
-
+	
 	// Variáveis para guardar as informações de PID de posição e velocidade de cada jogador
 	// ÍNDICES: [0] = P, [1] = I, [2] = D.
 	double ojuara_pos_PID[3] = {0}, ojuara_vel_PID[3] = {0};
@@ -50,7 +54,7 @@ public:
 	double goleiro_pos_PID[3] = {0}, goleiro_vel_PID[3] = {0};
 
 	//Botoes para alterar entre PID de posição e de velocidade
-	Gtk::ToggleButton button_vel_PID, button_pos_PID;
+	Gtk::ToggleButton button_vel_PID, button_pos_PID, button_PID_Test;
 	bool PID_flag = true;
 	
 	// Botões e combo box Rádio
@@ -86,13 +90,21 @@ public:
 
 	ControlGUI()
 	{
-		
+		PID_bt_event_flag=false;
+		PID_bt_event_flag =false;
 		Serial_Enabled=false;
 		// Adicionar o frame do Serial e sua VBOX
-		pack_start(Serial_fm, false, true, 5);
+		pack_start(Top_hbox, false, true, 5);
+		Top_hbox.pack_start(Serial_fm, false, true, 5);
 		Serial_fm.set_label("Serial");
 		Serial_fm.add(Serial_vbox);
 		
+		Top_hbox.pack_start(Test_fm, false, true, 5);
+	
+		Test_fm.set_label("Test");
+		Test_fm.add(Test_vbox);
+		button_PID_Test.set_label("PID Test on Click");
+		Test_vbox.pack_start(button_PID_Test, false, true, 5);
 		
 		Serial_hbox[0].pack_start(cb_serial, false, true, 5);
 		Serial_hbox[0].pack_start(bt_Serial_Start, false, true, 5);
@@ -362,6 +374,7 @@ public:
 		
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
+		button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
 		bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
 		bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
 		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
@@ -859,6 +872,23 @@ int fd;
 	
 	
 	}*/
+void _PID_Test(){
+	if (PID_test_flag)
+	{
+		
+		PID_test_flag = false;
+		std::cout<<PID_test_flag<<endl;
+
+	}
+	else
+	{
+		PID_test_flag = true;
+			std::cout<<PID_test_flag<<endl;
+	}
+
+	}
+
+
 
 void _start_serial(){
 		int fd;	
