@@ -335,28 +335,18 @@ public Gtk::HBox {
 				
 			}
 			// Atualizar as labels de posição dos robos
+
 			stringstream aux1;
-<<<<<<< HEAD
-			aux1 << "(" << robot_list[0].primary.x << "," << robot_list[0].primary.y << "," << round(robot_list[0].orientation*(180/PI)) << ")";
+			aux1 << "(" << (robot_list[0].primary.x)*(170/width) << "," << (robot_list[0].primary.y)*(130/height) << "," << round(robot_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
 			stringstream aux2;
-			aux2 << "(" << robot_list[1].primary.x << "," << robot_list[1].primary.y << "," << round((robot_list[1].orientation*(180/PI))) << ")";
+			aux2 << "(" << (robot_list[1].primary.x)*(170/width) << "," << (robot_list[1].primary.y)*(130/height) << "," << round((robot_list[1].orientation*(180/PI))) << ")";
 			robot2_pos_lb->set_text(aux2.str());
 
 			stringstream aux3;
-			aux3 << "(" << robot_list[2].primary.x << "," << robot_list[2].primary.y << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
-=======
-			aux1 << "(" << (tag_list[0].primary.x)*(170/width) << "," << (tag_list[0].primary.y)*(130/height) << "," << round(tag_list[0].orientation*(180/PI)) << ")";
-			robot1_pos_lb->set_text(aux1.str());
+			aux3 << "(" << (robot_list[2].primary.x)*(170/width) << "," << (robot_list[2].primary.y)*(130/height) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
 
-			stringstream aux2;
-			aux2 << "(" << (tag_list[1].primary.x)*(170/width) << "," << (tag_list[1].primary.y)*(130/height) << "," << round((tag_list[1].orientation*(180/PI))) << ")";
-			robot2_pos_lb->set_text(aux2.str());
-
-			stringstream aux3;
-			aux3 << "(" << (tag_list[2].primary.x)*(170/width) << "," << (tag_list[2].primary.y)*(130/height) << "," <<  round((tag_list[2].orientation*(180/PI))) << ")";
->>>>>>> 3b9a50cf8de7b4492cc0dff82e5dd6e5f6c1bd54
 			robot3_pos_lb->set_text(aux3.str());
 			
 	}	

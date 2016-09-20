@@ -22,7 +22,7 @@ namespace capture {
 
 		std::ofstream txtFile;
 		if (loadWindow.result == Gtk::RESPONSE_OK)
-			txtFile.open(loadWindow.filename);
+			txtFile.open(loadWindow.filename.c_str());
 		else
 			return;
 
@@ -44,7 +44,7 @@ namespace capture {
 
 		std::ifstream txtFile;
 		if (loadWindow.result == Gtk::RESPONSE_OK)
-			txtFile.open(loadWindow.filename);
+			txtFile.open(loadWindow.filename.c_str());
 		else
 			return;
 
