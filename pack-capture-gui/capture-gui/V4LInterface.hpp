@@ -91,8 +91,12 @@ namespace capture {
 			sigc::connection cb_frame_size_signal;
 			sigc::connection cb_frame_interval_signal;
 
+
+			void __event_bt_save_cam_prop_clicked();
+			void __event_bt_load_cam_prop_clicked();
+
+
 			void __event_bt_start_clicked();
-			
 			void __event_bt_warp_clicked();
 			void __event_bt_adjust_pressed();
 			void __event_bt_save_warp_clicked();
@@ -146,7 +150,8 @@ namespace capture {
 			Gtk::Button bt_load_warp;
 			Gtk::Button bt_reset_warp;
 			Gtk::Button bt_load_HSV_calib;
-			
+			Gtk::Button bt_save_cam_prop;
+		    Gtk::Button bt_load_cam_prop;
 			//-------------------------------
 		
 			
@@ -223,6 +228,7 @@ namespace capture {
 			void __make_control_list_default();
 			//void __make_control_list_user();
 			//void __make_control_list_private();
+			
 			void __make_control_table(std::list<ControlHolder>& list, const char * title);
 
 			void __update_control_widgets(std::list<ControlHolder>& list);

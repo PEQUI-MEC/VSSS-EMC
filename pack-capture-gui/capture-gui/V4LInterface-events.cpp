@@ -15,6 +15,45 @@ namespace capture {
 
 	// signals
 	
+	void V4LInterface::__event_bt_save_cam_prop_clicked() {
+		std::cout<<"saving cam prop"<<std::endl;
+			std::ofstream txtFile;
+			struct v4l2_queryctrl qctrl;
+			struct v4l2_control control;
+			txtFile.open("Cam_calib.txt");
+			std::list<ControlHolder>::iterator iter;
+			
+			for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+			qctrl = (*iter).qctrl;
+			vcap.get_control(&control, qctrl.id);
+			txtFile <<qctrl.id<<std::endl<<control.value<<std::endl;
+		}
+		txtFile.close();
+		
+		}
+	void V4LInterface::__event_bt_load_cam_prop_clicked() {
+		std::cout<<"loading cam prop"<<std::endl;
+			std::ifstream txtFile;
+			std::string linha;
+			txtFile.open("Cam_calib.txt");
+			
+			struct v4l2_queryctrl qctrl;
+			struct v4l2_control control;
+			std::list<ControlHolder>::iterator iter;
+			
+			for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+				getline(txtFile, linha); qctrl.id = atoi(linha.c_str());
+				getline(txtFile, linha); control.value=atoi(linha.c_str());
+				if (!vcap.set_control(qctrl.id, control.value)) {
+					std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value << std::endl;
+				}
+		}
+		txtFile.close();
+		
+		__update_control_widgets(ctrl_list_default);
+		
+		}
+	
 	void V4LInterface::__event_bt_start_clicked() {
 
 		if (!vcap.is_opened()) return;
@@ -92,6 +131,7 @@ namespace capture {
 		return;
 
 	}
+	
 	void V4LInterface::__event_bt_warp_clicked(){
 	std::cout<<"Warp drive engaged"<<std::endl;
 	if (bt_warp.get_state() == Gtk::STATE_ACTIVE){
@@ -161,8 +201,6 @@ namespace capture {
 
 	}
 		
-		
-		
 		void V4LInterface::__event_bt_save_HSV_calib_clicked(){
 	std::cout<<"Saving HSV calibs."<<std::endl;
 	save_HSV_calib_flag=true;
@@ -173,6 +211,7 @@ namespace capture {
 	std::cout<<"Loading HSV calibs"<<std::endl;
 	load_HSV_calib_flag=true;
 		}
+		
 		void V4LInterface::__event_bt_right_HSV_calib_clicked(){
 			
 			Img_id=Img_id+1;
@@ -249,7 +288,7 @@ namespace capture {
 				}
 			}
 			
-			void V4LInterface::__event_bt_left_HSV_calib_clicked(){
+		void V4LInterface::__event_bt_left_HSV_calib_clicked(){
 			
 			Img_id=Img_id-1;
 			if(Img_id<0) Img_id = 5;
@@ -324,12 +363,12 @@ namespace capture {
 				}
 			}
 		
-		
 	void V4LInterface::__event_cb_device_changed() {
 		if (vcap.is_opened()) {
 			vcap.close_device();
 		}
-
+		
+		
 		Glib::ustring dev = cb_device.get_active_text();
 
 		if (dev.size() < 1) return;
@@ -374,6 +413,7 @@ namespace capture {
 		//__update_control_widgets(ctrl_list_private);
 
 	}
+	
 	void V4LInterface::__event_cb_input_changed() {
 
 		if (cb_input.get_active_row_number() == -1) return;
@@ -388,6 +428,7 @@ namespace capture {
 
 		__update_all();
 	}
+	
 	void V4LInterface::__event_cb_standard_changed() {
 
 		if (cb_standard.get_active_row_number() == -1) return;
@@ -404,6 +445,7 @@ namespace capture {
 		__update_all();
 
 	}
+	
 	void V4LInterface::__event_cb_format_desc_changed() {
 
 		if (cb_format_desc.get_active_row_number() == -1) return;
@@ -419,6 +461,7 @@ namespace capture {
 
 		__update_all();
 	}
+	
 	void V4LInterface::__event_cb_frame_size_changed() {
 
 		if (cb_frame_size.get_active_row_number() == -1) return;
