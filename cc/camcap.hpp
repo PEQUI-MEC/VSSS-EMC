@@ -82,7 +82,6 @@ public Gtk::HBox {
 		Gtk::HBox start_game_hbox;
 		Gtk::VBox buttons_vbox;
 		Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
-		Gtk::Label *opponent1_pos_lb, *opponent2_pos_lb, *opponent3_pos_lb;
 		Gtk::Label *ball_pos_lb;
 		vector<string> robot_pos;
 		Gtk::Button start_game_bt;
@@ -740,24 +739,6 @@ public Gtk::HBox {
 			robots_pos_hbox[3].pack_start(*label, false, true, 5);
 			robots_pos_hbox[3].pack_start(*ball_pos_lb, false, true, 5);
 			robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
-
-			label = new Gtk::Label("Loser 1:");
-			opponent1_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox[4].pack_start(*label, false, true, 5);
-			robots_pos_hbox[4].pack_start(*opponent1_pos_lb, false, true, 5);
-			robots_pos_vbox.pack_start(robots_pos_hbox[4], false, true, 5);
-
-			label = new Gtk::Label("Loser 2:");
-			opponent2_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox[5].pack_start(*label, false, true, 5);
-			robots_pos_hbox[5].pack_start(*opponent2_pos_lb, false, true, 5);
-			robots_pos_vbox.pack_start(robots_pos_hbox[5], false, true, 5);
-
-			label = new Gtk::Label("Loser 3:");
-			opponent3_pos_lb = new Gtk::Label("-");
-			robots_pos_hbox[6].pack_start(*label, false, true, 5);
-			robots_pos_hbox[6].pack_start(*opponent3_pos_lb, false, true, 5);
-			robots_pos_vbox.pack_start(robots_pos_hbox[6], false, true, 5);
 
 			info_hbox.pack_start(buttons_vbox, false, true, 5);
 			buttons_vbox.pack_start(start_game_hbox, false, true, 5);
