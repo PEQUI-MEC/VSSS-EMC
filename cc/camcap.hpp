@@ -201,8 +201,8 @@ public Gtk::HBox {
 				circle(image,tag_list[1].position, 15, cv::Scalar(51,153,102), 2);
 				line(image,tag_list[1].position,tag_list[1].secundary,cv::Scalar(51,153,102), 2);
 				
-				circle(image,tag_list[2].position, 15, cv::Scalar(102,255,102), 2);
-				line(image,tag_list[2].position,tag_list[2].secundary,cv::Scalar(102,255,102), 2);
+				circle(image,tag_list[2].position, 15, cv::Scalar(245,0,155), 2);
+				line(image,tag_list[2].position,tag_list[2].secundary,cv::Scalar(245,0,155), 2);
 				
 				circle(image,Ball, 5, cv::Scalar(255,255,255), 2);
 				
@@ -310,7 +310,7 @@ public Gtk::HBox {
 			 cv::Mat image_copy = im.clone();
 			 cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
 			 
-			 cv::medianBlur(image_copy, image_copy, 3);
+			 cv::medianBlur(image_copy, image_copy, 5);
 			 
 			 for(int i =0;i<6;i++)
 			 threshold_threads.add_thread(new boost::thread(&CamCap::img_tracking,this, boost::ref(image_copy), (i)));
@@ -400,7 +400,7 @@ public Gtk::HBox {
 			//Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
 			if(area >= v.Amin[color_id]/100){
 				Ball = cv::Point(moment.m10/area,moment.m01/area);
-				stringstream aux1;
+			     stringstream aux1;
 				aux1 << "(" << Ball.x << "," << Ball.y << ")";
 				ball_pos_lb->set_text(aux1.str());
 			}
