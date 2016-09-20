@@ -711,8 +711,8 @@ public Gtk::HBox {
 			robots_pos_hbox[6].pack_start(*opponent3_pos_lb, false, true, 5);
 			robots_pos_vbox.pack_start(robots_pos_hbox[6], false, true, 5);
 
-			//info_hbox.pack_start(start_game_vbox, false, true, 5);
-			//start_game_vbox.set_halign(Gtk::ALIGN_CENTER);
+			info_hbox.pack_start(start_game_vbox, false, true, 5);
+			start_game_vbox.set_halign(Gtk::ALIGN_CENTER);
 			info_hbox.pack_start(start_game_bt, false, true, 5);
 			start_game_bt.set_label("BRING IT ON!");
 			start_game_bt.set_size_request(-1,-1);
