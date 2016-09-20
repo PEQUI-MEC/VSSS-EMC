@@ -27,11 +27,12 @@ boost::mutex io_mutex;
  boost::thread_group threshold_threads;
 struct ImageGray;
 
-struct Tag{
-	cv::Point primary;
-	cv::Point secundary;
+struct Robot{
+	cv::Point primary= cv::Point(-1,-1);
+	cv::Point secundary= cv::Point(-1,-1);
 	double orientation;
-	cv::Point position;
+	cv::Point position= cv::Point(-1,-1);
+	cv::Point target = cv::Point(-1,-1);
 };
 
 class CamCap: 	
@@ -63,15 +64,15 @@ public Gtk::HBox {
 		//   GUARDA A POSIÇÃO DA BOLA	
 		cv::Point Ball;		
 	
-		vector<Tag> tag_list;
+		vector<Robot> robot_list;
 		Gtk::Frame fm;
 		Gtk::Frame info_fm;
 		Gtk::VBox camera_vbox;
 		sigc::connection con;
 		unsigned char * data;
 		int width, height;
-
-
+		int Selec_index=-1;
+		bool fixed_ball[3];
 		// VARIÁVEIS PARA A FRAME INFO
 		Gtk::Label *label;
 		Gtk::HBox info_hbox;
@@ -97,9 +98,9 @@ public Gtk::HBox {
 			*/
 
 		// Função para retornar a posição de um robo
-		cv::Point getRobotPosition(int tag_list_index)
+		cv::Point getRobotPosition(int robot_list_index)
 		{
-			return tag_list[tag_list_index].position;
+			return robot_list[robot_list_index].position;
 		}
 
 
@@ -166,12 +167,12 @@ public Gtk::HBox {
 			 }
 			 else			 
 			 iv.warp_event_flag = v.warp_event_flag;
-			
+			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
 			 if(v.save_warp_flag)	 save_warp();
 			 if(v.load_warp_flag)	 load_warp();
 			 if(v.reset_warp_flag)	 reset_warp();
-			 
+			
 			 if(v.save_HSV_calib_flag)	 save_HSV();
 			 if(v.load_HSV_calib_flag) 	 load_HSV();
 			 
@@ -183,34 +184,54 @@ public Gtk::HBox {
 			 }
 
 				parallel_tracking(image);
-				tag_creation();
+				robot_creation();
+				
 				
 		//PRINT TAG PROPERTIES
 		/*
 			 cout<<"--------------------------------------------------------------- "<<endl;
-			  cout<<"Tag_list Size "<<tag_list.size()<<endl;
-			 for(int i=0;i<tag_list.size();i++){
-				cout<<i<<" px "<<tag_list[i].position.x<<" py "<<tag_list[i].position.y<<endl;
-				cout<<i<<" sx "<<tag_list[i].secundary.x<<" sy "<<tag_list[i].secundary.y<<endl;
-				cout<<" o "<<tag_list[i].orientation*180/PI<<endl;
+			  cout<<"robot_list Size "<<robot_list.size()<<endl;
+			 for(int i=0;i<robot_list.size();i++){
+				cout<<i<<" px "<<robot_list[i].position.x<<" py "<<robot_list[i].position.y<<endl;
+				cout<<i<<" sx "<<robot_list[i].secundary.x<<" sy "<<robot_list[i].secundary.y<<endl;
+				cout<<" o "<<robot_list[i].orientation*180/PI<<endl;
 				
 		}*/
-				circle(image,tag_list[0].position, 15, cv::Scalar(255,153,204), 2);
-				line(image,tag_list[0].position,tag_list[0].secundary,cv::Scalar(255,153,204), 2);
+				circle(image,robot_list[0].position, 15, cv::Scalar(255,153,204), 2);
+				line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,153,204), 2);
 				
-				circle(image,tag_list[1].position, 15, cv::Scalar(51,153,102), 2);
-				line(image,tag_list[1].position,tag_list[1].secundary,cv::Scalar(51,153,102), 2);
+				circle(image,robot_list[1].position, 15, cv::Scalar(51,153,102), 2);
+				line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(51,153,102), 2);
 				
-				circle(image,tag_list[2].position, 15, cv::Scalar(245,0,155), 2);
-				line(image,tag_list[2].position,tag_list[2].secundary,cv::Scalar(245,0,155), 2);
+				circle(image,robot_list[2].position, 15, cv::Scalar(245,0,155), 2);
+				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(245,0,155), 2);
 				
-				circle(image,Ball, 5, cv::Scalar(255,255,255), 2);
+				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
+				 
 				
+				if(iv.PID_test_flag)	 PID_test();
+				else{
+					for(int i=0;i<robot_list.size();i++){
+					robot_list[i].target=cv::Point(-1,-1);
+					}
+					Selec_index=-1;
+					}
+				
+				
+				if(Selec_index!=-1){
+					circle(image,robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);				
+			}
+				
+				for(int i=0;i<robot_list.size();i++){
+					if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1)
+					line(image, robot_list[i].position,robot_list[i].target, cv::Scalar(255,255,255),2);
+					circle(image,robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
+					}
 				
 				if(v.HSV_calib_event_flag){
-				for(int i=0;i<3*(width*height + width) +2;i++){
+				for(int i=0;i<3*(width*height + width) +2;i++)
 					d[i]=threshold[v.Img_id][i];
-					}}
+					}
 					
 					
 		//PRINT RAW POSITIONS
@@ -242,9 +263,47 @@ public Gtk::HBox {
 
 			return true;
 		}
-		
-		void tag_creation(){
-			Tag tag;
+		void PID_test(){
+			double dist;
+			int old_Selec_index;
+			old_Selec_index = Selec_index;
+			for(int i=0; i<robot_list.size();i++){
+			dist = sqrt(pow((iv.robot_pos[0]-robot_list[i].primary.x),2)+pow((iv.robot_pos[1]-robot_list[i].primary.y),2));
+			//cout<<"Dist "<<dist<<endl;
+			if(dist<=17){
+			Selec_index=i;	
+		    iv.tar_pos[0] = -1;
+			iv.tar_pos[1] = -1;
+			robot_list[Selec_index].target=cv::Point(-1,-1);
+			fixed_ball[Selec_index]=false;
+				}
+			}
+			if(Selec_index>-1){
+			if(sqrt(pow((Ball.x-robot_list[Selec_index].target.x),2)+pow((Ball.y-robot_list[Selec_index].target.y),2))<=7)
+				fixed_ball[Selec_index]=true;
+
+
+			if(sqrt(pow((robot_list[Selec_index].primary.x-robot_list[Selec_index].target.x),2)+
+					pow((robot_list[Selec_index].primary.y-robot_list[Selec_index].target.y),2))<15){
+
+				robot_list[Selec_index].target = cv::Point(-1,-1);
+				iv.tar_pos[0]=-1;
+				iv.tar_pos[1]=-1;
+			}else if(fixed_ball[Selec_index])
+			    robot_list[Selec_index].target=Ball;
+			else
+				robot_list[Selec_index].target = cv::Point(iv.tar_pos[0],iv.tar_pos[1]);
+			}
+			for(int i=0;i<robot_list.size();i++){
+			if(fixed_ball[i])
+			 robot_list[i].target=Ball;
+			}
+			//cout<<"---------------------------------------------------"<<endl;
+			
+			
+			}
+		void robot_creation(){
+			Robot robot;
 			cv::Point secundary;
 			int index[2];
 			
@@ -264,26 +323,26 @@ public Gtk::HBox {
 					}
 				}
 				
-				tag.primary = Team_Main[j];
-				tag.secundary = Team_Sec[index[0]][index[1]];	
+				robot.primary = Team_Main[j];
+				robot.secundary = Team_Sec[index[0]][index[1]];	
 				distanceRef = 999999999.0;			
-				tag_list[index[0]].primary = tag.primary; // colocar em um vetor
-				tag_list[index[0]].secundary = tag.secundary; // colocar em um vetor
+				robot_list[index[0]].primary = robot.primary; // colocar em um vetor
+				robot_list[index[0]].secundary = robot.secundary; // colocar em um vetor
 				calcOrientation(index[0]);
 
 				
 			}
 			// Atualizar as labels de posição dos robos
 			stringstream aux1;
-			aux1 << "(" << tag_list[0].primary.x << "," << tag_list[0].primary.y << "," << round(tag_list[0].orientation*(180/PI)) << ")";
+			aux1 << "(" << robot_list[0].primary.x << "," << robot_list[0].primary.y << "," << round(robot_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
 			stringstream aux2;
-			aux2 << "(" << tag_list[1].primary.x << "," << tag_list[1].primary.y << "," << round((tag_list[1].orientation*(180/PI))) << ")";
+			aux2 << "(" << robot_list[1].primary.x << "," << robot_list[1].primary.y << "," << round((robot_list[1].orientation*(180/PI))) << ")";
 			robot2_pos_lb->set_text(aux2.str());
 
 			stringstream aux3;
-			aux3 << "(" << tag_list[2].primary.x << "," << tag_list[2].primary.y << "," <<  round((tag_list[2].orientation*(180/PI))) << ")";
+			aux3 << "(" << robot_list[2].primary.x << "," << robot_list[2].primary.y << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
 			robot3_pos_lb->set_text(aux3.str());
 			
 	}	
@@ -291,15 +350,15 @@ public Gtk::HBox {
 		void calcOrientation(int tag_id){ //Define a orientação da tag em analise;				
 			float sx,sy,px,py;
 
-			sx =  tag_list[tag_id].secundary.x; 
-			sy =  tag_list[tag_id].secundary.y;
+			sx =  robot_list[tag_id].secundary.x; 
+			sy =  robot_list[tag_id].secundary.y;
 			
-			px = tag_list[tag_id].primary.x; 
-			py = tag_list[tag_id].primary.y; 
+			px = robot_list[tag_id].primary.x; 
+			py = robot_list[tag_id].primary.y; 
 			
-			tag_list[tag_id].orientation = atan2(sy-py,sx-px);
-			tag_list[tag_id].position.x = tag_list[tag_id].primary.x;	
-			tag_list[tag_id].position.y = tag_list[tag_id].primary.y;	
+			robot_list[tag_id].orientation = atan2(sy-py,sx-px);
+			robot_list[tag_id].position.x = robot_list[tag_id].primary.x;	
+			robot_list[tag_id].position.y = robot_list[tag_id].primary.y;	
 		}
 
 		float calcDistance(cv::Point primary, cv::Point secundary){
@@ -633,19 +692,23 @@ public Gtk::HBox {
 
 		CamCap() :
 				data(0), width(0), height(0) {
-					
+			fixed_ball[0]=false;
+			fixed_ball[1]=false;
+			fixed_ball[2]=false;
 			fm.set_label("Image");
 			fm.add(iv);
 			info_fm.set_label("Info");
 			notebook.append_page(v, "Vision");
 			notebook.append_page(control, "Control");
 			notebook.append_page(strategy, "Strategy");
-			Tag t;
-				tag_list.push_back(t);
-				tag_list.push_back(t);
-				tag_list.push_back(t);
+			Robot t;
+				robot_list.push_back(t);
+				robot_list.push_back(t);
+				robot_list.push_back(t);
 
-				
+			for(int i=0;i<robot_list.size();i++){
+				robot_list[i].position = cv::Point(-1,-1);
+			}	
 				vector< cv::Point > p;
 				p.push_back(cv::Point(0,0));
 				Team_Sec.push_back(p);

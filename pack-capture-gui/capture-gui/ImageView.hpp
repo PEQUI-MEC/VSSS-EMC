@@ -62,14 +62,34 @@ namespace capture {
 				adjust_mat[3][0] = event->x;
 				adjust_mat[3][1] = event->y;
 				}
-				}
+			}
+				
 				if(adj_counter==4){
 				adjust_rdy = true;
 				adjust_event_flag=false;
 				//cerr << "ADJ END"<< endl;
 				}
+		
+	}
+		}else if(PID_test_flag){
+			robot_pos[0]=0;
+			robot_pos[1]=0;
+			if (event->button == 1)
+			{
+				robot_pos[0] = event->x;
+				robot_pos[1] = event->y;
+
+				//cerr <<robot_pos[0] <<"  -  "<<robot_pos[1]<<endl;
+			} 
+			if(event->button == 3)
+			{
+				tar_pos[0] = event->x;
+				tar_pos[1] = event->y;
+				//cerr <<tar_pos[0] <<"  -  "<<tar_pos[1]<<endl;
 			}
-		}
+			
+			
+			}
 }
 
 
@@ -82,14 +102,21 @@ namespace capture {
 			int width, height, stride;
 			int warp_mat[4][2];
 			int adjust_mat[4][2];
+			double tar_pos[2];
+			double robot_pos[2];
 			int warp_counter =0;
 			int adj_counter =0;
 		    bool warp_event_flag = false;
+		    bool PID_test_flag =false;
 		    bool adjust_event_flag = false;
 		    bool hold_warp = false;
 		    bool adjust_rdy = false;
 			ImageView() :
 					data(0), width(0), height(0), stride(0) {
+					robot_pos[1]=0;	
+					robot_pos[0]=0;
+					tar_pos[1]=-1;
+					tar_pos[0]=-1;
 			}
 
 			void set_data(unsigned char * data, int width, int height) {
