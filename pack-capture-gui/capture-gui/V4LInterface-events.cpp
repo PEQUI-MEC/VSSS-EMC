@@ -34,13 +34,13 @@ namespace capture {
 		quick_load_flag = true;
 		__event_bt_load_cam_prop_clicked();
 		__event_bt_load_warp_clicked();
-		//__event_bt_load_HSV_calib_clicked();
+		__event_bt_load_HSV_calib_clicked();
 
 		__event_bt_warp_clicked();
 
-		HSV_calib_event_flag = true;
+		/*HSV_calib_event_flag = true;
 		bt_HSV_calib.set_active(false);
-		__event_bt_HSV_calib_pressed();
+		__event_bt_HSV_calib_pressed();*/
 
 		// quick_save_flag é setado como false dentro do load_HSV() no camcap.hpp.
 		

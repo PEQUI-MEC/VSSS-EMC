@@ -169,6 +169,7 @@ public Gtk::HBox {
 			 }
 			 else			 
 			 iv.warp_event_flag = v.warp_event_flag;
+
 			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
 			 if(v.save_warp_flag)	 save_warp();
@@ -648,7 +649,8 @@ public Gtk::HBox {
 				v.HScale_Vmax.set_value(v.V[v.Img_id][1]);	
 				v.HScale_Amin.set_value(v.Amin[v.Img_id]);
 				
-				v.load_HSV_calib_flag = false;	
+				v.load_HSV_calib_flag = false;
+				v.quick_load_flag = false;	
 				
 			
 				}
@@ -722,7 +724,7 @@ public Gtk::HBox {
 		v.HScale_offsetR.set_value(v.offsetR);
 		iv.warp_event_flag =false;
 		v.warp_event_flag =false;
-		v.quick_load_flag = false;
+		
 }
 				
 		void warp_transform(cv::Mat image){	
