@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <errno.h>      // Error number definitions
 #include <termios.h>    // POSIX terminal control definitions
+#include "Robot.hpp"
 class SerialW
 {
 public:
@@ -71,6 +72,17 @@ if ( tcsetattr ( USB, TCSANOW, &tty ) != 0) {
 return USB;	
 	}
 	
+
+void sendToRobot(Robot r){
+	stringstream cmd;
+	double temp0= floor(r.Vr*100)/100;
+	double temp1= floor(r.Vl*100)/100;
+	cmd<<r.ID<< temp0<<";"<<temp1<<"#"<<endl;
+	sendSerial(cmd.str());
+	std::cout<<cmd.str()<<std::endl;
+	}
+
+
 void sendSerial(std::string cmd){
 
 int n_written = write( USB, cmd.c_str(),cmd.size());

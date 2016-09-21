@@ -24,18 +24,11 @@
 #include <gtkmm.h>
 #include <math.h>
 #include <fstream>
-
+#include "Robot.hpp"
 boost::mutex io_mutex;
  boost::thread_group threshold_threads;
 struct ImageGray;
 
-struct Robot{
-	cv::Point primary= cv::Point(-1,-1);
-	cv::Point secundary= cv::Point(-1,-1);
-	double orientation;
-	cv::Point position= cv::Point(-1,-1);
-	cv::Point target = cv::Point(-1,-1);
-};
 
 class CamCap: 	
 
@@ -266,12 +259,14 @@ public Gtk::HBox {
 			return true;
 		}
 		void PID_test(){
+			robot_list[0].ID = 'A';
+			robot_list[1].ID = 'B';
+			robot_list[2].ID = 'C';
 			double dist;
 			int old_Selec_index;
 			old_Selec_index = Selec_index;
 			for(int i=0; i<robot_list.size();i++){
-			dist = sqrt(pow((iv.robot_pos[0]-robot_list[i].primary.x),2)+pow((iv.robot_pos[1]-robot_list[i].primary.y),2));
-			//cout<<"Dist "<<dist<<endl;
+			dist = sqrt(pow((iv.robot_pos[0]-robot_list[i].position.x),2)+pow((iv.robot_pos[1]-robot_list[i].position.y),2));
 			if(dist<=17){
 			Selec_index=i;	
 		    iv.tar_pos[0] = -1;
@@ -285,8 +280,8 @@ public Gtk::HBox {
 				fixed_ball[Selec_index]=true;
 
 
-			if(sqrt(pow((robot_list[Selec_index].primary.x-robot_list[Selec_index].target.x),2)+
-					pow((robot_list[Selec_index].primary.y-robot_list[Selec_index].target.y),2))<15){
+			if(sqrt(pow((robot_list[Selec_index].position.x-robot_list[Selec_index].target.x),2)+
+					pow((robot_list[Selec_index].position.y-robot_list[Selec_index].target.y),2))<15){
 
 				robot_list[Selec_index].target = cv::Point(-1,-1);
 				iv.tar_pos[0]=-1;
@@ -299,7 +294,14 @@ public Gtk::HBox {
 			for(int i=0;i<robot_list.size();i++){
 			if(fixed_ball[i])
 			 robot_list[i].target=Ball;
+			 if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1){
+			 robot_list[i].goTo(robot_list[i].target);
+			 control.s.sendToRobot(robot_list[i]);
 			}
+			}
+			
+			
+
 			//cout<<"---------------------------------------------------"<<endl;
 			
 			
@@ -325,10 +327,10 @@ public Gtk::HBox {
 					}
 				}
 				
-				robot.primary = Team_Main[j];
+				robot.position = Team_Main[j];
 				robot.secundary = Team_Sec[index[0]][index[1]];	
 				distanceRef = 999999999.0;			
-				robot_list[index[0]].primary = robot.primary; // colocar em um vetor
+				robot_list[index[0]].position = robot.position; // colocar em um vetor
 				robot_list[index[0]].secundary = robot.secundary; // colocar em um vetor
 				calcOrientation(index[0]);
 
@@ -337,18 +339,17 @@ public Gtk::HBox {
 			// Atualizar as labels de posição dos robos
 
 			stringstream aux1;
-			aux1 << "(" << (robot_list[0].primary.x)*(170/width) << "," << (robot_list[0].primary.y)*(130/height) << "," << round(robot_list[0].orientation*(180/PI)) << ")";
+			aux1 << "(" << round((robot_list[0].position.x)*170/double(w))<< "," << round((robot_list[0].position.y)*130/double(h))<< "," << round(robot_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
 			stringstream aux2;
-			aux2 << "(" << (robot_list[1].primary.x)*(170/width) << "," << (robot_list[1].primary.y)*(130/height) << "," << round((robot_list[1].orientation*(180/PI))) << ")";
+			aux2 << "(" << round((robot_list[1].position.x)*170/double(w))<< "," << round((robot_list[1].position.y)*130/double(h))<< "," << round((robot_list[1].orientation*(180/PI))) << ")";
 			robot2_pos_lb->set_text(aux2.str());
 
 			stringstream aux3;
-			aux3 << "(" << (robot_list[2].primary.x)*(170/width) << "," << (robot_list[2].primary.y)*(130/height) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
-
-			robot3_pos_lb->set_text(aux3.str());
+			aux3 << "(" << round((robot_list[2].position.x)*170/double(w))<< "," << round((robot_list[2].position.y)*130/double(h)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
 			
+			robot3_pos_lb->set_text(aux3.str());
 	}	
 
 		void calcOrientation(int tag_id){ //Define a orientação da tag em analise;				
@@ -357,16 +358,16 @@ public Gtk::HBox {
 			sx =  robot_list[tag_id].secundary.x; 
 			sy =  robot_list[tag_id].secundary.y;
 			
-			px = robot_list[tag_id].primary.x; 
-			py = robot_list[tag_id].primary.y; 
+			px = robot_list[tag_id].position.x; 
+			py = robot_list[tag_id].position.y; 
 			
 			robot_list[tag_id].orientation = atan2(sy-py,sx-px);
-			robot_list[tag_id].position.x = robot_list[tag_id].primary.x;	
-			robot_list[tag_id].position.y = robot_list[tag_id].primary.y;	
+			robot_list[tag_id].position.x = robot_list[tag_id].position.x;	
+			robot_list[tag_id].position.y = robot_list[tag_id].position.y;	
 		}
 
-		float calcDistance(cv::Point primary, cv::Point secundary){
-		return sqrt(pow(primary.x-secundary.x,2) + pow(primary.y-secundary.y,2));
+		float calcDistance(cv::Point position, cv::Point secundary){
+		return sqrt(pow(position.x-secundary.x,2) + pow(position.y-secundary.y,2));
 	}
 			
 		void parallel_tracking(cv::Mat im){
@@ -749,10 +750,11 @@ public Gtk::HBox {
 			notebook.append_page(v, "Vision");
 			notebook.append_page(control, "Control");
 			notebook.append_page(strategy, "Strategy");
-			Robot t;
-				robot_list.push_back(t);
-				robot_list.push_back(t);
-				robot_list.push_back(t);
+			Robot r;
+
+				robot_list.push_back(r);
+				robot_list.push_back(r);
+				robot_list.push_back(r);
 
 			for(int i=0;i<robot_list.size();i++){
 				robot_list[i].position = cv::Point(-1,-1);
