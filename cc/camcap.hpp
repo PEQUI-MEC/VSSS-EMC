@@ -162,6 +162,7 @@ public Gtk::HBox {
 			 }
 			 else			 
 			 iv.warp_event_flag = v.warp_event_flag;
+
 			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
 			 if(v.save_warp_flag)	 save_warp();
@@ -537,19 +538,26 @@ public Gtk::HBox {
 			}
 		
 		void save_warp(){
-			
-			FileChooser loadWindow1;
-	
 			ofstream txtFile;
-			if (loadWindow1.result == Gtk::RESPONSE_OK)
+
+			if (v.quick_save_flag)
 			{
-				txtFile.open(loadWindow1.filename);
+				txtFile.open("WARP_quicksave.txt");
 			}
 			else
 			{
-				v.save_warp_flag = false;
-				return;
+				FileChooser loadWindow1;
+				if (loadWindow1.result == Gtk::RESPONSE_OK)
+				{
+					txtFile.open(loadWindow1.filename);
+				}
+				else
+				{
+					v.save_warp_flag = false;
+					return;
+				}
 			}
+			
 
 			txtFile << iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
 			txtFile << iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
@@ -565,18 +573,24 @@ public Gtk::HBox {
 			}
 			
 		void save_HSV(){
-			
-			FileChooser loadWindow2;
-	
 			ofstream txtFile;
-			if (loadWindow2.result == Gtk::RESPONSE_OK)
+
+			if (v.quick_save_flag)
 			{
-				txtFile.open(loadWindow2.filename);
+				txtFile.open("HSV_quicksave.txt");
 			}
 			else
 			{
-				v.save_HSV_calib_flag = false;
-				return;
+				FileChooser loadWindow2;
+				if (loadWindow2.result == Gtk::RESPONSE_OK)
+				{
+					txtFile.open(loadWindow2.filename);
+				}
+				else
+				{
+					v.save_HSV_calib_flag = false;
+					return;
+				}
 			}
 
 			for(int i=0;i<6;i++){
@@ -589,22 +603,30 @@ public Gtk::HBox {
 			
 			txtFile.close();
 			v.save_HSV_calib_flag = false;
+			v.quick_save_flag = false;
 			}
 			
-		void load_HSV(){	
-	
-			FileChooser loadWindow3;
-	
-			ifstream txtFile;
-			if (loadWindow3.result == Gtk::RESPONSE_OK)
+		void load_HSV(){
+			ifstream txtFile;	
+			
+			if (v.quick_load_flag)
 			{
-				txtFile.open(loadWindow3.filename);
+				txtFile.open("HSV_quicksave.txt");
 			}
 			else
 			{
-				v.load_HSV_calib_flag = false;	
-				return;
+				FileChooser loadWindow3;
+				if (loadWindow3.result == Gtk::RESPONSE_OK)
+				{
+					txtFile.open(loadWindow3.filename);
+				}
+				else
+				{
+					v.load_HSV_calib_flag = false;	
+					return;
+				}
 			}
+			
 
 			string linha;
 			for(int i=0;i<6;i++){
@@ -628,23 +650,34 @@ public Gtk::HBox {
 				v.HScale_Vmax.set_value(v.V[v.Img_id][1]);	
 				v.HScale_Amin.set_value(v.Amin[v.Img_id]);
 				
-				v.load_HSV_calib_flag = false;	
+				v.load_HSV_calib_flag = false;
+				v.quick_load_flag = false;	
+				
 			
 				}
 		
 		void load_warp(){	
-		FileChooser loadWindow4;
-	
 		ifstream txtFile;
-		if (loadWindow4.result == Gtk::RESPONSE_OK)
+		
+		if (v.quick_load_flag)
 		{
-				txtFile.open(loadWindow4.filename);
+			txtFile.open("WARP_quicksave.txt");
 		}
 		else
 		{
-			v.load_warp_flag = false;
-			return;
+			FileChooser loadWindow4;
+			if (loadWindow4.result == Gtk::RESPONSE_OK)
+			{
+				txtFile.open(loadWindow4.filename);
+			}
+			else
+			{
+				v.load_warp_flag = false;
+				return;
+			}
 		}
+		
+		
 
 		string linha;
 
@@ -692,6 +725,7 @@ public Gtk::HBox {
 		v.HScale_offsetR.set_value(v.offsetR);
 		iv.warp_event_flag =false;
 		v.warp_event_flag =false;
+		
 }
 				
 		void warp_transform(cv::Mat image){	

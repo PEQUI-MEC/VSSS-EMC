@@ -16,50 +16,97 @@ namespace capture {
 
 	// signals
 	
+
+	void V4LInterface::__event_bt_quick_save_clicked()
+	{
+		std::cout << "QUICK SAVE" << std::endl;
+		quick_save_flag = true;
+		__event_bt_save_cam_prop_clicked();
+		__event_bt_save_warp_clicked();
+		__event_bt_save_HSV_calib_clicked();
+		
+		// quick_save_flag é setado como false dentro do save_HSV() no camcap.hpp.
+	}
+
+	void V4LInterface::__event_bt_quick_load_clicked()
+	{
+		std::cout << "QUICK LOAD" << std::endl;
+		quick_load_flag = true;
+		__event_bt_load_cam_prop_clicked();
+		__event_bt_load_warp_clicked();
+		__event_bt_load_HSV_calib_clicked();
+
+		__event_bt_warp_clicked();
+
+		/*HSV_calib_event_flag = true;
+		bt_HSV_calib.set_active(false);
+		__event_bt_HSV_calib_pressed();*/
+
+		// quick_save_flag é setado como false dentro do load_HSV() no camcap.hpp.
+		
+	}
+
 	void V4LInterface::__event_bt_save_cam_prop_clicked() {
-		std::cout<<"saving cam prop"<<std::endl;
-		FileChooser loadWindow;
-
 		std::ofstream txtFile;
-		if (loadWindow.result == Gtk::RESPONSE_OK)
-			txtFile.open(loadWindow.filename.c_str());
-		else
-			return;
+		
 
-			struct v4l2_queryctrl qctrl;
-			struct v4l2_control control;
-			std::list<ControlHolder>::iterator iter;
+		if (quick_save_flag)
+		{
+			txtFile.open("CAM_quicksave.txt");
+		}
+		else
+		{
+			std::cout<<"saving cam prop"<<std::endl;
+			FileChooser loadWindow;
+		
+			if (loadWindow.result == Gtk::RESPONSE_OK)
+				txtFile.open(loadWindow.filename.c_str());
+			else
+				return;
+		}
+
+		struct v4l2_queryctrl qctrl;
+		struct v4l2_control control;
+		std::list<ControlHolder>::iterator iter;
 			
-			for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+		for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
 			qctrl = (*iter).qctrl;
 			vcap.get_control(&control, qctrl.id);
 			txtFile <<qctrl.id<<std::endl<<control.value<<std::endl;
-		}
+		}		
 		txtFile.close();
 		
 		}
 	void V4LInterface::__event_bt_load_cam_prop_clicked() {
-		std::cout<<"loading cam prop"<<std::endl;
-		FileChooser loadWindow;
-
 		std::ifstream txtFile;
-		if (loadWindow.result == Gtk::RESPONSE_OK)
-			txtFile.open(loadWindow.filename.c_str());
+		if (quick_load_flag)
+		{
+			txtFile.open("CAM_quicksave.txt");
+		}
 		else
-			return;
+		{
+			std::cout<<"loading cam prop"<<std::endl;
+			FileChooser loadWindow;
 
-			std::string linha;
 			
-			struct v4l2_queryctrl qctrl;
-			struct v4l2_control control;
-			std::list<ControlHolder>::iterator iter;
+			if (loadWindow.result == Gtk::RESPONSE_OK)
+				txtFile.open(loadWindow.filename.c_str());
+			else
+				return;
+		}
+
+		std::string linha;
 			
-			for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
-				getline(txtFile, linha); qctrl.id = atoi(linha.c_str());
-				getline(txtFile, linha); control.value=atoi(linha.c_str());
-				if (!vcap.set_control(qctrl.id, control.value)) {
-					std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value << std::endl;
-				}
+		struct v4l2_queryctrl qctrl;
+		struct v4l2_control control;
+		std::list<ControlHolder>::iterator iter;
+			
+		for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+			getline(txtFile, linha); qctrl.id = atoi(linha.c_str());
+			getline(txtFile, linha); control.value=atoi(linha.c_str());
+			if (!vcap.set_control(qctrl.id, control.value)) {
+				std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value << std::endl;
+			}
 		}
 		txtFile.close();
 		
@@ -119,6 +166,8 @@ namespace capture {
 			bt_warp.set_sensitive(true);
 			bt_save_cam_prop.set_sensitive(true);
 			bt_load_cam_prop.set_sensitive(true);
+			bt_quick_save.set_sensitive(true);
+			bt_quick_load.set_sensitive(true);
 			m_signal_start.emit(true);
 
 		} else {
@@ -146,6 +195,8 @@ namespace capture {
 			bt_warp.set_sensitive(false);
 			bt_save_cam_prop.set_sensitive(false);
 			bt_load_cam_prop.set_sensitive(false);
+			bt_quick_save.set_sensitive(false);
+			bt_quick_load.set_sensitive(false);
 			m_signal_start.emit(false);
 		}
 
@@ -208,6 +259,10 @@ namespace capture {
 			bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
 			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 			bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+			bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
+			bt_auto_calib.set_active(false);
+			auto_calib_flag = false;
+			__event_bt_auto_calib_pressed();
 			bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 		} else {
 			HSV_calib_event_flag=true;
@@ -221,6 +276,7 @@ namespace capture {
 			bt_HSV_left.set_state(Gtk::STATE_NORMAL);
 			bt_HSV_right.set_state(Gtk::STATE_NORMAL);
 			bt_save_HSV_calib.set_state(Gtk::STATE_NORMAL);
+			bt_auto_calib.set_state(Gtk::STATE_NORMAL);
 			bt_load_HSV_calib.set_state(Gtk::STATE_NORMAL);
 		}
 		
@@ -238,6 +294,20 @@ namespace capture {
 	std::cout<<"Loading HSV calibs"<<std::endl;
 	load_HSV_calib_flag=true;
 		}
+
+	void V4LInterface::__event_bt_auto_calib_pressed()
+ 	{
+ 		if (auto_calib_flag)
+ 		{
+ 			std::cout << "AUTO CALIB ENGAGED" << std::endl;
+ 			auto_calib_flag = false;
+ 		}
+ 		else
+ 		{
+ 			std::cout << "auto calib deactivated" << std::endl;
+ 			auto_calib_flag = true;
+ 		}
+ 	}
 		
 		void V4LInterface::__event_bt_right_HSV_calib_clicked(){
 			
