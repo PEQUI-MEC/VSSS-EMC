@@ -43,6 +43,8 @@ namespace capture {
 			bool HSV_calib_event_flag;
 			bool save_HSV_calib_flag;
 			bool load_HSV_calib_flag;
+			bool quick_save_flag = false;
+			bool quick_load_flag = false;
 			
 			Gtk::ToggleButton bt_warp;
 			Gtk::ToggleButton bt_adjust;
@@ -50,6 +52,8 @@ namespace capture {
 			Gtk::Button bt_HSV_left;
 			Gtk::Button bt_HSV_right;
 			Gtk::Button bt_save_HSV_calib;
+
+
 
 			Gtk::Scale HScale_Hmin;
 			Gtk::Scale HScale_Smin;
@@ -94,6 +98,8 @@ namespace capture {
 
 			void __event_bt_save_cam_prop_clicked();
 			void __event_bt_load_cam_prop_clicked();
+			void __event_bt_quick_save_clicked();
+			void __event_bt_quick_load_clicked();
 
 
 			void __event_bt_start_clicked();
@@ -153,6 +159,9 @@ namespace capture {
 			Gtk::Button bt_save_cam_prop;
 		    Gtk::Button bt_load_cam_prop;
 			//-------------------------------
+
+			Gtk::Button bt_quick_save;
+			Gtk::Button bt_quick_load;
 		
 			
 			//-------------------------------

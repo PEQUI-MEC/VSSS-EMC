@@ -180,6 +180,10 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		hbox->pack_start(bt_save_cam_prop, false, true, 5);
 		bt_load_cam_prop.set_label("Load");
 		hbox->pack_start(bt_load_cam_prop, false, true, 5);
+		bt_quick_save.set_label("Quick Save");
+		hbox->pack_start(bt_quick_save, false, true, 5);
+		bt_quick_load.set_label("Quick Load");
+		hbox->pack_start(bt_quick_load, false, true, 5);
 		vbox->pack_start(*hbox, false, true, 0);
 		frm_device_prop.add(*vbox);
 		vbox->pack_start(notebook, false, true, 5);
@@ -1064,7 +1068,10 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			bt_reset_warp.set_sensitive(false);
 			bt_load_warp.set_sensitive(false);
 			bt_save_warp.set_sensitive(false);
+			bt_quick_save.set_sensitive(false);
+			bt_quick_load.set_sensitive(false);
 			m_signal_start.emit(false);
+
 			
 			HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
@@ -1123,6 +1130,8 @@ void V4LInterface::HScale_offsetL_value_changed(){
 
 		bt_save_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_cam_prop_clicked));
 		bt_load_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_cam_prop_clicked));
+		bt_quick_save.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_quick_save_clicked));
+		bt_quick_load.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_quick_load_clicked));
 
 		bt_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_start_clicked));
 		bt_warp.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_clicked));
