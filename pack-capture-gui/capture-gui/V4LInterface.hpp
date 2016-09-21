@@ -43,12 +43,14 @@ namespace capture {
 			bool HSV_calib_event_flag;
 			bool save_HSV_calib_flag;
 			bool load_HSV_calib_flag;
+			bool auto_calib_flag = true;
 			bool quick_save_flag = false;
 			bool quick_load_flag = false;
 			
 			Gtk::ToggleButton bt_warp;
 			Gtk::ToggleButton bt_adjust;
 			Gtk::ToggleButton bt_HSV_calib;
+			Gtk::ToggleButton bt_auto_calib;
 			Gtk::Button bt_HSV_left;
 			Gtk::Button bt_HSV_right;
 			Gtk::Button bt_save_HSV_calib;
@@ -110,6 +112,7 @@ namespace capture {
 			void __event_bt_reset_warp_clicked();
 			     
 			void __event_bt_HSV_calib_pressed();
+			void __event_bt_auto_calib_pressed();
 			void __event_bt_save_HSV_calib_clicked();
 			void __event_bt_load_HSV_calib_clicked();
 			void __event_bt_right_HSV_calib_clicked();

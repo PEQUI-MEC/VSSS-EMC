@@ -259,6 +259,10 @@ namespace capture {
 			bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
 			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 			bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+			bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
+			bt_auto_calib.set_active(false);
+			auto_calib_flag = false;
+			__event_bt_auto_calib_pressed();
 			bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 		} else {
 			HSV_calib_event_flag=true;
@@ -272,6 +276,7 @@ namespace capture {
 			bt_HSV_left.set_state(Gtk::STATE_NORMAL);
 			bt_HSV_right.set_state(Gtk::STATE_NORMAL);
 			bt_save_HSV_calib.set_state(Gtk::STATE_NORMAL);
+			bt_auto_calib.set_state(Gtk::STATE_NORMAL);
 			bt_load_HSV_calib.set_state(Gtk::STATE_NORMAL);
 		}
 		
@@ -289,6 +294,20 @@ namespace capture {
 	std::cout<<"Loading HSV calibs"<<std::endl;
 	load_HSV_calib_flag=true;
 		}
+
+	void V4LInterface::__event_bt_auto_calib_pressed()
+ 	{
+ 		if (auto_calib_flag)
+ 		{
+ 			std::cout << "AUTO CALIB ENGAGED" << std::endl;
+ 			auto_calib_flag = false;
+ 		}
+ 		else
+ 		{
+ 			std::cout << "auto calib deactivated" << std::endl;
+ 			auto_calib_flag = true;
+ 		}
+ 	}
 		
 		void V4LInterface::__event_bt_right_HSV_calib_clicked(){
 			

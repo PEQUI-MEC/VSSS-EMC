@@ -323,6 +323,9 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		bt_save_HSV_calib.set_label("Save");
 		hbox2->pack_start(bt_load_HSV_calib, false, true, 2);
 		bt_load_HSV_calib.set_label("Load");
+		bt_auto_calib.set_label("AUTO Calib.");
+		hbox2->pack_start(bt_auto_calib, false, true, 10);
+
 		
 		
 		hbox3 = new Gtk::HBox();
@@ -1084,6 +1087,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 			bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 			bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+			bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
 			bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
 			
 
@@ -1141,6 +1145,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		bt_save_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_warp_clicked));
 		
 		bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_HSV_calib_pressed));
+		bt_auto_calib.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_auto_calib_pressed));
 		bt_load_HSV_calib.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_HSV_calib_clicked));
 		bt_save_HSV_calib.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_HSV_calib_clicked));
 		bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_right_HSV_calib_clicked));
