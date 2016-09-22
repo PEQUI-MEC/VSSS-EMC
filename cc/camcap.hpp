@@ -25,8 +25,9 @@
 #include <math.h>
 #include <fstream>
 #include "Robot.hpp"
+#include "CPUTimer.cpp"
 boost::mutex io_mutex;
- boost::thread_group threshold_threads;
+boost::thread_group threshold_threads;
 struct ImageGray;
 
 
@@ -35,8 +36,8 @@ class CamCap:
 
 public Gtk::HBox {
 	public:
-	 cv::Mat image_copy;
-	bool warped = false;
+		cv::Mat image_copy;
+		bool warped = false;
 		StrategyGUI strategy;
 		ControlGUI control;
 		capture::V4LInterface v;
@@ -45,7 +46,7 @@ public Gtk::HBox {
 		unsigned char **threshold;
 		Gtk::Notebook notebook;
 		int w, h;
-		
+		CPUTimer timer;
 		// Team_Main[INDEX] - Vector de cv::Point 
 		//   GUARDA A POSIÇÃO DAS TAGS PRIMÁRIAS DO TIME(.x e .y acessam a posição)	
 		vector< cv::Point > Team_Main; 				
@@ -141,6 +142,8 @@ public Gtk::HBox {
 
 		bool capture_and_show() {
 			if (!data) return false;
+			
+			//timer.start();
 			v.vcap.grab_rgb(data);
 			iv.set_data(data, width, height);
 		
@@ -193,6 +196,8 @@ public Gtk::HBox {
 				cout<<" o "<<robot_list[i].orientation*180/PI<<endl;
 				
 		}*/
+			
+			
 				circle(image,robot_list[0].position, 15, cv::Scalar(255,153,204), 2);
 				line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,153,204), 2);
 				
@@ -203,7 +208,8 @@ public Gtk::HBox {
 				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(245,0,155), 2);
 				
 				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
-				 
+			
+				
 				
 				if(iv.PID_test_flag)	 PID_test();
 				else{
@@ -254,9 +260,10 @@ public Gtk::HBox {
 				cout<<"BALL "<<Ball.x<<" "<<Ball.y<<endl;
 		cout<<"--------------------------------------------------------------- "<<endl; 		
 			*/	
-				
-
-
+				//timer.stop();
+				//cout<<"Time: "<<timer.getCPUTotalSecs()<<"	FPS: "<<1/timer.getCPUTotalSecs()<<endl;
+				//timer.reset();
+			
 			return true;
 		}
 		void PID_test(){
@@ -281,27 +288,37 @@ public Gtk::HBox {
 				fixed_ball[Selec_index]=true;
 
 
-			if(sqrt(pow((robot_list[Selec_index].position.x-robot_list[Selec_index].target.x),2)+
-					pow((robot_list[Selec_index].position.y-robot_list[Selec_index].target.y),2))<15){
-
-				robot_list[Selec_index].target = cv::Point(-1,-1);
-				iv.tar_pos[0]=-1;
-				iv.tar_pos[1]=-1;
-			}else if(fixed_ball[Selec_index])
+			if(fixed_ball[Selec_index])
 			    robot_list[Selec_index].target=Ball;
 			else
 				robot_list[Selec_index].target = cv::Point(iv.tar_pos[0],iv.tar_pos[1]);
 			}
+			
+			
 			for(int i=0;i<robot_list.size();i++){
 			if(fixed_ball[i])
 			 robot_list[i].target=Ball;
+			 			
+			 if(sqrt(pow((robot_list[i].position.x-robot_list[i].target.x),2)+
+				pow((robot_list[i].position.y-robot_list[i].target.y),2))<15){
+
+				robot_list[i].target = cv::Point(-1,-1);
+				iv.tar_pos[0]=-1;
+				iv.tar_pos[1]=-1;
+				robot_list[i].Vr = 0 ;
+				robot_list[i].Vl = 0 ;
+			}
 			 if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1){
 			 robot_list[i].goTo(robot_list[i].target);
 			 control.s.sendToRobot(robot_list[i]);
-			}
+			}else{
+				robot_list[i].Vr = 0 ;
+				robot_list[i].Vl = 0 ;
+				}
+				
 			}
 			
-			
+			//control.s.sendToThree(robot_list[0],robot_list[1],robot_list[2]);
 
 			//cout<<"---------------------------------------------------"<<endl;
 			
@@ -773,8 +790,9 @@ public Gtk::HBox {
 		 } 
 	}
 
-		CamCap() :
-				data(0), width(0), height(0) {
+		CamCap() : data(0), width(0), height(0) {
+			
+		
 			fixed_ball[0]=false;
 			fixed_ball[1]=false;
 			fixed_ball[2]=false;
