@@ -13,7 +13,7 @@ public:
 		double thetaError = 0;
 		double thetaErrorSum = 0;
 		double thetaErrorPrevious = 0;
-		double vmax = 0.5*(400  * 2 * PI*0.016 /60); // m/s
+		double vmax = (400  * 2 * PI*0.016 /60); // m/s
 		double wmax = (2*vmax)/0.08; // rad/s
 		
 		float Kp = 0.35;
@@ -43,7 +43,7 @@ void goTo(cv::Point targetPos){
 	double targetTheta = (atan2(targetPos.y - currentPos.y, targetPos.x - currentPos.x));
 	
 	currentTheta=atan2(sin(currentTheta),cos(currentTheta));
-
+		
 	if(((atan2(sin(targetTheta-currentTheta+PI/2),cos(targetTheta-currentTheta+PI/2))))<0){
 		backward=true;
 	}
@@ -55,7 +55,7 @@ void goTo(cv::Point targetPos){
 		currentTheta=currentTheta+PI;
 		currentTheta=atan2(sin(currentTheta),cos(currentTheta));
 	}
-	
+/*
 	thetaError = atan2(sin(targetTheta-currentTheta), cos(targetTheta-currentTheta));
 
 	thetaErrorSum+=thetaError;
@@ -70,7 +70,29 @@ void goTo(cv::Point targetPos){
 		}	
 		Vr	= (((2*V*vmax) - (W*wmax*0.08))/(2*0.016))/(2*PI); 
 		Vl	= (((2*V*vmax) + (W*wmax*0.08))/(2*0.016))/(2*PI); 
+		*/
+	
+		if(backward){
+		V = -1;	
+		}else{
+		V = 1;
+		}
 		
+		Vr = ((V-sin(targetTheta-currentTheta)));
+		Vl = ((V+sin(targetTheta-currentTheta)));
+		
+		if (abs(Vl)>1){
+		Vl=1*Vl/abs(Vl);
+		}
+		if (abs(Vr)>1){
+		Vr=1*Vr/abs(Vr);
+		}
+	
+	
+
+		Vl=6*Vl;
+		Vr=6*Vr;
+			
 	/*
 		if(abs(Vr)>6&&abs(Vr)>abs(Vl)){
 			
