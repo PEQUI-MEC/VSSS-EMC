@@ -162,7 +162,34 @@ void V4LInterface::HScale_offsetL_value_changed(){
 
 		Gtk::Label * label;
 		Gtk::Table * table;
-
+		Gtk::HBox * hbox;
+		Gtk::VBox * vbox;
+		
+		// Adiciona a vbox (principal) no frame
+		vbox = new Gtk::VBox();
+		
+		
+		// Primeira Hbox com oos botões Warp, Reset, Save, Load, Adjust
+		hbox = new Gtk::HBox();
+		hbox->set_border_width(5);
+		hbox->set_halign(Gtk::ALIGN_CENTER);
+		
+		
+		
+		bt_save_cam_prop.set_label("Save");
+		hbox->pack_start(bt_save_cam_prop, false, true, 5);
+		bt_load_cam_prop.set_label("Load");
+		hbox->pack_start(bt_load_cam_prop, false, true, 5);
+		bt_quick_save.set_label("Quick Save");
+		hbox->pack_start(bt_quick_save, false, true, 5);
+		bt_quick_load.set_label("Quick Load");
+		hbox->pack_start(bt_quick_load, false, true, 5);
+		vbox->pack_start(*hbox, false, true, 0);
+		frm_device_prop.add(*vbox);
+		vbox->pack_start(notebook, false, true, 5);
+		
+		
+		
 		table = new Gtk::Table(4, 4, false);
 
 		label = new Gtk::Label("Input: ");
@@ -197,8 +224,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		table->attach(sp_height, 5, 6, 3, 4, Gtk::FILL, Gtk::EXPAND, 0, 0);
 
 		notebook.append_page(*table, "Properties");
-
-		frm_device_prop.add(notebook);
+		
 		
 		frm_device_prop.set_label("Device Prop");
 
@@ -297,6 +323,9 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		bt_save_HSV_calib.set_label("Save");
 		hbox2->pack_start(bt_load_HSV_calib, false, true, 2);
 		bt_load_HSV_calib.set_label("Load");
+		bt_auto_calib.set_label("AUTO Calib.");
+		hbox2->pack_start(bt_auto_calib, false, true, 10);
+
 		
 		
 		hbox3 = new Gtk::HBox();
@@ -970,7 +999,6 @@ void V4LInterface::HScale_offsetL_value_changed(){
 
 				case V4L2_CTRL_TYPE_BOOLEAN:
 
-					// Comentamos a linha de baixo para deixar as check boxes desmarcadas ao iniciar
 					static_cast<Gtk::CheckButton *>(wctrl)->set_active(control.value == 1);
 					break;
 
@@ -1027,6 +1055,26 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			HSV_calib_event_flag=false;
 			save_HSV_calib_flag=false;
 			load_HSV_calib_flag=false;
+
+			cb_device.set_sensitive(true);
+			cb_input.set_sensitive(true);
+			cb_standard.set_sensitive(true);
+			cb_frame_size.set_sensitive(true);
+			cb_format_desc.set_sensitive(true);
+			sp_width.set_sensitive(true);
+			sp_height.set_sensitive(true);
+			cb_frame_interval.set_sensitive(true);
+			bt_HSV_calib.set_sensitive(false);
+			bt_warp.set_sensitive(false);
+			bt_save_cam_prop.set_sensitive(false);
+			bt_load_cam_prop.set_sensitive(false);
+			bt_reset_warp.set_sensitive(false);
+			bt_load_warp.set_sensitive(false);
+			bt_save_warp.set_sensitive(false);
+			bt_quick_save.set_sensitive(false);
+			bt_quick_load.set_sensitive(false);
+			m_signal_start.emit(false);
+
 			
 			HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
@@ -1039,6 +1087,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 			bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 			bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+			bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
 			bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
 			
 
@@ -1082,6 +1131,12 @@ void V4LInterface::HScale_offsetL_value_changed(){
 
 		__update_cb_device();
 
+
+		bt_save_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_cam_prop_clicked));
+		bt_load_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_cam_prop_clicked));
+		bt_quick_save.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_quick_save_clicked));
+		bt_quick_load.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_quick_load_clicked));
+
 		bt_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_start_clicked));
 		bt_warp.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_clicked));
 		bt_reset_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_reset_warp_clicked));
@@ -1090,6 +1145,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		bt_save_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_warp_clicked));
 		
 		bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_HSV_calib_pressed));
+		bt_auto_calib.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_auto_calib_pressed));
 		bt_load_HSV_calib.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_HSV_calib_clicked));
 		bt_save_HSV_calib.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_HSV_calib_clicked));
 		bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_right_HSV_calib_clicked));

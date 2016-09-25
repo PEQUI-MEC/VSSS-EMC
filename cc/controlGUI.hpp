@@ -22,22 +22,40 @@
 #include <fstream>
 #include <string>
 #include "SerialW.hpp"
+#include "filechooser.cpp"
 
 class ControlGUI: public Gtk::VBox
 {
 public:
 	SerialW s;
+
+
 	// Flag para saber se o botão PID está pressionado ou não.
-	bool PID_bt_event_flag = false;
+
 	bool Serial_Enabled;
+	bool PID_bt_event_flag = false;
+	bool PID_test_flag = false;
 	// Containers para o conteúdo da interface gráfica
 	Gtk::Frame PID_fm;
 	Gtk::Frame Serial_fm;
+	Gtk::Frame Test_fm;
+	Gtk::HBox Top_hbox;
 	Gtk::VBox Serial_vbox;
+	Gtk::VBox Test_vbox;
 	Gtk::HBox Serial_hbox[2]; 
 	Gtk::VBox PID_vbox;
 	Gtk::HBox PID_hbox[10]; 
 	Gtk::Label *label;
+	
+	// Variáveis para guardar as informações de PID de posição e velocidade de cada jogador
+	// ÍNDICES: [0] = P, [1] = I, [2] = D.
+	double ojuara_pos_PID[3] = {0}, ojuara_vel_PID[3] = {0};
+	double lenhador_pos_PID[3] = {0}, lenhador_vel_PID[3] = {0};
+	double goleiro_pos_PID[3] = {0}, goleiro_vel_PID[3] = {0};
+
+	//Botoes para alterar entre PID de posição e de velocidade
+	Gtk::ToggleButton button_vel_PID, button_pos_PID, button_PID_Test;
+	bool PID_flag = true;
 	
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
@@ -72,13 +90,21 @@ public:
 
 	ControlGUI()
 	{
-		
+		PID_bt_event_flag=false;
+		PID_bt_event_flag =false;
 		Serial_Enabled=false;
 		// Adicionar o frame do Serial e sua VBOX
-		pack_start(Serial_fm, false, true, 5);
+		pack_start(Top_hbox, false, true, 5);
+		Top_hbox.pack_start(Serial_fm, false, true, 5);
 		Serial_fm.set_label("Serial");
 		Serial_fm.add(Serial_vbox);
 		
+		Top_hbox.pack_start(Test_fm, false, true, 5);
+	
+		Test_fm.set_label("Test");
+		Test_fm.add(Test_vbox);
+		button_PID_Test.set_label("PID Test on Click");
+		Test_vbox.pack_start(button_PID_Test, false, true, 5);
 		
 		Serial_hbox[0].pack_start(cb_serial, false, true, 5);
 		Serial_hbox[0].pack_start(bt_Serial_Start, false, true, 5);
@@ -135,6 +161,13 @@ public:
 		PID_hbox[0].pack_start(save_bt, false, true, 5);
 		PID_hbox[0].pack_start(load_bt, false, true, 5);
 		PID_vbox.pack_start(PID_hbox[0], false, true, 5);
+		// Botões para mudar entre PID de posição e de velocidade
+		label = new Gtk::Label("Selected PID:");
+		button_pos_PID.set_label("Position");
+		button_vel_PID.set_label("Speed");
+		PID_hbox[0].pack_start(*label, false, true, 5);
+		PID_hbox[0].pack_start(button_pos_PID, false, true, 5);
+		PID_hbox[0].pack_start(button_vel_PID, false, true, 5);
 		
 		// Label "Goleiro:"
 		label = new Gtk::Label("Goleiro:");
@@ -209,7 +242,8 @@ public:
 		PID_vbox.pack_start(PID_hbox[4], false, true, 5);
 		PID_hbox[4].pack_start(*label, false, true, 5);
 		PID_hbox[4].pack_start(barP_lenhador, false, true, 5);
-		PID_hbox[4].pack_start(boxP_lenhador, false, true, 5);
+		PID_hbox[4].pack_start(boxP_lenhador, false, true
+			, 5);
 		PID_hbox[4].pack_start(buttonP_lenhador, false, true, 5);
 		
 		// Hbox com o I do lenhador (label, Hscale [bar], Entry e button)
@@ -331,17 +365,24 @@ public:
 		buttonP_ojuara.set_state(Gtk::STATE_INSENSITIVE);
 		buttonI_ojuara.set_state(Gtk::STATE_INSENSITIVE);
 		buttonD_ojuara.set_state(Gtk::STATE_INSENSITIVE);
+		button_vel_PID.set_state(Gtk::STATE_INSENSITIVE);
+		button_pos_PID.set_state(Gtk::STATE_INSENSITIVE);
+		button_vel_PID.set_active(false);
+		button_pos_PID.set_active(true);
 		
 		
 		
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
+		button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
 		bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
 		bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
 		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
 		PID_bt.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::event_PID_bt_pressed));
 		save_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::event_save_bt_signal_clicked));
 		load_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::event_load_bt_signal_clicked));
+		button_pos_PID.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::event_button_pos_PID_pressed));
+		button_vel_PID.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::event_button_vel_PID_pressed));
 		barP_goleiro.signal_value_changed().connect(sigc::mem_fun(*this, &ControlGUI::event_barP_goleiro_value_changed));
 		barP_lenhador.signal_value_changed().connect(sigc::mem_fun(*this, &ControlGUI::event_barP_lenhador_value_changed));
 		barP_ojuara.signal_value_changed().connect(sigc::mem_fun(*this, &ControlGUI::event_barP_ojuara_value_changed));
@@ -402,6 +443,8 @@ public:
 		buttonP_ojuara.set_state(Gtk::STATE_NORMAL);
 		buttonI_ojuara.set_state(Gtk::STATE_NORMAL);
 		buttonD_ojuara.set_state(Gtk::STATE_NORMAL);
+		button_vel_PID.set_state(Gtk::STATE_NORMAL);
+		button_pos_PID.set_state(Gtk::STATE_NORMAL);
 		
 	} else {
 		PID_bt_event_flag = !PID_bt_event_flag;
@@ -434,6 +477,8 @@ public:
 		buttonP_ojuara.set_state(Gtk::STATE_INSENSITIVE);
 		buttonI_ojuara.set_state(Gtk::STATE_INSENSITIVE);
 		buttonD_ojuara.set_state(Gtk::STATE_INSENSITIVE);
+		button_vel_PID.set_state(Gtk::STATE_INSENSITIVE);
+		button_pos_PID.set_state(Gtk::STATE_INSENSITIVE);
 	}
 	
 	
@@ -441,95 +486,234 @@ public:
 
 void event_save_bt_signal_clicked() {
 	// Salva os valores do PID de cada jogador no arquivo PID_config.txt
+
+	FileChooser loadWindow;
+
 	ofstream txtFile;
-	txtFile.open("PID_config.txt");
-	txtFile << boxP_goleiro.get_text() <<std::endl;
-	txtFile << boxI_goleiro.get_text() <<std::endl;
-	txtFile << boxD_goleiro.get_text() <<std::endl;
-	txtFile << boxP_lenhador.get_text() <<std::endl;
-	txtFile << boxI_lenhador.get_text() <<std::endl;
-	txtFile << boxD_lenhador.get_text() <<std::endl;
-	txtFile << boxP_ojuara.get_text() <<std::endl;
-	txtFile << boxI_ojuara.get_text() <<std::endl;
-	txtFile << boxD_ojuara.get_text() <<std::endl;
+	if (loadWindow.result == Gtk::RESPONSE_OK)
+		txtFile.open(loadWindow.filename);
+	else
+		return;
+
+	txtFile << goleiro_pos_PID[0] <<std::endl;
+	txtFile << goleiro_pos_PID[1] <<std::endl;
+	txtFile << goleiro_pos_PID[2] <<std::endl;
+	txtFile << lenhador_pos_PID[0] <<std::endl;
+	txtFile << lenhador_pos_PID[1] <<std::endl;
+	txtFile << lenhador_pos_PID[2] <<std::endl;
+	txtFile << ojuara_pos_PID[0] <<std::endl;
+	txtFile << ojuara_pos_PID[1] <<std::endl;
+	txtFile << ojuara_pos_PID[2] <<std::endl;
+
+	txtFile << goleiro_vel_PID[0] <<std::endl;
+	txtFile << goleiro_vel_PID[1] <<std::endl;
+	txtFile << goleiro_vel_PID[2] <<std::endl;
+	txtFile << lenhador_vel_PID[0] <<std::endl;
+	txtFile << lenhador_vel_PID[1] <<std::endl;
+	txtFile << lenhador_vel_PID[2] <<std::endl;
+	txtFile << ojuara_vel_PID[0] <<std::endl;
+	txtFile << ojuara_vel_PID[1] <<std::endl;
+	txtFile << ojuara_vel_PID[2] <<std::endl;
 	
 	// Fecha o arquivo
 	txtFile.close();
 }
 
 void event_load_bt_signal_clicked() {
+	FileChooser loadWindow;
 	// Carrega os valores do PID de cada jogador do arquivo PID_config.txt
 	ifstream txtFile;
 	string linha;
-	txtFile.open("PID_config.txt");
-	getline(txtFile, linha); boxP_goleiro.set_text(linha.c_str());
-	getline(txtFile, linha); boxI_goleiro.set_text(linha.c_str());
-	getline(txtFile, linha); boxD_goleiro.set_text(linha.c_str());
-	getline(txtFile, linha); boxP_lenhador.set_text(linha.c_str());
-	getline(txtFile, linha); boxI_lenhador.set_text(linha.c_str());
-	getline(txtFile, linha); boxD_lenhador.set_text(linha.c_str());
-	getline(txtFile, linha); boxP_ojuara.set_text(linha.c_str());
-	getline(txtFile, linha); boxI_ojuara.set_text(linha.c_str());
-	getline(txtFile, linha); boxD_ojuara.set_text(linha.c_str());
+	if (loadWindow.result == Gtk::RESPONSE_OK)
+		txtFile.open(loadWindow.filename);
+	else
+		return;
+
+	getline(txtFile, linha); goleiro_pos_PID[0] = std::stod(linha.c_str());
+	getline(txtFile, linha); goleiro_pos_PID[1] = std::stod(linha.c_str());
+	getline(txtFile, linha); goleiro_pos_PID[2] = std::stod(linha.c_str());
+	getline(txtFile, linha); lenhador_pos_PID[0] = std::stod(linha.c_str());
+	getline(txtFile, linha); lenhador_pos_PID[1] = std::stod(linha.c_str());
+	getline(txtFile, linha); lenhador_pos_PID[2] = std::stod(linha.c_str());
+	getline(txtFile, linha); ojuara_pos_PID[0] = std::stod(linha.c_str());
+	getline(txtFile, linha); ojuara_pos_PID[1] = std::stod(linha.c_str());
+	getline(txtFile, linha); ojuara_pos_PID[2] = std::stod(linha.c_str());
+
+	getline(txtFile, linha); goleiro_vel_PID[0] = std::stod(linha.c_str());
+	getline(txtFile, linha); goleiro_vel_PID[1] = std::stod(linha.c_str());
+	getline(txtFile, linha); goleiro_vel_PID[2] = std::stod(linha.c_str());
+	getline(txtFile, linha); lenhador_vel_PID[0] = std::stod(linha.c_str());
+	getline(txtFile, linha); lenhador_vel_PID[1] = std::stod(linha.c_str());
+	getline(txtFile, linha); lenhador_vel_PID[2] = std::stod(linha.c_str());
+	getline(txtFile, linha); ojuara_vel_PID[0] = std::stod(linha.c_str());
+	getline(txtFile, linha); ojuara_vel_PID[1] = std::stod(linha.c_str());
+	getline(txtFile, linha); ojuara_vel_PID[2] = std::stod(linha.c_str());
 	
 	//Ajusta as Hscales para os valores lidos no load
-	event_buttonP_goleiro_signal_clicked();
-	event_buttonI_goleiro_signal_clicked();
-	event_buttonD_goleiro_signal_clicked();
-	event_buttonP_lenhador_signal_clicked();
-	event_buttonI_lenhador_signal_clicked();
-	event_buttonD_lenhador_signal_clicked();
-	event_buttonP_ojuara_signal_clicked();
-	event_buttonI_ojuara_signal_clicked();
-	event_buttonD_ojuara_signal_clicked();
+	if (button_vel_PID.get_active())
+	{
+		barP_goleiro.set_value(goleiro_vel_PID[0]);
+		barI_goleiro.set_value(goleiro_vel_PID[1]);
+		barD_goleiro.set_value(goleiro_vel_PID[2]);
+
+		barP_lenhador.set_value(lenhador_vel_PID[0]);
+		barI_lenhador.set_value(lenhador_vel_PID[1]);
+		barD_lenhador.set_value(lenhador_vel_PID[2]);
+
+		barP_ojuara.set_value(ojuara_vel_PID[0]);
+		barI_ojuara.set_value(ojuara_vel_PID[1]);
+		barD_ojuara.set_value(ojuara_vel_PID[2]);
+	}
+	if (button_pos_PID.get_active())
+	{
+
+		barP_goleiro.set_value(goleiro_pos_PID[0]);
+		barI_goleiro.set_value(goleiro_pos_PID[1]);
+		barD_goleiro.set_value(goleiro_pos_PID[2]);
+
+		barP_lenhador.set_value(lenhador_pos_PID[0]);
+
+		barI_lenhador.set_value(lenhador_pos_PID[1]);
+		barD_lenhador.set_value(lenhador_pos_PID[2]);
+
+		barP_ojuara.set_value(ojuara_pos_PID[0]);
+		barI_ojuara.set_value(ojuara_pos_PID[1]);
+		barD_ojuara.set_value(ojuara_pos_PID[2]);
+	}
 	
 	// Fecha o arquivo
 	txtFile.close();
 }
 
+void event_button_vel_PID_pressed()
+{
+	if (PID_flag)
+	{
+		button_pos_PID.set_active(false);
+		PID_flag = false;
+
+		barP_goleiro.set_value(goleiro_vel_PID[0]);
+		barI_goleiro.set_value(goleiro_vel_PID[1]);
+		barD_goleiro.set_value(goleiro_vel_PID[2]);
+
+		barP_lenhador.set_value(lenhador_vel_PID[0]);
+		barI_lenhador.set_value(lenhador_vel_PID[1]);
+		barD_lenhador.set_value(lenhador_vel_PID[2]);
+
+		barP_ojuara.set_value(ojuara_vel_PID[0]);
+		barI_ojuara.set_value(ojuara_vel_PID[1]);
+		barD_ojuara.set_value(ojuara_vel_PID[2]);
+	}
+	else
+	{
+		button_vel_PID.set_active(false);
+	}
+}
+
+void event_button_pos_PID_pressed() 
+{
+	if (!PID_flag)
+	{
+		button_vel_PID.set_active(false);
+		PID_flag = true;
+
+		barP_goleiro.set_value(goleiro_pos_PID[0]);
+		barI_goleiro.set_value(goleiro_pos_PID[1]);
+		barD_goleiro.set_value(goleiro_pos_PID[2]);
+
+		barP_lenhador.set_value(lenhador_pos_PID[0]);
+		barI_lenhador.set_value(lenhador_pos_PID[1]);
+		barD_lenhador.set_value(lenhador_pos_PID[2]);
+
+		barP_ojuara.set_value(ojuara_pos_PID[0]);
+		barI_ojuara.set_value(ojuara_pos_PID[1]);
+		barD_ojuara.set_value(ojuara_pos_PID[2]);
+	}
+	else
+	{
+		button_pos_PID.set_active(false);
+	}
+}
+
 void event_barP_goleiro_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxP_goleiro.set_text(Glib::ustring::format(barP_goleiro.get_value()));
+		if (button_pos_PID.get_active())
+			goleiro_pos_PID[0] = barP_goleiro.get_value();
+		if (button_vel_PID.get_active())
+			goleiro_vel_PID[0] = barP_goleiro.get_value();
 	}
 	
 void event_barP_lenhador_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxP_lenhador.set_text(Glib::ustring::format(barP_lenhador.get_value()));
+		if (button_pos_PID.get_active())
+			lenhador_pos_PID[0] = barP_lenhador.get_value();
+		if (button_vel_PID.get_active())
+			lenhador_vel_PID[0] = barP_lenhador.get_value();
 	}
 	
 void event_barP_ojuara_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxP_ojuara.set_text(Glib::ustring::format(barP_ojuara.get_value()));
+		if (button_pos_PID.get_active())
+			ojuara_pos_PID[0] = barP_ojuara.get_value();
+		if (button_vel_PID.get_active())
+			ojuara_vel_PID[0] = barP_ojuara.get_value();
 	}
 
 void event_barI_goleiro_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxI_goleiro.set_text(Glib::ustring::format(barI_goleiro.get_value()));
+		if (button_pos_PID.get_active())
+			goleiro_pos_PID[1] = barI_goleiro.get_value();
+		if (button_vel_PID.get_active())
+			goleiro_vel_PID[1] = barI_goleiro.get_value();
 	}
 
 void event_barI_lenhador_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxI_lenhador.set_text(Glib::ustring::format(barI_lenhador.get_value()));
+		if (button_pos_PID.get_active())
+			lenhador_pos_PID[1] = barI_lenhador.get_value();
+		if (button_vel_PID.get_active())
+			lenhador_vel_PID[1] = barI_lenhador.get_value();
 	}
 	
 void event_barI_ojuara_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxI_ojuara.set_text(Glib::ustring::format(barI_ojuara.get_value()));
+		if (button_pos_PID.get_active())
+			ojuara_pos_PID[1] = barI_ojuara.get_value();
+		if (button_vel_PID.get_active())
+			ojuara_vel_PID[1] = barI_ojuara.get_value();
 	}
 	
 void event_barD_goleiro_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxD_goleiro.set_text(Glib::ustring::format(barD_goleiro.get_value()));
+		if (button_pos_PID.get_active())
+			goleiro_pos_PID[2] = barD_goleiro.get_value();
+		if (button_vel_PID.get_active())
+			goleiro_vel_PID[2] = barD_goleiro.get_value();
 	}
 	
 void event_barD_lenhador_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxD_lenhador.set_text(Glib::ustring::format(barD_lenhador.get_value()));
+		if (button_pos_PID.get_active())
+			lenhador_pos_PID[2] = barD_lenhador.get_value();
+		if (button_vel_PID.get_active())
+			lenhador_vel_PID[2] = barD_lenhador.get_value();
 	}
 	
 void event_barD_ojuara_value_changed() {
 	// Essa função espelha o valor da HScale na TextBox (Entry) correspondente
 		boxD_ojuara.set_text(Glib::ustring::format(barD_ojuara.get_value()));
+		if (button_pos_PID.get_active())
+			ojuara_pos_PID[2] = barD_ojuara.get_value();
+		if (button_vel_PID.get_active())
+			ojuara_vel_PID[2] = barD_ojuara.get_value();
 	}
 	
 void event_buttonP_goleiro_signal_clicked() {
@@ -643,7 +827,7 @@ void event_buttonP_ojuara_signal_clicked() {
 
 
 void event_buttonI_ojuara_signal_clicked() {
-			// Essa função pega o conteúdo da text box (entry) I do ojuara,
+	// Essa função pega o conteúdo da text box (entry) I do ojuara,
 	// converte para string, muda o '.' para ',' (para não dar merda depois),
 	// e passa o valor para a barra I do ojuara.
 	std::string s = boxI_ojuara.get_text();
@@ -688,6 +872,23 @@ int fd;
 	
 	
 	}*/
+void _PID_Test(){
+	if (PID_test_flag)
+	{
+		
+		PID_test_flag = false;
+		std::cout<<PID_test_flag<<endl;
+
+	}
+	else
+	{
+		PID_test_flag = true;
+			std::cout<<PID_test_flag<<endl;
+	}
+
+	}
+
+
 
 void _start_serial(){
 		int fd;	
