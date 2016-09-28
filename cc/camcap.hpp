@@ -39,6 +39,7 @@ public Gtk::HBox {
 		Strategy strats;
 		cv::Mat image_copy;
 		bool warped = false;
+		bool start_game_flag = false;
 		StrategyGUI strategy;
 		ControlGUI control;
 		capture::V4LInterface v;
@@ -83,6 +84,9 @@ public Gtk::HBox {
 		vector<string> robot_pos;
 		Gtk::Button start_game_bt;
 		Gtk::Frame robots_pos_fm;
+
+		Gtk::Image red_button_released;
+		Gtk::Image red_button_pressed;
 
 		Gtk::Frame robots_id_fm;
 
@@ -979,6 +983,11 @@ public Gtk::HBox {
 			notebook.append_page(strategy, "Strategy");
 			Robot r;
 
+			red_button_pressed.set("PASTADUSBOTAO/rsz_perspective_button_stop_pressed_icon.png");
+			red_button_released.set("PASTADUSBOTAO/rsz_perspective-button-stop-icon.png");
+			red_button_released.set_size_request(100,100);
+			red_button_pressed.set_size_request(100,100);
+
 
 
 				robot_list.push_back(r);
@@ -1022,8 +1031,10 @@ public Gtk::HBox {
 			buttons_vbox.pack_start(start_game_hbox, false, true, 5);
 			start_game_hbox.pack_start(start_game_bt, false, true, 5);
 			buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
-			start_game_bt.set_label("BRING IT ON!");
+			//start_game_bt.set_label("BRING IT ON!");
+			start_game_bt.property_always_show_image();
 			start_game_bt.set_size_request(50,100);
+			start_game_bt.set_image(red_button_released);
 
 
 			
@@ -1111,7 +1122,16 @@ public Gtk::HBox {
 
 		void event_start_game_bt_signal_clicked()
 		{
-			cout << "BRING IT ON!" <<std::endl;
+			if (!start_game_flag)
+			{
+				start_game_flag = true;
+				start_game_bt.set_image(red_button_pressed);
+			}
+			else
+			{
+				start_game_flag = false;
+				start_game_bt.set_image(red_button_released);
+			}
 		}
 
 		void createPositionsFrame()
