@@ -16,6 +16,7 @@ namespace capture {
 	class ImageView: public Gtk::DrawingArea {
 		
 		virtual bool on_button_press_event(GdkEventButton *event){
+		
 		if(warp_event_flag){
 			//cerr <<"EVENT"<<endl;
 			if (event->button == 1)
@@ -26,16 +27,17 @@ namespace capture {
 				warp_mat[warp_counter][1] =  event->y;
 				warp_counter++;
 				if(warp_counter==4){
-				//	cerr <<"COUNTER END"<<endl;
-				warp_event_flag = false;
-				hold_warp = true;
-				warp_counter=0;
-			}
+					//	cerr <<"COUNTER END"<<endl;
+					warp_event_flag = false;
+					hold_warp = true;
+					warp_counter=0;
+				}
 				return true;
 			}
           
 					return true;
 		}
+		
 		if(adjust_event_flag){
 			if (event->button == 1)
 			{
@@ -70,7 +72,8 @@ namespace capture {
 				//cerr << "ADJ END"<< endl;
 				}
 		
-	}
+		    }
+		
 		}else if(PID_test_flag){
 			robot_pos[0]=0;
 			robot_pos[1]=0;
@@ -89,7 +92,18 @@ namespace capture {
 			}
 			
 			
+		}
+		
+		if (auto_calib_flag){
+			if (event->button == 1)	{	
+				pointClicked = cv::Point((int)event->x,(int)event->y);
+				cout<<"("<<(int)event->x<<","<<(int)event->y<<")"<<endl;
+				auto_calib_flag = false; // Analisar
+				//return true;
+				
 			}
+		}
+		
 }
 
 
@@ -104,6 +118,8 @@ namespace capture {
 			int adjust_mat[4][2];
 			double tar_pos[2];
 			double robot_pos[2];
+			cv::Point pointClicked;
+			
 			int warp_counter =0;
 			int adj_counter =0;
 		    bool warp_event_flag = false;
@@ -111,6 +127,8 @@ namespace capture {
 		    bool adjust_event_flag = false;
 		    bool hold_warp = false;
 		    bool adjust_rdy = false;
+		    bool auto_calib_flag = false;
+		    
 			ImageView() :
 					data(0), width(0), height(0), stride(0) {
 					robot_pos[1]=0;	
@@ -147,7 +165,7 @@ namespace capture {
 			void refresh() {
 				this->queue_draw();
 			}
-
+			
 			virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 				add_events(Gdk::BUTTON_PRESS_MASK); 
 				if (!data) return false;

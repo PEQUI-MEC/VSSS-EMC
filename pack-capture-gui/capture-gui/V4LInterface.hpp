@@ -44,7 +44,7 @@ namespace capture {
 			bool HSV_calib_event_flag;
 			bool save_HSV_calib_flag;
 			bool load_HSV_calib_flag;
-			bool auto_calib_flag = true;
+			bool auto_calib_flag = false;
 			bool quick_save_flag = false;
 			bool quick_load_flag = false;
 			

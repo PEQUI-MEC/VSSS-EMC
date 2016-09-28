@@ -168,6 +168,7 @@ namespace capture {
 			bt_load_cam_prop.set_sensitive(true);
 			bt_quick_save.set_sensitive(true);
 			bt_quick_load.set_sensitive(true);
+			bt_auto_calib.set_sensitive(true);
 			m_signal_start.emit(true);
 
 		} else {
@@ -197,6 +198,7 @@ namespace capture {
 			bt_load_cam_prop.set_sensitive(false);
 			bt_quick_save.set_sensitive(false);
 			bt_quick_load.set_sensitive(false);
+			bt_auto_calib.set_sensitive(false);
 			m_signal_start.emit(false);
 		}
 
@@ -218,8 +220,21 @@ namespace capture {
 	bt_load_warp.set_sensitive(false);
 	bt_save_warp.set_sensitive(false);
 	bt_invert_image.set_sensitive(false);
-}
+	}
+		std::cout<<"Warp drive engaged"<<std::endl;
+		if (!warp_event_flag){
+			warp_event_flag=true;
+			bt_reset_warp.set_sensitive(true);
+			bt_load_warp.set_sensitive(true);
+			bt_save_warp.set_sensitive(true);
+		}else{
+			warp_event_flag=false;
+			bt_reset_warp.set_sensitive(false);
+			bt_load_warp.set_sensitive(false);
+			bt_save_warp.set_sensitive(false);
+
 		}
+	}
 		
 	void V4LInterface::__event_bt_adjust_pressed() {
 		std::cout<<"Adjusting"<<std::endl;
@@ -243,8 +258,8 @@ namespace capture {
 		}
 		
 		void V4LInterface::__event_bt_reset_warp_clicked(){
-	std::cout<<"Resetting warp matrix."<<std::endl;
-	reset_warp_flag=true;
+			std::cout<<"Resetting warp matrix."<<std::endl;
+			reset_warp_flag=true;
 		}
 
 		void V4LInterface::__event_bt_invert_image_signal_clicked(){
@@ -274,11 +289,14 @@ namespace capture {
 			bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
 			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 			bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-			bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
-			bt_auto_calib.set_active(false);
-			auto_calib_flag = false;
-			__event_bt_auto_calib_pressed();
 			bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+			
+			//Auto calib
+			//bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
+			//bt_auto_calib.set_active(false);
+			//auto_calib_flag = false;
+			//__event_bt_auto_calib_pressed();
+			
 		} else {
 			HSV_calib_event_flag=true;
 			HScale_Hmin.set_state(Gtk::STATE_ACTIVE);
@@ -291,7 +309,7 @@ namespace capture {
 			bt_HSV_left.set_state(Gtk::STATE_NORMAL);
 			bt_HSV_right.set_state(Gtk::STATE_NORMAL);
 			bt_save_HSV_calib.set_state(Gtk::STATE_NORMAL);
-			bt_auto_calib.set_state(Gtk::STATE_NORMAL);
+			//bt_auto_calib.set_state(Gtk::STATE_NORMAL);
 			bt_load_HSV_calib.set_state(Gtk::STATE_NORMAL);
 		}
 		
@@ -300,27 +318,31 @@ namespace capture {
 	}
 		
 		void V4LInterface::__event_bt_save_HSV_calib_clicked(){
-	std::cout<<"Saving HSV calibs."<<std::endl;
-	save_HSV_calib_flag=true;
-	std::cout<<save_HSV_calib_flag<<std::endl;
+			std::cout<<"Saving HSV calibs."<<std::endl;
+			save_HSV_calib_flag=true;
+			std::cout<<save_HSV_calib_flag<<std::endl;
 		}
 			
 		void V4LInterface::__event_bt_load_HSV_calib_clicked(){
-	std::cout<<"Loading HSV calibs"<<std::endl;
-	load_HSV_calib_flag=true;
+			std::cout<<"Loading HSV calibs"<<std::endl;
+			load_HSV_calib_flag=true;
 		}
 
 	void V4LInterface::__event_bt_auto_calib_pressed()
  	{
- 		if (auto_calib_flag)
+ 		if (!auto_calib_flag)
  		{
  			std::cout << "AUTO CALIB ENGAGED" << std::endl;
- 			auto_calib_flag = false;
+ 			bt_HSV_left.set_state(Gtk::STATE_NORMAL);
+			bt_HSV_right.set_state(Gtk::STATE_NORMAL);
+ 			auto_calib_flag = true;
  		}
  		else
  		{
  			std::cout << "auto calib deactivated" << std::endl;
- 			auto_calib_flag = true;
+ 			bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+ 			auto_calib_flag = false;
  		}
  	}
 		

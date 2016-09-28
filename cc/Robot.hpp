@@ -117,4 +117,4 @@ void goTo(cv::Point targetPos){
 }
 	
 	}; 
-#endif /* CONTROLGUI_HPP_ */
+#endif /* ROBOT_HPP_ */
