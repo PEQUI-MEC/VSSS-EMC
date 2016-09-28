@@ -236,6 +236,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		Gtk::VBox * vbox;
 		Gtk::Label * label;
 		
+		
 		// Adiciona a vbox (principal) no frame
 		vbox = new Gtk::VBox();
 		frm_warp.add(*vbox);
@@ -256,6 +257,10 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		hbox->pack_start(bt_load_warp, false, true, 5);
 		bt_adjust.set_label("Adjust");
 		hbox->pack_start(bt_adjust, false, true, 5);
+		bt_invert_image.set_label("Invert Image");
+  		hbox->pack_start(bt_invert_image, false, true, 5);
+  		bt_invert_image.signal_clicked().connect(sigc::mem_fun(*this, 
+  			&V4LInterface::__event_bt_invert_image_signal_clicked));
 		
 		
 		// Terceira Hbox com as barras de offset e suas labels		
@@ -1071,6 +1076,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			bt_reset_warp.set_sensitive(false);
 			bt_load_warp.set_sensitive(false);
 			bt_save_warp.set_sensitive(false);
+			bt_invert_image.set_sensitive(false);
 			bt_quick_save.set_sensitive(false);
 			bt_quick_load.set_sensitive(false);
 			m_signal_start.emit(false);

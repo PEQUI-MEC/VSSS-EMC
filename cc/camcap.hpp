@@ -1052,6 +1052,7 @@ public Gtk::HBox {
 			robots_speed_hbox[0].pack_end(robots_speed_done_bt, false, true, 5);
 			robots_speed_done_bt.set_label("Done");
 
+			label = new Gtk::Label("R1");
 			robots_speed_vscale[0].set_digits(1);
 			robots_speed_vscale[0].set_increments(0.1,1);
 			robots_speed_vscale[0].set_range(0,6);
@@ -1059,8 +1060,10 @@ public Gtk::HBox {
 			robots_speed_vscale[0].set_inverted(true);
 			robots_speed_vscale[0].set_value(6);
 			robots_speed_vbox[1].pack_start(robots_speed_vscale[0], false, true, 5);
+			robots_speed_vbox[1].pack_start(*label, false, true, 5);
 			robots_speed_hbox[1].pack_start(robots_speed_vbox[1], false, true, 5);
 
+			label = new Gtk::Label("R2");
 			robots_speed_vscale[1].set_digits(1);
 			robots_speed_vscale[1].set_increments(0.1,1);
 			robots_speed_vscale[1].set_range(0,6);
@@ -1068,8 +1071,10 @@ public Gtk::HBox {
 			robots_speed_vscale[1].set_inverted(true);
 			robots_speed_vscale[1].set_value(6);
 			robots_speed_vbox[2].pack_start(robots_speed_vscale[1], false, true, 5);
+			robots_speed_vbox[2].pack_start(*label, false, true, 5);
 			robots_speed_hbox[1].pack_start(robots_speed_vbox[2], false, true, 5);
 
+			label = new Gtk::Label("R3");
 			robots_speed_vscale[2].set_digits(1);
 			robots_speed_vscale[2].set_increments(0.1,1);
 			robots_speed_vscale[2].set_range(0,6);
@@ -1077,6 +1082,7 @@ public Gtk::HBox {
 			robots_speed_vscale[2].set_inverted(true);
 			robots_speed_vscale[2].set_value(6);
 			robots_speed_vbox[3].pack_start(robots_speed_vscale[2], false, true, 5);
+			robots_speed_vbox[3].pack_start(*label, false, true, 5);
 			robots_speed_hbox[1].pack_start(robots_speed_vbox[3], false, true, 5);
 
 			robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);

@@ -38,6 +38,7 @@ namespace capture {
 			bool save_warp_flag;
 			bool load_warp_flag;
 			bool reset_warp_flag;
+			bool invert_image_flag = false;
 			
 			
 			bool HSV_calib_event_flag;
@@ -51,6 +52,7 @@ namespace capture {
 			Gtk::ToggleButton bt_adjust;
 			Gtk::ToggleButton bt_HSV_calib;
 			Gtk::ToggleButton bt_auto_calib;
+			Gtk::CheckButton bt_invert_image;
 			Gtk::Button bt_HSV_left;
 			Gtk::Button bt_HSV_right;
 			Gtk::Button bt_save_HSV_calib;
@@ -120,6 +122,7 @@ namespace capture {
 			
 			void HScale_offsetR_value_changed();
 			void HScale_offsetL_value_changed();
+			void __event_bt_invert_image_signal_clicked();
 			
 			void HScale_Hmin_value_changed();
 			void HScale_Smin_value_changed();

@@ -211,11 +211,13 @@ namespace capture {
 	bt_reset_warp.set_sensitive(true);
 	bt_load_warp.set_sensitive(true);
 	bt_save_warp.set_sensitive(true);
+	bt_invert_image.set_sensitive(true);
 	}else{
 	warp_event_flag=false;
 	bt_reset_warp.set_sensitive(false);
 	bt_load_warp.set_sensitive(false);
 	bt_save_warp.set_sensitive(false);
+	bt_invert_image.set_sensitive(false);
 }
 		}
 		
@@ -243,6 +245,19 @@ namespace capture {
 		void V4LInterface::__event_bt_reset_warp_clicked(){
 	std::cout<<"Resetting warp matrix."<<std::endl;
 	reset_warp_flag=true;
+		}
+
+		void V4LInterface::__event_bt_invert_image_signal_clicked(){
+			if (!invert_image_flag)
+			{
+				invert_image_flag = true;
+				std::cout << "image >>>>>>>INVERTED<<<<<<<" << std::endl; 
+			}
+			else
+			{
+				invert_image_flag = false;
+				std::cout << "image >>>>>>>NORMAL<<<<<<<" << std::endl; 
+			}
 		}
 		
 		void V4LInterface::__event_bt_HSV_calib_pressed(){
