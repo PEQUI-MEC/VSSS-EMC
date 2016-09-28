@@ -1076,7 +1076,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			bt_reset_warp.set_sensitive(false);
 			bt_load_warp.set_sensitive(false);
 			bt_save_warp.set_sensitive(false);
-			bt_invert_image.set_sensitive(false);
+			//bt_invert_image.set_sensitive(false);
 			bt_quick_save.set_sensitive(false);
 			bt_quick_load.set_sensitive(false);
 			m_signal_start.emit(false);

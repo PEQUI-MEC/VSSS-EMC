@@ -254,7 +254,13 @@ public Gtk::HBox {
 				v.bt_warp.set_active(false);			
 				warp_transform(image);
 				v.bt_warp.set_state(Gtk::STATE_INSENSITIVE);
-				iv.warp_event_flag=false;		
+				iv.warp_event_flag=false;
+				
+				if(v.invert_image_flag)
+				{
+					cv::flip(image,image, -1);
+				}
+						
 			 }
 			  
 			  // RESOLVER

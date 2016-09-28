@@ -213,13 +213,13 @@ namespace capture {
 	bt_reset_warp.set_sensitive(true);
 	bt_load_warp.set_sensitive(true);
 	bt_save_warp.set_sensitive(true);
-	bt_invert_image.set_sensitive(true);
+	//bt_invert_image.set_sensitive(true);
 	}else{
 	warp_event_flag=false;
 	bt_reset_warp.set_sensitive(false);
 	bt_load_warp.set_sensitive(false);
 	bt_save_warp.set_sensitive(false);
-	bt_invert_image.set_sensitive(false);
+	//bt_invert_image.set_sensitive(false);
 	}
 		std::cout<<"Warp drive engaged"<<std::endl;
 		if (!warp_event_flag){
