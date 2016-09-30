@@ -1000,8 +1000,8 @@ public Gtk::HBox {
 			notebook.append_page(strategy, "Strategy");
 			Robot r;
 
-			red_button_pressed.set("PASTADUSBOTAO/rsz_perspective_button_stop_pressed_icon.png");
-			red_button_released.set("PASTADUSBOTAO/rsz_perspective-button-stop-icon.png");
+			red_button_pressed.set("img/1475197289_pause-circle-outline.png");
+			red_button_released.set("img/1475197265_play-circle-outline.png");
 			red_button_released.set_size_request(100,100);
 			red_button_pressed.set_size_request(100,100);
 
