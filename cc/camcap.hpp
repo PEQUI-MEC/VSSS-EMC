@@ -146,19 +146,17 @@ public Gtk::HBox {
 			return stdev;
 		}
 		
-		// image atual e ponto clicado
-		
-		
-	    void autoThreshold(cv::Mat img, cv::Point p){
+		void autoThreshold(cv::Mat img, cv::Point p){
 
 			vector<int> H, S, V;
-			cv::Mat imagem = img;
+			
+			cv::Mat imagem = img.clone();
+			
+			cv::cvtColor(imagem, imagem, cv::COLOR_RGB2HSV);
 			int alpha_slider = 6;
 			int horizontalOffset = alpha_slider, verticalOffset = alpha_slider, Hue, Sat, Val;
 			
 			//int threshould[3][2];
-			cv::Scalar meanH, meanS, meanV, stdevH, stdevS, stdevV;
-			cv::Scalar pixel;
 			
 			for ( int i = (p.x-horizontalOffset); i < (p.x+horizontalOffset); i++ ){
 				for ( int j = (p.y-verticalOffset); j < (p.y+verticalOffset); j++ ){
@@ -177,9 +175,14 @@ public Gtk::HBox {
 			threshouldAuto[1][0] = meanCalc(S); threshouldAuto[1][1] = stdevCalc(S);
 			threshouldAuto[2][0] = meanCalc(V); threshouldAuto[2][1] = stdevCalc(V);	
 			
-			cout<<"HMIN = "<<threshouldAuto[0][0]-threshouldAuto[0][1]<<"| HMAX = "<<threshouldAuto[0][1]+threshouldAuto[0][1]<<endl;
-			cout<<"SMIN = "<<threshouldAuto[1][0]-threshouldAuto[1][1]<<"| SMAX = "<<threshouldAuto[1][1]<<endl;
-			cout<<"VMIN = "<<threshouldAuto[2][0]<<"| VMAX = "<<threshouldAuto[2][1]<<endl;
+			cout<<"H = "<<Hue<<endl;
+			cout<<"S = "<<Sat<<endl;
+			cout<<"V = "<<Val<<endl;
+			
+			
+			//cout<<"HMIN = "<<threshouldAuto[0][0]-threshouldAuto[0][1]<<"| HMAX = "<<threshouldAuto[0][0]+threshouldAuto[0][1]<<endl;
+			//cout<<"SMIN = "<<threshouldAuto[1][0]-threshouldAuto[1][1]<<"| SMAX = "<<threshouldAuto[1][0]+threshouldAuto[1][1]<<endl;
+			//cout<<"VMIN = "<<threshouldAuto[2][0]-threshouldAuto[2][1]<<"| VMAX = "<<threshouldAuto[2][0]+threshouldAuto[2][1]<<endl;
 			
 		}
 
@@ -279,7 +282,7 @@ public Gtk::HBox {
 			  // RESOLVER
 			  
 			  if(v.auto_calib_flag){
-				  cout<<"(NOPE)"<<endl; 	 
+				  cout<<"----------------------------------------"<<endl; 	 
 				  cv::Point pt = iv.pointClicked;
 				  cv::Mat imgAux = image.clone();
 				  autoThreshold(imgAux,pt);
@@ -293,52 +296,52 @@ public Gtk::HBox {
 									  
 						case 0:// TEAM MAIN COLOR						
 							v.HScale_Hmin.set_value(H_MIN); v.HScale_Hmax.set_value(H_MAX);						
-							v.HScale_Smin.set_value(S_MIN); v.HScale_Smax.set_value(S_MAX);					
-							v.HScale_Vmin.set_value(V_MIN); v.HScale_Vmax.set_value(V_MAX);
+							v.HScale_Smin.set_value(S_MIN); //v.HScale_Smax.set_value(S_MAX);					
+							v.HScale_Vmin.set_value(V_MIN); //v.HScale_Vmax.set_value(V_MAX);
 							
-							v.H[color_id][0] = H_MIN, v.H[color_id][1] = H_MAX;
-							v.S[color_id][0] = S_MIN, v.S[color_id][1] = S_MAX;
-							v.V[color_id][0] = V_MIN, v.V[color_id][1] = V_MAX;
+							v.H[color_id][0] = H_MIN; v.H[color_id][1] = H_MAX;
+							v.S[color_id][0] = S_MIN; //v.S[color_id][1] = S_MAX;
+							v.V[color_id][0] = V_MIN; //v.V[color_id][1] = V_MAX;
 							break;												
 						
 						case 1:// TEAM FIRST SECUNDARY COLOR
 							v.HScale_Hmin.set_value(H_MIN); v.HScale_Hmax.set_value(H_MAX);						
-							v.HScale_Smin.set_value(S_MIN); v.HScale_Smax.set_value(S_MAX);					
-							v.HScale_Vmin.set_value(V_MIN); v.HScale_Vmax.set_value(V_MAX);
+							v.HScale_Smin.set_value(S_MIN); //v.HScale_Smax.set_value(S_MAX);					
+							v.HScale_Vmin.set_value(V_MIN); //v.HScale_Vmax.set_value(V_MAX);
 							
-							v.H[color_id][0] = H_MIN, v.H[color_id][1] = H_MAX;
-							v.S[color_id][0] = S_MIN, v.S[color_id][1] = S_MAX;
-							v.V[color_id][0] = V_MIN, v.V[color_id][1] = V_MAX;   	
+							v.H[color_id][0] = H_MIN; v.H[color_id][1] = H_MAX;
+							v.S[color_id][0] = S_MIN; //v.S[color_id][1] = S_MAX;
+							v.V[color_id][0] = V_MIN; //v.V[color_id][1] = V_MAX;   	
 							break;
 													
 						case 2:// TEAM SECOND SECUNDARY COLOR					
 							v.HScale_Hmin.set_value(H_MIN); v.HScale_Hmax.set_value(H_MAX);						
-							v.HScale_Smin.set_value(S_MIN); v.HScale_Smax.set_value(S_MAX);					
-							v.HScale_Vmin.set_value(V_MIN); v.HScale_Vmax.set_value(V_MAX);
+							v.HScale_Smin.set_value(S_MIN); //v.HScale_Smax.set_value(S_MAX);					
+							v.HScale_Vmin.set_value(V_MIN); //v.HScale_Vmax.set_value(V_MAX);
 							
-							v.H[color_id][0] = H_MIN, v.H[color_id][1] = H_MAX;
-							v.S[color_id][0] = S_MIN, v.S[color_id][1] = S_MAX;
-							v.V[color_id][0] = V_MIN, v.V[color_id][1] = V_MAX;   	
+							v.H[color_id][0] = H_MIN; v.H[color_id][1] = H_MAX;
+							v.S[color_id][0] = S_MIN; //v.S[color_id][1] = S_MAX;
+							v.V[color_id][0] = V_MIN; //v.V[color_id][1] = V_MAX;   	
 							break;	
 						
 						case 3:// TEAM THIRD SECUNDARY COLOR
 							v.HScale_Hmin.set_value(H_MIN); v.HScale_Hmax.set_value(H_MAX);						
-							v.HScale_Smin.set_value(S_MIN); v.HScale_Smax.set_value(S_MAX);					
-							v.HScale_Vmin.set_value(V_MIN); v.HScale_Vmax.set_value(V_MAX);
+							v.HScale_Smin.set_value(S_MIN); //v.HScale_Smax.set_value(S_MAX);					
+							v.HScale_Vmin.set_value(V_MIN); //v.HScale_Vmax.set_value(V_MAX);
 							
-							v.H[color_id][0] = H_MIN, v.H[color_id][1] = H_MAX;
-							v.S[color_id][0] = S_MIN, v.S[color_id][1] = S_MAX;
-							v.V[color_id][0] = V_MIN, v.V[color_id][1] = V_MAX;   	
+							v.H[color_id][0] = H_MIN; v.H[color_id][1] = H_MAX;
+							v.S[color_id][0] = S_MIN; //v.S[color_id][1] = S_MAX;
+							v.V[color_id][0] = V_MIN; //v.V[color_id][1] = V_MAX;   	
 							break;
 													
 						case 4:// BALL
 							v.HScale_Hmin.set_value(H_MIN); v.HScale_Hmax.set_value(H_MAX);						
-							v.HScale_Smin.set_value(S_MIN); v.HScale_Smax.set_value(S_MAX);					
-							v.HScale_Vmin.set_value(V_MIN); v.HScale_Vmax.set_value(V_MAX);
+							v.HScale_Smin.set_value(S_MIN); //v.HScale_Smax.set_value(S_MAX);					
+							v.HScale_Vmin.set_value(V_MIN); //v.HScale_Vmax.set_value(V_MAX);
 							
-							v.H[color_id][0] = H_MIN, v.H[color_id][1] = H_MAX;
-							v.S[color_id][0] = S_MIN, v.S[color_id][1] = S_MAX;
-							v.V[color_id][0] = V_MIN, v.V[color_id][1] = V_MAX; 
+							v.H[color_id][0] = H_MIN; v.H[color_id][1] = H_MAX;
+							v.S[color_id][0] = S_MIN; // v.S[color_id][1] = S_MAX;
+							v.V[color_id][0] = V_MIN; // v.V[color_id][1] = V_MAX; 
 							break;						
 							
 						case 5:// ADVERSARY MAIN COLOR
@@ -346,9 +349,9 @@ public Gtk::HBox {
 							v.HScale_Smin.set_value(S_MIN); v.HScale_Smax.set_value(S_MAX);					
 							v.HScale_Vmin.set_value(V_MIN); v.HScale_Vmax.set_value(V_MAX);
 							
-							v.H[color_id][0] = H_MIN, v.H[color_id][1] = H_MAX;
-							v.S[color_id][0] = S_MIN, v.S[color_id][1] = S_MAX;
-							v.V[color_id][0] = V_MIN, v.V[color_id][1] = V_MAX;   	
+							v.H[color_id][0] = H_MIN; // v.H[color_id][1] = H_MAX;
+							v.S[color_id][0] = S_MIN; // v.S[color_id][1] = S_MAX;
+							v.V[color_id][0] = V_MIN; // v.V[color_id][1] = V_MAX;   	
 							break;	
 				  }
 				  //v.auto_calib_flag = false;
@@ -401,6 +404,7 @@ public Gtk::HBox {
 					circle(image,robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
 					}
 				// ----------- ESTRATEGIA -----------------//
+				strats.set_Ball(Ball);
 				//count<<' cheou aqui 0'   <<endl 
 				robot_list[0].goTo(strats.get_Attack_Classic(Ball, robot_list[0].position)); // Estratégia clássica
 				//count<<' cheou aqui'   <<endl  

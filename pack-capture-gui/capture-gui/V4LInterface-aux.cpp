@@ -1089,8 +1089,8 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-			bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+			//bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+			//bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 			bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 			bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 			bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
