@@ -994,7 +994,7 @@ void _send_test(){
 	
 	
 	
-	std::cout<<cmd<<endl;
+	//std::cout<<cmd<<endl;
 	
 	
 	
