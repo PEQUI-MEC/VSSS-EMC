@@ -255,9 +255,9 @@ public Gtk::HBox {
 			 if(v.load_HSV_calib_flag) 	 load_HSV();
 			 
 			 if(warped){
-				v.bt_warp.set_active(false);			
+				v.bt_warp.set_active(false);
+				v.bt_warp.set_state(Gtk::STATE_INSENSITIVE);		
 				warp_transform(image);
-				v.bt_warp.set_state(Gtk::STATE_INSENSITIVE);
 				iv.warp_event_flag=false;
 				
 				if(v.invert_image_flag)
@@ -725,7 +725,9 @@ public Gtk::HBox {
 			warped=false;
 			v.reset_warp_flag=false;
 			v.bt_warp.set_state(Gtk::STATE_NORMAL);
+			v.bt_adjust.set_active(false);
 			v.bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+			v.adjust_event_flag = false;
 			iv.adjust_rdy=false;
 			v.offsetL = 0;
 			v.offsetR = 0;
@@ -942,7 +944,10 @@ public Gtk::HBox {
 			lambda = getPerspectiveTransform( inputQuad, outputQuad );
 			 warpPerspective(image,image,lambda,image.size());
 			if(iv.adjust_rdy){ 
+				v.bt_adjust.set_active(false);
 				v.bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+				v.adjust_event_flag = false;
+				iv.adjust_event_flag = false;
 			for(int i =0; i<iv.adjust_mat[0][1];i++){
 				 for(int j =0; j<3*iv.adjust_mat[0][0];j++){
 			 image.at<uchar>(i, j) =0;
