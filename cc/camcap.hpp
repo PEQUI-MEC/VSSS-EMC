@@ -46,7 +46,7 @@ public Gtk::HBox {
 		capture::V4LInterface v;
 		capture::ImageView iv;
 		unsigned char * d;
-		unsigned char **threshold;
+		unsigned char **threshold = NULL;
 		Gtk::Notebook notebook;
 		int w, h;
 		CPUTimer timer;
@@ -1076,9 +1076,13 @@ public Gtk::HBox {
 			con.disconnect();
 			iv.disable_image_show();
 			free(data);
-			for(int i = 0; i < 6; i++)
-			free(threshold[i]); 
-			free(threshold);	
+			if (threshold != NULL)
+			{
+				for(int i = 0; i < 6; i++)
+					free(threshold[i]); 
+				free(threshold);	
+			}
+			
 			data = 0;
 		}
 
