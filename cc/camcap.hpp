@@ -38,6 +38,7 @@ public Gtk::HBox {
 	public:
 		Strategy strats;
 		cv::Mat image_copy;
+		cv::Point Ball_Est;
 		bool warped = false;
 		bool start_game_flag = false;
 		StrategyGUI strategy;
@@ -61,6 +62,7 @@ public Gtk::HBox {
 		// Ball - cv::Point 
 		//   GUARDA A POSIÇÃO DA BOLA	
 		cv::Point Ball;		
+	
 	
 		vector<Robot> robot_list;
 		Gtk::Frame fm;
@@ -174,6 +176,11 @@ public Gtk::HBox {
 			threshouldAuto[0][0] = meanCalc(H); threshouldAuto[0][1] = stdevCalc(H);
 			threshouldAuto[1][0] = meanCalc(S); threshouldAuto[1][1] = stdevCalc(S);
 			threshouldAuto[2][0] = meanCalc(V); threshouldAuto[2][1] = stdevCalc(V);	
+			
+			cout<<"HMIN = "<<threshouldAuto[0][0]-threshouldAuto[0][1]<<"| HMAX = "<<threshouldAuto[0][1]+threshouldAuto[0][1]<<endl;
+			cout<<"SMIN = "<<threshouldAuto[1][0]-threshouldAuto[1][1]<<"| SMAX = "<<threshouldAuto[1][1]<<endl;
+			cout<<"VMIN = "<<threshouldAuto[2][0]<<"| VMAX = "<<threshouldAuto[2][1]<<endl;
+			
 		}
 
 		bool start_signal(bool b) {
@@ -186,10 +193,12 @@ public Gtk::HBox {
 					free(data);
 					data = 0;
 				}
-		
+				Ball.x=0;
+				Ball.y=0;
 				width = v.vcap.format_dest.fmt.pix.width;
 				height = v.vcap.format_dest.fmt.pix.height;
-			
+				strats.width = width;
+				strats.height = height;
 				
 			threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));		
 			for(int i = 0; i < 6; i++)
@@ -268,8 +277,9 @@ public Gtk::HBox {
 			 }
 			  
 			  // RESOLVER
-			  /*
-			  if(v.auto_calib_flag){ 	 
+			  
+			  if(v.auto_calib_flag){
+				  cout<<"(NOPE)"<<endl; 	 
 				  cv::Point pt = iv.pointClicked;
 				  cv::Mat imgAux = image.clone();
 				  autoThreshold(imgAux,pt);
@@ -343,7 +353,7 @@ public Gtk::HBox {
 				  }
 				  //v.auto_calib_flag = false;
 			  }
-			  */
+			  
 
 				parallel_tracking(image);
 				robot_creation();
@@ -390,12 +400,19 @@ public Gtk::HBox {
 					line(image, robot_list[i].position,robot_list[i].target, cv::Scalar(255,255,255),2);
 					circle(image,robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
 					}
+				// ----------- ESTRATEGIA -----------------//
+				//count<<' cheou aqui 0'   <<endl 
+				robot_list[0].goTo(strats.get_Attack_Classic(Ball, robot_list[0].position)); // Estratégia clássica
+				//count<<' cheou aqui'   <<endl  
 				
-				strats.set_Ball(Ball);
-				robot_list[0].target = strats.get_gk_target();
-				circle(image,robot_list[0].target, 7, cv::Scalar(127,127,255), 2);
+				//robot_list[0].target = strats.get_gk_target();
+				//circle(image,robot_list[0].target, 7, cv::Scalar(127,127,255), 2);
 				send_vel_to_robots();
-				
+				//count<<' cheou aqui 2'   <<endl 
+				// ----------------------------------------//
+				Ball_Est=strats.get_Ball_Est();
+				line(image,Ball,Ball_Est,cv::Scalar(127,127,255), 2);
+				circle(image,Ball_Est, 7, cv::Scalar(127,127,255), 2);
 				if(v.HSV_calib_event_flag){
 				for(int i=0;i<3*(width*height + width) +2;i++)
 					d[i]=threshold[v.Img_id][i];
@@ -1085,9 +1102,9 @@ public Gtk::HBox {
 			robot_list[1].ID = str[0];
 			str = robots_id_box[2].get_text();
 			robot_list[2].ID = str[0];
-			std::cout << "ID Robo 1: " << robot_list[0].ID << endl;
+			/*std::cout << "ID Robo 1: " << robot_list[0].ID << endl;
 			std::cout << "ID Robo 2: " << robot_list[1].ID << endl;
-			std::cout << "ID Robo 3: " << robot_list[2].ID << endl;
+			std::cout << "ID Robo 3: " << robot_list[2].ID << endl;*/
 		}
 
 		void event_robots_speed_edit_bt_signal_pressed()
@@ -1112,12 +1129,12 @@ public Gtk::HBox {
 
 		void event_robots_speed_done_bt_signal_clicked()
 		{
-			robot_list[0].V = (float) robots_speed_vscale[0].get_value();
-			robot_list[1].V = (float) robots_speed_vscale[1].get_value();
-			robot_list[2].V = (float) robots_speed_vscale[2].get_value();
-			std::cout << "Velocidade Robo 1: " << robot_list[0].V << endl;
+			robot_list[0].vmax = (float) robots_speed_vscale[0].get_value();
+			robot_list[1].vmax = (float) robots_speed_vscale[1].get_value();
+			robot_list[2].vmax = (float) robots_speed_vscale[2].get_value();
+			/*std::cout << "Velocidade Robo 1: " << robot_list[0].V << endl;
 			std::cout << "Velocidade Robo 2: " << robot_list[1].V << endl;
-			std::cout << "Velocidade Robo 3: " << robot_list[2].V << endl;
+			std::cout << "Velocidade Robo 3: " << robot_list[2].V << endl;*/
 		}
 
 		void event_start_game_bt_signal_clicked()
