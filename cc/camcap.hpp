@@ -1023,6 +1023,15 @@ public Gtk::HBox {
 			robot_list[0].ID = 'A';
 			robot_list[1].ID = 'B';
 			robot_list[2].ID = 'C';
+
+			for(int i =0; i<6; i++){
+				v.HScale_Hmin.set_value(-1);
+				v.HScale_Hmax.set_value(256);
+				v.HScale_Smin.set_value(-1);
+				v.HScale_Smax.set_value(256);
+				v.HScale_Vmin.set_value(-1);
+				v.HScale_Vmax.set_value(256);
+			}
 				
 
 			for(int i=0;i<robot_list.size();i++){
