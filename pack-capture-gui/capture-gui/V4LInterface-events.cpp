@@ -225,12 +225,13 @@ namespace capture {
 	}
 		
 	void V4LInterface::__event_bt_adjust_pressed() {
-		std::cout<<"Adjusting"<<std::endl;
-		if (bt_adjust.get_state() == Gtk::STATE_ACTIVE){
+		
+		if (!adjust_event_flag){
 		adjust_event_flag=true;
-
+		std::cout<<"ADJUST = TRUE"<<std::endl;
 		}else{
-		adjust_event_flag=false;		
+		adjust_event_flag=false;
+		std::cout<<"ADJUST = FALSE"<<std::endl;		
 		
 	}
 	}

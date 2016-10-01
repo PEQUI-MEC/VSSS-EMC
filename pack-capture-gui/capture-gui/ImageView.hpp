@@ -69,6 +69,7 @@ namespace capture {
 				if(adj_counter==4){
 				adjust_rdy = true;
 				adjust_event_flag=false;
+				adj_counter = 0;
 				//cerr << "ADJ END"<< endl;
 				}
 		
