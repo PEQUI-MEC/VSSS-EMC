@@ -85,7 +85,7 @@ void sendToRobot(Robot r){
 	double temp1= floor(r.Vl*100)/100;
 	cmd<<r.ID<< temp0<<";"<<temp1<<"#";
 	sendSerial(cmd.str());
-	std::cout<<cmd.str()<<std::endl;
+	//std::cout<<cmd.str()<<std::endl;
 	}
 void sendToThree(Robot r1,Robot r2,Robot r3){
 	stringstream cmd;
@@ -99,7 +99,7 @@ void sendToThree(Robot r1,Robot r2,Robot r3){
 	 temp1= round(r3.Vl*100)/100;
 	cmd<<r3.ID<< temp0<<";"<<temp1<<"#";
 	sendSerial(cmd.str());
-	std::cout<<cmd.str()<<std::endl;
+	//std::cout<<cmd.str()<<std::endl;
 	}
 
 

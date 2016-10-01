@@ -13,8 +13,8 @@ public:
 		double thetaError = 0;
 		double thetaErrorSum = 0;
 		double thetaErrorPrevious = 0;
-		double vmax = (400  * 2 * PI*0.016 /60); // m/s
-		double wmax = (2*vmax)/0.08; // rad/s
+		double vmax = 6; // m/s
+		double wmax = 6; // rad/s
 		
 		float Kp = 0.35;
 		float Kd = 0;
@@ -37,6 +37,7 @@ Robot(float vel_suppressor)
 	}
 
 void goTo(cv::Point targetPos){
+	
 	 double currentTheta = orientation;
 	 cv::Point currentPos = position;
 	
@@ -90,8 +91,8 @@ void goTo(cv::Point targetPos){
 	
 	
 
-		Vl=6*Vl;
-		Vr=6*Vr;
+		Vl=vmax*Vl;
+		Vr=vmax*Vr;
 			
 	/*
 		if(abs(Vr)>6&&abs(Vr)>abs(Vl)){

@@ -10,7 +10,7 @@
 
 #include <gtkmm.h>
 
-class StrategyGUI: public Gtk::HBox
+class StrategyGUI: public Gtk::VBox
 {
 public:
 	//Tree model columns:
@@ -27,13 +27,22 @@ public:
 	ModelColumns strategyColumns;
 
 
-	Gtk::ScrolledWindow m_ScrolledWindow2;
+	Gtk::Frame menu_fm;
+	Gtk::Frame selection_fm;
+	Gtk::Frame info_text_fm;
+	Gtk::Frame info_img_fm;
 	Gtk::TreeView m_TreeView;
 	Glib::RefPtr<Gtk::ListStore> m_refTreeModel;
 
+	Gtk::HBox selection_hbox;
 
-	Gtk::VBox left_frame;
-	Gtk::VBox right_frame;
+	Gtk::VBox menu_vbox;
+	Gtk::HBox menu_hbox[2];
+
+	Gtk::VBox info_text_hbox;
+
+	Gtk::Image strategy_img;
+	
 	Gtk::Button select_button;
 	Gtk::Label strategy_title_label;
 
@@ -43,59 +52,72 @@ public:
 
 	StrategyGUI()
 	{
-		strategy_title_label.set_text("Nome da Estrategia");
+		createSelectionFrame();
+		createMenuFrame();
+		createInfoTextFrame();
+		createInfoImageFrame();
+	}
 
-		//strategy_description_view.set_editable(false);
+	void createSelectionFrame()
+	{
+		pack_start(selection_fm, false, true, 5);
+		selection_fm.set_label("Strategy Selected:  ");
+		selection_fm.add(selection_hbox);
 
-		//Add the TreeView, inside a ScrolledWindow, with the button underneath:
-  		m_ScrolledWindow2.add(m_TreeView);
+		strategy_title_label.set_text("*Nome da Estrategia*");
+		selection_hbox.set_halign(Gtk::ALIGN_CENTER);
+		selection_hbox.pack_start(strategy_title_label, false, true, 5);
+	}
 
-  		//Only show the scrollbars when they are necessary:
-  		m_ScrolledWindow2.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+	void createMenuFrame()
+	{
+		pack_start(menu_fm, false, true, 5);
+		menu_fm.add(menu_vbox);
 
+
+		
+  		menu_hbox[0].pack_start(m_TreeView, false, true, 5);
+  		menu_hbox[0].set_halign(Gtk::ALIGN_CENTER);
+  		m_TreeView.set_size_request(450,200);
   		//Add the TreeView's view columns:
  		//This number will be shown with the default numeric formatting.
-		m_TreeView.append_column("Estrategia", strategyColumns.strategy_name);
-
+		m_TreeView.append_column("Strategy Menu", strategyColumns.strategy_name);
   		//Create the Tree model:
  		m_refTreeModel = Gtk::ListStore::create(strategyColumns);
 		m_TreeView.set_model(m_refTreeModel);
-
 		//Fill the TreeView's model
   		Gtk::TreeModel::Row row = *(m_refTreeModel->append());
-  		row[strategyColumns.strategy_name] = "Estrategia 1";
-
+  		row[strategyColumns.strategy_name] = "Strategy 1";
   		row = *(m_refTreeModel->append());
-  		row[strategyColumns.strategy_name] = "Estrategia 2";
+  		row[strategyColumns.strategy_name] = "Strategy 2";
 
-  		m_ScrolledWindow2.set_min_content_height(200);
-  		m_ScrolledWindow2.set_min_content_width(200);
+  		select_button.set_label("Selecionar");
+  		menu_hbox[1].pack_start(select_button, false, true, 5);
+  		menu_hbox[1].set_halign(Gtk::ALIGN_CENTER);
+  		menu_vbox.pack_start(menu_hbox[0], false, true,  5);
+  		menu_vbox.pack_start(menu_hbox[1], false, true,  5);
+	}
 
-		strategy_description_text = Gtk::TextBuffer::create();
-  		strategy_description_text->set_text("This is the text from TextBuffer #1.\n\n\n\na");
-  		strategy_description_view.set_buffer(strategy_description_text);
+	void createInfoTextFrame()
+	{
+		pack_start(info_text_fm, false, true, 5);
+  		info_text_fm.set_label("Description:  ");
+  		info_text_fm.add(m_ScrolledWindow);
 
   		m_ScrolledWindow.add(strategy_description_view);
   		m_ScrolledWindow.set_min_content_height(200);
+  		m_ScrolledWindow.set_min_content_width(450);
+		strategy_description_text = Gtk::TextBuffer::create();
+  		strategy_description_text->set_text("This is the text from TextBuffer #1.\n\n\n\n");
+  		strategy_description_view.set_buffer(strategy_description_text);	
+	}
 
-  		select_button.set_label("Selecionar");
-
-  		//left_frame.add(select_button);
-  		left_frame.pack_start(m_ScrolledWindow2, Gtk::PACK_EXPAND_WIDGET, 10);
-  		left_frame.pack_start(select_button, Gtk::PACK_SHRINK, 0);
-		right_frame.pack_start(strategy_title_label, Gtk::PACK_SHRINK, 0);
-		right_frame.pack_start(m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET, 10);
-
-		
-
-		pack_start(left_frame, false, false, 0);
-		pack_start(right_frame, true, true, 20);
-
-
-
-
-
-
+	void createInfoImageFrame()
+	{
+		pack_start(info_img_fm, false, true, 5);
+  		info_img_fm.set_label("Picture:  ");
+  		strategy_img.set("img/pequi_mecanico.png");
+  		info_img_fm.add(strategy_img);
 	}
 
 	~StrategyGUI()

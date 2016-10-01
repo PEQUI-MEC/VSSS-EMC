@@ -33,7 +33,7 @@ int main(int argc, char ** argv) {
 
 	window.set_position(Gtk::WIN_POS_CENTER);
 	window.set_border_width(10);
-	window.set_default_size(640, 480);
+	window.maximize();
 	window.set_title("VS - Pequi");
 	
 	window.add(camcap);

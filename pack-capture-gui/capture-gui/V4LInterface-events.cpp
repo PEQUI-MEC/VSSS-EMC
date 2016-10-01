@@ -213,36 +213,25 @@ namespace capture {
 	bt_reset_warp.set_sensitive(true);
 	bt_load_warp.set_sensitive(true);
 	bt_save_warp.set_sensitive(true);
-	bt_invert_image.set_sensitive(true);
+	//bt_invert_image.set_sensitive(true);
 	}else{
 	warp_event_flag=false;
 	bt_reset_warp.set_sensitive(false);
 	bt_load_warp.set_sensitive(false);
 	bt_save_warp.set_sensitive(false);
-	bt_invert_image.set_sensitive(false);
+	//bt_invert_image.set_sensitive(false);
 	}
-		std::cout<<"Warp drive engaged"<<std::endl;
-		if (!warp_event_flag){
-			warp_event_flag=true;
-			bt_reset_warp.set_sensitive(true);
-			bt_load_warp.set_sensitive(true);
-			bt_save_warp.set_sensitive(true);
-		}else{
-			warp_event_flag=false;
-			bt_reset_warp.set_sensitive(false);
-			bt_load_warp.set_sensitive(false);
-			bt_save_warp.set_sensitive(false);
 
-		}
 	}
 		
 	void V4LInterface::__event_bt_adjust_pressed() {
-		std::cout<<"Adjusting"<<std::endl;
-		if (bt_adjust.get_state() == Gtk::STATE_ACTIVE){
+		
+		if (!adjust_event_flag){
 		adjust_event_flag=true;
-
+		std::cout<<"ADJUST = TRUE"<<std::endl;
 		}else{
-		adjust_event_flag=false;		
+		adjust_event_flag=false;
+		std::cout<<"ADJUST = FALSE"<<std::endl;		
 		
 	}
 	}
@@ -286,8 +275,8 @@ namespace capture {
 			HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-			bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+			//bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+			//bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 			bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 			bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 			
@@ -306,8 +295,8 @@ namespace capture {
 			HScale_Smax.set_state(Gtk::STATE_ACTIVE);
 			HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
 			HScale_Amin.set_state(Gtk::STATE_ACTIVE);
-			bt_HSV_left.set_state(Gtk::STATE_NORMAL);
-			bt_HSV_right.set_state(Gtk::STATE_NORMAL);
+			//bt_HSV_left.set_state(Gtk::STATE_NORMAL);
+			//bt_HSV_right.set_state(Gtk::STATE_NORMAL);
 			bt_save_HSV_calib.set_state(Gtk::STATE_NORMAL);
 			//bt_auto_calib.set_state(Gtk::STATE_NORMAL);
 			bt_load_HSV_calib.set_state(Gtk::STATE_NORMAL);
@@ -333,15 +322,15 @@ namespace capture {
  		if (!auto_calib_flag)
  		{
  			std::cout << "AUTO CALIB ENGAGED" << std::endl;
- 			bt_HSV_left.set_state(Gtk::STATE_NORMAL);
-			bt_HSV_right.set_state(Gtk::STATE_NORMAL);
+ 			//bt_HSV_left.set_state(Gtk::STATE_NORMAL);
+			//bt_HSV_right.set_state(Gtk::STATE_NORMAL);
  			auto_calib_flag = true;
  		}
  		else
  		{
  			std::cout << "auto calib deactivated" << std::endl;
- 			bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-			bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+ 			//bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+			//bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
  			auto_calib_flag = false;
  		}
  	}
