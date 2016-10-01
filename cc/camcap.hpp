@@ -175,9 +175,9 @@ public Gtk::HBox {
 			threshouldAuto[1][0] = meanCalc(S); threshouldAuto[1][1] = stdevCalc(S);
 			threshouldAuto[2][0] = meanCalc(V); threshouldAuto[2][1] = stdevCalc(V);	
 			
-			cout<<"H = "<<Hue<<endl;
-			cout<<"S = "<<Sat<<endl;
-			cout<<"V = "<<Val<<endl;
+			//cout<<"H = "<<Hue<<endl;
+			//cout<<"S = "<<Sat<<endl;
+			//cout<<"V = "<<Val<<endl;
 			
 			
 			//cout<<"HMIN = "<<threshouldAuto[0][0]-threshouldAuto[0][1]<<"| HMAX = "<<threshouldAuto[0][0]+threshouldAuto[0][1]<<endl;
@@ -200,8 +200,7 @@ public Gtk::HBox {
 				Ball.y=0;
 				width = v.vcap.format_dest.fmt.pix.width;
 				height = v.vcap.format_dest.fmt.pix.height;
-				strats.width = width;
-				strats.height = height;
+				strats.set_constants(width,height);
 				
 			threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));		
 			for(int i = 0; i < 6; i++)
@@ -230,6 +229,7 @@ public Gtk::HBox {
 		bool capture_and_show() {
 			if (!data) return false;
 			
+				
 			//timer.start();
 			v.vcap.grab_rgb(data);
 			iv.set_data(data, width, height);
@@ -242,7 +242,7 @@ public Gtk::HBox {
 			h = iv.get_height();
 			
 			cv::Mat image(h,w,CV_8UC3,d);
-
+			
 			if(iv.hold_warp){
 				warped = true;
 				v.bt_adjust.set_state(Gtk::STATE_NORMAL);
@@ -257,7 +257,7 @@ public Gtk::HBox {
 
 			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
-			
+				
 			 
 			 if(v.save_warp_flag)	 save_warp();
 			 if(v.load_warp_flag)	 load_warp();
@@ -282,7 +282,7 @@ public Gtk::HBox {
 			  // RESOLVER
 			  
 			  if(v.auto_calib_flag){
-				  cout<<"----------------------------------------"<<endl; 	 
+				  //cout<<"----------------------------------------"<<endl; 	 
 				  cv::Point pt = iv.pointClicked;
 				  cv::Mat imgAux = image.clone();
 				  autoThreshold(imgAux,pt);
@@ -356,11 +356,11 @@ public Gtk::HBox {
 				  }
 				  //v.auto_calib_flag = false;
 			  }
-			  
-
+			
+				//cout<<"AQUI"<<endl;
 				parallel_tracking(image);
 				robot_creation();
-				
+					
 				
 		//PRINT TAG PROPERTIES
 		/*
@@ -385,7 +385,7 @@ public Gtk::HBox {
 				
 				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
 			
-				
+
 				
 				if(iv.PID_test_flag)	 PID_test();
 				else{
@@ -397,31 +397,33 @@ public Gtk::HBox {
 					if(Selec_index!=-1){
 					circle(image,robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);				
 			}
-				
+	
 				for(int i=0;i<robot_list.size();i++){
 					if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1)
 					line(image, robot_list[i].position,robot_list[i].target, cv::Scalar(255,255,255),2);
 					circle(image,robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
 					}
+		
 				// ----------- ESTRATEGIA -----------------//
 				strats.set_Ball(Ball);
-				//count<<' cheou aqui 0'   <<endl 
-				robot_list[0].goTo(strats.get_Attack_Classic(Ball, robot_list[0].position)); // Estratégia clássica
-				//count<<' cheou aqui'   <<endl  
-				
-				//robot_list[0].target = strats.get_gk_target();
-				//circle(image,robot_list[0].target, 7, cv::Scalar(127,127,255), 2);
-				send_vel_to_robots();
-				//count<<' cheou aqui 2'   <<endl 
-				// ----------------------------------------//
+			
 				Ball_Est=strats.get_Ball_Est();
 				line(image,Ball,Ball_Est,cv::Scalar(127,127,255), 2);
-				circle(image,Ball_Est, 7, cv::Scalar(127,127,255), 2);
+				circle(image,Ball_Est, 7, cv::Scalar(127,127,255), 2); 
+				robot_list[2].target = strats.get_Defense_Classic(robot_list[2].position); // Estratégia clássica
+				cout<<robot_list[2].target.x<<" - "<<robot_list[2].target.y<<endl; 
+				circle(image,robot_list[2].target, 7, cv::Scalar(127,255,127), 2);
+				send_vel_to_robots();
+			
+				// ----------------------------------------//
+					
+				
+				
 				if(v.HSV_calib_event_flag){
 				for(int i=0;i<3*(width*height + width) +2;i++)
 					d[i]=threshold[v.Img_id][i];
 					}
-					
+						
 					
 		//PRINT RAW POSITIONS
 		/*	 cout<<"--------------------------------------------------------------- "<<endl; 
@@ -567,7 +569,9 @@ public Gtk::HBox {
 			aux3 << "(" << round((robot_list[2].position.x)*170/double(w))<< "," << round((robot_list[2].position.y)*130/double(h)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
 			
 			robot3_pos_lb->set_text(aux3.str());
-
+			 stringstream aux4;
+				aux4 << "(" << round((Ball.x)*170/double(w))<< "," << round((Ball.y)*130/double(h)) << ")";
+				ball_pos_lb->set_text(aux4.str());
 	}	
 
 		void calcOrientation(int tag_id){ //Define a orientação da tag em analise;				
@@ -682,9 +686,7 @@ public Gtk::HBox {
 			//Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
 			if(area >= v.Amin[color_id]/100){
 				Ball = cv::Point(moment.m10/area,moment.m01/area);
-			     stringstream aux1;
-				aux1 << "(" << (Ball.x)*(170/width) << "," << (Ball.y)*(130/height) << ")";
-				ball_pos_lb->set_text(aux1.str());
+			    
 			}
 	}
 		break;
@@ -992,7 +994,7 @@ public Gtk::HBox {
 	}
 
 		CamCap() : data(0), width(0), height(0) {
-			
+			std::cout << v.auto_calib_flag << std::endl;
 		
 			fixed_ball[0]=false;
 			fixed_ball[1]=false;
