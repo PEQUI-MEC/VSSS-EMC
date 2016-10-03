@@ -32,7 +32,7 @@ namespace capture {
 			int H[6][2];
 			int S[6][2];
 			int V[6][2];
-			int Img_id;
+			int Img_id = 0;
 			bool warp_event_flag;
 			bool adjust_event_flag;
 			bool save_warp_flag;

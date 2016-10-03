@@ -94,7 +94,7 @@ public Gtk::HBox {
 
 		Gtk::VBox robots_id_vbox;
 		Gtk::HBox robots_id_hbox[4];
-		Gtk::ToggleButton robots_id_edit_bt;
+		Gtk::Button robots_id_edit_bt;
 		Gtk::Button robots_id_done_bt;
 		Gtk::Entry robots_id_box[3];
 		bool robots_id_edit_flag = false;
@@ -103,7 +103,7 @@ public Gtk::HBox {
 		Gtk::VBox robots_speed_vbox[4];
 		Gtk::VScale robots_speed_vscale[3];
 		Gtk::HBox robots_speed_hbox[2];
-		Gtk::ToggleButton robots_speed_edit_bt;
+		Gtk::Button robots_speed_edit_bt;
 		Gtk::Button robots_speed_done_bt;
 		bool robots_speed_edit_flag = false;
 
@@ -1024,6 +1024,15 @@ public Gtk::HBox {
 			robot_list[0].ID = 'A';
 			robot_list[1].ID = 'B';
 			robot_list[2].ID = 'C';
+
+			for(int i =0; i<6; i++){
+				v.HScale_Hmin.set_value(-1);
+				v.HScale_Hmax.set_value(256);
+				v.HScale_Smin.set_value(-1);
+				v.HScale_Smax.set_value(256);
+				v.HScale_Vmin.set_value(-1);
+				v.HScale_Vmax.set_value(256);
+			}
 				
 
 			for(int i=0;i<robot_list.size();i++){
@@ -1116,9 +1125,10 @@ public Gtk::HBox {
 			robot_list[1].ID = str[0];
 			str = robots_id_box[2].get_text();
 			robot_list[2].ID = str[0];
-			/*std::cout << "ID Robo 1: " << robot_list[0].ID << endl;
-			std::cout << "ID Robo 2: " << robot_list[1].ID << endl;
-			std::cout << "ID Robo 3: " << robot_list[2].ID << endl;*/
+
+			// Presiona o botão edit para deixar tudo insensitivo
+			event_robots_id_edit_bt_signal_pressed();
+			
 		}
 
 		void event_robots_speed_edit_bt_signal_pressed()
@@ -1146,9 +1156,8 @@ public Gtk::HBox {
 			robot_list[0].vmax = (float) robots_speed_vscale[0].get_value();
 			robot_list[1].vmax = (float) robots_speed_vscale[1].get_value();
 			robot_list[2].vmax = (float) robots_speed_vscale[2].get_value();
-			/*std::cout << "Velocidade Robo 1: " << robot_list[0].V << endl;
-			std::cout << "Velocidade Robo 2: " << robot_list[1].V << endl;
-			std::cout << "Velocidade Robo 3: " << robot_list[2].V << endl;*/
+			// Presiona o botão edit para deixar tudo insensitivo
+			event_robots_speed_edit_bt_signal_pressed();
 		}
 
 		void event_start_game_bt_signal_clicked()

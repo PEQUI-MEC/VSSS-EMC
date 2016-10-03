@@ -54,7 +54,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 	void V4LInterface::HScale_Vmin_value_changed(){
   
    V[Img_id][0]=HScale_Vmin.get_value();
-   // std::cout<<V[Img_id][0]<<std::endl;
+    //std::cout<<V[Img_id][0]<<std::endl;
 
 }
 	void V4LInterface::HScale_Hmax_value_changed(){
@@ -384,17 +384,14 @@ void V4LInterface::HScale_offsetL_value_changed(){
     	HScale_Hmax.set_digits(0);
 		HScale_Hmax.set_increments(1,1);
 		HScale_Hmax.set_range(-1,256);
-		HScale_Hmax.set_value(255);
 		HScale_Hmax.set_value_pos(Gtk::POS_TOP);
 		HScale_Hmax.set_draw_value();
 		HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this,
     &V4LInterface::HScale_Hmax_value_changed));
     
-		HScale_Smax.set_value(254);
 		HScale_Smax.set_digits(0);
 		HScale_Smax.set_increments(1,1);
 		HScale_Smax.set_range(-1,256);
-		HScale_Smax.set_value(255);
 		HScale_Smax.set_value_pos(Gtk::POS_TOP);
 		HScale_Smax.set_draw_value();
 		HScale_Smax.signal_value_changed().connect(sigc::mem_fun(*this,
@@ -404,7 +401,6 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		HScale_Vmax.set_digits(0);
 		HScale_Vmax.set_increments(1,1);
 		HScale_Vmax.set_range(-1,256);
-		HScale_Vmax.set_value(255);
 		HScale_Vmax.set_value_pos(Gtk::POS_TOP);
 		HScale_Vmax.set_draw_value();
 		HScale_Vmax.signal_value_changed().connect(sigc::mem_fun(*this,
@@ -1097,16 +1093,7 @@ void V4LInterface::HScale_offsetL_value_changed(){
 			bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
 			
 
-			for(int i =0; i<6; i++){
-				
-				H[i][0] = 0;
-				S[i][0] = 0;
-				V[i][0] = 0;
-				H[i][1] = 255;
-				S[i][1] = 255;
-				V[i][1] = 255;
-				Amin[i] = 10;
-			}
+			
 				
 				
 				
