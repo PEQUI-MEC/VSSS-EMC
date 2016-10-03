@@ -154,6 +154,8 @@ namespace capture {
 			sp_height.set_value(format.fmt.pix.height);
 
 			bt_start.set_label("stop");
+			// Botão Stop desabilitado até que arrume o bug do malloc do threshold
+			bt_start.set_sensitive(false);
 			cb_device.set_sensitive(false);
 			cb_input.set_sensitive(false);
 			cb_standard.set_sensitive(false);
@@ -200,6 +202,7 @@ namespace capture {
 			bt_quick_load.set_sensitive(false);
 			bt_auto_calib.set_sensitive(false);
 			m_signal_start.emit(false);
+
 		}
 
 		return;

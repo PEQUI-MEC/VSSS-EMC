@@ -113,7 +113,12 @@ namespace capture {
 			void __event_bt_load_warp_clicked();
 			void __event_bt_reset_warp_clicked();
 			     
-			
+			void __event_bt_HSV_calib_pressed();
+			void __event_bt_auto_calib_pressed();
+			void __event_bt_save_HSV_calib_clicked();
+			void __event_bt_load_HSV_calib_clicked();
+			void __event_bt_right_HSV_calib_clicked();
+			void __event_bt_left_HSV_calib_clicked();
 			
 			void HScale_offsetR_value_changed();
 			void HScale_offsetL_value_changed();
@@ -137,12 +142,7 @@ namespace capture {
 			
 
 		public:
-			void __event_bt_HSV_calib_pressed();
-			void __event_bt_auto_calib_pressed();
-			void __event_bt_save_HSV_calib_clicked();
-			void __event_bt_load_HSV_calib_clicked();
-			void __event_bt_right_HSV_calib_clicked();
-			void __event_bt_left_HSV_calib_clicked();
+			
 			/* Signals */
 			typedef sigc::signal<bool, bool> SignalStart;
 
