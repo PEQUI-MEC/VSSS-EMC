@@ -376,20 +376,13 @@ public Gtk::HBox {
 			  }
 			
 				//cout<<"AQUI"<<endl;
+				
+				
+					
 				parallel_tracking(image);
+				if(!v.HSV_calib_event_flag){
 				robot_creation();
 					
-				
-		//PRINT TAG PROPERTIES
-		/*
-			 cout<<"--------------------------------------------------------------- "<<endl;
-			  cout<<"robot_list Size "<<robot_list.size()<<endl;
-			 for(int i=0;i<robot_list.size();i++){
-				cout<<i<<" px "<<robot_list[i].position.x<<" py "<<robot_list[i].position.y<<endl;
-				cout<<i<<" sx "<<robot_list[i].secundary.x<<" sy "<<robot_list[i].secundary.y<<endl;
-				cout<<" o "<<robot_list[i].orientation*180/PI<<endl;
-				
-		}*/
 			
 			
 				circle(image,robot_list[0].position, 15, cv::Scalar(255,153,204), 2);
@@ -423,6 +416,7 @@ public Gtk::HBox {
 					}
 		
 				// ----------- ESTRATEGIA -----------------//
+		
 				strats.set_Ball(Ball);
 			
 				Ball_Est=strats.get_Ball_Est();
@@ -431,16 +425,20 @@ public Gtk::HBox {
 				//robot_list[2].target = strats.get_Defense_Classic(robot_list[2].position); // Estratégia clássica
 				//cout<<robot_list[2].target.x<<" - "<<robot_list[2].target.y<<endl; 
 				circle(image,robot_list[2].target, 7, cv::Scalar(127,255,127), 2);
+			if(start_game_flag){
+				robot_list[0].target = strats.get_gk_target(); // Estratégia clássica
+				robot_list[0].fixedPos = strats.Goalkeeper.fixedPos;
+				//cout<<robot_list[2].target.x<<" - "<<robot_list[2].target.y<<endl; 
+				circle(image,robot_list[0].target, 7, cv::Scalar(127,255,127), 2);
+				
+			}
+
 				send_vel_to_robots();
 			
 				// ----------------------------------------//
 					
 				
 				
-				if(v.HSV_calib_event_flag){
-				for(int i=0;i<3*(width*height + width) +2;i++)
-					d[i]=threshold[v.Img_id][i];
-					}
 						
 					
 		//PRINT RAW POSITIONS
@@ -470,7 +468,10 @@ public Gtk::HBox {
 				//timer.stop();
 				//cout<<"Time: "<<timer.getCPUTotalSecs()<<"	FPS: "<<1/timer.getCPUTotalSecs()<<endl;
 				//timer.reset();
-		
+		}if(v.HSV_calib_event_flag){
+				for(int i=0;i<3*(width*height + width) +2;i++)
+					d[i]=threshold[v.Img_id][i];
+					}
 			return true;
 		}
 
@@ -517,7 +518,7 @@ public Gtk::HBox {
 			for(int i=0;i<robot_list.size();i++){
 			if(fixed_ball[i])
 			 robot_list[i].target=Ball;
-			 			
+			 else{
 			 if(sqrt(pow((robot_list[i].position.x-robot_list[i].target.x),2)+
 				pow((robot_list[i].position.y-robot_list[i].target.y),2))<15){
 
@@ -528,7 +529,7 @@ public Gtk::HBox {
 				robot_list[i].Vl = 0 ;
 			}
 			 if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1){
-			 robot_list[i].goTo(robot_list[i].target);
+				robot_list[i].goTo(robot_list[i].target);
 			}else{
 				robot_list[i].Vr = 0 ;
 				robot_list[i].Vl = 0 ;
@@ -536,7 +537,7 @@ public Gtk::HBox {
 				
 			}
 			
-			
+		}
 
 			//cout<<"---------------------------------------------------"<<endl;
 		
@@ -568,6 +569,7 @@ public Gtk::HBox {
 				robot.secundary = Team_Sec[index[0]][index[1]];	
 				distanceRef = 999999999.0;			
 				robot_list[index[0]].position = robot.position; // colocar em um vetor
+				robot_list[index[0]].feedHist(robot.position);
 				robot_list[index[0]].secundary = robot.secundary; // colocar em um vetor
 				calcOrientation(index[0]);
 
@@ -601,7 +603,7 @@ public Gtk::HBox {
 			px = robot_list[tag_id].position.x; 
 			py = robot_list[tag_id].position.y; 
 			
-			robot_list[tag_id].orientation = atan2(sy-py,sx-px);
+			robot_list[tag_id].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
 			robot_list[tag_id].position.x = robot_list[tag_id].position.x;	
 			robot_list[tag_id].position.y = robot_list[tag_id].position.y;	
 		}
