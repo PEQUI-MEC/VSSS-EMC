@@ -1,7 +1,7 @@
 #ifndef ROBOT_HPP_
 #define ROBOT_HPP_
 #define PI 3.14159265453
-#define MAX_SAMPLES_HIST 25 // REGULA O TEMPO DE DETECÇÃO DA BATIDA
+#define MAX_SAMPLES_HIST 40 // REGULA O TEMPO DE DETECÇÃO DA BATIDA
 #define MAX_COLLISIONS 20 // REGULA O TEMPO DE REAÇÃO À BATIDA
 #include "opencv2/opencv.hpp"
 
@@ -183,9 +183,9 @@ void goTo(cv::Point targetPos){
 					return;
 				}
 				else{
-					double temp = Vr;
-					Vr = -Vl;	
-					Vl = -temp;
+					double temp = -vmax*(Vr+Vl)/abs(Vr+Vl);
+					Vr = temp;	
+					Vl = temp;
 				}
 		}
 	}

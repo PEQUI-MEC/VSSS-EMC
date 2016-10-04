@@ -68,14 +68,14 @@ Strategy()									// TUDO EM METROS
 void set_constants(int w, int h){
 		 width = w;
 		 height = h;
-		 COMPRIMENTO_CAMPO = round(1.50*float(width)/1.70); 
-		 LARGURA_CAMPO = 	height; 
-		 TAMANHO_GOL = 		round(0.35*float(height)/1.30); 
-		 TAMANHO_AREA = 		round(0.70*float(height)/1.30); 
+		 COMPRIMENTO_CAMPO = 	round(1.50*float(width)/1.70); 
+		 LARGURA_CAMPO 	= 		height; 
+		 TAMANHO_GOL 	= 		round(0.35*float(height)/1.30); 
+		 TAMANHO_AREA 	= 		247; 
 		
 		 BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO))+round(0.16*float(width)/1.70);
 		 DIVISAO_AREAS	=	round((0.50*COMPRIMENTO_CAMPO));
-		 OFFSET_BANHEIRA	=	round(0.20*float(width)/1.70);
+		 OFFSET_BANHEIRA=	round(0.20*float(width)/1.70);
 		 MEIO_GOL_X		=	round(COMPRIMENTO_CAMPO+round(0.1*float(width)/1.70));
 		 MEIO_GOL_Y		=	round(LARGURA_CAMPO/2);
 		 MAX_GOL_Y		=	round(MEIO_GOL_Y + TAMANHO_GOL/2);
@@ -112,6 +112,7 @@ cv::Point get_Attack_Classic(cv::Point robot) { // Estratégia de ataque clássi
 			//	cout<<"Não esta no Retangulo Lateral - ";
 				target.x = MEIO_GOL_X; //Vai na projeçao da bola na linha vertical do meio do gol
 				target.y = Ball.y;
+				
 				if ( target.y > MAX_GOL_Y) target.y = MAX_GOL_Y;
 				if ( target.y < MIN_GOL_Y) target.y = MIN_GOL_Y;	
 			}	
@@ -143,22 +144,21 @@ cv::Point get_Attack_Classic(cv::Point robot) { // Estratégia de ataque clássi
 			
 			}
 			else{
-				//cout<<"Atk atras da bola - ";
+				cout<<"Atk atras da bola - ";
 				// Ataque recuado
 				if(robot.x < COMPRIMENTO_CAMPO- round(0.2*float(width)/1.70)){
-				//	cout<<"Fora da area - ";
-					float phi = atan((MEIO_GOL_Y - Ball.y)/(MEIO_GOL_X - Ball.x));					// Angulo entre o gol e a bola
-					float theta = atan((MEIO_GOL_Y - robot.y)/(MEIO_GOL_X - robot.x));	// Angulo entre o gol e o atacante
-					target.x = Ball_Est.x - CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI;
-					target.y = Ball_Est.y - CONE_RATIO*sin(phi)*2*(abs(phi-theta))/PI;
+					cout<<"Fora da area - ";
+					float phi = atan(float(MEIO_GOL_Y - Ball.y)/float(MEIO_GOL_X - Ball.x));					// Angulo entre o gol e a bola
+					float theta = atan(float(MEIO_GOL_Y - robot.y)/float(MEIO_GOL_X - robot.x));	// Angulo entre o gol e o atacante
+					target.x = Ball_Est.x - round(CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI);
+					target.y = Ball_Est.y - round(CONE_RATIO*sin(phi)*2*(abs(phi-theta))/PI);
 					if(target.y<0 || target.y > LARGURA_CAMPO){
-						
-						theta = atan((robot.y - Ball.y)/(robot.x - Ball.x));
+					cout<<"Alvo fora - "; 	
 						target.x = Ball_Est.x;
 						target.y = Ball_Est.y;
 					}
 				}else{
-				//	cout<<"Na area - ";
+					cout<<"Na area - ";
 					target.x = Ball_Est.x;
 					target.y = Ball_Est.y;				// Fim das coisas fuzzy queninguem entende----------------------------|
 				}
@@ -174,7 +174,7 @@ cv::Point get_Attack_Classic(cv::Point robot) { // Estratégia de ataque clássi
 			target.y = Ball.y + OFFSET_BANHEIRA;
 		else
 			target.y = Ball.y - OFFSET_BANHEIRA;
-		cout<<endl;
+//		cout<<endl;
 	}
 	//cout<<target.x<<" - "<<target.y<<endl; 
 	
@@ -187,33 +187,23 @@ cv::Point get_Defense_Classic(cv::Point robot) { // Estratégia de defesa cláss
 	
 	if (Ball.x < DIVISAO_AREAS) { //Bola na defesa?
 		Defense.fixedPos=false;
-//		cout<<"Bola na Defesa - ";
+		cout<<"Bola na Defesa - ";
 		if (distBall < round(0.08*float(width)/1.70) && robot.x < Ball.x) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
-//			cout<<"Posse de Bola "<<"|";
-			if (robot.x > COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70) && ( robot.y < MIN_GOL_Y || robot.y > MAX_GOL_Y)) { //-------------------?
-//				cout<<"Retangulo Lateral - ";
-				// robo esta nos retangulos laterais(com aprox 20cm a partir do fundo do gol) do gol adversario?
-				target.x = Ball_Est.x; //Vai na estimativa da bola
-				target.y = Ball_Est.y;	
-			}
-			else {
-	//			cout<<"Não esta no Retangulo Lateral - ";
+			cout<<"Posse de Bola "<<"|";
 				target.x = MEIO_GOL_X; //Vai na projeçao da bola na linha vertical do meio do gol
 				target.y = Ball.y;
 				if ( target.y > MAX_GOL_Y) target.y = MAX_GOL_Y;
 				if ( target.y < MIN_GOL_Y) target.y = MIN_GOL_Y;	
-			} //-----------------------------------------------------------------------------------------------------------?
 		}
 		else { // Sem a bola
-	//		cout<<"Sem Posse de Bola - ";
-			if (robot.x > Ball_Est.x + round(0.04*float(width)/1.70)) {
-	//			cout<<"Atk na frente da bola - ";
+			cout<<"Sem Posse de Bola - ";
+			if (robot.x > Ball.x + round(0.04*float(width)/1.70)) {
 				target.x = Ball_Est.x-round(0.16*float(width)/1.70);	//Coisas fuzzy que ninguem entende a partir daqui----------------------------|
 				// Ataque adiantado, da a volta na bola
-				float diff = (Ball_Est.y - robot.y)/LARGURA_CAMPO;
-				float offset = pow(cos(PI*diff/2),6)*OFFSET_RATIO*cos(2*PI*diff);
-				float mixrb = abs(diff)*Ball_Est.y + (1-abs(diff))*robot.y;
-
+				float diff = float(Ball_Est.y - robot.y)/float(LARGURA_CAMPO);
+				float offset = pow(cos(PI*diff/2),6)*float(OFFSET_RATIO)*cos(2*PI*diff);
+				float mixrb = abs(diff)*float(Ball_Est.y) + (1-abs(diff))*float(robot.y);
+				
 				if(diff>0)
 					target.y = round(mixrb - offset);
 				else
@@ -224,23 +214,25 @@ cv::Point get_Defense_Classic(cv::Point robot) { // Estratégia de defesa cláss
 					target.y = round(mixrb + offset);	
 				else if(target.y>LARGURA_CAMPO)
 					target.y = round(mixrb - offset);
+					
 			}
 			else{
-	//			cout<<"Atk atras da bola - ";
 				// Ataque recuado
+				cout<<"Robo atras - ";
 				if(robot.x < COMPRIMENTO_CAMPO-round(0.2*float(width)/1.70)){
-		//			cout<<"Fora da area - ";
-					float phi = atan((MEIO_GOL_Y - Ball.y)/(MEIO_GOL_X - Ball.x));		// Angulo entre o gol e a bola
-					float theta = atan((MEIO_GOL_Y - robot.y)/(MEIO_GOL_X - robot.x));	// Angulo entre o gol e o atacante
-					target.x = Ball_Est.x - CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI;
-					target.y = Ball_Est.y - CONE_RATIO*sin(phi)*2*(abs(phi-theta))/PI;
+					cout<<"Dentro linha area - ";
+					// Dentro da area
+					float phi = atan(MEIO_GOL_Y - Ball.y)/(MEIO_GOL_X - Ball.x);		// Angulo entre o gol e a bola
+					float theta = atan(MEIO_GOL_Y - robot.y)/(MEIO_GOL_X - robot.x);	// Angulo entre o gol e o atacante
+					target.x = Ball_Est.x - round(CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI);
+					target.y = Ball_Est.y - round(CONE_RATIO*sin(phi)*2*(abs(phi-theta))/PI);
 					if(target.y<0 || target.y > LARGURA_CAMPO){
 						theta = atan((robot.y - Ball.y)/(robot.x - Ball.x));
 						target.x = Ball_Est.x;
 						target.y = Ball_Est.y;
 					}
 				}else{
-		//			cout<<"Na area - ";
+					cout<<"fora linha area - ";
 					target.x = Ball_Est.x;
 					target.y = Ball_Est.y;				// Fim das coisas fuzzy que ninguem entende----------------------------|
 				}
@@ -248,14 +240,14 @@ cv::Point get_Defense_Classic(cv::Point robot) { // Estratégia de defesa cláss
 		}
 	}
 	else {
-	//	cout<<"Bola no Ataque - ";
+		cout<<"Bola no Ataque - ";
 		// Bola no ataque
 		target.x = LINHA_ZAGA;
 		Defense.fixedPos=true;
 		if (ZAGA_CENTRALIZADA) {
 			//cout<<"Entrou no if porra "<<endl;			
 			
-			long alpha = (Ball_Est.y - DIVISAO_AREAS)/(DESLOCAMENTO_ZAGA_ATAQUE*COMPRIMENTO_CAMPO - DIVISAO_AREAS);
+			float alpha = float(Ball_Est.y - DIVISAO_AREAS)/float(DESLOCAMENTO_ZAGA_ATAQUE*COMPRIMENTO_CAMPO - DIVISAO_AREAS);
 		//	cout<<"alpha  "<<long(alpha);
 			target.y = round((alpha*LARGURA_CAMPO/2) + (1+alpha)*Ball_Est.y);
 		}
@@ -263,7 +255,20 @@ cv::Point get_Defense_Classic(cv::Point robot) { // Estratégia de defesa cláss
 			target.y = Ball_Est.y;
 		}
 	}
-//	cout<<endl;
+	
+	if(target.x < 113 && (target.y > LARGURA_CAMPO/2-TAMANHO_AREA/2 && target.y < LARGURA_CAMPO/2+TAMANHO_AREA/2)){
+		target.x = LINHA_ZAGA;
+		Defense.fixedPos=true;
+		target.y = Ball.y;
+		cout<<"Nao dexa area - ";
+	}
+
+	if (target.x < 38) {
+		target.x = 47;
+		cout<<"Nao dexa fora - ";
+	}
+	
+	cout<<endl;
 	return target;
 }
 
@@ -288,13 +293,13 @@ void set_Ball(cv::Point b){
 
 cv::Point get_gk_target(){
 
-		Goalkeeper.target.x = 50;
+		Goalkeeper.target.x = 55;
 		Goalkeeper.target.y = Ball_Est.y;
 	
 		if (Goalkeeper.target.y > 354)
 		Goalkeeper.target.y = 354;
-	else if (Goalkeeper.target.y < 166)
-		Goalkeeper.target.y = 166;	
+	else if (Goalkeeper.target.y < 150)
+		Goalkeeper.target.y = 150;	
 		Goalkeeper.fixedPos=true;
 		return Goalkeeper.target;
 

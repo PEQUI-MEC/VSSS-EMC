@@ -405,9 +405,9 @@ public Gtk::HBox {
 				line(image,Ball,Ball_Est,cv::Scalar(127,127,255), 2);
 				circle(image,Ball_Est, 7, cv::Scalar(127,127,255), 2); 
 			if(start_game_flag){
-				robot_list[0].target = strats.get_gk_target(); // Estratégia clássica
-				robot_list[0].fixedPos = strats.Goalkeeper.fixedPos;
-				//cout<<robot_list[2].target.x<<" - "<<robot_list[2].target.y<<endl; 
+				robot_list[0].target = strats.get_Defense_Classic(robot_list[0].position); // Estratégia clássica
+				robot_list[0].fixedPos = strats.Defense.fixedPos;
+				cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl; 
 				circle(image,robot_list[0].target, 7, cv::Scalar(127,255,127), 2);
 				
 			}
@@ -483,6 +483,7 @@ public Gtk::HBox {
 				}
 			}
 			if(Selec_index>-1){
+				robot_list[Selec_index].histWipe();
 			if(sqrt(pow((Ball.x-robot_list[Selec_index].target.x),2)+pow((Ball.y-robot_list[Selec_index].target.y),2))<=7)
 				fixed_ball[Selec_index]=true;
 
@@ -557,19 +558,19 @@ public Gtk::HBox {
 			// Atualizar as labels de posição dos robos
 
 			stringstream aux1;
-			aux1 << "(" << round((robot_list[0].position.x)*170/double(w))<< "," << round((robot_list[0].position.y)*130/double(h))<< "," << round(robot_list[0].orientation*(180/PI)) << ")";
+			aux1 << "(" << round((robot_list[0].position.x))<< "," << round((robot_list[0].position.y))<< "," << round(robot_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
 			stringstream aux2;
-			aux2 << "(" << round((robot_list[1].position.x)*170/double(w))<< "," << round((robot_list[1].position.y)*130/double(h))<< "," << round((robot_list[1].orientation*(180/PI))) << ")";
+			aux2 << "(" << round((robot_list[1].position.x))<< "," << round((robot_list[1].position.y))<< "," << round((robot_list[1].orientation*(180/PI))) << ")";
 			robot2_pos_lb->set_text(aux2.str());
 
 			stringstream aux3;
-			aux3 << "(" << round((robot_list[2].position.x)*170/double(w))<< "," << round((robot_list[2].position.y)*130/double(h)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
+			aux3 << "(" << round((robot_list[2].position.x))<< "," << round((robot_list[2].position.y)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
 			
 			robot3_pos_lb->set_text(aux3.str());
 			 stringstream aux4;
-				aux4 << "(" << round((Ball.x)*170/double(w))<< "," << round((Ball.y)*130/double(h)) << ")";
+				aux4 << "(" << round((Ball.x))<< "," << round((Ball.y)) << ")";
 				ball_pos_lb->set_text(aux4.str());
 	}	
 
@@ -1172,6 +1173,8 @@ public Gtk::HBox {
 				start_game_flag = false;
 				start_game_bt.set_image(red_button_released);
 			}
+			for(int i=0;i<3;i++)
+			robot_list[i].histWipe();
 		}
 
 		void createPositionsFrame()
