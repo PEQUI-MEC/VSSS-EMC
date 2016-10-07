@@ -47,6 +47,8 @@ namespace capture {
 			bool auto_calib_flag = false;
 			bool quick_save_flag = false;
 			bool quick_load_flag = false;
+			bool save_robots_info_flag = false;
+			bool load_robots_info_flag = false;
 			
 			Gtk::ToggleButton bt_warp;
 			Gtk::ToggleButton bt_adjust;
@@ -112,6 +114,8 @@ namespace capture {
 			void __event_bt_save_warp_clicked();
 			void __event_bt_load_warp_clicked();
 			void __event_bt_reset_warp_clicked();
+			void __event_bt_save_robots_info_clicked();
+			void __event_bt_load_robots_info_clicked();
 			     
 			void __event_bt_HSV_calib_pressed();
 			void __event_bt_auto_calib_pressed();

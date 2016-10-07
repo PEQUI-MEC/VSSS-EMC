@@ -85,7 +85,14 @@ public Gtk::HBox {
 		Gtk::Label *ball_pos_lb;
 		vector<string> robot_pos;
 		Gtk::Button start_game_bt;
+
 		Gtk::Frame robots_pos_fm;
+		Gtk::Frame robots_buttons_fm;
+		Gtk::VBox robots_pos_buttons_vbox;
+		Gtk::Button robots_save_bt;
+		Gtk::Button robots_load_bt;
+		Gtk::HBox robots_buttons_hbox;
+
 
 		Gtk::Image red_button_released;
 		Gtk::Image red_button_pressed;
@@ -97,11 +104,13 @@ public Gtk::HBox {
 		Gtk::Button robots_id_edit_bt;
 		Gtk::Button robots_id_done_bt;
 		Gtk::Entry robots_id_box[3];
+		Glib::ustring robots_id_tmp[3];
 		bool robots_id_edit_flag = false;
 
 		Gtk::Frame robots_speed_fm;
 		Gtk::VBox robots_speed_vbox;
 		Gtk::HScale robots_speed_hscale[3];
+		double robots_speed_tmp[3];
 		Gtk::HBox robots_speed_hbox[4];
 		Gtk::Button robots_speed_edit_bt;
 		Gtk::Button robots_speed_done_bt;
@@ -111,6 +120,7 @@ public Gtk::HBox {
 		Gtk::VBox robots_function_vbox;
 		Gtk::HBox robots_function_hbox[4];
 		Gtk::ComboBoxText cb_robot_function[3];
+		int robots_function_tmp[3];
 		Gtk::Button robots_function_edit_bt;
 		Gtk::Button robots_function_done_bt;
 		bool robots_function_edit_flag = false;
@@ -215,6 +225,8 @@ public Gtk::HBox {
 				robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
 				robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
 				robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
+				robots_save_bt.set_state(Gtk::STATE_NORMAL);
+				robots_load_bt.set_state(Gtk::STATE_NORMAL);
 				
 			threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));		
 			for(int i = 0; i < 6; i++)
@@ -239,6 +251,8 @@ public Gtk::HBox {
 				robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 				robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 				robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_save_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_load_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 			}
 
@@ -277,6 +291,8 @@ public Gtk::HBox {
 			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
 				
+			 if (v.save_robots_info_flag)	event_robots_save_bt_signal_clicked();
+			 if (v.load_robots_info_flag)	event_robots_load_bt_signal_clicked();
 			 
 			 if(v.save_warp_flag)	 save_warp();
 			 if(v.load_warp_flag)	 load_warp();
@@ -284,6 +300,8 @@ public Gtk::HBox {
 			
 			 if(v.save_HSV_calib_flag)	 save_HSV();
 			 if(v.load_HSV_calib_flag) 	 load_HSV();
+
+			 
 			 
 			 if(warped){
 				v.bt_warp.set_active(false);
@@ -1077,7 +1095,7 @@ public Gtk::HBox {
 			camera_vbox.pack_start(info_fm, false, true, 10);
 			info_fm.add(info_hbox);
 
-			createPositionsFrame();
+			createPositionsAndButtonsFrame();
 			createIDsFrame();
 			createFunctionsFrame();
 			createSpeedsFrame();
@@ -1123,20 +1141,27 @@ public Gtk::HBox {
 			if (!robots_id_edit_flag)
 			{
 				robots_id_edit_flag = true;
-				robots_speed_done_bt.set_label("Cancel");
+				robots_id_edit_bt.set_label("Cancel");
 				robots_id_box[0].set_state(Gtk::STATE_NORMAL);
 				robots_id_box[1].set_state(Gtk::STATE_NORMAL);
 				robots_id_box[2].set_state(Gtk::STATE_NORMAL);
 				robots_id_done_bt.set_state(Gtk::STATE_NORMAL);
+				robots_id_tmp[0] = robots_id_box[0].get_text();
+				robots_id_tmp[1] = robots_id_box[1].get_text();
+				robots_id_tmp[2] = robots_id_box[2].get_text();
+
 			}
 			else
 			{
 				robots_id_edit_flag = false;
-				robots_speed_done_bt.set_label("Edit");
+				robots_id_edit_bt.set_label("Edit");
 				robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
 				robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
 				robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 				robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_id_box[0].set_text(robots_id_tmp[0]);
+				robots_id_box[1].set_text(robots_id_tmp[1]);
+				robots_id_box[2].set_text(robots_id_tmp[2]);
 			}
 		}
 
@@ -1150,8 +1175,12 @@ public Gtk::HBox {
 			str = robots_id_box[2].get_text();
 			robot_list[2].ID = str[0];
 
-			// Presiona o botão edit para deixar tudo insensitivo
-			event_robots_id_edit_bt_signal_pressed();
+			robots_id_edit_flag = false;
+			robots_id_edit_bt.set_label("Edit");
+			robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
+			robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
+			robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
+			robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
 			
 		}
 
@@ -1165,6 +1194,9 @@ public Gtk::HBox {
 				robots_speed_hscale[0].set_state(Gtk::STATE_NORMAL);
 				robots_speed_hscale[1].set_state(Gtk::STATE_NORMAL);
 				robots_speed_hscale[2].set_state(Gtk::STATE_NORMAL);
+				robots_speed_tmp[0] = robots_speed_hscale[0].get_value();
+				robots_speed_tmp[1] = robots_speed_hscale[1].get_value();
+				robots_speed_tmp[2] = robots_speed_hscale[2].get_value();
 			}
 			else
 			{
@@ -1174,6 +1206,10 @@ public Gtk::HBox {
 				robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
 				robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
 				robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
+				robots_speed_hscale[0].set_value(robots_speed_tmp[0]);
+				robots_speed_hscale[1].set_value(robots_speed_tmp[1]);
+				robots_speed_hscale[2].set_value(robots_speed_tmp[2]);
+
 			}
 		}
 
@@ -1182,8 +1218,13 @@ public Gtk::HBox {
 			robot_list[0].vmax = (float) robots_speed_hscale[0].get_value();
 			robot_list[1].vmax = (float) robots_speed_hscale[1].get_value();
 			robot_list[2].vmax = (float) robots_speed_hscale[2].get_value();
-			// Presiona o botão edit para deixar tudo insensitivo
-			event_robots_speed_edit_bt_signal_pressed();
+			robots_speed_edit_flag = false;
+			robots_speed_edit_bt.set_label("Edit");
+			robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
+			
 		}
 
 		void event_start_game_bt_signal_clicked()
@@ -1213,6 +1254,10 @@ public Gtk::HBox {
 				cb_robot_function[1].set_state(Gtk::STATE_NORMAL);
 				cb_robot_function[2].set_state(Gtk::STATE_NORMAL);
 				robots_function_done_bt.set_state(Gtk::STATE_NORMAL);
+				robots_function_tmp[0] = cb_robot_function[0].get_active_row_number();
+				robots_function_tmp[1] = cb_robot_function[1].get_active_row_number();
+				robots_function_tmp[2] = cb_robot_function[2].get_active_row_number();
+
 			}
 			else
 			{
@@ -1222,6 +1267,9 @@ public Gtk::HBox {
 				cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
 				cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
 				robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+				cb_robot_function[0].set_active(robots_function_tmp[0]);
+				cb_robot_function[1].set_active(robots_function_tmp[1]);
+				cb_robot_function[2].set_active(robots_function_tmp[2]);
 			}
 		}
 
@@ -1233,17 +1281,17 @@ public Gtk::HBox {
 			{
 				s[i] = cb_robot_function[i].get_active_text();
 
-				if (s[i].compare("Goleiro") == 0)
+				if (s[i].compare("Goalkeeper") == 0)
 				{
 					std::cout << "Robot " << i+1 << ": Goleiro." << std::endl;
 					robot_list[i].target = strats.get_gk_target();
 				}
-				else if (s[i].compare("Lenhador") == 0)
+				else if (s[i].compare("Defense") == 0)
 				{
 					std::cout << "Robot " << i+1 << ": Lenhador." << std::endl;
 					robot_list[i].target = strats.get_Defense_Classic(robot_list[i].position);
 				}
-				else if (s[i].compare("Ojuara") == 0)
+				else if (s[i].compare("Attack") == 0)
 				{
 					std::cout << "Robot " << i+1 << ": Ojuara." << std::endl;
 					robot_list[i].target = strats.get_Attack_Classic(robot_list[i].position);
@@ -1256,7 +1304,12 @@ public Gtk::HBox {
 
 			}
 
-			event_robots_function_edit_bt_signal_clicked();
+			robots_function_edit_flag = false;
+			robots_function_edit_bt.set_label("Edit");
+			cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
+			cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
+			cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
+			robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
 			
 		}
 
@@ -1275,11 +1328,11 @@ public Gtk::HBox {
 			label = new Gtk::Label("Robot 1: ");
 			std::string function[3];
 			function[0].clear();
-    		function[0].append("Goleiro");
+    		function[0].append("Goalkeeper");
     		function[1].clear();
-    		function[1].append("Lenhador");
+    		function[1].append("Defense");
     		function[2].clear();
-    		function[2].append("Ojuara");
+    		function[2].append("Attack");
     		cb_robot_function[0].append(function[0]);
     		cb_robot_function[0].append(function[1]);
     		cb_robot_function[0].append(function[2]);
@@ -1321,10 +1374,13 @@ public Gtk::HBox {
 
 		}
 
-		void createPositionsFrame()
+		void createPositionsAndButtonsFrame()
 		{
+
+			info_hbox.pack_start(robots_pos_buttons_vbox, false, true, 5);
+
 			robots_pos_fm.set_label("Positions");
-			info_hbox.pack_start(robots_pos_fm, false, true, 5);
+			robots_pos_buttons_vbox.pack_start(robots_pos_fm, false, true, 5);
 			robots_pos_fm.add(robots_pos_vbox);
 			robots_pos_vbox.set_size_request(170,-1);
 
@@ -1354,7 +1410,89 @@ public Gtk::HBox {
 			robots_pos_hbox[3].pack_start(*label, false, true, 5);
 			robots_pos_hbox[3].pack_start(*ball_pos_lb, false, true, 5);
 			robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
+
+			robots_pos_buttons_vbox.pack_start(robots_buttons_fm, false, true, 5);
+			robots_buttons_fm.add(robots_buttons_hbox);
+
+			robots_save_bt.set_label("Save");
+			robots_load_bt.set_label("Load");
+			robots_save_bt.set_state(Gtk::STATE_INSENSITIVE);
+			robots_load_bt.set_state(Gtk::STATE_INSENSITIVE);
+			robots_buttons_hbox.set_margin_top(7);
+			robots_buttons_hbox.set_margin_bottom(7);
+			robots_buttons_hbox.set_halign(Gtk::ALIGN_CENTER);
+			robots_buttons_hbox.pack_start(robots_save_bt, false, true, 5);
+			robots_buttons_hbox.pack_start(robots_load_bt, false, true, 5);
+
+			robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_save_bt_signal_clicked));
+			robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_load_bt_signal_clicked));
+
+
+
 		}
+
+		void event_robots_save_bt_signal_clicked()
+		{
+			std::ofstream txtFile;
+		
+
+		if (v.quick_save_flag)
+		{
+			txtFile.open("INFO_quicksave.txt");
+			v.save_robots_info_flag = false;
+		}
+		else
+		{
+			std::cout<<"saving robots info"<<std::endl;
+			FileChooser loadWindow;
+		
+			if (loadWindow.result == Gtk::RESPONSE_OK)
+				txtFile.open(loadWindow.filename.c_str());
+			else
+				return;
+		}
+
+			
+		for (int i = 0; i < 3; i++) {
+			txtFile << robots_id_box[i].get_text() <<std::endl;
+			txtFile << cb_robot_function[i].get_active_row_number() <<std::endl;
+			txtFile << robots_speed_hscale[i].get_value() <<std::endl;
+		}
+		txtFile.close();
+
+	}
+
+		void event_robots_load_bt_signal_clicked()
+		{
+			std::ifstream txtFile;
+		if (v.quick_load_flag)
+		{
+			txtFile.open("INFO_quicksave.txt");
+			v.load_robots_info_flag = false;
+		}
+		else
+		{
+			std::cout<<"loading robots info"<<std::endl;
+			FileChooser loadWindow;
+
+			
+			if (loadWindow.result == Gtk::RESPONSE_OK)
+				txtFile.open(loadWindow.filename.c_str());
+			else
+				return;
+		}
+
+		std::string linha;
+			
+		for (int i = 0; i < 3; i++) {
+			getline(txtFile, linha); robots_id_box[i].set_text(linha.c_str());
+			getline(txtFile, linha); cb_robot_function[i].set_active(atoi(linha.c_str()));
+			getline(txtFile, linha); robots_speed_hscale[i].set_value(atof(linha.c_str()));
+		}
+		txtFile.close();
+		
+		}
+		
 
 		void createIDsFrame()
 		{
