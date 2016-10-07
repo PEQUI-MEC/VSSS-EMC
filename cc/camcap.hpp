@@ -108,10 +108,11 @@ public Gtk::HBox {
 		bool robots_id_edit_flag = false;
 
 		Gtk::Frame robots_speed_fm;
-		Gtk::VBox robots_speed_vbox;
+		Gtk::VBox robots_speed_vbox[4];
 		Gtk::HScale robots_speed_hscale[3];
 		double robots_speed_tmp[3];
 		Gtk::HBox robots_speed_hbox[4];
+		Gtk::ProgressBar robots_speed_progressBar[3];
 		Gtk::Button robots_speed_edit_bt;
 		Gtk::Button robots_speed_done_bt;
 		bool robots_speed_edit_flag = false;
@@ -1547,14 +1548,14 @@ public Gtk::HBox {
 		{
 			info_hbox.pack_start(robots_speed_fm, false, true, 5);
 			robots_speed_fm.set_label("Speeds");
-			robots_speed_fm.add(robots_speed_vbox);
+			robots_speed_fm.add(robots_speed_vbox[0]);
 
 
 			robots_speed_hbox[0].pack_start(robots_speed_edit_bt, false, true, 5);
 			robots_speed_edit_bt.set_label("Edit");
 			robots_speed_hbox[0].pack_end(robots_speed_done_bt, false, true, 5);
 			robots_speed_done_bt.set_label("Done");
-			robots_speed_vbox.pack_start(robots_speed_hbox[0], false, true, 5);
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[0], false, true, 5);
 
 			label = new Gtk::Label("Robot 1:");
 			//label->set_yalign(1.0);
@@ -1564,9 +1565,15 @@ public Gtk::HBox {
 			robots_speed_hscale[0].set_size_request(100,-1);
 			//robots_speed_hscale[0].set_inverted(true);
 			robots_speed_hscale[0].set_value(6);
-			robots_speed_hbox[1].pack_start(*label, false, true, 5);
-			robots_speed_hbox[1].pack_start(robots_speed_hscale[0], false, true, 5);
-			robots_speed_vbox.pack_start(robots_speed_hbox[1], false, true, 5);
+			robots_speed_hbox[1].pack_start(*label, false, true, 0);
+			robots_speed_hbox[1].pack_start(robots_speed_vbox[1], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_hscale[0], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
+			robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[0].set_show_text(true);
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
 			label = new Gtk::Label("Robot 2:");
 			//label->set_yalign(1.0);
@@ -1576,9 +1583,15 @@ public Gtk::HBox {
 			robots_speed_hscale[1].set_size_request(100,-1);
 			//robots_speed_hscale[1].set_inverted(true);
 			robots_speed_hscale[1].set_value(6);
-			robots_speed_hbox[2].pack_start(*label, false, true, 5);
-			robots_speed_hbox[2].pack_start(robots_speed_hscale[1], false, true, 5);
-			robots_speed_vbox.pack_start(robots_speed_hbox[2], false, true, 5);
+			robots_speed_hbox[2].pack_start(*label, false, true, 0);
+			robots_speed_hbox[2].pack_start(robots_speed_vbox[2], false, true, 0);
+			robots_speed_vbox[2].pack_start(robots_speed_hscale[1], false, true, 0);
+			robots_speed_vbox[2].pack_start(robots_speed_progressBar[1], false, true, 0);
+			robots_speed_progressBar[1].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[1].set_text(to_string(robot_list[1].V).substr(0,3));
+			robots_speed_progressBar[1].set_show_text(true);
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
 
 			label = new Gtk::Label("Robot 3:");
 			//label->set_yalign(1.0);
@@ -1588,9 +1601,15 @@ public Gtk::HBox {
 			robots_speed_hscale[2].set_size_request(100,-1);
 			//robots_speed_hscale[2].set_inverted(true);
 			robots_speed_hscale[2].set_value(6);
-			robots_speed_hbox[3].pack_start(*label, false, true, 5);
-			robots_speed_hbox[3].pack_start(robots_speed_hscale[2], false, true, 5);
-			robots_speed_vbox.pack_start(robots_speed_hbox[3], false, true, 5);
+			robots_speed_hbox[3].pack_start(*label, false, true, 0);
+			robots_speed_hbox[3].pack_start(robots_speed_vbox[3], false, true, 0);
+			robots_speed_vbox[3].pack_start(robots_speed_hscale[2], false, true, 0);
+			robots_speed_vbox[3].pack_start(robots_speed_progressBar[2], false, true, 0);
+			robots_speed_progressBar[2].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[2].set_text(to_string(robot_list[2].V).substr(0,3));
+			robots_speed_progressBar[2].set_show_text(true);
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
 
 			robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
 			robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
