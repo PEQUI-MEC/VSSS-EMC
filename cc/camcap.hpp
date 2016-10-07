@@ -1518,17 +1518,17 @@ public Gtk::HBox {
 			robot_list[i].ID = linha.c_str()[0];
 
 			getline(txtFile, linha); cb_robot_function[i].set_active(atoi(linha.c_str()));
-			if (linha.compare("Goalkeeper") == 0)
+			if (cb_robot_function[i].get_active_row_number() == 0)
 				{
 					std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
 					robot_list[i].target = strats.get_gk_target();
 				}
-				else if (linha.compare("Defense") == 0)
+				else if (cb_robot_function[i].get_active_row_number() == 1)
 				{
 					std::cout << "Robot " << i+1 << ": Defense." << std::endl;
 					robot_list[i].target = strats.get_def_target(robot_list[i].position);
 				}
-				else if (linha.compare("Attack") == 0)
+				else if (cb_robot_function[i].get_active_row_number() == 2)
 				{
 					std::cout << "Robot " << i+1 << ": Attack." << std::endl;
 					robot_list[i].target = strats.get_atk_target(robot_list[i].position);
