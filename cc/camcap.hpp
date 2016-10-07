@@ -1383,7 +1383,7 @@ public Gtk::HBox {
 			robots_pos_fm.set_label("Positions");
 			robots_pos_buttons_vbox.pack_start(robots_pos_fm, false, true, 5);
 			robots_pos_fm.add(robots_pos_vbox);
-			robots_pos_vbox.set_size_request(170,-1);
+			robots_pos_vbox.set_size_request(190,-1);
 
 
 			label = new Gtk::Label("Robot 1:");
@@ -1487,7 +1487,7 @@ public Gtk::HBox {
 			
 		for (int i = 0; i < 3; i++) {
 			getline(txtFile, linha); robots_id_box[i].set_text(linha.c_str());
-			robot_list[i].ID = linha.c_str();
+			robot_list[i].ID = linha.c_str()[0];
 
 			getline(txtFile, linha); cb_robot_function[i].set_active(atoi(linha.c_str()));
 			if (linha.compare("Goalkeeper") == 0)
@@ -1599,7 +1599,7 @@ public Gtk::HBox {
 			robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
 			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
 			robots_speed_progressBar[0].set_show_text(true);
-			robots_speed_progressBar[0].set_fraction(static_cast<double> robot_list[0].V);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
 			robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
 			label = new Gtk::Label("Robot 2:");
@@ -1618,7 +1618,7 @@ public Gtk::HBox {
 			robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
 			robots_speed_progressBar[1].set_text(to_string(robot_list[1].V).substr(0,3));
 			robots_speed_progressBar[1].set_show_text(true);
-			robots_speed_progressBar[1].set_fraction(static_cast<double> robot_list[1].V);
+			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
 			robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
 
 			label = new Gtk::Label("Robot 3:");
@@ -1637,7 +1637,7 @@ public Gtk::HBox {
 			robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
 			robots_speed_progressBar[2].set_text(to_string(robot_list[2].V).substr(0,3));
 			robots_speed_progressBar[2].set_show_text(true);
-			robots_speed_progressBar[2].set_fraction(static_cast<double> robot_list[2].V);
+			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
 			robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
 
 			robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
@@ -1655,9 +1655,9 @@ public Gtk::HBox {
 
 		void update_speed_progressBars()
 		{
-			robots_speed_progressBar[0].set_fraction(static_cast<double> robot_list[0].V);
-			robots_speed_progressBar[1].set_fraction(static_cast<double> robot_list[1].V);
-			robots_speed_progressBar[2].set_fraction(static_cast<double> robot_list[2].V);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
+			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
+			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
 		}
 
 };
