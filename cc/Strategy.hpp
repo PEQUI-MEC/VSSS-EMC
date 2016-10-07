@@ -99,9 +99,12 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 	
 	distBall = sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2));
 //	cout<<"Status - "<<Attack.status<<endl;
-
 	Attack.status = 0;
 
+	if (Ball_Est.x > Ball.x && ( Ball_Est.y > MIN_GOL_Y || Ball_Est.y < MAX_GOL_Y) && Attack.previous_status == 2) {
+		Attack.status = 2;
+	}
+	
 	if (Ball.x > DIVISAO_AREAS) { //Bola no ataque?
 		Attack.fixedPos=false;
 		//cout<<"Bola no Ataque "<<"|";
@@ -191,7 +194,7 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 //		cout<<endl;
 	}
 	//cout<<target.x<<" - "<<target.y<<endl; 
-	
+	cout<<" - Attack Status - "<<Attack.status<<endl;
 	return target;
 	
 }
@@ -304,8 +307,8 @@ void set_Ball(cv::Point b){
 	LS_ball_x.addValue(Ball.x);
 	LS_ball_y.addValue(Ball.y);
 	
-	Ball_Est.x =  LS_ball_x.estimate(7);
-	Ball_Est.y =  LS_ball_y.estimate(7);
+	Ball_Est.x =  LS_ball_x.estimate(5);
+	Ball_Est.y =  LS_ball_y.estimate(5);
 
 	}
 	

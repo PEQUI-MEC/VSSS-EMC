@@ -293,7 +293,7 @@ public Gtk::HBox {
 			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
 
-			 update_speed_progressBars();
+			
 				
 			 if (v.save_robots_info_flag)	event_robots_save_bt_signal_clicked();
 			 if (v.load_robots_info_flag)	event_robots_load_bt_signal_clicked();
@@ -405,7 +405,7 @@ public Gtk::HBox {
 				parallel_tracking(image);
 				if(!v.HSV_calib_event_flag){
 				robot_creation();
-					
+				
 			
 			
 				circle(image,robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
@@ -465,10 +465,12 @@ public Gtk::HBox {
 				case 2:
 				robot_list[i].target = strats.get_atk_target(robot_list[i].position);
 				robot_list[i].fixedPos = strats.Attack.fixedPos;
+				robot_list[i].status = strats.Attack.status;
 				break;
 				case 1:
 				robot_list[i].target = strats.get_def_target(robot_list[i].position);
 				robot_list[i].fixedPos = strats.Defense.fixedPos;
+				robot_list[i].status = strats.Defense.status;
 				break;
 			}
 				//cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl; 
@@ -477,7 +479,8 @@ public Gtk::HBox {
 					putText(image,std::to_string(i+1),cv::Point(robot_list[i].target.x-5,robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);	
 			}
 			}
-
+				cout<<robot_list[2].status<<" | "<<robot_list[2].V<<endl;
+				update_speed_progressBars();	
 				send_vel_to_robots();		
 				// ----------------------------------------//
 					
@@ -1520,18 +1523,18 @@ public Gtk::HBox {
 			getline(txtFile, linha); cb_robot_function[i].set_active(atoi(linha.c_str()));
 			if (linha.compare("Goalkeeper") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Goleiro." << std::endl;
+					std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
 					robot_list[i].target = strats.get_gk_target();
 				}
 				else if (linha.compare("Defense") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Lenhador." << std::endl;
-					robot_list[i].target = strats.get_Defense_Classic(robot_list[i].position);
+					std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+					robot_list[i].target = strats.get_def_target(robot_list[i].position);
 				}
 				else if (linha.compare("Attack") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Ojuara." << std::endl;
-					robot_list[i].target = strats.get_Attack_Classic(robot_list[i].position);
+					std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+					robot_list[i].target = strats.get_atk_target(robot_list[i].position);
 				}
 				else
 				{
@@ -1683,9 +1686,13 @@ public Gtk::HBox {
 
 		void update_speed_progressBars()
 		{
-			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
-			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
-			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V/6);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V/6);
+			robots_speed_progressBar[1].set_text(to_string(robot_list[1].V).substr(0,3));
+			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V/6);
+			robots_speed_progressBar[2].set_text(to_string(robot_list[2].V).substr(0,3));
+			
 		}
 
 };
