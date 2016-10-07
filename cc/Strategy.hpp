@@ -98,13 +98,19 @@ void set_constants(int w, int h){
 cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (Antigo Ojuara)
 	
 	distBall = sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2));
+//	cout<<"Status - "<<Attack.status<<endl;
+
+	Attack.status = 0;
 
 	if (Ball.x > DIVISAO_AREAS) { //Bola no ataque?
 		Attack.fixedPos=false;
 		//cout<<"Bola no Ataque "<<"|";
 		if (distBall < round(0.08*float(width)/1.70) && robot.x < Ball.x) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
 			//	cout<<"Posse de Bola - ";
-
+			
+			Attack.status = 2;
+//			cout<<"Status - "<<Attack.status<<endl;
+			
 			if (robot.x > COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70) && ( robot.y < MIN_GOL_Y || robot.y > MAX_GOL_Y)) {
 			//	cout<<"Retangulo Lateral - ";
 				// robo esta nos retangulos laterais(com aprox 20cm a partir do fundo do gol) do gol adversario?
@@ -132,6 +138,8 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 			
 				float mixrb = abs(diff)*float(Ball_Est.y) + (1-abs(diff))*float(robot.y);
 				
+				
+				
 				if(diff>0)
 					target.y = round(mixrb - offset);
 				else
@@ -150,6 +158,10 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 				// Ataque recuado
 				if(robot.x < COMPRIMENTO_CAMPO- round(0.2*float(width)/1.70)){
 //					cout<<"Fora da area - ";
+					
+					Attack.status = 1;
+//					cout<<"Status - "<<Attack.status<<endl;
+					
 					float phi = atan(float(MEIO_GOL_Y - Ball.y)/float(MEIO_GOL_X - Ball.x));					// Angulo entre o gol e a bola
 					float theta = atan(float(MEIO_GOL_Y - robot.y)/float(MEIO_GOL_X - robot.x));	// Angulo entre o gol e o atacante
 					target.x = Ball_Est.x - round(CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI);
@@ -186,12 +198,18 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 
 cv::Point get_def_target(cv::Point robot) { // Estratégia de defesa clássica (Antigo Lenhador)
 	distBall = round(sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2)));
+
+	Defense.status = 0;
 	
 	if (Ball.x < DIVISAO_AREAS) { //Bola na defesa?
 		Defense.fixedPos=false;
 //		cout<<"Bola na Defesa - ";
+
 		if (distBall < round(0.08*float(width)/1.70) && robot.x < Ball.x) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
 //			cout<<"Posse de Bola "<<"|";
+
+				Defense.status = 2;
+				
 				target.x = MEIO_GOL_X; //Vai na projeçao da bola na linha vertical do meio do gol
 				target.y = Ball.y;
 				if ( target.y > MAX_GOL_Y) target.y = MIN_GOL_Y;

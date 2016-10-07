@@ -16,17 +16,17 @@ public:
 		double thetaErrorSum = 0;
 		double thetaErrorPrevious = 0;
 		double vmax = 6; // m/s
-		double wmax = 6; // rad/s
 		cv::Point hist[MAX_SAMPLES_HIST];
 		int hist_index =0;
 		bool stuck = false;
 		int count_collisions =0;
-		float W = 0;  // rad/s
-		float V = 0;  // m/s
+		float V = 6;  // m/s
+		float m=1; //Direção da velocidade
 		float Vl,Vr;  // RPS
 		bool spin = false;
 		bool fixedPos=false;
 		int role=0;
+		int status = 0; // 0 = estado de jogo, 1 = pegando a bola, 2 = acelerando
 Robot()
 	{
 		secundary= cv::Point(-1,-1);
@@ -130,9 +130,9 @@ void goTo(cv::Point targetPos){
 	}
 
 		if(backward){
-		V = -1;	
+		m = -1;	
 		}else{
-		V = 1;
+		m = 1;
 		}
 		if(fixedPos){
 		d = sqrt(pow((targetPos.y - currentPos.y),2)+pow((targetPos.x - currentPos.x),2))/30;
@@ -145,8 +145,8 @@ void goTo(cv::Point targetPos){
 		d=0;
 		}
 		}
-		Vr = d*((V-sin(targetTheta-currentTheta)));
-		Vl = d*((V+sin(targetTheta-currentTheta)));
+		Vr = d*((m-sin(targetTheta-currentTheta)));
+		Vl = d*((m+sin(targetTheta-currentTheta)));
 		
 		if (abs(Vl)>1){
 		Vl=1*Vl/abs(Vl);
@@ -154,7 +154,7 @@ void goTo(cv::Point targetPos){
 		if (abs(Vr)>1){
 		Vr=1*Vr/abs(Vr);
 		}
-	
+		
 	
 
 		Vl=vmax*Vl;
