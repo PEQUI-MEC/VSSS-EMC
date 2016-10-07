@@ -80,6 +80,7 @@ namespace capture {
 			void __init_combo_boxes();
 			void __create_frm_device_info();
 			void __create_frm_device_properties();
+			void __create_frm_quick_actions();
 			void __create_frm_warp();
 			void __create_frm_calibration();
 
@@ -170,6 +171,7 @@ namespace capture {
 		    Gtk::Button bt_load_cam_prop;
 			//-------------------------------
 
+		    Gtk::Frame frm_quick_actions;
 			Gtk::Button bt_quick_save;
 			Gtk::Button bt_quick_load;
 		
