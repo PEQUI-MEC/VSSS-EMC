@@ -386,18 +386,18 @@ public Gtk::HBox {
 					
 			
 			
-				circle(image,robot_list[0].position, 15, cv::Scalar(255,153,204), 2);
-				line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,153,204), 2);
-				
-				circle(image,robot_list[1].position, 15, cv::Scalar(51,153,102), 2);
-				line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(51,153,102), 2);
-				
-				circle(image,robot_list[2].position, 15, cv::Scalar(245,0,155), 2);
-				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(245,0,155), 2);
-				
+				circle(image,robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
+				line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,255,0), 2);
+				putText(image,"1",cv::Point(robot_list[0].position.x-5,robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+				circle(image,robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
+				line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(255,255,0), 2);
+				putText(image,"2",cv::Point(robot_list[1].position.x-5,robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+				circle(image,robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
+				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(255,255,0), 2);
+				putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
 				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
 			
-
+}
 				
 				if(iv.PID_test_flag)	 PID_test();
 				else{
@@ -421,14 +421,13 @@ public Gtk::HBox {
 				strats.set_Ball(Ball);
 			
 				Ball_Est=strats.get_Ball_Est();
-				line(image,Ball,Ball_Est,cv::Scalar(127,127,255), 2);
-				circle(image,Ball_Est, 7, cv::Scalar(127,127,255), 2); 
-				//robot_list[2].target = strats.get_Defense_Classic(robot_list[2].position); // Estratégia clássica
-				//cout<<robot_list[2].target.x<<" - "<<robot_list[2].target.y<<endl; 
-				//circle(image,robot_list[2].target, 7, cv::Scalar(127,255,127), 2);
+				line(image,Ball,Ball_Est,cv::Scalar(255,140,0), 2);
+				circle(image,Ball_Est, 7, cv::Scalar(255,140,0), 2); 
+				
+			
 			if(start_game_flag){
-				//robot_list[0].target = strats.get_Defense_Classic(robot_list[0].position); // Estratégia clássica
-				//robot_list[0].fixedPos = strats.Defense.fixedPos;
+				robot_list[0].target = strats.get_gk_target(); // Estratégia clássica
+				robot_list[0].fixedPos = strats.Goalkeeper.fixedPos;
 				//cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl; 
 				circle(image,robot_list[0].target, 7, cv::Scalar(127,255,127), 2);
 				
@@ -468,7 +467,7 @@ public Gtk::HBox {
 				//timer.stop();
 				//cout<<"Time: "<<timer.getCPUTotalSecs()<<"	FPS: "<<1/timer.getCPUTotalSecs()<<endl;
 				//timer.reset();
-		}if(v.HSV_calib_event_flag){
+		if(v.HSV_calib_event_flag){
 				for(int i=0;i<3*(width*height + width) +2;i++)
 					d[i]=threshold[v.Img_id][i];
 					}
@@ -616,7 +615,6 @@ public Gtk::HBox {
 		void parallel_tracking(cv::Mat im){
 			 cv::Mat image_copy = im.clone();
 			 cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-			 
 			 cv::medianBlur(image_copy, image_copy, 5);
 			 
 			 for(int i =0;i<6;i++)
