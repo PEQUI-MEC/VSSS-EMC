@@ -1520,18 +1520,18 @@ public Gtk::HBox {
 			getline(txtFile, linha); cb_robot_function[i].set_active(atoi(linha.c_str()));
 			if (linha.compare("Goalkeeper") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Goleiro." << std::endl;
+					std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
 					robot_list[i].target = strats.get_gk_target();
 				}
 				else if (linha.compare("Defense") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Lenhador." << std::endl;
-					robot_list[i].target = strats.get_Defense_Classic(robot_list[i].position);
+					std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+					robot_list[i].target = strats.get_def_target(robot_list[i].position);
 				}
 				else if (linha.compare("Attack") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Ojuara." << std::endl;
-					robot_list[i].target = strats.get_Attack_Classic(robot_list[i].position);
+					std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+					robot_list[i].target = strats.get_atk_target(robot_list[i].position);
 				}
 				else
 				{
