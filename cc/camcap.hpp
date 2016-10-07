@@ -291,6 +291,8 @@ public Gtk::HBox {
 
 			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
+
+			 update_speed_progressBars();
 				
 			 if (v.save_robots_info_flag)	event_robots_save_bt_signal_clicked();
 			 if (v.load_robots_info_flag)	event_robots_load_bt_signal_clicked();
@@ -1485,8 +1487,32 @@ public Gtk::HBox {
 			
 		for (int i = 0; i < 3; i++) {
 			getline(txtFile, linha); robots_id_box[i].set_text(linha.c_str());
+			robot_list[i].ID = linha.c_str();
+
 			getline(txtFile, linha); cb_robot_function[i].set_active(atoi(linha.c_str()));
+			if (linha.compare("Goalkeeper") == 0)
+				{
+					std::cout << "Robot " << i+1 << ": Goleiro." << std::endl;
+					robot_list[i].target = strats.get_gk_target();
+				}
+				else if (linha.compare("Defense") == 0)
+				{
+					std::cout << "Robot " << i+1 << ": Lenhador." << std::endl;
+					robot_list[i].target = strats.get_Defense_Classic(robot_list[i].position);
+				}
+				else if (linha.compare("Attack") == 0)
+				{
+					std::cout << "Robot " << i+1 << ": Ojuara." << std::endl;
+					robot_list[i].target = strats.get_Attack_Classic(robot_list[i].position);
+				}
+				else
+				{
+					std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+				}
+
 			getline(txtFile, linha); robots_speed_hscale[i].set_value(atof(linha.c_str()));
+			robot_list[0].vmax = (float) robots_speed_hscale[0].get_value();
+
 		}
 		txtFile.close();
 		
@@ -1573,6 +1599,7 @@ public Gtk::HBox {
 			robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
 			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
 			robots_speed_progressBar[0].set_show_text(true);
+			robots_speed_progressBar[0].set_fraction(static_cast<double> robot_list[0].V);
 			robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
 			label = new Gtk::Label("Robot 2:");
@@ -1591,6 +1618,7 @@ public Gtk::HBox {
 			robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
 			robots_speed_progressBar[1].set_text(to_string(robot_list[1].V).substr(0,3));
 			robots_speed_progressBar[1].set_show_text(true);
+			robots_speed_progressBar[1].set_fraction(static_cast<double> robot_list[1].V);
 			robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
 
 			label = new Gtk::Label("Robot 3:");
@@ -1609,6 +1637,7 @@ public Gtk::HBox {
 			robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
 			robots_speed_progressBar[2].set_text(to_string(robot_list[2].V).substr(0,3));
 			robots_speed_progressBar[2].set_show_text(true);
+			robots_speed_progressBar[2].set_fraction(static_cast<double> robot_list[2].V);
 			robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
 
 			robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
@@ -1622,6 +1651,13 @@ public Gtk::HBox {
 
 
 
+		}
+
+		void update_speed_progressBars()
+		{
+			robots_speed_progressBar[0].set_fraction(static_cast<double> robot_list[0].V);
+			robots_speed_progressBar[1].set_fraction(static_cast<double> robot_list[1].V);
+			robots_speed_progressBar[2].set_fraction(static_cast<double> robot_list[2].V);
 		}
 
 };
