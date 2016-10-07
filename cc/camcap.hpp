@@ -20,6 +20,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
 #include <vector>
+#include <stdlib.h>
 #include <tgmath.h>
 #include <gtkmm.h>
 #include <math.h>
@@ -419,18 +420,41 @@ public Gtk::HBox {
 				// ----------- ESTRATEGIA -----------------//
 		
 				strats.set_Ball(Ball);
-			
+				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MAX_GOL_Y),cv::Point(width,strats.MAX_GOL_Y), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MIN_GOL_Y),cv::Point(width,strats.MIN_GOL_Y), cv::Scalar(255,255,255),2);
+	
+
 				Ball_Est=strats.get_Ball_Est();
 				line(image,Ball,Ball_Est,cv::Scalar(255,140,0), 2);
 				circle(image,Ball_Est, 7, cv::Scalar(255,140,0), 2); 
 				
 			
 			if(start_game_flag){
-				robot_list[0].target = strats.get_gk_target(); // Estratégia clássica
-				robot_list[0].fixedPos = strats.Goalkeeper.fixedPos;
+				char buffer[3];
+				for(int i =0;i<3;i++){
+				switch (robot_list[i].role)	{
+				case 0:
+				robot_list[i].target = strats.get_gk_target();
+				robot_list[i].fixedPos = strats.Goalkeeper.fixedPos;
+				break;
+				case 2:
+				robot_list[i].target = strats.get_atk_target(robot_list[i].position);
+				robot_list[i].fixedPos = strats.Attack.fixedPos;
+				break;
+				case 1:
+				robot_list[i].target = strats.get_def_target(robot_list[i].position);
+				robot_list[i].fixedPos = strats.Defense.fixedPos;
+				break;
+			}
 				//cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl; 
-				circle(image,robot_list[0].target, 7, cv::Scalar(127,255,127), 2);
+				circle(image,robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
 				
+					putText(image,std::to_string(i+1),cv::Point(robot_list[i].target.x-5,robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);	
+			}
 			}
 
 				send_vel_to_robots();		
@@ -1043,6 +1067,10 @@ public Gtk::HBox {
 			robot_list[0].ID = 'A';
 			robot_list[1].ID = 'B';
 			robot_list[2].ID = 'C';
+			
+			robot_list[0].role = 0;
+			robot_list[1].role = 1;
+			robot_list[2].role = 2;
 
 			for(int i =0; i<6; i++){
 				v.HScale_Hmin.set_value(-1);
@@ -1231,20 +1259,20 @@ public Gtk::HBox {
 			{
 				s[i] = cb_robot_function[i].get_active_text();
 
-				if (s[i].compare("Goleiro") == 0)
+				if (s[i].compare("Goalkeeper") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Goleiro." << std::endl;
-					robot_list[i].target = strats.get_gk_target();
+					std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+					robot_list[i].role = 0;
 				}
-				else if (s[i].compare("Lenhador") == 0)
+				else if (s[i].compare("Defense") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Lenhador." << std::endl;
-					robot_list[i].target = strats.get_Defense_Classic(robot_list[i].position);
+					std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+					robot_list[i].role = 1;
 				}
-				else if (s[i].compare("Ojuara") == 0)
+				else if (s[i].compare("Attack") == 0)
 				{
-					std::cout << "Robot " << i+1 << ": Ojuara." << std::endl;
-					robot_list[i].target = strats.get_Attack_Classic(robot_list[i].position);
+					std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+					robot_list[i].role = 2;
 				}
 				else
 				{
@@ -1273,11 +1301,11 @@ public Gtk::HBox {
 			label = new Gtk::Label("Robot 1: ");
 			std::string function[3];
 			function[0].clear();
-    		function[0].append("Goleiro");
+    		function[0].append("Goalkeeper");
     		function[1].clear();
-    		function[1].append("Lenhador");
+    		function[1].append("Defense");
     		function[2].clear();
-    		function[2].append("Ojuara");
+    		function[2].append("Attack");
     		cb_robot_function[0].append(function[0]);
     		cb_robot_function[0].append(function[1]);
     		cb_robot_function[0].append(function[2]);

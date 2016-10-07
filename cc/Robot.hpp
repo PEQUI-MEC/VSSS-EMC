@@ -26,6 +26,7 @@ public:
 		float Vl,Vr;  // RPS
 		bool spin = false;
 		bool fixedPos=false;
+		int role=0;
 Robot()
 	{
 		secundary= cv::Point(-1,-1);
