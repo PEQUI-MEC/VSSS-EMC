@@ -1512,6 +1512,7 @@ public Gtk::HBox {
 		}
 
 		std::string linha;
+
 			
 		for (int i = 0; i < 3; i++) {
 			getline(txtFile, linha); robots_id_box[i].set_text(linha.c_str());
@@ -1539,10 +1540,15 @@ public Gtk::HBox {
 				}
 
 			getline(txtFile, linha); robots_speed_hscale[i].set_value(atof(linha.c_str()));
-			robot_list[0].vmax = (float) robots_speed_hscale[0].get_value();
+			robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
+
+			robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
+			robots_speed_progressBar[i].set_text(to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+
 
 		}
 		txtFile.close();
+
 		
 		}
 		
@@ -1683,9 +1689,12 @@ public Gtk::HBox {
 
 		void update_speed_progressBars()
 		{
-			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
-			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
-			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V/6);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V/6);
+			robots_speed_progressBar[1].set_text(to_string(robot_list[1].V).substr(0,3));
+			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V/6);
+			robots_speed_progressBar[2].set_text(to_string(robot_list[2].V).substr(0,3));
 		}
 
 };
