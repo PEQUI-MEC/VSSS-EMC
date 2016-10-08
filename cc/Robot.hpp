@@ -110,7 +110,7 @@ bool is_Stuck(){
 
 }
 void goTo(cv::Point targetPos){
-	 previous_status = status;
+	
 	 double currentTheta = orientation;
 	 cv::Point currentPos = position;
 	 float d = 1.0;
@@ -161,6 +161,11 @@ void goTo(cv::Point targetPos){
 			switch(status){
 				// 0 = estado de jogo, 1 = pegando a bola, 2 = acelerando
 				case 0:
+				//if(V<vmax)
+				//V=V+0.05;
+				//else if(V>vmax)
+				//V=V-0.05;
+				//else				
 				V=vmax;
 				break;
 				case 1:
@@ -169,11 +174,14 @@ void goTo(cv::Point targetPos){
 				V=vmax-1;
 				break;
 				case 2:
-				V=V+0.05;
+				V=V+0.1;
 				if(V>vmax+1)
 				V=vmax+1;
 				break;
+				default:
+				V=vmax;
 				}
+				 previous_status = status;
 			
 			Vl=V*Vl;
 			Vr=V*Vr;

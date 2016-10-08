@@ -96,14 +96,12 @@ void set_constants(int w, int h){
 
 		
 cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (Antigo Ojuara)
-	
+	Attack.previous_status = Attack.status;
 	distBall = sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2));
 //	cout<<"Status - "<<Attack.status<<endl;
 	Attack.status = 0;
 
-	if (Ball_Est.x > Ball.x && ( Ball_Est.y > MIN_GOL_Y || Ball_Est.y < MAX_GOL_Y) && Attack.previous_status == 2) {
-		Attack.status = 2;
-	}
+	
 	
 	if (Ball.x > DIVISAO_AREAS) { //Bola no ataque?
 		Attack.fixedPos=false;
@@ -165,7 +163,7 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 					Attack.status = 1;
 //					cout<<"Status - "<<Attack.status<<endl;
 					
-					float phi = atan(float(MEIO_GOL_Y - Ball.y)/float(MEIO_GOL_X - Ball.x));					// Angulo entre o gol e a bola
+					float phi = atan(float(MEIO_GOL_Y - Ball.y)/float(MEIO_GOL_X - Ball.x));		// Angulo entre o gol e a bola
 					float theta = atan(float(MEIO_GOL_Y - robot.y)/float(MEIO_GOL_X - robot.x));	// Angulo entre o gol e o atacante
 					target.x = Ball_Est.x - round(CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI);
 					target.y = Ball_Est.y - round(CONE_RATIO*sin(phi)*2*(abs(phi-theta))/PI);
@@ -176,6 +174,7 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 					}
 				}else{
 //					cout<<"Na area - ";
+					Attack.status = 2;
 					target.x = Ball_Est.x;
 					target.y = Ball_Est.y;				// Fim das coisas fuzzy queninguem entende----------------------------|
 				}
@@ -193,8 +192,14 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 			target.y = Ball.y - OFFSET_BANHEIRA;
 //		cout<<endl;
 	}
+	
+	if (Ball_Est.x > Ball.x && ( Ball_Est.y > (MEIO_GOL_Y - TAMANHO_AREA/2) || Ball_Est.y < (MEIO_GOL_Y + TAMANHO_AREA/2)) && Attack.previous_status == 2) {
+		Attack.status = 2;
+	}
+
+	
 	//cout<<target.x<<" - "<<target.y<<endl; 
-	cout<<" - Attack Status - "<<Attack.status<<endl;
+	//cout<<" - Attack Status - "<<Attack.status<<" Previous - "<<Attack.previous_status<<endl;
 	return target;
 	
 }
@@ -315,7 +320,7 @@ void set_Ball(cv::Point b){
 
 cv::Point get_gk_target(){
 
-		Goalkeeper.target.x = 55;
+		Goalkeeper.target.x = 640-55;
 		Goalkeeper.target.y = Ball_Est.y;
 	
 		if (Goalkeeper.target.y > 354)
