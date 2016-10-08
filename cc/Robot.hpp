@@ -1,8 +1,8 @@
 #ifndef ROBOT_HPP_
 #define ROBOT_HPP_
 #define PI 3.14159265453
-#define MAX_SAMPLES_HIST 40 // REGULA O TEMPO DE DETECÇÃO DA BATIDA
-#define MAX_COLLISIONS 20 // REGULA O TEMPO DE REAÇÃO À BATIDA
+#define MAX_SAMPLES_HIST 25 // REGULA O TEMPO DE DETECÇÃO DA BATIDA
+#define MAX_COLLISIONS 15 // REGULA O TEMPO DE REAÇÃO À BATIDA
 #include "opencv2/opencv.hpp"
 
 class Robot
@@ -20,13 +20,14 @@ public:
 		int hist_index =0;
 		bool stuck = false;
 		int count_collisions =0;
-		float V = 6;  // m/s
+		float V = 6.0f;  // m/s
 		float m=1; //Direção da velocidade
 		float Vl,Vr;  // RPS
 		bool spin = false;
 		bool fixedPos=false;
 		int role=0;
 		int status = 0; // 0 = estado de jogo, 1 = pegando a bola, 2 = acelerando
+		int previous_status =0;
 Robot()
 	{
 		secundary= cv::Point(-1,-1);
@@ -128,7 +129,8 @@ void goTo(cv::Point targetPos){
 		currentTheta=currentTheta+PI;
 		currentTheta=atan2(sin(currentTheta),cos(currentTheta));
 	}
-
+	
+	
 		if(backward){
 		m = -1;	
 		}else{
@@ -155,11 +157,35 @@ void goTo(cv::Point targetPos){
 		Vr=1*Vr/abs(Vr);
 		}
 		
-	
-
-		Vl=vmax*Vl;
-		Vr=vmax*Vr;
 		
+			switch(status){
+				// 0 = estado de jogo, 1 = pegando a bola, 2 = acelerando
+				case 0:
+				//if(V<vmax)
+				//V=V+0.05;
+				//else if(V>vmax)
+				//V=V-0.05;
+				//else				
+				V=vmax;
+				break;
+				case 1:
+				V=V-0.2;
+				if(V<vmax-1)
+				V=vmax-1;
+				break;
+				case 2:
+				V=V+0.1;
+				if(V>vmax+1)
+				V=vmax+1;
+				break;
+				default:
+				V=vmax;
+				}
+				 previous_status = status;
+			
+			Vl=V*Vl;
+			Vr=V*Vr;
+			
 		
 		if(check_collision()){
 		//verifica se esta perto da bola
