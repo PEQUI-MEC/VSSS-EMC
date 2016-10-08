@@ -95,7 +95,7 @@ void set_constants(int w, int h){
 	}
 
 		
-cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (Antigo Ojuara)
+cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
 	Attack.previous_status = Attack.status;
 	distBall = sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2));
 //	cout<<"Status - "<<Attack.status<<endl;
@@ -106,7 +106,8 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 	if (Ball.x > DIVISAO_AREAS) { //Bola no ataque?
 		Attack.fixedPos=false;
 		//cout<<"Bola no Ataque "<<"|";
-		if (distBall < round(0.08*float(width)/1.70) && robot.x < Ball.x) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
+		if (distBall < round(0.08*float(width)/1.70) && abs(orientation) < atan2((MIN_GOL_Y - robot.y),(COMPRIMENTO_CAMPO - robot.x)) && 
+			abs(orientation) > atan2((COMPRIMENTO_CAMPO - robot.x) , (MAX_GOL_Y - robot.y)) && robot.x < Ball.x) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
 			//	cout<<"Posse de Bola - ";
 			
 			Attack.status = 2;
@@ -119,11 +120,14 @@ cv::Point get_atk_target(cv::Point robot) { // Estratégia de ataque clássico (
 				target.y = Ball_Est.y;	
 			}else {
 			//	cout<<"Não esta no Retangulo Lateral - ";
-				target.x = MEIO_GOL_X; //Vai na projeçao da bola na linha vertical do meio do gol
-				target.y = Ball.y;
-				
-				if ( target.y > MAX_GOL_Y) target.y = MIN_GOL_Y;
-				if ( target.y < MIN_GOL_Y) target.y = MAX_GOL_Y;	
+				if ( target.y < MEIO_GOL_Y) { 
+
+					target.y = MAX_GOL_Y;	
+				}
+				else{
+
+					target.y = MIN_GOL_Y;
+				}
 			}	
 		}
 		else { //Sem a bola

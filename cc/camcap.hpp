@@ -463,7 +463,7 @@ public Gtk::HBox {
 				robot_list[i].fixedPos = strats.Goalkeeper.fixedPos;
 				break;
 				case 2:
-				robot_list[i].target = strats.get_atk_target(robot_list[i].position);
+				robot_list[i].target = strats.get_atk_target(robot_list[i].position, robot_list[i].orientation);
 				robot_list[i].fixedPos = strats.Attack.fixedPos;
 				robot_list[i].status = strats.Attack.status;
 				break;
