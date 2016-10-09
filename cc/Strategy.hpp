@@ -38,12 +38,12 @@ public:
 		cv::Point Ball_Est;
 		cv::Point target = cv::Point(-1,-1);	
 		int height, width;
-
 		int COMPRIMENTO_CAMPO	;
 		int LARGURA_CAMPO 	; 	
 		int TAMANHO_GOL  	;		
 		int TAMANHO_AREA  	;	
-		
+		bool GOAL_DANGER_ZONE = false;
+		bool ADV_NA_AREA = false;
 		int BANHEIRA		;
 		int DIVISAO_AREAS	;
 		int OFFSET_BANHEIRA	;
@@ -56,7 +56,8 @@ public:
 		// Parametros para atacante sem bola
 		int OFFSET_RATIO	;
 		int CONE_RATIO		;
-	
+		int COUNT_DECISION  ;
+		int MAX_DECISION_COUNT;
 		// Parametros do Defensor na defesa
 		int DESLOCAMENTO_ZAGA_ATAQUE	;
 		
@@ -87,8 +88,8 @@ void set_constants(int w, int h){
 		// Parametros para atacante sem bola
 		 OFFSET_RATIO	=	round(0.12*float(width)/1.70);
 		 CONE_RATIO		=	round(0.8*float(width)/1.70);
-		 
-		 
+		 MAX_DECISION_COUNT = 10;
+		 COUNT_DECISION = MAX_DECISION_COUNT;
 		// Parametros do Defensor na defesa
 		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
 	
@@ -102,33 +103,75 @@ cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia d
 	Attack.status = 0;
 
 	
-	
+//	cout<<"atan(1) "<<atan2(float(MIN_GOL_Y - robot.y),float(COMPRIMENTO_CAMPO - robot.x))<<" atan(2) "<<atan2(float(MAX_GOL_Y - robot.y) , float(COMPRIMENTO_CAMPO - robot.x))<<" orientation "<<orientation<<endl;
 	if (Ball.x > DIVISAO_AREAS) { //Bola no ataque?
 		Attack.fixedPos=false;
 		//cout<<"Bola no Ataque "<<"|";
-		if (distBall < round(0.08*float(width)/1.70) && abs(orientation) < atan2((MIN_GOL_Y - robot.y),(COMPRIMENTO_CAMPO - robot.x)) && 
-			abs(orientation) > atan2((COMPRIMENTO_CAMPO - robot.x) , (MAX_GOL_Y - robot.y)) && robot.x < Ball.x) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
-			//	cout<<"Posse de Bola - ";
+		if(distBall < round(0.08*float(width)/1.70)) {
+			//Posse de bola?????????? SIM
+			if (robot.y > MAX_GOL_Y && orientation >= 0) {
+				orientation = orientation - double(PI);
+			}
+			if (robot.y < MIN_GOL_Y && orientation < 0) {
+				orientation = orientation + double(PI);
+			}
+			if (robot.x >= COMPRIMENTO_CAMPO - LIMITE_AREA_X  && (robot.y < MIN_GOL_Y || robot.y > MAX_GOL_Y) ) {
+			// Posse de Bola? Retangulo lateral?	
+				
+					//cout<<"Retangulo Lateral - ";
+					
+					// robo esta nos retangulos laterais(com aprox 20cm a partir do fundo do gol) do gol adversario?
+				
+					target.x = Ball.x; //Vai na estimativa da bola
+					target.y = Ball.y;
+					Attack.status = 3;	
+			}
+			else if (Attack.previous_status == 3||COUNT_DECISION<MAX_DECISION_COUNT)
+			{
+				target.x = Ball.x;
+				target.y = Ball.y;
+				Attack.status = 4;
+				COUNT_DECISION--;
+				if(COUNT_DECISION<=0)
+				COUNT_DECISION = MAX_DECISION_COUNT;
+				
+			}
+			else if (orientation >  atan2(float(MIN_GOL_Y - robot.y),float(COMPRIMENTO_CAMPO - robot.x)) && 
+				orientation <  atan2(float(MAX_GOL_Y - robot.y) , float(COMPRIMENTO_CAMPO - robot.x)) && robot.x < Ball.x) { 
+				//Posse de bola? && Orientação robô + bola voltada para o lado adversário?
 			
-			Attack.status = 2;
-//			cout<<"Status - "<<Attack.status<<endl;
-			
-			if (robot.x > COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70) && ( robot.y < MIN_GOL_Y || robot.y > MAX_GOL_Y)) {
-			//	cout<<"Retangulo Lateral - ";
-				// robo esta nos retangulos laterais(com aprox 20cm a partir do fundo do gol) do gol adversario?
-				target.x = Ball_Est.x; //Vai na estimativa da bola
-				target.y = Ball_Est.y;	
-			}else {
-			//	cout<<"Não esta no Retangulo Lateral - ";
-				if ( target.y < MEIO_GOL_Y) { 
+//				cout<<"Angulos "<<endl;	
+				Attack.status = 2;			
 
+	//			cout<<"Status - "<<Attack.status<<endl;
+				if ( target.y < MEIO_GOL_Y) { 
+					target.x = MEIO_GOL_X;
 					target.y = MAX_GOL_Y;	
 				}
 				else{
-
+					target.x = MEIO_GOL_X;
 					target.y = MIN_GOL_Y;
 				}
-			}	
+			}
+			else if ( robot.y < MAX_GOL_Y && robot.y > MIN_GOL_Y ) {
+				if ( target.y < MEIO_GOL_Y) { 
+					target.x = MEIO_GOL_X;
+					target.y = MAX_GOL_Y;
+//					cout<<"Centro 1 "<<endl;	
+				}
+				else if (target.y >= MEIO_GOL_Y) {
+					target.x = MEIO_GOL_X;
+					target.y = MIN_GOL_Y;
+//					cout<<"Centro 2"<<endl;
+				}
+			}
+			else{
+				target.y = Ball.y;
+				target.x = Ball.x;
+			}
+			
+		
+		
 		}
 		else { //Sem a bola
 			//	cout<<"Sem Posse de Bola - ";
@@ -322,16 +365,35 @@ void set_Ball(cv::Point b){
 	}
 	
 
-cv::Point get_gk_target(){
-
-		Goalkeeper.target.x = 640-55;
+cv::Point get_gk_target(vector< cv::Point > Adv_Main){
+		
+		Goalkeeper.target.x = 60;
 		Goalkeeper.target.y = Ball_Est.y;
-	
+		if(Ball.x<LINHA_ZAGA)
+		GOAL_DANGER_ZONE = true;
+		else
+		GOAL_DANGER_ZONE = false;
+		
+		
 		if (Goalkeeper.target.y > 354)
 		Goalkeeper.target.y = 354;
 	else if (Goalkeeper.target.y < 150)
 		Goalkeeper.target.y = 150;	
 		Goalkeeper.fixedPos=true;
+		if((Ball.x<LIMITE_AREA_X&&Ball.y>LARGURA_CAMPO/2-TAMANHO_AREA/2&&Ball.y<LARGURA_CAMPO/2+TAMANHO_AREA/2)){
+			//cout<<"BOLA NA AREA"<<endl;
+			ADV_NA_AREA=false;
+			for(int i=0;i<Adv_Main.size();i++){
+			if((Adv_Main[i].x<LIMITE_AREA_X&&Adv_Main[i].y>LARGURA_CAMPO/2-TAMANHO_AREA/2&&Adv_Main[i].y<LARGURA_CAMPO/2+TAMANHO_AREA/2)){
+				//cout<<"Adv NA AREA"<<endl;
+				ADV_NA_AREA=true;
+					}
+				}
+				
+				if(!ADV_NA_AREA){
+				Goalkeeper.target=Ball;
+			}
+			}
 		return Goalkeeper.target;
 
 	}

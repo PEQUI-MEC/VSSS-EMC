@@ -418,6 +418,8 @@ public Gtk::HBox {
 				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(255,255,0), 2);
 				putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
 				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
+				for(int i=0;i<Adv_Main.size();i++)
+				circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
 			
 }
 				
@@ -439,7 +441,7 @@ public Gtk::HBox {
 					}
 		
 				// ----------- ESTRATEGIA -----------------//
-		
+				
 				strats.set_Ball(Ball);
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
@@ -447,20 +449,20 @@ public Gtk::HBox {
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MAX_GOL_Y),cv::Point(width,strats.MAX_GOL_Y), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MIN_GOL_Y),cv::Point(width,strats.MIN_GOL_Y), cv::Scalar(255,255,255),2);
-	
-
+			if(start_game_flag){
 				Ball_Est=strats.get_Ball_Est();
 				line(image,Ball,Ball_Est,cv::Scalar(255,140,0), 2);
 				circle(image,Ball_Est, 7, cv::Scalar(255,140,0), 2); 
-				
-			
-			if(start_game_flag){
 				char buffer[3];
 				for(int i =0;i<3;i++){
 				switch (robot_list[i].role)	{
 				case 0:
-				robot_list[i].target = strats.get_gk_target();
+				robot_list[i].target = strats.get_gk_target(Adv_Main);
 				robot_list[i].fixedPos = strats.Goalkeeper.fixedPos;
+				if(strats.GOAL_DANGER_ZONE){
+				//	cout<<"hist_wipe"<<endl;
+				robot_list[i].histWipe();
+			}
 				break;
 				case 2:
 				robot_list[i].target = strats.get_atk_target(robot_list[i].position, robot_list[i].orientation);
@@ -480,6 +482,8 @@ public Gtk::HBox {
 			}
 			}
 				//cout<<robot_list[2].status<<" | "<<robot_list[2].V<<endl;
+				
+				
 				update_speed_progressBars();	
 				send_vel_to_robots();		
 				// ----------------------------------------//
@@ -1115,6 +1119,9 @@ public Gtk::HBox {
 				Team_Sec.push_back(p);
 				Team_Sec.push_back(p);
 				
+				Team_Main.push_back(cv::Point(0,0));
+				Team_Main.push_back(cv::Point(0,0));
+				Team_Main.push_back(cv::Point(0,0));
 				for(int i=0; i<4;i++){
 					iv.adjust_mat[i][0] = -1;
 					iv.adjust_mat[i][1] = -1;

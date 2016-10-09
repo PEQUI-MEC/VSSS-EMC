@@ -2,7 +2,7 @@
 #define ROBOT_HPP_
 #define PI 3.14159265453
 #define MAX_SAMPLES_HIST 25 // REGULA O TEMPO DE DETECÇÃO DA BATIDA
-#define MAX_COLLISIONS 15 // REGULA O TEMPO DE REAÇÃO À BATIDA
+#define MAX_COLLISIONS 30 // REGULA O TEMPO DE REAÇÃO À BATIDA
 #include "opencv2/opencv.hpp"
 
 class Robot
@@ -10,7 +10,7 @@ class Robot
 public:
 		cv::Point position, secundary, target;
 		char ID;
-		double orientation;
+		double orientation=0;
 		bool backward = false;
 		double thetaError = 0;
 		double thetaErrorSum = 0;
@@ -56,6 +56,8 @@ void histWipe(){
 	
 bool check_collision(){
 	if(stuck){
+		count_collisions--;
+		if(!spin)
 		count_collisions--;
 		//std::cout<<count_collisions<<std::endl; 
 		if(count_collisions<=0){
@@ -147,8 +149,26 @@ void goTo(cv::Point targetPos){
 		d=0;
 		}
 		}
-		Vr = d*((m-sin(targetTheta-currentTheta)));
-		Vl = d*((m+sin(targetTheta-currentTheta)));
+		
+		double LOS = atan2(sin(targetTheta-currentTheta),cos(targetTheta-currentTheta));
+		
+		
+       
+	   if(fixedPos&&((LOS < PI/6 && LOS > -PI/6)||(LOS > 5*PI/6 && LOS < -5*PI/6))){
+        Vr = (d*(m-sin(LOS)));
+        Vl = (d*(m+sin(LOS)));
+
+  } else if(fixedPos&&(sqrt(pow((targetPos.y - currentPos.y),2)+pow((targetPos.x - currentPos.x),2))<30)){
+	    Vl = (abs(LOS)/LOS)*(d*(1+sin(abs(LOS))))/8;
+        Vr = -(abs(LOS)/LOS)*(d*(1+sin(abs(LOS))))/8;
+	   
+	   }else{
+		
+		Vr = (d*(m-sin(LOS)));
+        Vl = (d*(m+sin(LOS)));
+		   }
+    //cout<<"LOS "<<LOS*180/PI<<" | "<<Vr<<" | "<<Vl<<" | d "<<d<<endl;
+		
 		
 		if (abs(Vl)>1){
 		Vl=1*Vl/abs(Vl);
@@ -178,11 +198,26 @@ void goTo(cv::Point targetPos){
 				if(V>vmax+1)
 				V=vmax+1;
 				break;
+				case 3:
+				V=vmax;
+				break;
+				case 4:
+				//std::cout << "GIRA GIRA GIRA"<<endl; ;
+				V=vmax+1;
+				if(currentPos.y<targetPos.y){
+				Vl=-1;	
+				Vr=1;
+				}else{
+				Vr=-1;	
+				Vl=1;	
+				}
+				break;
 				default:
 				V=vmax;
+				break;
 				}
 				 previous_status = status;
-			
+			//std::cout << "Vr " <<Vr<<"Vl "<<Vl<<std::endl;
 			Vl=V*Vl;
 			Vr=V*Vr;
 			
