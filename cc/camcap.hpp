@@ -89,10 +89,14 @@ public Gtk::HBox {
 
 		Gtk::Frame robots_pos_fm;
 		Gtk::Frame robots_buttons_fm;
+		Gtk::Frame robots_checkbox_fm;
 		Gtk::VBox robots_pos_buttons_vbox;
 		Gtk::Button robots_save_bt;
 		Gtk::Button robots_load_bt;
 		Gtk::HBox robots_buttons_hbox;
+		Gtk::CheckButton draw_info_checkbox;
+		Gtk::HBox draw_info_hbox;
+		bool draw_info_flag = false;
 
 
 		Gtk::Image red_button_released;
@@ -126,6 +130,28 @@ public Gtk::HBox {
 		Gtk::Button robots_function_edit_bt;
 		Gtk::Button robots_function_done_bt;
 		bool robots_function_edit_flag = false;
+
+		/*Gtk::Frame robot_one_fm;
+		Gtk::Button robot_one_edit_bt;
+		Gtk::Button robot_one_done_bt;
+		Gtk::VBox robot_one_vbox;
+		Gtk::HBox robot_one_hbox[4];
+
+		Gtk::Frame robot_two_fm;
+		Gtk::Button robot_two_edit_bt;
+		Gtk::Button robot_two_done_bt;
+		Gtk::VBox robot_two_vbox;
+		Gtk::HBox robot_two_hbox[4];
+
+		Gtk::Frame robot_three_fm;
+		Gtk::Button robot_three_edit_bt;
+		Gtk::Button robot_three_done_bt;
+		Gtk::VBox robot_three_vbox;
+		Gtk::HBox robot_three_hbox[4];*/
+
+		std::string function[3];
+
+
 
 
 
@@ -407,19 +433,22 @@ public Gtk::HBox {
 				robot_creation();
 				
 			
-			
-				circle(image,robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
-				line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,255,0), 2);
-				putText(image,"1",cv::Point(robot_list[0].position.x-5,robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
-				circle(image,robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
-				line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(255,255,0), 2);
-				putText(image,"2",cv::Point(robot_list[1].position.x-5,robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
-				circle(image,robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
-				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(255,255,0), 2);
-				putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
-				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
-				for(int i=0;i<Adv_Main.size();i++)
-				circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
+				if (!draw_info_flag)
+				{
+					circle(image,robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"1",cv::Point(robot_list[0].position.x-5,robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"2",cv::Point(robot_list[1].position.x-5,robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
+					for(int i=0;i<Adv_Main.size();i++)
+						circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
+				}
+				
 			
 }
 				
@@ -443,12 +472,14 @@ public Gtk::HBox {
 				// ----------- ESTRATEGIA -----------------//
 				
 				strats.set_Ball(Ball);
+				/*
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MAX_GOL_Y),cv::Point(width,strats.MAX_GOL_Y), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MIN_GOL_Y),cv::Point(width,strats.MIN_GOL_Y), cv::Scalar(255,255,255),2);
+				*/
 			if(start_game_flag){
 				Ball_Est=strats.get_Ball_Est();
 				line(image,Ball,Ball_Est,cv::Scalar(255,140,0), 2);
@@ -1138,6 +1169,7 @@ public Gtk::HBox {
 			createIDsFrame();
 			createFunctionsFrame();
 			createSpeedsFrame();
+			//createRobotOneInfoFrame();
 
 
 			
@@ -1174,6 +1206,65 @@ public Gtk::HBox {
 			
 			data = 0;
 		}
+
+		/*void createRobotOneInfoFrame()
+		{
+			robot_one_fm.set_label("Robot 1");
+			info_hbox.pack_start(robot_one_fm, false, true, 5);
+			robot_one_fm.add(robot_one_vbox);
+
+			robot_one_edit_bt.set_label("Edit");
+			robot_one_hbox[0].pack_start(robot_one_edit_bt, false, true, 5);
+			robot_one_done_bt.set_label("Done");
+			robot_one_hbox[0].pack_end(robot_one_done_bt, false, true, 5);
+			robot_one_vbox.pack_start(robot_one_hbox[0], false, true, 5);
+
+			label = new Gtk::Label("ID: ");
+			robot_one_hbox[1].pack_start(*label, false, true, 5);
+			robot_one_hbox[1].pack_start(robots_id_box[0], false, true, 5);
+			robots_id_box[0].set_max_length(1);
+			robots_id_box[0].set_width_chars(2);
+			robots_id_box[0].set_text(Glib::ustring::format("A"));
+			robot_one_vbox.pack_start(robot_one_hbox[1], false, true, 5);
+
+			label = new Gtk::Label("Function: ");
+			function[0].clear();
+    		function[0].append("Goalkeeper");
+    		cb_robot_function[0].append(function[0]);
+    		cb_robot_function[0].set_active_text(function[0]);
+    		robot_one_hbox[2].pack_start(*label, false, true, 5);
+    		robot_one_hbox[2].pack_start(cb_robot_function[0], false, true, 5);
+    		robot_one_vbox.pack_start(robot_one_hbox[2], false, true, 5);
+
+    		label = new Gtk::Label("Speed:");
+			robots_speed_hscale[0].set_digits(1);
+			robots_speed_hscale[0].set_increments(0.1,1);
+			robots_speed_hscale[0].set_range(0,6);
+			robots_speed_hscale[0].set_size_request(100,-1);
+			robots_speed_hscale[0].set_value(6);
+			robot_one_hbox[3].pack_start(*label, false, true, 0);
+			robot_one_hbox[3].pack_start(robots_speed_vbox[1], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_hscale[0], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
+			robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[0].set_show_text(true);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
+			robot_one_vbox.pack_start(robot_one_hbox[3], false, true, 0);
+
+
+		}
+
+		void createRobotTwoInfoFrame()
+		{
+			
+		}
+
+		void createRobotThreeInfoFrame()
+		{
+			
+		}*/
 
 		void event_robots_id_edit_bt_signal_pressed()
 		{
@@ -1365,33 +1456,27 @@ public Gtk::HBox {
 			robots_function_vbox.pack_start(robots_function_hbox[0], false, true, 5);
 
 			label = new Gtk::Label("Robot 1: ");
-			std::string function[3];
 			function[0].clear();
     		function[0].append("Goalkeeper");
-    		function[1].clear();
-    		function[1].append("Defense");
-    		function[2].clear();
-    		function[2].append("Attack");
     		cb_robot_function[0].append(function[0]);
-    		cb_robot_function[0].append(function[1]);
-    		cb_robot_function[0].append(function[2]);
     		cb_robot_function[0].set_active_text(function[0]);
     		robots_function_hbox[1].pack_start(*label, false, true, 5);
     		robots_function_hbox[1].pack_start(cb_robot_function[0], false, true, 5);
     		robots_function_vbox.pack_start(robots_function_hbox[1], false, true, 5);
 
+
     		label = new Gtk::Label("Robot 2: ");
-    		cb_robot_function[1].append(function[0]);
+    		function[1].clear();
+    		function[1].append("Defense");
     		cb_robot_function[1].append(function[1]);
-    		cb_robot_function[1].append(function[2]);
     		cb_robot_function[1].set_active_text(function[1]);
     		robots_function_hbox[2].pack_start(*label, false, true, 5);
     		robots_function_hbox[2].pack_start(cb_robot_function[1], false, true, 5);
     		robots_function_vbox.pack_start(robots_function_hbox[2], false, true, 5);
 
     		label = new Gtk::Label("Robot 3: ");
-    		cb_robot_function[2].append(function[0]);
-    		cb_robot_function[2].append(function[1]);
+    		function[2].clear();
+    		function[2].append("Attack");
     		cb_robot_function[2].append(function[2]);
     		cb_robot_function[2].set_active_text(function[2]);
     		robots_function_hbox[3].pack_start(*label, false, true, 5);
@@ -1463,11 +1548,25 @@ public Gtk::HBox {
 			robots_buttons_hbox.pack_start(robots_save_bt, false, true, 5);
 			robots_buttons_hbox.pack_start(robots_load_bt, false, true, 5);
 
+			robots_pos_buttons_vbox.pack_start(robots_checkbox_fm, false, true, 5);
+			robots_checkbox_fm.add(draw_info_hbox);
+			draw_info_hbox.set_halign(Gtk::ALIGN_CENTER);
+			draw_info_hbox.pack_start(draw_info_checkbox, false, true, 5);
+			draw_info_checkbox.set_label("Don't Draw on Image");
+			draw_info_checkbox.set_can_focus(false);
+
+
+			draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_draw_info_checkbox_signal_clicked));
 			robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_save_bt_signal_clicked));
 			robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_load_bt_signal_clicked));
 
 
 
+		}
+
+		void event_draw_info_checkbox_signal_clicked()
+		{
+			draw_info_flag = !draw_info_flag;
 		}
 
 		void event_robots_save_bt_signal_clicked()
