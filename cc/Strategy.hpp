@@ -109,6 +109,8 @@ cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia d
 		//cout<<"Bola no Ataque "<<"|";
 		if(distBall < round(0.08*float(width)/1.70)) {
 			//Posse de bola?????????? SIM
+
+			//Definicao de acao para acelerar em direcao ao gol
 			if (robot.y > MAX_GOL_Y && orientation >= 0) {
 				orientation = orientation - double(PI);
 			}

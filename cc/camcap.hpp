@@ -127,6 +127,28 @@ public Gtk::HBox {
 		Gtk::Button robots_function_done_bt;
 		bool robots_function_edit_flag = false;
 
+		Gtk::Frame robot_one_fm;
+		Gtk::Button robot_one_edit_bt;
+		Gtk::Button robot_one_done_bt;
+		Gtk::VBox robot_one_vbox;
+		Gtk::HBox robot_one_hbox[4];
+
+		Gtk::Frame robot_two_fm;
+		Gtk::Button robot_two_edit_bt;
+		Gtk::Button robot_two_done_bt;
+		Gtk::VBox robot_two_vbox;
+		Gtk::HBox robot_two_hbox[4];
+
+		Gtk::Frame robot_three_fm;
+		Gtk::Button robot_three_edit_bt;
+		Gtk::Button robot_three_done_bt;
+		Gtk::VBox robot_three_vbox;
+		Gtk::HBox robot_three_hbox[4];
+
+		std::string function[3];
+
+
+
 
 
 	/*	
@@ -443,12 +465,14 @@ public Gtk::HBox {
 				// ----------- ESTRATEGIA -----------------//
 				
 				strats.set_Ball(Ball);
+				/*
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MAX_GOL_Y),cv::Point(width,strats.MAX_GOL_Y), cv::Scalar(255,255,255),2);
 				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MIN_GOL_Y),cv::Point(width,strats.MIN_GOL_Y), cv::Scalar(255,255,255),2);
+				*/
 			if(start_game_flag){
 				Ball_Est=strats.get_Ball_Est();
 				line(image,Ball,Ball_Est,cv::Scalar(255,140,0), 2);
@@ -1138,6 +1162,7 @@ public Gtk::HBox {
 			createIDsFrame();
 			createFunctionsFrame();
 			createSpeedsFrame();
+			//createRobotOneInfoFrame();
 
 
 			
@@ -1174,6 +1199,65 @@ public Gtk::HBox {
 			
 			data = 0;
 		}
+
+		/*void createRobotOneInfoFrame()
+		{
+			robot_one_fm.set_label("Robot 1");
+			info_hbox.pack_start(robot_one_fm, false, true, 5);
+			robot_one_fm.add(robot_one_vbox);
+
+			robot_one_edit_bt.set_label("Edit");
+			robot_one_hbox[0].pack_start(robot_one_edit_bt, false, true, 5);
+			robot_one_done_bt.set_label("Done");
+			robot_one_hbox[0].pack_end(robot_one_done_bt, false, true, 5);
+			robot_one_vbox.pack_start(robot_one_hbox[0], false, true, 5);
+
+			label = new Gtk::Label("ID: ");
+			robot_one_hbox[1].pack_start(*label, false, true, 5);
+			robot_one_hbox[1].pack_start(robots_id_box[0], false, true, 5);
+			robots_id_box[0].set_max_length(1);
+			robots_id_box[0].set_width_chars(2);
+			robots_id_box[0].set_text(Glib::ustring::format("A"));
+			robot_one_vbox.pack_start(robot_one_hbox[1], false, true, 5);
+
+			label = new Gtk::Label("Function: ");
+			function[0].clear();
+    		function[0].append("Goalkeeper");
+    		cb_robot_function[0].append(function[0]);
+    		cb_robot_function[0].set_active_text(function[0]);
+    		robot_one_hbox[2].pack_start(*label, false, true, 5);
+    		robot_one_hbox[2].pack_start(cb_robot_function[0], false, true, 5);
+    		robot_one_vbox.pack_start(robot_one_hbox[2], false, true, 5);
+
+    		label = new Gtk::Label("Speed:");
+			robots_speed_hscale[0].set_digits(1);
+			robots_speed_hscale[0].set_increments(0.1,1);
+			robots_speed_hscale[0].set_range(0,6);
+			robots_speed_hscale[0].set_size_request(100,-1);
+			robots_speed_hscale[0].set_value(6);
+			robot_one_hbox[3].pack_start(*label, false, true, 0);
+			robot_one_hbox[3].pack_start(robots_speed_vbox[1], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_hscale[0], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
+			robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[0].set_show_text(true);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
+			robot_one_vbox.pack_start(robot_one_hbox[3], false, true, 0);
+
+
+		}
+
+		void createRobotTwoInfoFrame()
+		{
+			
+		}
+
+		void createRobotThreeInfoFrame()
+		{
+			
+		}*/
 
 		void event_robots_id_edit_bt_signal_pressed()
 		{
@@ -1365,33 +1449,27 @@ public Gtk::HBox {
 			robots_function_vbox.pack_start(robots_function_hbox[0], false, true, 5);
 
 			label = new Gtk::Label("Robot 1: ");
-			std::string function[3];
 			function[0].clear();
     		function[0].append("Goalkeeper");
-    		function[1].clear();
-    		function[1].append("Defense");
-    		function[2].clear();
-    		function[2].append("Attack");
     		cb_robot_function[0].append(function[0]);
-    		cb_robot_function[0].append(function[1]);
-    		cb_robot_function[0].append(function[2]);
     		cb_robot_function[0].set_active_text(function[0]);
     		robots_function_hbox[1].pack_start(*label, false, true, 5);
     		robots_function_hbox[1].pack_start(cb_robot_function[0], false, true, 5);
     		robots_function_vbox.pack_start(robots_function_hbox[1], false, true, 5);
 
+
     		label = new Gtk::Label("Robot 2: ");
-    		cb_robot_function[1].append(function[0]);
+    		function[1].clear();
+    		function[1].append("Defense");
     		cb_robot_function[1].append(function[1]);
-    		cb_robot_function[1].append(function[2]);
     		cb_robot_function[1].set_active_text(function[1]);
     		robots_function_hbox[2].pack_start(*label, false, true, 5);
     		robots_function_hbox[2].pack_start(cb_robot_function[1], false, true, 5);
     		robots_function_vbox.pack_start(robots_function_hbox[2], false, true, 5);
 
     		label = new Gtk::Label("Robot 3: ");
-    		cb_robot_function[2].append(function[0]);
-    		cb_robot_function[2].append(function[1]);
+    		function[2].clear();
+    		function[2].append("Attack");
     		cb_robot_function[2].append(function[2]);
     		cb_robot_function[2].set_active_text(function[2]);
     		robots_function_hbox[3].pack_start(*label, false, true, 5);

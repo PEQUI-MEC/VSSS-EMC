@@ -108,10 +108,10 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		hbox->set_margin_top(7);
 		hbox->set_margin_bottom(7);
 
-		bt_quick_save.set_label("Quick Save");
-		hbox->pack_start(bt_quick_save, false, true, 5);
-		bt_quick_load.set_label("Quick Load");
-		hbox->pack_start(bt_quick_load, false, true, 5);
+		bt_quick_save.set_label("Quick SAVE");
+		hbox->pack_start(bt_quick_save, false, true, 40);
+		bt_quick_load.set_label("Quick LOAD");
+		hbox->pack_end(bt_quick_load, false, true, 40);
 
 	}
 
