@@ -89,10 +89,14 @@ public Gtk::HBox {
 
 		Gtk::Frame robots_pos_fm;
 		Gtk::Frame robots_buttons_fm;
+		Gtk::Frame robots_checkbox_fm;
 		Gtk::VBox robots_pos_buttons_vbox;
 		Gtk::Button robots_save_bt;
 		Gtk::Button robots_load_bt;
 		Gtk::HBox robots_buttons_hbox;
+		Gtk::CheckButton draw_info_checkbox;
+		Gtk::HBox draw_info_hbox;
+		bool draw_info_flag = false;
 
 
 		Gtk::Image red_button_released;
@@ -429,19 +433,22 @@ public Gtk::HBox {
 				robot_creation();
 				
 			
-			
-				circle(image,robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
-				line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,255,0), 2);
-				putText(image,"1",cv::Point(robot_list[0].position.x-5,robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
-				circle(image,robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
-				line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(255,255,0), 2);
-				putText(image,"2",cv::Point(robot_list[1].position.x-5,robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
-				circle(image,robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
-				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(255,255,0), 2);
-				putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
-				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
-				for(int i=0;i<Adv_Main.size();i++)
-				circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
+				if (!draw_info_flag)
+				{
+					circle(image,robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"1",cv::Point(robot_list[0].position.x-5,robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"2",cv::Point(robot_list[1].position.x-5,robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
+					for(int i=0;i<Adv_Main.size();i++)
+						circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
+				}
+				
 			
 }
 				
@@ -1541,11 +1548,25 @@ public Gtk::HBox {
 			robots_buttons_hbox.pack_start(robots_save_bt, false, true, 5);
 			robots_buttons_hbox.pack_start(robots_load_bt, false, true, 5);
 
+			robots_pos_buttons_vbox.pack_start(robots_checkbox_fm, false, true, 5);
+			robots_checkbox_fm.add(draw_info_hbox);
+			draw_info_hbox.set_halign(Gtk::ALIGN_CENTER);
+			draw_info_hbox.pack_start(draw_info_checkbox, false, true, 5);
+			draw_info_checkbox.set_label("Don't Draw on Image");
+			draw_info_checkbox.set_can_focus(false);
+
+
+			draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_draw_info_checkbox_signal_clicked));
 			robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_save_bt_signal_clicked));
 			robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_load_bt_signal_clicked));
 
 
 
+		}
+
+		void event_draw_info_checkbox_signal_clicked()
+		{
+			draw_info_flag = !draw_info_flag;
 		}
 
 		void event_robots_save_bt_signal_clicked()
