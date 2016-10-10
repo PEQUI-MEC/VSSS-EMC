@@ -127,7 +127,7 @@ public Gtk::HBox {
 		Gtk::Button robots_function_done_bt;
 		bool robots_function_edit_flag = false;
 
-		Gtk::Frame robot_one_fm;
+		/*Gtk::Frame robot_one_fm;
 		Gtk::Button robot_one_edit_bt;
 		Gtk::Button robot_one_done_bt;
 		Gtk::VBox robot_one_vbox;
@@ -143,7 +143,7 @@ public Gtk::HBox {
 		Gtk::Button robot_three_edit_bt;
 		Gtk::Button robot_three_done_bt;
 		Gtk::VBox robot_three_vbox;
-		Gtk::HBox robot_three_hbox[4];
+		Gtk::HBox robot_three_hbox[4];*/
 
 		std::string function[3];
 
