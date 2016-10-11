@@ -155,7 +155,7 @@ cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia d
 				Attack.status = 2;			
 
 	//			cout<<"Status - "<<Attack.status<<endl;
-				if ( target.y < MEIO_GOL_Y) { 
+				if ( robot.y < MEIO_GOL_Y) { 
 					target.x = MEIO_GOL_X;
 					target.y = MAX_GOL_Y;	
 				}
@@ -184,12 +184,12 @@ cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia d
 				
 				Attack.status = 2;
 				
-				if ( target.y < MEIO_GOL_Y) { 
+				if ( robot.y < MEIO_GOL_Y) { 
 					target.x = MEIO_GOL_X;
 					target.y = MAX_GOL_Y;
 //					cout<<"Centro 1 "<<endl;	
 				}
-				else if (target.y >= MEIO_GOL_Y) {
+				else if (robot.y >= MEIO_GOL_Y) {
 					target.x = MEIO_GOL_X;
 					target.y = MIN_GOL_Y;
 //					cout<<"Centro 2"<<endl;
@@ -375,12 +375,14 @@ cv::Point get_def_target(cv::Point robot) { // Estratégia de defesa clássica (
 		target.x = LINHA_ZAGA;
 		Defense.fixedPos=true;
 		target.y = Ball.y;
-//		cout<<"Nao dexa area - ";
+		cout<<"Nao dexa area - ";
+//		Não permite que o alvo esteja dentro da área
 	}
 
 	if (target.x < 38) {
 		target.x = 47;
-//		cout<<"Nao dexa fora - ";
+		cout<<"Nao dexa fora - ";
+//		Não permite que o alvo esteja fora do campo
 	}
 	
 //	cout<<endl;
