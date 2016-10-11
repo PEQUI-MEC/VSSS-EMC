@@ -444,11 +444,13 @@ void set_Ball(cv::Point b){
 
 cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 		Goalkeeper.fixedPos=true;
-		Goalkeeper.target.x = 640-60;
+		Goalkeeper.target.x = 60;
 		if (Ball.x < DIVISAO_AREAS)
 		{ // Bola na defesa
 			
-			Goalkeeper.target.y = Ball_Est.y;
+			Goalkeeper.target.y = (Ball.x*Ball_Est.y - Ball_Est.x*Ball.y)/(Ball_Est.x-Ball.x);
+			// ir na projeção da bola na linha de fundo
+			
 			/*if(Ball.x<LINHA_ZAGA)
 			GOAL_DANGER_ZONE = true;
 			else
@@ -492,7 +494,8 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 		}
 		else
 		{ // Bola no ataque
-			Goalkeeper.target.y = Ball_Est.y;
+			Goalkeeper.target.y = (Ball.x*Ball_Est.y - Ball_Est.x*Ball.y)/(Ball_Est.x-Ball.x);
+			// ir na projeção da bola na linha de fundo
 			
 			if (Goalkeeper.target.y > MAX_GOL_Y)
 				Goalkeeper.target.y = MAX_GOL_Y;
