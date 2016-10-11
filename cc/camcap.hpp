@@ -561,7 +561,7 @@ public Gtk::HBox {
 		void send_vel_to_robots(){
 			for(int i=0;i<robot_list.size();i++){
 			 if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1){
-					robot_list[i].goTo(robot_list[i].target);
+					robot_list[i].goTo(robot_list[i].target,Ball);
 				}else{
 					robot_list[i].Vr = 0 ;
 					robot_list[i].Vl = 0 ;
@@ -612,7 +612,7 @@ public Gtk::HBox {
 				robot_list[i].Vl = 0 ;
 			}
 			 if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1){
-				robot_list[i].goTo(robot_list[i].target);
+				robot_list[i].goTo(robot_list[i].target,Ball);
 			}else{
 				robot_list[i].Vr = 0 ;
 				robot_list[i].Vl = 0 ;
@@ -698,7 +698,7 @@ public Gtk::HBox {
 		void parallel_tracking(cv::Mat im){
 			 cv::Mat image_copy = im.clone();
 			 cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-			 cv::medianBlur(image_copy, image_copy, 3);
+			 cv::medianBlur(image_copy, image_copy, 5);
 			 
 			 for(int i =0;i<6;i++)
 			 threshold_threads.add_thread(new boost::thread(&CamCap::img_tracking,this, boost::ref(image_copy), (i)));

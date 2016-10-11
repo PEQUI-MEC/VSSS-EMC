@@ -111,7 +111,7 @@ bool is_Stuck(){
 
 
 }
-void goTo(cv::Point targetPos){
+void goTo(cv::Point targetPos,cv::Point Ball){
 	
 	 double currentTheta = orientation;
 	 cv::Point currentPos = position;
@@ -224,7 +224,7 @@ void goTo(cv::Point targetPos){
 		
 		if(check_collision()){
 		//verifica se esta perto da bola
-		if (sqrt(pow((targetPos.y - currentPos.y),2)+pow((targetPos.x - currentPos.x),2)) < 20){
+		if (sqrt(pow((Ball.y - currentPos.y),2)+pow((Ball.x - currentPos.x),2)) < 20){
 			//std::cout<<"gira"<<std::endl;
 			//verifica o lado que deve girar
 			if (targetPos.y > 240){
