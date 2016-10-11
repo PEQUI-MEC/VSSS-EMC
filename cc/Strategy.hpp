@@ -420,14 +420,15 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 			else
 			GOAL_DANGER_ZONE = false;*/
 		
-		
-			if (Goalkeeper.target.y > 354)
-			Goalkeeper.target.y = 354;
-			else if (Goalkeeper.target.y < 150)
-			Goalkeeper.target.y = 150;
+			if (Goalkeeper.target.y > MAX_GOL_Y)
+				Goalkeeper.target.y = MAX_GOL_Y;
+			else if (Goalkeeper.target.y < MIN_GOL_Y)
+				Goalkeeper.target.y = MIN_GOL_Y;
+
+			
 
 		
-			if((Ball.x<LIMITE_AREA_X&&Ball.y>LARGURA_CAMPO/2-TAMANHO_AREA/2&&Ball.y<LARGURA_CAMPO/2+TAMANHO_AREA/2))
+			if( Ball.x<LIMITE_AREA_X && Ball.y>LARGURA_CAMPO/2-TAMANHO_AREA/2 && Ball.y<LARGURA_CAMPO/2+TAMANHO_AREA/2 )
 			{
 				//cout<<"BOLA NA AREA"<<endl;
 				ADV_NA_AREA=false;
@@ -443,6 +444,13 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 				{
 					Goalkeeper.target=Ball;
 				}
+			}
+			else if (Ball.x<LIMITE_AREA_X && Ball.y<LARGURA_CAMPO/2-TAMANHO_AREA/2 && Ball.y>LARGURA_CAMPO/2+TAMANHO_AREA/2)
+			{// bola nas laterais da area
+				if (Goalkeeper.target.y > 354)
+					Goalkeeper.target.y = 354;
+				else if (Goalkeeper.target.y < 150)
+					Goalkeeper.target.y = 150;
 			}
 		}
 		else
