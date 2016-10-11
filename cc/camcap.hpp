@@ -698,7 +698,7 @@ public Gtk::HBox {
 		void parallel_tracking(cv::Mat im){
 			 cv::Mat image_copy = im.clone();
 			 cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-			 cv::medianBlur(image_copy, image_copy, 5);
+			 cv::medianBlur(image_copy, image_copy, 3);
 			 
 			 for(int i =0;i<6;i++)
 			 threshold_threads.add_thread(new boost::thread(&CamCap::img_tracking,this, boost::ref(image_copy), (i)));
