@@ -1448,48 +1448,47 @@ public Gtk::HBox {
 			robots_function_fm.set_label("Robot Functions");
 			info_hbox.pack_start(robots_function_fm, false, true, 5);
 			robots_function_fm.add(robots_function_vbox);
-
 			robots_function_edit_bt.set_label("Edit");
 			robots_function_done_bt.set_label("Done");
 			robots_function_hbox[0].pack_start(robots_function_edit_bt, false, true, 5);
 			robots_function_hbox[0].pack_end(robots_function_done_bt, false, true, 5);
 			robots_function_vbox.pack_start(robots_function_hbox[0], false, true, 5);
-
 			label = new Gtk::Label("Robot 1: ");
+			std::string function[3];
 			function[0].clear();
     		function[0].append("Goalkeeper");
+    		function[1].clear();
+    		function[1].append("Defense");
+    		function[2].clear();
+    		function[2].append("Attack");
     		cb_robot_function[0].append(function[0]);
+    		cb_robot_function[0].append(function[1]);
+    		cb_robot_function[0].append(function[2]);
     		cb_robot_function[0].set_active_text(function[0]);
     		robots_function_hbox[1].pack_start(*label, false, true, 5);
     		robots_function_hbox[1].pack_start(cb_robot_function[0], false, true, 5);
     		robots_function_vbox.pack_start(robots_function_hbox[1], false, true, 5);
-
-
     		label = new Gtk::Label("Robot 2: ");
-    		function[1].clear();
-    		function[1].append("Defense");
+    		cb_robot_function[1].append(function[0]);
     		cb_robot_function[1].append(function[1]);
+    		cb_robot_function[1].append(function[2]);
     		cb_robot_function[1].set_active_text(function[1]);
     		robots_function_hbox[2].pack_start(*label, false, true, 5);
     		robots_function_hbox[2].pack_start(cb_robot_function[1], false, true, 5);
     		robots_function_vbox.pack_start(robots_function_hbox[2], false, true, 5);
-
     		label = new Gtk::Label("Robot 3: ");
-    		function[2].clear();
-    		function[2].append("Attack");
+    		cb_robot_function[2].append(function[0]);
+    		cb_robot_function[2].append(function[1]);
     		cb_robot_function[2].append(function[2]);
     		cb_robot_function[2].set_active_text(function[2]);
     		robots_function_hbox[3].pack_start(*label, false, true, 5);
     		robots_function_hbox[3].pack_start(cb_robot_function[2], false, true, 5);
     		robots_function_vbox.pack_start(robots_function_hbox[3], false, true, 5);
-
     		robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
     		robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
     		cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
     		cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
     		cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
-
-
     		robots_function_edit_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_function_edit_bt_signal_clicked));
 			robots_function_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_function_done_bt_signal_clicked));
 
