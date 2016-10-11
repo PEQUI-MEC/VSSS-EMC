@@ -117,10 +117,7 @@ cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia d
 		//cout<<"Bola no Ataque "<<"|";
 		if(distBall < round(0.08*float(width)/1.70) ) {
 			//Posse de bola?????????? SIM
-			cout<<"posse de bola"<<endl;
-//			if (robot.x > Ball.x) {
-//				Attack.status = 1; //Tratamento atacante re
-//			}
+
 			//Definicao de acao para acelerar em direcao ao gol
 			if (robot.y > MAX_GOL_Y && orientation >= 0) {
 				orientation = orientation - double(PI);
@@ -450,8 +447,8 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 		Goalkeeper.target.x = 60;
 		if (Ball.x < DIVISAO_AREAS)
 		{ // Bola na defesa
-			
-			Goalkeeper.target.y = (Ball.x*Ball_Est.y - Ball_Est.x*Ball.y)/(Ball_Est.x-Ball.x);
+
+			Goalkeeper.target.y = Ball_Est.y;
 			// ir na projeção da bola na linha de fundo
 			
 			/*if(Ball.x<LINHA_ZAGA)
@@ -497,7 +494,7 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 		}
 		else
 		{ // Bola no ataque
-			Goalkeeper.target.y = (Ball.x*Ball_Est.y - Ball_Est.x*Ball.y)/(Ball_Est.x-Ball.x);
+			Goalkeeper.target.y = Ball_Est.y;
 			// ir na projeção da bola na linha de fundo
 			
 			if (Goalkeeper.target.y > MAX_GOL_Y)
