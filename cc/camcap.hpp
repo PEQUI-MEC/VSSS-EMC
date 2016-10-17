@@ -499,11 +499,21 @@ public Gtk::HBox {
 				robot_list[i].target = strats.get_atk_target(robot_list[i].position, robot_list[i].orientation);
 				robot_list[i].fixedPos = strats.Attack.fixedPos;
 				robot_list[i].status = strats.Attack.status;
+			/*	for(int j=0;j<Adv_Main.size();j++){
+					if ( sqrt(pow(Adv_Main[j].x - robot_list[i].position.x, 2) + pow(Adv_Main[j].y - robot_list[i].position.y, 2)) < 50) {
+						robot_list[i].histWipe();
+					}
+				}*/
 				break;
 				case 1:
 				robot_list[i].target = strats.get_def_target(robot_list[i].position);
 				robot_list[i].fixedPos = strats.Defense.fixedPos;
 				robot_list[i].status = strats.Defense.status;
+			/*	for(int j=0;j<Adv_Main.size();j++){
+					if ( sqrt(pow(Adv_Main[j].x - robot_list[i].position.x, 2) + pow(Adv_Main[j].y - robot_list[i].position.y, 2)) < 50) {
+						robot_list[i].spin = true;
+					}
+				}*/
 				break;
 			}
 				//cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl; 
@@ -698,7 +708,7 @@ public Gtk::HBox {
 		void parallel_tracking(cv::Mat im){
 			 cv::Mat image_copy = im.clone();
 			 cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-			 cv::medianBlur(image_copy, image_copy, 7);
+			 cv::medianBlur(image_copy, image_copy, 5);
 			 
 			 for(int i =0;i<6;i++)
 			 threshold_threads.add_thread(new boost::thread(&CamCap::img_tracking,this, boost::ref(image_copy), (i)));

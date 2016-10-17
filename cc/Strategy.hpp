@@ -211,6 +211,10 @@ cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia d
 			
 				
 			}
+			else if (Ball.x < robot.x)
+			{
+				target.x = robot.x + 50;
+			}
 			else{
 				target.y = Ball.y;
 				target.x = Ball.x;
@@ -252,8 +256,10 @@ cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia d
 				if(robot.x < COMPRIMENTO_CAMPO- round(0.2*float(width)/1.70)){
 //					cout<<"Fora da area - ";
 					
-					Attack.status = 1;
+					if (distBall < 100 ) {
+						Attack.status = 1;
 //					cout<<"Status - "<<Attack.status<<endl;
+					}
 					
 					float phi = atan(float(MEIO_GOL_Y - Ball.y)/float(MEIO_GOL_X - Ball.x));		// Angulo entre o gol e a bola
 					float theta = atan(float(MEIO_GOL_Y - robot.y)/float(MEIO_GOL_X - robot.x));	// Angulo entre o gol e o atacante
@@ -451,10 +457,10 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 			Goalkeeper.target.y = Ball_Est.y;
 			// ir na projeção da bola na linha de fundo
 			
-			/*if(Ball.x<LINHA_ZAGA)
+			if(Ball.x<LINHA_ZAGA)
 			GOAL_DANGER_ZONE = true;
 			else
-			GOAL_DANGER_ZONE = false;*/
+			GOAL_DANGER_ZONE = false;
 		
 			if (Goalkeeper.target.y > MAX_GOL_Y)
 				Goalkeeper.target.y = MAX_GOL_Y;
@@ -464,7 +470,7 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 			
 
 		
-			if( Ball.x<LIMITE_AREA_X && Ball.y>LARGURA_CAMPO/2-TAMANHO_AREA/2 && Ball.y<LARGURA_CAMPO/2+TAMANHO_AREA/2 )
+/*			if( Ball.x<LIMITE_AREA_X && Ball.y>LARGURA_CAMPO/2-TAMANHO_AREA/2 && Ball.y<LARGURA_CAMPO/2+TAMANHO_AREA/2 )
 			{
 				//cout<<"BOLA NA AREA"<<endl;
 				ADV_NA_AREA=false;
@@ -480,8 +486,8 @@ cv::Point get_gk_target(vector< cv::Point > Adv_Main){
 				{
 					Goalkeeper.target=Ball;
 				}
-			}
-			else if (Ball.x<LIMITE_AREA_X && (Ball.y<LARGURA_CAMPO/2-TAMANHO_AREA/2 || Ball.y>LARGURA_CAMPO/2+TAMANHO_AREA/2))
+			}*/
+			 if (Ball.x<LIMITE_AREA_X && (Ball.y<LARGURA_CAMPO/2-TAMANHO_AREA/2 || Ball.y>LARGURA_CAMPO/2+TAMANHO_AREA/2))
 			{
 				
 				//cout<<"bola nas laterais da area"<<endl;
