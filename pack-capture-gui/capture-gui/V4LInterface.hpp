@@ -47,6 +47,8 @@ namespace capture {
 			bool auto_calib_flag = false;
 			bool quick_save_flag = false;
 			bool quick_load_flag = false;
+			bool save_robots_info_flag = false;
+			bool load_robots_info_flag = false;
 			
 			Gtk::ToggleButton bt_warp;
 			Gtk::ToggleButton bt_adjust;
@@ -78,6 +80,7 @@ namespace capture {
 			void __init_combo_boxes();
 			void __create_frm_device_info();
 			void __create_frm_device_properties();
+			void __create_frm_quick_actions();
 			void __create_frm_warp();
 			void __create_frm_calibration();
 
@@ -112,6 +115,8 @@ namespace capture {
 			void __event_bt_save_warp_clicked();
 			void __event_bt_load_warp_clicked();
 			void __event_bt_reset_warp_clicked();
+			void __event_bt_save_robots_info_clicked();
+			void __event_bt_load_robots_info_clicked();
 			     
 			void __event_bt_HSV_calib_pressed();
 			void __event_bt_auto_calib_pressed();
@@ -166,6 +171,7 @@ namespace capture {
 		    Gtk::Button bt_load_cam_prop;
 			//-------------------------------
 
+		    Gtk::Frame frm_quick_actions;
 			Gtk::Button bt_quick_save;
 			Gtk::Button bt_quick_load;
 		

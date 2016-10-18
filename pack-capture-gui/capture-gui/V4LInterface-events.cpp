@@ -21,6 +21,7 @@ namespace capture {
 	{
 		std::cout << "QUICK SAVE" << std::endl;
 		quick_save_flag = true;
+		__event_bt_save_robots_info_clicked();
 		__event_bt_save_cam_prop_clicked();
 		__event_bt_save_warp_clicked();
 		__event_bt_save_HSV_calib_clicked();
@@ -32,10 +33,10 @@ namespace capture {
 	{
 		std::cout << "QUICK LOAD" << std::endl;
 		quick_load_flag = true;
+		__event_bt_load_robots_info_clicked();
 		__event_bt_load_cam_prop_clicked();
 		__event_bt_load_warp_clicked();
 		__event_bt_load_HSV_calib_clicked();
-
 		__event_bt_warp_clicked();
 
 		/*HSV_calib_event_flag = true;
@@ -44,6 +45,16 @@ namespace capture {
 
 		// quick_save_flag é setado como false dentro do load_HSV() no camcap.hpp.
 		
+	}
+
+	void V4LInterface::__event_bt_save_robots_info_clicked()
+	{
+		save_robots_info_flag = true;
+	}
+
+	void V4LInterface::__event_bt_load_robots_info_clicked()
+	{
+		load_robots_info_flag = true;
 	}
 
 	void V4LInterface::__event_bt_save_cam_prop_clicked() {

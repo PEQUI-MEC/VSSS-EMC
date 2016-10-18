@@ -20,6 +20,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
 #include <vector>
+#include <stdlib.h>
 #include <tgmath.h>
 #include <gtkmm.h>
 #include <math.h>
@@ -85,7 +86,18 @@ public Gtk::HBox {
 		Gtk::Label *ball_pos_lb;
 		vector<string> robot_pos;
 		Gtk::Button start_game_bt;
+
 		Gtk::Frame robots_pos_fm;
+		Gtk::Frame robots_buttons_fm;
+		Gtk::Frame robots_checkbox_fm;
+		Gtk::VBox robots_pos_buttons_vbox;
+		Gtk::Button robots_save_bt;
+		Gtk::Button robots_load_bt;
+		Gtk::HBox robots_buttons_hbox;
+		Gtk::CheckButton draw_info_checkbox;
+		Gtk::HBox draw_info_hbox;
+		bool draw_info_flag = false;
+
 
 		Gtk::Image red_button_released;
 		Gtk::Image red_button_pressed;
@@ -97,15 +109,49 @@ public Gtk::HBox {
 		Gtk::Button robots_id_edit_bt;
 		Gtk::Button robots_id_done_bt;
 		Gtk::Entry robots_id_box[3];
+		Glib::ustring robots_id_tmp[3];
 		bool robots_id_edit_flag = false;
 
 		Gtk::Frame robots_speed_fm;
 		Gtk::VBox robots_speed_vbox[4];
-		Gtk::VScale robots_speed_vscale[3];
-		Gtk::HBox robots_speed_hbox[2];
+		Gtk::HScale robots_speed_hscale[3];
+		double robots_speed_tmp[3];
+		Gtk::HBox robots_speed_hbox[4];
+		Gtk::ProgressBar robots_speed_progressBar[3];
 		Gtk::Button robots_speed_edit_bt;
 		Gtk::Button robots_speed_done_bt;
 		bool robots_speed_edit_flag = false;
+
+		Gtk::Frame robots_function_fm;
+		Gtk::VBox robots_function_vbox;
+		Gtk::HBox robots_function_hbox[4];
+		Gtk::ComboBoxText cb_robot_function[3];
+		int robots_function_tmp[3];
+		Gtk::Button robots_function_edit_bt;
+		Gtk::Button robots_function_done_bt;
+		bool robots_function_edit_flag = false;
+
+		/*Gtk::Frame robot_one_fm;
+		Gtk::Button robot_one_edit_bt;
+		Gtk::Button robot_one_done_bt;
+		Gtk::VBox robot_one_vbox;
+		Gtk::HBox robot_one_hbox[4];
+
+		Gtk::Frame robot_two_fm;
+		Gtk::Button robot_two_edit_bt;
+		Gtk::Button robot_two_done_bt;
+		Gtk::VBox robot_two_vbox;
+		Gtk::HBox robot_two_hbox[4];
+
+		Gtk::Frame robot_three_fm;
+		Gtk::Button robot_three_edit_bt;
+		Gtk::Button robot_three_done_bt;
+		Gtk::VBox robot_three_vbox;
+		Gtk::HBox robot_three_hbox[4];*/
+
+		std::string function[3];
+
+
 
 
 
@@ -202,6 +248,14 @@ public Gtk::HBox {
 				height = v.vcap.format_dest.fmt.pix.height;
 				strats.set_constants(width,height);
 				
+
+				// Liberar os botões de edit
+				robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
+				robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
+				robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
+				robots_save_bt.set_state(Gtk::STATE_NORMAL);
+				robots_load_bt.set_state(Gtk::STATE_NORMAL);
+				
 			threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));		
 			for(int i = 0; i < 6; i++)
 			{
@@ -216,10 +270,17 @@ public Gtk::HBox {
 				iv.set_size_request(width, height);
 				con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
 				
-
+				cout << "Start Clicked! 1" << endl;
 			} else {
 				cout << "Stop Button Clicked!" << endl;
 				con.disconnect();
+
+				// Travar os botões de edit
+				robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_save_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_load_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 			}
 
@@ -257,7 +318,11 @@ public Gtk::HBox {
 
 			 iv.PID_test_flag = control.PID_test_flag;
 			 iv.adjust_event_flag = v.adjust_event_flag;
+
+			
 				
+			 if (v.save_robots_info_flag)	event_robots_save_bt_signal_clicked();
+			 if (v.load_robots_info_flag)	event_robots_load_bt_signal_clicked();
 			 
 			 if(v.save_warp_flag)	 save_warp();
 			 if(v.load_warp_flag)	 load_warp();
@@ -265,6 +330,8 @@ public Gtk::HBox {
 			
 			 if(v.save_HSV_calib_flag)	 save_HSV();
 			 if(v.load_HSV_calib_flag) 	 load_HSV();
+
+			 
 			 
 			 if(warped){
 				v.bt_warp.set_active(false);
@@ -358,34 +425,32 @@ public Gtk::HBox {
 			  }
 			
 				//cout<<"AQUI"<<endl;
-				parallel_tracking(image);
-				robot_creation();
+				
+				
 					
+				parallel_tracking(image);
+				if(!v.HSV_calib_event_flag){
+				robot_creation();
 				
-		//PRINT TAG PROPERTIES
-		/*
-			 cout<<"--------------------------------------------------------------- "<<endl;
-			  cout<<"robot_list Size "<<robot_list.size()<<endl;
-			 for(int i=0;i<robot_list.size();i++){
-				cout<<i<<" px "<<robot_list[i].position.x<<" py "<<robot_list[i].position.y<<endl;
-				cout<<i<<" sx "<<robot_list[i].secundary.x<<" sy "<<robot_list[i].secundary.y<<endl;
-				cout<<" o "<<robot_list[i].orientation*180/PI<<endl;
-				
-		}*/
 			
+				if (!draw_info_flag)
+				{
+					circle(image,robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"1",cv::Point(robot_list[0].position.x-5,robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"2",cv::Point(robot_list[1].position.x-5,robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
+					line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(255,255,0), 2);
+					putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);	
+					circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
+					for(int i=0;i<Adv_Main.size();i++)
+						circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
+				}
+				
 			
-				circle(image,robot_list[0].position, 15, cv::Scalar(255,153,204), 2);
-				line(image,robot_list[0].position,robot_list[0].secundary,cv::Scalar(255,153,204), 2);
-				
-				circle(image,robot_list[1].position, 15, cv::Scalar(51,153,102), 2);
-				line(image,robot_list[1].position,robot_list[1].secundary,cv::Scalar(51,153,102), 2);
-				
-				circle(image,robot_list[2].position, 15, cv::Scalar(245,0,155), 2);
-				line(image,robot_list[2].position,robot_list[2].secundary,cv::Scalar(245,0,155), 2);
-				
-				circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
-			
-
+}
 				
 				if(iv.PID_test_flag)	 PID_test();
 				else{
@@ -405,24 +470,57 @@ public Gtk::HBox {
 					}
 		
 				// ----------- ESTRATEGIA -----------------//
+				
 				strats.set_Ball(Ball);
-			
+				/*
+				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MAX_GOL_Y),cv::Point(width,strats.MAX_GOL_Y), cv::Scalar(255,255,255),2);
+				line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MIN_GOL_Y),cv::Point(width,strats.MIN_GOL_Y), cv::Scalar(255,255,255),2);
+				*/
+			if(start_game_flag){
 				Ball_Est=strats.get_Ball_Est();
-				line(image,Ball,Ball_Est,cv::Scalar(127,127,255), 2);
-				circle(image,Ball_Est, 7, cv::Scalar(127,127,255), 2); 
-				robot_list[2].target = strats.get_Defense_Classic(robot_list[2].position); // Estratégia clássica
-				cout<<robot_list[2].target.x<<" - "<<robot_list[2].target.y<<endl; 
-				circle(image,robot_list[2].target, 7, cv::Scalar(127,255,127), 2);
-				send_vel_to_robots();
-			
+				line(image,Ball,Ball_Est,cv::Scalar(255,140,0), 2);
+				circle(image,Ball_Est, 7, cv::Scalar(255,140,0), 2); 
+				char buffer[3];
+				for(int i =0;i<3;i++){
+				switch (robot_list[i].role)	{
+				case 0:
+				robot_list[i].target = strats.get_gk_target(Adv_Main);
+				robot_list[i].fixedPos = strats.Goalkeeper.fixedPos;
+				if(strats.GOAL_DANGER_ZONE){
+				//	cout<<"hist_wipe"<<endl;
+				robot_list[i].histWipe();
+			}
+				break;
+				case 2:
+				robot_list[i].target = strats.get_atk_target(robot_list[i].position, robot_list[i].orientation);
+				robot_list[i].fixedPos = strats.Attack.fixedPos;
+				robot_list[i].status = strats.Attack.status;
+				break;
+				case 1:
+				robot_list[i].target = strats.get_def_target(robot_list[i].position);
+				robot_list[i].fixedPos = strats.Defense.fixedPos;
+				robot_list[i].status = strats.Defense.status;
+				break;
+			}
+				//cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl; 
+				circle(image,robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
+				
+					putText(image,std::to_string(i+1),cv::Point(robot_list[i].target.x-5,robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);	
+			}
+			}
+				//cout<<robot_list[2].status<<" | "<<robot_list[2].V<<endl;
+				
+				
+				update_speed_progressBars();	
+				send_vel_to_robots();		
 				// ----------------------------------------//
 					
 				
 				
-				if(v.HSV_calib_event_flag){
-				for(int i=0;i<3*(width*height + width) +2;i++)
-					d[i]=threshold[v.Img_id][i];
-					}
 						
 					
 		//PRINT RAW POSITIONS
@@ -452,7 +550,10 @@ public Gtk::HBox {
 				//timer.stop();
 				//cout<<"Time: "<<timer.getCPUTotalSecs()<<"	FPS: "<<1/timer.getCPUTotalSecs()<<endl;
 				//timer.reset();
-		
+		if(v.HSV_calib_event_flag){
+				for(int i=0;i<3*(width*height + width) +2;i++)
+					d[i]=threshold[v.Img_id][i];
+					}
 			return true;
 		}
 
@@ -460,7 +561,7 @@ public Gtk::HBox {
 		void send_vel_to_robots(){
 			for(int i=0;i<robot_list.size();i++){
 			 if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1){
-					robot_list[i].goTo(robot_list[i].target);
+					robot_list[i].goTo(robot_list[i].target,Ball);
 				}else{
 					robot_list[i].Vr = 0 ;
 					robot_list[i].Vl = 0 ;
@@ -485,6 +586,7 @@ public Gtk::HBox {
 				}
 			}
 			if(Selec_index>-1){
+				robot_list[Selec_index].histWipe();
 			if(sqrt(pow((Ball.x-robot_list[Selec_index].target.x),2)+pow((Ball.y-robot_list[Selec_index].target.y),2))<=7)
 				fixed_ball[Selec_index]=true;
 
@@ -499,7 +601,7 @@ public Gtk::HBox {
 			for(int i=0;i<robot_list.size();i++){
 			if(fixed_ball[i])
 			 robot_list[i].target=Ball;
-			 			
+			 else{
 			 if(sqrt(pow((robot_list[i].position.x-robot_list[i].target.x),2)+
 				pow((robot_list[i].position.y-robot_list[i].target.y),2))<15){
 
@@ -510,7 +612,7 @@ public Gtk::HBox {
 				robot_list[i].Vl = 0 ;
 			}
 			 if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1){
-			 robot_list[i].goTo(robot_list[i].target);
+				robot_list[i].goTo(robot_list[i].target,Ball);
 			}else{
 				robot_list[i].Vr = 0 ;
 				robot_list[i].Vl = 0 ;
@@ -518,7 +620,7 @@ public Gtk::HBox {
 				
 			}
 			
-			
+		}
 
 			//cout<<"---------------------------------------------------"<<endl;
 		
@@ -550,6 +652,7 @@ public Gtk::HBox {
 				robot.secundary = Team_Sec[index[0]][index[1]];	
 				distanceRef = 999999999.0;			
 				robot_list[index[0]].position = robot.position; // colocar em um vetor
+				robot_list[index[0]].feedHist(robot.position);
 				robot_list[index[0]].secundary = robot.secundary; // colocar em um vetor
 				calcOrientation(index[0]);
 
@@ -558,19 +661,19 @@ public Gtk::HBox {
 			// Atualizar as labels de posição dos robos
 
 			stringstream aux1;
-			aux1 << "(" << round((robot_list[0].position.x)*170/double(w))<< "," << round((robot_list[0].position.y)*130/double(h))<< "," << round(robot_list[0].orientation*(180/PI)) << ")";
+			aux1 << "(" << round((robot_list[0].position.x))<< "," << round((robot_list[0].position.y))<< "," << round(robot_list[0].orientation*(180/PI)) << ")";
 			robot1_pos_lb->set_text(aux1.str());
 
 			stringstream aux2;
-			aux2 << "(" << round((robot_list[1].position.x)*170/double(w))<< "," << round((robot_list[1].position.y)*130/double(h))<< "," << round((robot_list[1].orientation*(180/PI))) << ")";
+			aux2 << "(" << round((robot_list[1].position.x))<< "," << round((robot_list[1].position.y))<< "," << round((robot_list[1].orientation*(180/PI))) << ")";
 			robot2_pos_lb->set_text(aux2.str());
 
 			stringstream aux3;
-			aux3 << "(" << round((robot_list[2].position.x)*170/double(w))<< "," << round((robot_list[2].position.y)*130/double(h)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
+			aux3 << "(" << round((robot_list[2].position.x))<< "," << round((robot_list[2].position.y)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
 			
 			robot3_pos_lb->set_text(aux3.str());
 			 stringstream aux4;
-				aux4 << "(" << round((Ball.x)*170/double(w))<< "," << round((Ball.y)*130/double(h)) << ")";
+				aux4 << "(" << round((Ball.x))<< "," << round((Ball.y)) << ")";
 				ball_pos_lb->set_text(aux4.str());
 	}	
 
@@ -583,7 +686,7 @@ public Gtk::HBox {
 			px = robot_list[tag_id].position.x; 
 			py = robot_list[tag_id].position.y; 
 			
-			robot_list[tag_id].orientation = atan2(sy-py,sx-px);
+			robot_list[tag_id].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
 			robot_list[tag_id].position.x = robot_list[tag_id].position.x;	
 			robot_list[tag_id].position.y = robot_list[tag_id].position.y;	
 		}
@@ -595,7 +698,6 @@ public Gtk::HBox {
 		void parallel_tracking(cv::Mat im){
 			 cv::Mat image_copy = im.clone();
 			 cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-			 
 			 cv::medianBlur(image_copy, image_copy, 5);
 			 
 			 for(int i =0;i<6;i++)
@@ -999,7 +1101,6 @@ public Gtk::HBox {
 	}
 
 		CamCap() : data(0), width(0), height(0) {
-			std::cout << v.auto_calib_flag << std::endl;
 		
 			fixed_ball[0]=false;
 			fixed_ball[1]=false;
@@ -1025,6 +1126,10 @@ public Gtk::HBox {
 			robot_list[0].ID = 'A';
 			robot_list[1].ID = 'B';
 			robot_list[2].ID = 'C';
+			
+			robot_list[0].role = 0;
+			robot_list[1].role = 1;
+			robot_list[2].role = 2;
 
 			for(int i =0; i<6; i++){
 				v.HScale_Hmin.set_value(-1);
@@ -1045,6 +1150,9 @@ public Gtk::HBox {
 				Team_Sec.push_back(p);
 				Team_Sec.push_back(p);
 				
+				Team_Main.push_back(cv::Point(0,0));
+				Team_Main.push_back(cv::Point(0,0));
+				Team_Main.push_back(cv::Point(0,0));
 				for(int i=0; i<4;i++){
 					iv.adjust_mat[i][0] = -1;
 					iv.adjust_mat[i][1] = -1;
@@ -1057,9 +1165,11 @@ public Gtk::HBox {
 			camera_vbox.pack_start(info_fm, false, true, 10);
 			info_fm.add(info_hbox);
 
-			createPositionsFrame();
+			createPositionsAndButtonsFrame();
 			createIDsFrame();
+			createFunctionsFrame();
 			createSpeedsFrame();
+			//createRobotOneInfoFrame();
 
 
 			
@@ -1097,23 +1207,91 @@ public Gtk::HBox {
 			data = 0;
 		}
 
+		/*void createRobotOneInfoFrame()
+		{
+			robot_one_fm.set_label("Robot 1");
+			info_hbox.pack_start(robot_one_fm, false, true, 5);
+			robot_one_fm.add(robot_one_vbox);
+
+			robot_one_edit_bt.set_label("Edit");
+			robot_one_hbox[0].pack_start(robot_one_edit_bt, false, true, 5);
+			robot_one_done_bt.set_label("Done");
+			robot_one_hbox[0].pack_end(robot_one_done_bt, false, true, 5);
+			robot_one_vbox.pack_start(robot_one_hbox[0], false, true, 5);
+
+			label = new Gtk::Label("ID: ");
+			robot_one_hbox[1].pack_start(*label, false, true, 5);
+			robot_one_hbox[1].pack_start(robots_id_box[0], false, true, 5);
+			robots_id_box[0].set_max_length(1);
+			robots_id_box[0].set_width_chars(2);
+			robots_id_box[0].set_text(Glib::ustring::format("A"));
+			robot_one_vbox.pack_start(robot_one_hbox[1], false, true, 5);
+
+			label = new Gtk::Label("Function: ");
+			function[0].clear();
+    		function[0].append("Goalkeeper");
+    		cb_robot_function[0].append(function[0]);
+    		cb_robot_function[0].set_active_text(function[0]);
+    		robot_one_hbox[2].pack_start(*label, false, true, 5);
+    		robot_one_hbox[2].pack_start(cb_robot_function[0], false, true, 5);
+    		robot_one_vbox.pack_start(robot_one_hbox[2], false, true, 5);
+
+    		label = new Gtk::Label("Speed:");
+			robots_speed_hscale[0].set_digits(1);
+			robots_speed_hscale[0].set_increments(0.1,1);
+			robots_speed_hscale[0].set_range(0,6);
+			robots_speed_hscale[0].set_size_request(100,-1);
+			robots_speed_hscale[0].set_value(6);
+			robot_one_hbox[3].pack_start(*label, false, true, 0);
+			robot_one_hbox[3].pack_start(robots_speed_vbox[1], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_hscale[0], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
+			robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[0].set_show_text(true);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
+			robot_one_vbox.pack_start(robot_one_hbox[3], false, true, 0);
+
+
+		}
+
+		void createRobotTwoInfoFrame()
+		{
+			
+		}
+
+		void createRobotThreeInfoFrame()
+		{
+			
+		}*/
+
 		void event_robots_id_edit_bt_signal_pressed()
 		{
 			if (!robots_id_edit_flag)
 			{
 				robots_id_edit_flag = true;
+				robots_id_edit_bt.set_label("Cancel");
 				robots_id_box[0].set_state(Gtk::STATE_NORMAL);
 				robots_id_box[1].set_state(Gtk::STATE_NORMAL);
 				robots_id_box[2].set_state(Gtk::STATE_NORMAL);
 				robots_id_done_bt.set_state(Gtk::STATE_NORMAL);
+				robots_id_tmp[0] = robots_id_box[0].get_text();
+				robots_id_tmp[1] = robots_id_box[1].get_text();
+				robots_id_tmp[2] = robots_id_box[2].get_text();
+
 			}
 			else
 			{
 				robots_id_edit_flag = false;
+				robots_id_edit_bt.set_label("Edit");
 				robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
 				robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
 				robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 				robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+				robots_id_box[0].set_text(robots_id_tmp[0]);
+				robots_id_box[1].set_text(robots_id_tmp[1]);
+				robots_id_box[2].set_text(robots_id_tmp[2]);
 			}
 		}
 
@@ -1127,8 +1305,12 @@ public Gtk::HBox {
 			str = robots_id_box[2].get_text();
 			robot_list[2].ID = str[0];
 
-			// Presiona o botão edit para deixar tudo insensitivo
-			event_robots_id_edit_bt_signal_pressed();
+			robots_id_edit_flag = false;
+			robots_id_edit_bt.set_label("Edit");
+			robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
+			robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
+			robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
+			robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
 			
 		}
 
@@ -1137,28 +1319,42 @@ public Gtk::HBox {
 			if (!robots_speed_edit_flag)
 			{
 				robots_speed_edit_flag = true;
+				robots_speed_edit_bt.set_label("Cancel");
 				robots_speed_done_bt.set_state(Gtk::STATE_NORMAL);
-				robots_speed_vscale[0].set_state(Gtk::STATE_NORMAL);
-				robots_speed_vscale[1].set_state(Gtk::STATE_NORMAL);
-				robots_speed_vscale[2].set_state(Gtk::STATE_NORMAL);
+				robots_speed_hscale[0].set_state(Gtk::STATE_NORMAL);
+				robots_speed_hscale[1].set_state(Gtk::STATE_NORMAL);
+				robots_speed_hscale[2].set_state(Gtk::STATE_NORMAL);
+				robots_speed_tmp[0] = robots_speed_hscale[0].get_value();
+				robots_speed_tmp[1] = robots_speed_hscale[1].get_value();
+				robots_speed_tmp[2] = robots_speed_hscale[2].get_value();
 			}
 			else
 			{
 				robots_speed_edit_flag = false;
+				robots_speed_edit_bt.set_label("Edit");
 				robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-				robots_speed_vscale[0].set_state(Gtk::STATE_INSENSITIVE);
-				robots_speed_vscale[1].set_state(Gtk::STATE_INSENSITIVE);
-				robots_speed_vscale[2].set_state(Gtk::STATE_INSENSITIVE);
+				robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
+				robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
+				robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
+				robots_speed_hscale[0].set_value(robots_speed_tmp[0]);
+				robots_speed_hscale[1].set_value(robots_speed_tmp[1]);
+				robots_speed_hscale[2].set_value(robots_speed_tmp[2]);
+
 			}
 		}
 
 		void event_robots_speed_done_bt_signal_clicked()
 		{
-			robot_list[0].vmax = (float) robots_speed_vscale[0].get_value();
-			robot_list[1].vmax = (float) robots_speed_vscale[1].get_value();
-			robot_list[2].vmax = (float) robots_speed_vscale[2].get_value();
-			// Presiona o botão edit para deixar tudo insensitivo
-			event_robots_speed_edit_bt_signal_pressed();
+			robot_list[0].vmax = (float) robots_speed_hscale[0].get_value();
+			robot_list[1].vmax = (float) robots_speed_hscale[1].get_value();
+			robot_list[2].vmax = (float) robots_speed_hscale[2].get_value();
+			robots_speed_edit_flag = false;
+			robots_speed_edit_bt.set_label("Edit");
+			robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
+			
 		}
 
 		void event_start_game_bt_signal_clicked()
@@ -1173,14 +1369,143 @@ public Gtk::HBox {
 				start_game_flag = false;
 				start_game_bt.set_image(red_button_released);
 			}
+			for(int i=0;i<3;i++)
+			robot_list[i].histWipe();
 		}
 
-		void createPositionsFrame()
+		void event_robots_function_edit_bt_signal_clicked()
 		{
+			if (!robots_function_edit_flag)
+			{
+				robots_function_edit_flag = true;
+				robots_function_edit_bt.set_label("Cancel");
+				robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
+				cb_robot_function[0].set_state(Gtk::STATE_NORMAL);
+				cb_robot_function[1].set_state(Gtk::STATE_NORMAL);
+				cb_robot_function[2].set_state(Gtk::STATE_NORMAL);
+				robots_function_done_bt.set_state(Gtk::STATE_NORMAL);
+				robots_function_tmp[0] = cb_robot_function[0].get_active_row_number();
+				robots_function_tmp[1] = cb_robot_function[1].get_active_row_number();
+				robots_function_tmp[2] = cb_robot_function[2].get_active_row_number();
+
+			}
+			else
+			{
+				robots_function_edit_flag = false;
+				robots_function_edit_bt.set_label("Edit");
+				cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
+				cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
+				cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
+				robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+				cb_robot_function[0].set_active(robots_function_tmp[0]);
+				cb_robot_function[1].set_active(robots_function_tmp[1]);
+				cb_robot_function[2].set_active(robots_function_tmp[2]);
+			}
+		}
+
+		void event_robots_function_done_bt_signal_clicked()
+		{
+			std::string s[3];
+
+			for (int i = 0; i < 3; i++)
+			{
+				s[i] = cb_robot_function[i].get_active_text();
+
+				if (s[i].compare("Goalkeeper") == 0)
+				{
+					std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+					robot_list[i].role = 0;
+				}
+				else if (s[i].compare("Defense") == 0)
+				{
+					std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+					robot_list[i].role = 1;
+				}
+				else if (s[i].compare("Attack") == 0)
+				{
+					std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+					robot_list[i].role = 2;
+				}
+				else
+				{
+					std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+				}
+
+
+			}
+
+			robots_function_edit_flag = false;
+			robots_function_edit_bt.set_label("Edit");
+			cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
+			cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
+			cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
+			robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+			
+		}
+
+		void createFunctionsFrame()
+		{
+			robots_function_fm.set_label("Robot Functions");
+			info_hbox.pack_start(robots_function_fm, false, true, 5);
+			robots_function_fm.add(robots_function_vbox);
+			robots_function_edit_bt.set_label("Edit");
+			robots_function_done_bt.set_label("Done");
+			robots_function_hbox[0].pack_start(robots_function_edit_bt, false, true, 5);
+			robots_function_hbox[0].pack_end(robots_function_done_bt, false, true, 5);
+			robots_function_vbox.pack_start(robots_function_hbox[0], false, true, 5);
+			label = new Gtk::Label("Robot 1: ");
+			std::string function[3];
+			function[0].clear();
+    		function[0].append("Goalkeeper");
+    		function[1].clear();
+    		function[1].append("Defense");
+    		function[2].clear();
+    		function[2].append("Attack");
+    		cb_robot_function[0].append(function[0]);
+    		cb_robot_function[0].append(function[1]);
+    		cb_robot_function[0].append(function[2]);
+    		cb_robot_function[0].set_active_text(function[0]);
+    		robots_function_hbox[1].pack_start(*label, false, true, 5);
+    		robots_function_hbox[1].pack_start(cb_robot_function[0], false, true, 5);
+    		robots_function_vbox.pack_start(robots_function_hbox[1], false, true, 5);
+    		label = new Gtk::Label("Robot 2: ");
+    		cb_robot_function[1].append(function[0]);
+    		cb_robot_function[1].append(function[1]);
+    		cb_robot_function[1].append(function[2]);
+    		cb_robot_function[1].set_active_text(function[1]);
+    		robots_function_hbox[2].pack_start(*label, false, true, 5);
+    		robots_function_hbox[2].pack_start(cb_robot_function[1], false, true, 5);
+    		robots_function_vbox.pack_start(robots_function_hbox[2], false, true, 5);
+    		label = new Gtk::Label("Robot 3: ");
+    		cb_robot_function[2].append(function[0]);
+    		cb_robot_function[2].append(function[1]);
+    		cb_robot_function[2].append(function[2]);
+    		cb_robot_function[2].set_active_text(function[2]);
+    		robots_function_hbox[3].pack_start(*label, false, true, 5);
+    		robots_function_hbox[3].pack_start(cb_robot_function[2], false, true, 5);
+    		robots_function_vbox.pack_start(robots_function_hbox[3], false, true, 5);
+    		robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+    		robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+    		cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
+    		cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
+    		cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
+    		robots_function_edit_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_function_edit_bt_signal_clicked));
+			robots_function_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_function_done_bt_signal_clicked));
+
+
+
+
+		}
+
+		void createPositionsAndButtonsFrame()
+		{
+
+			info_hbox.pack_start(robots_pos_buttons_vbox, false, true, 5);
+
 			robots_pos_fm.set_label("Positions");
-			info_hbox.pack_start(robots_pos_fm, false, true, 5);
+			robots_pos_buttons_vbox.pack_start(robots_pos_fm, false, true, 5);
 			robots_pos_fm.add(robots_pos_vbox);
-			robots_pos_vbox.set_size_request(170,-1);
+			robots_pos_vbox.set_size_request(190,-1);
 
 
 			label = new Gtk::Label("Robot 1:");
@@ -1208,7 +1533,135 @@ public Gtk::HBox {
 			robots_pos_hbox[3].pack_start(*label, false, true, 5);
 			robots_pos_hbox[3].pack_start(*ball_pos_lb, false, true, 5);
 			robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
+
+			robots_pos_buttons_vbox.pack_start(robots_buttons_fm, false, true, 5);
+			robots_buttons_fm.add(robots_buttons_hbox);
+
+			robots_save_bt.set_label("Save");
+			robots_load_bt.set_label("Load");
+			robots_save_bt.set_state(Gtk::STATE_INSENSITIVE);
+			robots_load_bt.set_state(Gtk::STATE_INSENSITIVE);
+			robots_buttons_hbox.set_margin_top(7);
+			robots_buttons_hbox.set_margin_bottom(7);
+			robots_buttons_hbox.set_halign(Gtk::ALIGN_CENTER);
+			robots_buttons_hbox.pack_start(robots_save_bt, false, true, 5);
+			robots_buttons_hbox.pack_start(robots_load_bt, false, true, 5);
+
+			robots_pos_buttons_vbox.pack_start(robots_checkbox_fm, false, true, 5);
+			robots_checkbox_fm.add(draw_info_hbox);
+			draw_info_hbox.set_halign(Gtk::ALIGN_CENTER);
+			draw_info_hbox.pack_start(draw_info_checkbox, false, true, 5);
+			draw_info_checkbox.set_label("Don't Draw on Image");
+			draw_info_checkbox.set_can_focus(false);
+
+
+			draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_draw_info_checkbox_signal_clicked));
+			robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_save_bt_signal_clicked));
+			robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_load_bt_signal_clicked));
+
+
+
 		}
+
+		void event_draw_info_checkbox_signal_clicked()
+		{
+			draw_info_flag = !draw_info_flag;
+		}
+
+		void event_robots_save_bt_signal_clicked()
+		{
+			std::ofstream txtFile;
+		
+
+		if (v.quick_save_flag)
+		{
+			txtFile.open("INFO_quicksave.txt");
+			v.save_robots_info_flag = false;
+		}
+		else
+		{
+			std::cout<<"saving robots info"<<std::endl;
+			FileChooser loadWindow;
+		
+			if (loadWindow.result == Gtk::RESPONSE_OK)
+				txtFile.open(loadWindow.filename.c_str());
+			else
+				return;
+		}
+
+			
+		for (int i = 0; i < 3; i++) {
+			txtFile << robots_id_box[i].get_text() <<std::endl;
+			txtFile << cb_robot_function[i].get_active_row_number() <<std::endl;
+			txtFile << robots_speed_hscale[i].get_value() <<std::endl;
+		}
+		txtFile.close();
+
+	}
+
+		void event_robots_load_bt_signal_clicked()
+		{
+			std::ifstream txtFile;
+		if (v.quick_load_flag)
+		{
+			txtFile.open("INFO_quicksave.txt");
+			v.load_robots_info_flag = false;
+		}
+		else
+		{
+			std::cout<<"loading robots info"<<std::endl;
+			FileChooser loadWindow;
+
+			
+			if (loadWindow.result == Gtk::RESPONSE_OK)
+				txtFile.open(loadWindow.filename.c_str());
+			else
+				return;
+		}
+
+		std::string linha;
+
+			
+		for (int i = 0; i < 3; i++) {
+			getline(txtFile, linha); robots_id_box[i].set_text(linha.c_str());
+			robot_list[i].ID = linha.c_str()[0];
+
+			getline(txtFile, linha); cb_robot_function[i].set_active(atoi(linha.c_str()));
+			if (cb_robot_function[i].get_active_row_number() == 0)
+				{
+					std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+					robot_list[i].role = 0;
+				}
+				else if (cb_robot_function[i].get_active_row_number() == 1)
+				{
+					std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+					robot_list[i].role = 1;
+				}
+				else if (cb_robot_function[i].get_active_row_number() == 2)
+				{
+					std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+					robot_list[i].role = 2;
+				}
+				else
+				{
+					std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+				}
+
+			getline(txtFile, linha); robots_speed_hscale[i].set_value(atof(linha.c_str()));
+			robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
+			
+		
+
+			robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
+			robots_speed_progressBar[i].set_text(to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+
+
+		}
+		txtFile.close();
+
+		
+		}
+		
 
 		void createIDsFrame()
 		{
@@ -1255,6 +1708,7 @@ public Gtk::HBox {
 			robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
 			robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 			robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+			robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 			robots_id_edit_bt.signal_pressed().connect(sigc::mem_fun(*this, &CamCap::event_robots_id_edit_bt_signal_pressed));
 			robots_id_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_id_done_bt_signal_clicked));
@@ -1265,59 +1719,92 @@ public Gtk::HBox {
 			info_hbox.pack_start(robots_speed_fm, false, true, 5);
 			robots_speed_fm.set_label("Speeds");
 			robots_speed_fm.add(robots_speed_vbox[0]);
-			robots_speed_vbox[0].pack_start(robots_speed_hbox[0], false, true, 5);
-			robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 5);
-			robots_speed_hbox[1].set_halign(Gtk::ALIGN_CENTER);
 
 
 			robots_speed_hbox[0].pack_start(robots_speed_edit_bt, false, true, 5);
 			robots_speed_edit_bt.set_label("Edit");
 			robots_speed_hbox[0].pack_end(robots_speed_done_bt, false, true, 5);
 			robots_speed_done_bt.set_label("Done");
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[0], false, true, 5);
 
-			label = new Gtk::Label("R1");
-			robots_speed_vscale[0].set_digits(1);
-			robots_speed_vscale[0].set_increments(0.1,1);
-			robots_speed_vscale[0].set_range(0,6);
-			robots_speed_vscale[0].set_size_request(25,100);
-			robots_speed_vscale[0].set_inverted(true);
-			robots_speed_vscale[0].set_value(6);
-			robots_speed_vbox[1].pack_start(robots_speed_vscale[0], false, true, 5);
-			robots_speed_vbox[1].pack_start(*label, false, true, 5);
-			robots_speed_hbox[1].pack_start(robots_speed_vbox[1], false, true, 5);
+			label = new Gtk::Label("Robot 1:");
+			//label->set_yalign(1.0);
+			robots_speed_hscale[0].set_digits(1);
+			robots_speed_hscale[0].set_increments(0.1,1);
+			robots_speed_hscale[0].set_range(0,6);
+			robots_speed_hscale[0].set_size_request(100,-1);
+			//robots_speed_hscale[0].set_inverted(true);
+			robots_speed_hscale[0].set_value(6);
+			robots_speed_hbox[1].pack_start(*label, false, true, 0);
+			robots_speed_hbox[1].pack_start(robots_speed_vbox[1], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_hscale[0], false, true, 0);
+			robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
+			robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[0].set_show_text(true);
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
-			label = new Gtk::Label("R2");
-			robots_speed_vscale[1].set_digits(1);
-			robots_speed_vscale[1].set_increments(0.1,1);
-			robots_speed_vscale[1].set_range(0,6);
-			robots_speed_vscale[1].set_size_request(25,100);
-			robots_speed_vscale[1].set_inverted(true);
-			robots_speed_vscale[1].set_value(6);
-			robots_speed_vbox[2].pack_start(robots_speed_vscale[1], false, true, 5);
-			robots_speed_vbox[2].pack_start(*label, false, true, 5);
-			robots_speed_hbox[1].pack_start(robots_speed_vbox[2], false, true, 5);
+			label = new Gtk::Label("Robot 2:");
+			//label->set_yalign(1.0);
+			robots_speed_hscale[1].set_digits(1);
+			robots_speed_hscale[1].set_increments(0.1,1);
+			robots_speed_hscale[1].set_range(0,6);
+			robots_speed_hscale[1].set_size_request(100,-1);
+			//robots_speed_hscale[1].set_inverted(true);
+			robots_speed_hscale[1].set_value(6);
+			robots_speed_hbox[2].pack_start(*label, false, true, 0);
+			robots_speed_hbox[2].pack_start(robots_speed_vbox[2], false, true, 0);
+			robots_speed_vbox[2].pack_start(robots_speed_hscale[1], false, true, 0);
+			robots_speed_vbox[2].pack_start(robots_speed_progressBar[1], false, true, 0);
+			robots_speed_progressBar[1].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[1].set_text(to_string(robot_list[1].V).substr(0,3));
+			robots_speed_progressBar[1].set_show_text(true);
+			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
 
-			label = new Gtk::Label("R3");
-			robots_speed_vscale[2].set_digits(1);
-			robots_speed_vscale[2].set_increments(0.1,1);
-			robots_speed_vscale[2].set_range(0,6);
-			robots_speed_vscale[2].set_size_request(25,100);
-			robots_speed_vscale[2].set_inverted(true);
-			robots_speed_vscale[2].set_value(6);
-			robots_speed_vbox[3].pack_start(robots_speed_vscale[2], false, true, 5);
-			robots_speed_vbox[3].pack_start(*label, false, true, 5);
-			robots_speed_hbox[1].pack_start(robots_speed_vbox[3], false, true, 5);
+			label = new Gtk::Label("Robot 3:");
+			//label->set_yalign(1.0);
+			robots_speed_hscale[2].set_digits(1);
+			robots_speed_hscale[2].set_increments(0.1,1);
+			robots_speed_hscale[2].set_range(0,6);
+			robots_speed_hscale[2].set_size_request(100,-1);
+			//robots_speed_hscale[2].set_inverted(true);
+			robots_speed_hscale[2].set_value(6);
+			robots_speed_hbox[3].pack_start(*label, false, true, 0);
+			robots_speed_hbox[3].pack_start(robots_speed_vbox[3], false, true, 0);
+			robots_speed_vbox[3].pack_start(robots_speed_hscale[2], false, true, 0);
+			robots_speed_vbox[3].pack_start(robots_speed_progressBar[2], false, true, 0);
+			robots_speed_progressBar[2].set_halign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
+			robots_speed_progressBar[2].set_text(to_string(robot_list[2].V).substr(0,3));
+			robots_speed_progressBar[2].set_show_text(true);
+			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
+			robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
 
 			robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-			robots_speed_vscale[0].set_state(Gtk::STATE_INSENSITIVE);
-			robots_speed_vscale[1].set_state(Gtk::STATE_INSENSITIVE);
-			robots_speed_vscale[2].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
+			robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 			robots_speed_edit_bt.signal_pressed().connect(sigc::mem_fun(*this, &CamCap::event_robots_speed_edit_bt_signal_pressed));
 			robots_speed_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &CamCap::event_robots_speed_done_bt_signal_clicked));
 
 
 
+		}
+
+		void update_speed_progressBars()
+		{
+			robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V/6);
+			robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+			robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V/6);
+			robots_speed_progressBar[1].set_text(to_string(robot_list[1].V).substr(0,3));
+			robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V/6);
+			robots_speed_progressBar[2].set_text(to_string(robot_list[2].V).substr(0,3));
 		}
 
 };

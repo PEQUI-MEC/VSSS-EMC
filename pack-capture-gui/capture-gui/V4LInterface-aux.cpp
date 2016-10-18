@@ -96,6 +96,25 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		cb_frame_interval.pack_start(model_frame_interval.m_col_name);
 	}
 
+	void V4LInterface::__create_frm_quick_actions()
+	{
+		Gtk::HBox *hbox;
+
+		hbox = new Gtk::HBox();
+		frm_quick_actions.add(*hbox);
+		frm_quick_actions.set_label("Quick Actions");
+
+		hbox->set_halign(Gtk::ALIGN_CENTER);
+		hbox->set_margin_top(7);
+		hbox->set_margin_bottom(7);
+
+		bt_quick_save.set_label("Quick SAVE");
+		hbox->pack_start(bt_quick_save, false, true, 40);
+		bt_quick_load.set_label("Quick LOAD");
+		hbox->pack_end(bt_quick_load, false, true, 40);
+
+	}
+
 	void V4LInterface::__create_frm_device_info() {
 		Gtk::HBox * hbox;
 		Gtk::VBox * vbox;
@@ -180,10 +199,6 @@ void V4LInterface::HScale_offsetL_value_changed(){
 		hbox->pack_start(bt_save_cam_prop, false, true, 5);
 		bt_load_cam_prop.set_label("Load");
 		hbox->pack_start(bt_load_cam_prop, false, true, 5);
-		bt_quick_save.set_label("Quick Save");
-		hbox->pack_start(bt_quick_save, false, true, 5);
-		bt_quick_load.set_label("Quick Load");
-		hbox->pack_start(bt_quick_load, false, true, 5);
 		vbox->pack_start(*hbox, false, true, 0);
 		frm_device_prop.add(*vbox);
 		vbox->pack_start(notebook, false, true, 5);
@@ -1112,6 +1127,9 @@ void V4LInterface::HScale_offsetL_value_changed(){
 
 		pack_start(frm_device_info, false, false, 10);
 		__create_frm_device_info();
+
+		pack_start(frm_quick_actions, false, true, 10);
+		__create_frm_quick_actions();
 
 		pack_start(frm_device_prop, false, false, 10);
 		__create_frm_device_properties();
