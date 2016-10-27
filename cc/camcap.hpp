@@ -1704,12 +1704,19 @@ class CamCap:
             {
                 start_game_flag = true;
                 start_game_bt.set_image(red_button_pressed);
+                // Desligar o PID test caso ele esteja ligado
+				if (control.PID_test_flag)
+				{
+					control.PID_test_flag = false;
+					control.button_PID_Test.set_active(false);
+				}
             }
             else
             {
                 start_game_flag = false;
                 start_game_bt.set_image(red_button_released);
             }
+          
             for(int i=0; i<3; i++)
                 robot_list[i].histWipe();
         }
