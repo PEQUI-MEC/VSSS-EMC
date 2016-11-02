@@ -47,7 +47,7 @@ Caso, ao tentar enviar as suas mudanças, o comando git push falhar por causa de
 O git pull também retornará conflitos, é normal. Depois disso, dê o **git push** como especificado no subtópico acima e
 deve funcionar.
 
-### Script para submeter as mudanças feitas no projeto
+### (NÃO FUNCIONANDO) Script para submeter as mudanças feitas no projeto
 Dentro do projeto, há o arquivo **VSS_GIT.sh**. Ele contém um script para envio automático das mudanças.
 Para rodá-lo, basta digitar **sh VSS_GIT.sh "Digite suas mudanças aqui, entre aspas duplas"**. Todas as mudanças realizadas por esse script serão cadastradas
 pela conta do Pequi Mecânico (pqverysmall@gmail.com).
