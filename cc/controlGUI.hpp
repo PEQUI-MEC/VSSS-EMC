@@ -54,14 +54,14 @@ public:
 	double goleiro_pos_PID[3] = {0}, goleiro_vel_PID[3] = {0};
 
 	//Botoes para alterar entre PID de posição e de velocidade
-	Gtk::ToggleButton button_vel_PID, button_pos_PID, button_PID_Test;
+	Gtk::ToggleButton button_vel_PID, button_pos_PID;
 	bool PID_flag = true;
 	
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
 	Gtk::Button bt_Serial_Refresh;
 	Gtk::ComboBoxText cb_serial;
-	
+	Gtk::ToggleButton button_PID_Test;
 	Gtk::Button bt_Serial_test;
 	Gtk::ComboBoxText cb_test;
 	Gtk::Entry Tbox_V1;
@@ -883,7 +883,7 @@ void _PID_Test(){
 	else
 	{
 		PID_test_flag = true;
-			std::cout<<PID_test_flag<<endl;
+		std::cout<<PID_test_flag<<endl;
 	}
 
 }
