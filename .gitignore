@@ -1,3 +1,4 @@
 cc/CamCal
 *.a
 *.o
+*.txt
