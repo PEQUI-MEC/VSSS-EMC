@@ -39,7 +39,7 @@ o próprio git vai te sugerir.
 
 ### Enviar as mudanças para o projeto
 Será necessário digitar seu usuário e senha do gitlab após enviar o comando abaixo.
-- git push origin vsss
+- git push origin [nome da branch]
 
 ### Falha ao enviar o projeto: conflitos
 Caso, ao tentar enviar as suas mudanças, o comando git push falhar por causa de conflitos de arquivos, dê um **git pull**. 
