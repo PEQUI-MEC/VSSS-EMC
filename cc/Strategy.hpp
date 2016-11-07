@@ -376,7 +376,7 @@ class Strategy
                     else {
                         // Ataque recuado
                         //cout<<"Robo atras - ";
-                        if(robot.x < COMPRIMENTO_CAMPO-round(0.2*float(width)/1.70)) {
+//   Cap.Bruno          if(robot.x < COMPRIMENTO_CAMPO-round(0.2*float(width)/1.70)) {
                             //cout<<"Dentro linha area - ";
                             // Dentro da area
                             float phi = atan(float(MEIO_GOL_Y - Ball.y))/float(MEIO_GOL_X - Ball.x);		// Angulo entre o gol e a bola
@@ -387,11 +387,11 @@ class Strategy
                                 target.x = Ball_Est.x;
                                 target.y = Ball_Est.y;
                             }
-                        } else {
+/*   Cap.Bruno          } else {
                             //cout<<"fora linha area - ";
                             target.x = Ball_Est.x;
                             target.y = Ball_Est.y;				// Fim das coisas fuzzy que ninguem entende----------------------------|
-                        }
+                        }  */
                     }
                 }
 
@@ -414,13 +414,13 @@ class Strategy
                 }
             }
 
-            if(target.x < LIMITE_AREA_X && (target.y > LARGURA_CAMPO/2-TAMANHO_AREA/2 && target.y < LARGURA_CAMPO/2+TAMANHO_AREA/2)) {
+/* Cap.Bruno if(target.x < LIMITE_AREA_X && (target.y > LARGURA_CAMPO/2-TAMANHO_AREA/2 && target.y < LARGURA_CAMPO/2+TAMANHO_AREA/2)) {
                 target.x = LINHA_ZAGA;
                 Defense.fixedPos=true;
                 target.y = Ball.y;
                 //	cout<<"Nao deixa area - ";
                 //		Não permite que o alvo esteja dentro da área
-            }
+Cap.Bruno   } */
 
 
 
