@@ -30,6 +30,7 @@ class Strategy
         Robot Goalkeeper;
         Robot Attack;
         Robot Defense;
+        Robot Opponent;
         cv::Point Ball;
         cv::Point FutureBall;
         int distBall;
@@ -414,13 +415,13 @@ class Strategy
                 }
             }
 
-/* Cap.Bruno if(target.x < LIMITE_AREA_X && (target.y > LARGURA_CAMPO/2-TAMANHO_AREA/2 && target.y < LARGURA_CAMPO/2+TAMANHO_AREA/2)) {
+ if(target.x < LIMITE_AREA_X && (target.y > LARGURA_CAMPO/2-TAMANHO_AREA/2 && target.y < LARGURA_CAMPO/2+TAMANHO_AREA/2)) {
                 target.x = LINHA_ZAGA;
                 Defense.fixedPos=true;
                 target.y = Ball.y;
                 //	cout<<"Nao deixa area - ";
                 //		Não permite que o alvo esteja dentro da área
-Cap.Bruno   } */
+   } 
 
 
 
@@ -429,14 +430,307 @@ Cap.Bruno   } */
             return target;
         }
 
+		cv::Point get_opp_target(cv::Point robot, double orientation){ // Estratégia de oponente clássico (Estratégia Clássica espelhada)
+			
+			  Opponent.previous_status = Opponent.status;
 
+            distBall = sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2));
+            //	cout<<"Status - "<<Attack.status<<endl;
+
+            Opponent.status = 0;
+
+
+            //	cout<<"atan(1) "<<atan2(float(MIN_GOL_Y - robot.y),float(COMPRIMENTO_CAMPO - robot.x))<<" atan(2) "<<atan2(float(MAX_GOL_Y - robot.y) , float(COMPRIMENTO_CAMPO - robot.x))<<" orientation "<<orientation<<endl;
+            if (Ball.x < DIVISAO_AREAS) { //Bola no ataque?
+                Opponent.fixedPos=false;
+                cout<<"Bola no Ataque "<<"|";
+                if(distBall < round(0.08*float(width)/1.70) ) {
+                    cout<<"Posse de bola"<<"|";
+
+                    //Definicao de acao para acelerar em direcao ao gol
+                    if (robot.y > MAX_GOL_Y && orientation >= 0) {
+                        orientation = orientation - double(PI);
+                    }
+                    if (robot.y < MIN_GOL_Y && orientation < 0) {
+                        orientation = orientation + double(PI);
+                    }
+
+                    if (robot.x <= LIMITE_AREA_X  && (robot.y < MIN_GOL_Y || robot.y > MAX_GOL_Y) ) {
+                        // Posse de Bola? Retangulo lateral?
+
+                        cout<<"Retangulo Lateral"<<"|";
+
+                        // robo esta nos retangulos laterais(com aprox 20cm a partir do fundo do gol) do gol adversario?
+
+                        target.x = Ball.x; //Vai na bola
+                        target.y = Ball.y;
+                        Opponent.status = 3;
+                    }
+                    else if (Opponent.previous_status == 3||COUNT_DECISION<MAX_DECISION_COUNT)
+                    {
+                        target.x = Ball.x;
+                        target.y = Ball.y;
+                        Opponent.status = 4;
+                        COUNT_DECISION--;
+                        if(COUNT_DECISION<=0)
+                            COUNT_DECISION = MAX_DECISION_COUNT;
+
+                    }
+                    else if (orientation >  atan2(float(MIN_GOL_Y - robot.y),float(0-robot.x)) &&
+                             orientation <  atan2(float(MAX_GOL_Y - robot.y),float(0-robot.x)) && 
+                             robot.x > Ball.x) {
+                        //Posse de bola? && Orientação robô + bola voltada para o lado adversário?
+						  cout<<"Orientação Correta"<<"|";
+                        //				cout<<"Angulos "<<endl;
+                        Opponent.status = 2;
+
+                        //			cout<<"Status - "<<Attack.status<<endl;
+                        if ( robot.y < MEIO_GOL_Y) {
+                            target.x = 0;
+                            target.y = MAX_GOL_Y;
+                        }
+                        else {
+                            target.x = 0;
+                            target.y = MIN_GOL_Y;
+                        }
+
+                        if(TARGET_LOCK_COUNT==MAX_TARGET_LOCK_COUNT) {
+                            targetlock.x = target.x;
+                            targetlock.y = target.y;
+                            TARGET_LOCK_COUNT--;
+                        }
+                        if (TARGET_LOCK_COUNT < MAX_TARGET_LOCK_COUNT) {
+                            target.x = targetlock.x;
+                            target.y = targetlock.y;
+                            TARGET_LOCK_COUNT--;
+                            if (TARGET_LOCK_COUNT <= 0) {
+                                TARGET_LOCK_COUNT = MAX_TARGET_LOCK_COUNT;
+                            }
+                        }
+
+
+                    }
+                    else if ( robot.y < MAX_GOL_Y &&
+                     robot.y > MIN_GOL_Y && 
+                     robot.x > (0.1*float(width)/1.70)) {
+						 cout<<"Situação de Gol"<<"|";
+                        Opponent.status = 2;
+
+                        if ( robot.y < MEIO_GOL_Y) {
+                            target.x = 0;
+                            target.y = MAX_GOL_Y;
+                            //					cout<<"Centro 1 "<<endl;
+                        }
+                        else if (robot.y >= MEIO_GOL_Y) {
+                            target.x = 0;
+                            target.y = MIN_GOL_Y;
+                            //					cout<<"Centro 2"<<endl;
+                        }
+                        if(TARGET_LOCK_COUNT==MAX_TARGET_LOCK_COUNT) {
+                            targetlock.x = target.x;
+                            targetlock.y = target.y;
+                            TARGET_LOCK_COUNT--;
+                        }
+                        if (TARGET_LOCK_COUNT < MAX_TARGET_LOCK_COUNT) {
+                            target.x = targetlock.x;
+                            target.y = targetlock.y;
+                            TARGET_LOCK_COUNT--;
+                            if (TARGET_LOCK_COUNT <= 0) {
+                                TARGET_LOCK_COUNT = MAX_TARGET_LOCK_COUNT;
+                            }
+                        }
+
+
+
+                    }
+                    else if (Ball.x > robot.x)
+                    {
+                        target.x = robot.x - 50;
+                    }
+                    else {
+                        target.y = Ball.y;
+                        target.x = Ball.x;
+                    }
+
+
+                }
+                else { //Sem a bola
+                    	cout<<"Sem Posse de Bola "<<"|";
+                    if(robot.x < Ball_Est.x-round(0.04*float(width)/1.70)) { // Atacante a frente da bola?
+                        cout<<"Atk na frente da bola"<<"|";
+                        target.x = Ball_Est.x+round(0.16*float(width)/1.70);	//Coisas fuzzy que ninguem entende a partir daqui----------------------------|
+
+                        // Ataque adiantado, da a volta na bola
+                        float diff = (float(Ball_Est.y) - float(robot.y))/float(LARGURA_CAMPO);
+
+                        float offset = pow(cos(PI*diff/2),6)*float(OFFSET_RATIO)*cos(2*PI*diff);
+
+                        float mixrb = abs(diff)*float(Ball_Est.y) + (1-abs(diff))*float(robot.y);
+
+
+
+                        if(diff>0)
+                            target.y = round(mixrb - offset);
+                        else
+                            target.y = round(mixrb + offset);
+
+                        // Não permite que o target seja colocado além dos limites do campo
+                        if(target.y<0)
+                            target.y = round(mixrb + offset);
+                        else if(target.y>LARGURA_CAMPO)
+                            target.y = round(mixrb - offset);
+
+
+                    }
+                    else {
+                        cout<<"Atk atras da bola"<<"|";
+                        // Ataque recuado
+                        if(robot.x >  round(0.2*float(width)/1.70)) {
+                            cout<<"Fora da area"<<"|";
+
+                            if (distBall < 100 ) {
+                                Opponent.status = 1;
+                                //					cout<<"Status - "<<Attack.status<<endl;
+                            }
+
+                            float phi = atan(float(MEIO_GOL_Y - Ball.y)/float(0-Ball.x));		// Angulo entre o gol e a bola
+                            float theta = atan(float(MEIO_GOL_Y - robot.y)/float(0-robot.x));	// Angulo entre o gol e o atacante
+                            target.x = Ball_Est.x + round(CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI);
+                            target.y = Ball_Est.y + round(CONE_RATIO*sin(phi)*2*(abs(phi-theta))/PI);
+                            if(target.y<0 || target.y > LARGURA_CAMPO) {
+                                //					cout<<"Alvo fora - ";
+                                target.x = Ball_Est.x;
+                                target.y = Ball_Est.y;
+                            }
+                        } else {
+                            cout<<"Na area"<<"|";
+                            target.x = Ball_Est.x;
+                            target.y = Ball_Est.y;				// Fim das coisas fuzzy queninguem entende----------------------------|
+                        }
+                    }
+                }
+                cout<<endl;
+            }
+            else { //cout<<"Bola na Defesa - ";
+                 distBall = round(sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2)));
+
+				Opponent.status = 0;
+                Opponent.fixedPos=false;
+                
+
+                if (distBall < round(0.08*float(width)/1.70) && robot.x < Ball.x - 15) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
+                    //cout<<"Posse de Bola "<<"|";
+
+                    Opponent.status = 2;
+
+                    target.x = 0; //Vai na projeçao da bola na linha vertical do meio do gol
+                    target.y = Ball.y;
+                    if ( target.y > MAX_GOL_Y) target.y = MIN_GOL_Y;
+                    if ( target.y < MIN_GOL_Y) target.y = MAX_GOL_Y;
+                }
+                else { // Sem a bola
+                    //cout<<"Sem Posse de Bola - ";
+                    if ((Ball.x > COMPRIMENTO_CAMPO-LIMITE_AREA_X)&&(Ball.y < LARGURA_CAMPO/2-TAMANHO_AREA/2 || Ball.y > LARGURA_CAMPO/2+TAMANHO_AREA/2)) {
+                        //Bola na linha de fundo
+                        //	cout<<"Bola na linha de fundo - ";
+                        if(robot.x<Ball.x-17) {
+                            //Bola atras
+                            //cout<<"Bola atras - ";
+                            if(Ball.y<LARGURA_CAMPO/2-TAMANHO_AREA/2 - 17) {
+                                // lINHA DE FUNDO SUPERIOR
+
+                                if(robot.y>LARGURA_CAMPO/2-TAMANHO_AREA/2) {
+                                    target.x = COMPRIMENTO_CAMPO-LIMITE_AREA_X;
+                                } else {
+                                    target.x = Ball_Est.x;
+                                }
+
+                                target.y =  LARGURA_CAMPO/2-TAMANHO_AREA/2 - 17;
+                                //cout<<"Fundo superior - ";
+                            } else {
+                                // lINHA DE FUNDO INFERIOR
+                                if(robot.y<LARGURA_CAMPO/2+TAMANHO_AREA/2) {
+                                    target.x = COMPRIMENTO_CAMPO-LIMITE_AREA_X;
+                                } else {
+                                    target.x = Ball_Est.x;
+                                }
+
+                                target.y =  LARGURA_CAMPO/2+TAMANHO_AREA/2 + 17;
+                                //cout<<"Fundo inferior - ";
+                            }
+                        } else {
+                            //cout<<"Bola frente - ";
+                            //Bola frente/lado
+                            target.x = Ball_Est.x;
+                            target.y = Ball_Est.y;
+
+                        }
+
+                    } else if (robot.x < Ball.x - round(0.04*float(width)/1.70)) {
+                        target.x = Ball_Est.x+round(0.16*float(width)/1.70);	//Coisas fuzzy que ninguem entende a partir daqui----------------------------|
+                        //cout<<" Defesa adiantado, da a volta na bola";
+                        float diff = float(Ball_Est.y - robot.y)/float(LARGURA_CAMPO);
+                        float offset = pow(cos(PI*diff/2),6)*float(OFFSET_RATIO)*cos(2*PI*diff);
+                        float mixrb = abs(diff)*float(Ball_Est.y) + (1-abs(diff))*float(robot.y);
+
+                        if(diff>0)
+                            target.y = round(mixrb - offset);
+                        else
+                            target.y = round(mixrb + offset);
+
+                        // Não permite que o target seja colocado além dos limites do campo
+                        if(target.y<0)
+                            target.y = round(mixrb + offset);
+                        else if(target.y>LARGURA_CAMPO)
+                            target.y = round(mixrb - offset);
+
+                    }
+                    else {
+                        // Ataque recuado
+                        //cout<<"Robo atras - ";
+//   Cap.Bruno          if(robot.x < COMPRIMENTO_CAMPO-round(0.2*float(width)/1.70)) {
+                            //cout<<"Dentro linha area - ";
+                            // Dentro da area
+                            float phi = atan(float(MEIO_GOL_Y - Ball.y))/float(0 - Ball.x);		// Angulo entre o gol e a bola
+                            float theta = atan(float(MEIO_GOL_Y - robot.y))/float(0 - robot.x);	// Angulo entre o gol e o atacante
+                            target.x = Ball_Est.x + round(CONE_RATIO*cos(phi)*2*(abs(phi-theta))/PI);
+                            target.y = Ball_Est.y + round(CONE_RATIO*sin(phi)*2*(abs(phi-theta))/PI);
+                            if(target.y<0 || target.y > LARGURA_CAMPO) {
+                                target.x = Ball_Est.x;
+                                target.y = Ball_Est.y;
+                            }
+/*   Cap.Bruno          } else {
+                            //cout<<"fora linha area - ";
+                            target.x = Ball_Est.x;
+                            target.y = Ball_Est.y;				// Fim das coisas fuzzy que ninguem entende----------------------------|
+                        }  */
+                    }
+                }
+
+
+            }
+            
+
+		/*if(target.x >COMPRIMENTO_CAMPO-LIMITE_AREA_X && (target.y > LARGURA_CAMPO/2-TAMANHO_AREA/2 && target.y < LARGURA_CAMPO/2+TAMANHO_AREA/2)) {
+                target.x = COMPRIMENTO_CAMPO-LINHA_ZAGA;
+                Opponent.fixedPos=true;
+                target.y = Ball.y;
+                //	cout<<"Nao deixa area - ";
+                //		Não permite que o alvo esteja dentro da área
+   } */
+           
+            return target;
+
+			}
 
 
 
         cv::Point get_Ball_Est() {
             return Ball_Est;
         }
-
+		 void set_Ball_Est(cv::Point b) {
+			Ball_Est =  b;
+			 }
         void set_Ball(cv::Point b) {
             Ball = b;
             LS_ball_x.addValue(Ball.x);

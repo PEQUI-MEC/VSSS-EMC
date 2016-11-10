@@ -207,11 +207,21 @@ class Robot
                 //std::cout << "GIRA GIRA GIRA"<<endl; ;
                 V=vmax+1;
                 if(currentPos.y<targetPos.y) {
+                    if(role==3){
+                    Vl=1;
+                    Vr=-1;
+                    }else{
+					Vr=1;
+                    Vl=-1;
+					}
+                } else {
+                    if(role==3){
                     Vl=-1;
                     Vr=1;
-                } else {
-                    Vr=-1;
+                    }else{
+					Vr=-1;
                     Vl=1;
+					}
                 }
                 break;
             default:
@@ -229,7 +239,8 @@ class Robot
                 if (sqrt(pow((Ball.y - currentPos.y),2)+pow((Ball.x - currentPos.x),2)) < 20) {
                     //std::cout<<"gira"<<std::endl;
                     //verifica o lado que deve girar
-                    if (targetPos.y > 240) {
+                   if(role==3){
+                    if (targetPos.y < 240) {
                         Vr = vmax;
                         Vl = -vmax;
                         spin = true;
@@ -239,6 +250,21 @@ class Robot
                         Vl = vmax;
                         spin = true;
                     }
+				}
+                    else{
+						if (targetPos.y > 240) {
+                        Vr = vmax;
+                        Vl = -vmax;
+                        spin = true;
+                    }
+                    else {
+                        Vr = -vmax;
+                        Vl = vmax;
+                        spin = true;
+                    }
+						
+						
+						}
                 } else { //se nao esta perto da bola, o robo deve dar re
                     if(spin) {
                         spin = false;
