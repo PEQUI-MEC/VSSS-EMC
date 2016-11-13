@@ -9,7 +9,7 @@
 - git config --global core.editor [nome do seu editor de texto]
 
 ### Clonar o projeto do gitlab
-- git clone https://gitlab.com/danielfaleirosilva/Pequi-Mecanico-VSSS.git -b vsss
+- git clone https://gitlab.com/danielfaleirosilva/Pequi-Mecanico-VSSS.git -b [nome da branch]
 
 
 ### Como checar a sua branch
@@ -42,7 +42,7 @@ Será necessário digitar seu usuário e senha do gitlab após enviar o comando 
 - git push origin [nome da branch]
 
 ### Falha ao enviar o projeto: conflitos
-Caso, ao tentar enviar as suas mudanças, o comando git push falhar por causa de conflitos de arquivos, dê um **git pull**. 
+Caso, ao tentar enviar as suas mudanças, o comando git push falhar por causa de conflitos de arquivos, dê um **git pull**.
 O git pull também retornará conflitos, é normal. Depois disso, dê o **git push** como especificado no subtópico acima e
 deve funcionar.
 
