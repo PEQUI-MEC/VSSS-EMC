@@ -525,8 +525,8 @@ class CamCap:
             parallel_tracking(image);
 
             if(!v.HSV_calib_event_flag) {
-                //robot_creation_unitag();
-                robot_creation();
+                robot_creation_unitag();
+                //robot_creation();
 
                 if (!draw_info_flag)
                 {
@@ -545,7 +545,7 @@ class CamCap:
                     circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
                     
                     //PREDIÇÃO DA BOLA
-                    double precTick = ticks;
+                  /*  double precTick = ticks;
 					ticks = (double) cv::getTickCount(); 
 					double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds						
 					kfBall.transitionMatrix.at<float>(2) = dT;
@@ -554,8 +554,9 @@ class CamCap:
 					cv::Point center;          
 					center.x = state.at<float>(0);          
 					center.y = state.at<float>(1);				
-					circle(image,center, 5, cv::Scalar(0,0,255), 2);                   
-                    
+					circle(image,center, 5, cv::Scalar(0,0,255), 2);    */               
+                   // strats.set_Ball(Ball);
+					//strats.set_Ball_Est(center);
                     for(int i=0; i<Adv_Main.size(); i++)
                         circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
                 }
@@ -582,8 +583,8 @@ class CamCap:
             }
 
             // ----------- ESTRATEGIA -----------------//
-
-            strats.set_Ball(Ball);
+			strats.set_Ball(Ball);
+           
             /*
             line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
             line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
@@ -627,6 +628,12 @@ class CamCap:
                         		}
                         	}*/
                         break;
+                     case 3:
+						robot_list[i].target = strats.get_opp_target(robot_list[i].position, robot_list[i].orientation);
+                        robot_list[i].fixedPos = strats.Opponent.fixedPos;
+                        robot_list[i].status = strats.Opponent.status;
+                     
+                     break;
                     }
                     //cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl;
                     circle(image,robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
@@ -1116,7 +1123,7 @@ class CamCap:
                     if(area >= v.Amin[color_id]/100) {
                         Ball = cv::Point(moment.m10/area,moment.m01/area);
                         
-                        kfBall.statePost = state;
+                       /* kfBall.statePost = state;
                         
                         notFoundCount = 0;
  
@@ -1147,14 +1154,14 @@ class CamCap:
 						}
 						else
 							kfBall.correct(meas); // Kalman Correction
-          
-                    }else{
-						notFoundCount++;
-						cout << "notFoundCount:" << notFoundCount << endl;          
-						if( notFoundCount >= 10 ){
-							found = false;
-						}
-					}
+         
+                    //}else{
+						//notFoundCount++;
+						//cout << "notFoundCount:" << notFoundCount << endl;          
+						//if( notFoundCount >= 10 ){
+						//	found = false;
+						//}
+					*/}
                 }
                 break;
 
@@ -1772,6 +1779,11 @@ class CamCap:
                     std::cout << "Robot " << i+1 << ": Attack." << std::endl;
                     robot_list[i].role = 2;
                 }
+                else if (s[i].compare("Opponent") == 0)
+                {
+                    std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
+                    robot_list[i].role = 3;
+                }
                 else
                 {
                     std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
@@ -1799,16 +1811,19 @@ class CamCap:
             robots_function_hbox[0].pack_end(robots_function_done_bt, false, true, 5);
             robots_function_vbox.pack_start(robots_function_hbox[0], false, true, 5);
             label = new Gtk::Label("Robot 1: ");
-            std::string function[3];
+            std::string function[4];
             function[0].clear();
             function[0].append("Goalkeeper");
             function[1].clear();
             function[1].append("Defense");
             function[2].clear();
             function[2].append("Attack");
+            function[3].clear();
+            function[3].append("Opponent");
             cb_robot_function[0].append(function[0]);
             cb_robot_function[0].append(function[1]);
             cb_robot_function[0].append(function[2]);
+            cb_robot_function[0].append(function[3]);
             cb_robot_function[0].set_active_text(function[0]);
             robots_function_hbox[1].pack_start(*label, false, true, 5);
             robots_function_hbox[1].pack_start(cb_robot_function[0], false, true, 5);
@@ -1817,6 +1832,7 @@ class CamCap:
             cb_robot_function[1].append(function[0]);
             cb_robot_function[1].append(function[1]);
             cb_robot_function[1].append(function[2]);
+            cb_robot_function[1].append(function[3]);
             cb_robot_function[1].set_active_text(function[1]);
             robots_function_hbox[2].pack_start(*label, false, true, 5);
             robots_function_hbox[2].pack_start(cb_robot_function[1], false, true, 5);
@@ -1825,6 +1841,7 @@ class CamCap:
             cb_robot_function[2].append(function[0]);
             cb_robot_function[2].append(function[1]);
             cb_robot_function[2].append(function[2]);
+            cb_robot_function[2].append(function[3]);
             cb_robot_function[2].set_active_text(function[2]);
             robots_function_hbox[3].pack_start(*label, false, true, 5);
             robots_function_hbox[3].pack_start(cb_robot_function[2], false, true, 5);
@@ -1984,6 +2001,11 @@ class CamCap:
                 {
                     std::cout << "Robot " << i+1 << ": Attack." << std::endl;
                     robot_list[i].role = 2;
+                }
+                 else if (cb_robot_function[i].get_active_row_number() == 3)
+                {
+                    std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
+                    robot_list[i].role = 3;
                 }
                 else
                 {
