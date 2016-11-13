@@ -9,15 +9,14 @@
 - git config --global core.editor [nome do seu editor de texto]
 
 ### Clonar o projeto do gitlab
-- git clone https://gitlab.com/danielfaleirosilva/Pequi-Mecanico-VSSS.git -b vsss
+- git clone https://gitlab.com/danielfaleirosilva/Pequi-Mecanico-VSSS.git -b [nome da branch]
 
 
 ### Como checar a sua branch
-Nosso projeto possui duas branches: master e vsss. A branch master é uma espécie de backup do nosso projeto, já a branch vsss é onde as modificações **DEVEM** ser feitas.
-Todos os comandos deste guia já estão espeficiando a branch certa a ser modificada: vsss (proteção contra leitoagens). Se você utilizar o comando abaixo e não retornar vsss,
-por favor dê o comando de clone citado acima para baixar a branch correta. Se você tentar baixar a branch master, lembre-se que ela provavelmente não é a última versão do
-projeto e ela **NÃO DEVE** ser usada para fazer modificações.
 - git branch
+
+### Como mudar de branch
+- git checkout [nome da branch]
 
 ### Baixar a última versão do projeto no seu computador
 Se você tentar baixar a última versão do projeto, o git provavelmente vai dizer que não pode fazer isso porque há arquivos no seu computador que estão diferentes do projeto. Neste caso,
@@ -40,10 +39,10 @@ o próprio git vai te sugerir.
 
 ### Enviar as mudanças para o projeto
 Será necessário digitar seu usuário e senha do gitlab após enviar o comando abaixo.
-- git push origin vsss
+- git push origin [nome da branch]
 
 ### Falha ao enviar o projeto: conflitos
-Caso, ao tentar enviar as suas mudanças, o comando git push falhar por causa de conflitos de arquivos, dê um **git pull**. 
+Caso, ao tentar enviar as suas mudanças, o comando git push falhar por causa de conflitos de arquivos, dê um **git pull**.
 O git pull também retornará conflitos, é normal. Depois disso, dê o **git push** como especificado no subtópico acima e
 deve funcionar.
 
