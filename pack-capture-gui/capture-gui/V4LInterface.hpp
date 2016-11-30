@@ -242,13 +242,9 @@ class V4LInterface: public Gtk::VBox {
             sigc::connection con;
         } ControlHolder;
         std::list<ControlHolder> ctrl_list_default;
-        //std::list<ControlHolder> ctrl_list_user;
-        //std::list<ControlHolder> ctrl_list_private;
 
         void __make_controls();
         void __make_control_list_default();
-        //void __make_control_list_user();
-        //void __make_control_list_private();
 
         void __make_control_table(std::list<ControlHolder>& list, const char * title);
 
