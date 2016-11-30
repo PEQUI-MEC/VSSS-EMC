@@ -1207,15 +1207,22 @@ class CamCap:
                 }
             }
 
-            for(int i=0; i<6; i++) {
-                txtFile <<v.H[i][0]<<std::endl<<v.H[i][1]<<std::endl;
-                txtFile <<v.S[i][0]<<std::endl<<v.S[i][1]<<std::endl;
-                txtFile <<v.V[i][0]<<std::endl<<v.V[i][1]<<std::endl;
-                txtFile <<v.Amin[i]<<std::endl;
+            if (txtFile.is_open())
+            {
+              for(int i=0; i<6; i++) {
+                  txtFile <<v.H[i][0]<<std::endl<<v.H[i][1]<<std::endl;
+                  txtFile <<v.S[i][0]<<std::endl<<v.S[i][1]<<std::endl;
+                  txtFile <<v.V[i][0]<<std::endl<<v.V[i][1]<<std::endl;
+                  txtFile <<v.Amin[i]<<std::endl;
 
+              }
+
+              txtFile.close();
             }
-
-            txtFile.close();
+            else
+            {
+              std::cout<<"Error: could not save HSV file."<<std::endl;
+            }
             v.save_HSV_calib_flag = false;
             v.quick_save_flag = false;
         }
@@ -1244,33 +1251,40 @@ class CamCap:
 
             string linha;
 
-            for(int i=0; i<6; i++) {
-                getline(txtFile, linha);
-                v.H[i][0]=atoi(linha.c_str());
-                getline(txtFile, linha);
-                v.H[i][1]=atoi(linha.c_str());
-                getline(txtFile, linha);
-                v.S[i][0]=atoi(linha.c_str());
-                getline(txtFile, linha);
-                v.S[i][1]=atoi(linha.c_str());
-                getline(txtFile, linha);
-                v.V[i][0]=atoi(linha.c_str());
-                getline(txtFile, linha);
-                v.V[i][1]=atoi(linha.c_str());
-                getline(txtFile, linha);
-                v.Amin[i]=atoi(linha.c_str());
+            if (txtFile.is_open())
+            {
+              for(int i=0; i<6; i++) {
+                  getline(txtFile, linha);
+                  v.H[i][0]=atoi(linha.c_str());
+                  getline(txtFile, linha);
+                  v.H[i][1]=atoi(linha.c_str());
+                  getline(txtFile, linha);
+                  v.S[i][0]=atoi(linha.c_str());
+                  getline(txtFile, linha);
+                  v.S[i][1]=atoi(linha.c_str());
+                  getline(txtFile, linha);
+                  v.V[i][0]=atoi(linha.c_str());
+                  getline(txtFile, linha);
+                  v.V[i][1]=atoi(linha.c_str());
+                  getline(txtFile, linha);
+                  v.Amin[i]=atoi(linha.c_str());
+              }
+
+              txtFile.close();
+              v.HScale_Hmin.set_value(v.H[v.Img_id][0]);
+              v.HScale_Hmax.set_value(v.H[v.Img_id][1]);
+
+              v.HScale_Smin.set_value(v.S[v.Img_id][0]);
+              v.HScale_Smax.set_value(v.S[v.Img_id][1]);
+
+              v.HScale_Vmin.set_value(v.V[v.Img_id][0]);
+              v.HScale_Vmax.set_value(v.V[v.Img_id][1]);
+              v.HScale_Amin.set_value(v.Amin[v.Img_id]);
             }
-
-            txtFile.close();
-            v.HScale_Hmin.set_value(v.H[v.Img_id][0]);
-            v.HScale_Hmax.set_value(v.H[v.Img_id][1]);
-
-            v.HScale_Smin.set_value(v.S[v.Img_id][0]);
-            v.HScale_Smax.set_value(v.S[v.Img_id][1]);
-
-            v.HScale_Vmin.set_value(v.V[v.Img_id][0]);
-            v.HScale_Vmax.set_value(v.V[v.Img_id][1]);
-            v.HScale_Amin.set_value(v.Amin[v.Img_id]);
+            else
+            {
+              std::cout<<"Error: could not load HSV file. Maybe it does not exist."<<std::endl;
+            }
 
             v.load_HSV_calib_flag = false;
             v.quick_load_flag = false;
@@ -1300,69 +1314,71 @@ class CamCap:
             }
 
 
+              string linha;
 
-            string linha;
+              getline(txtFile, linha);
+              iv.warp_mat[0][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.warp_mat[0][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
 
-            getline(txtFile, linha);
-            iv.warp_mat[0][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.warp_mat[0][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+              getline(txtFile, linha);
+              iv.warp_mat[1][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.warp_mat[1][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
 
-            getline(txtFile, linha);
-            iv.warp_mat[1][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.warp_mat[1][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+              getline(txtFile, linha);
+              iv.warp_mat[2][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.warp_mat[2][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
 
-            getline(txtFile, linha);
-            iv.warp_mat[2][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.warp_mat[2][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+              getline(txtFile, linha);
+              iv.warp_mat[3][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.warp_mat[3][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+              getline(txtFile, linha);
+              v.offsetL = atoi(linha.c_str());
+              getline(txtFile, linha);
+              v.offsetR = atoi(linha.c_str());
 
-            getline(txtFile, linha);
-            iv.warp_mat[3][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.warp_mat[3][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
-            getline(txtFile, linha);
-            v.offsetL = atoi(linha.c_str());
-            getline(txtFile, linha);
-            v.offsetR = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.adjust_mat[0][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.adjust_mat[0][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
 
-            getline(txtFile, linha);
-            iv.adjust_mat[0][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.adjust_mat[0][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+              getline(txtFile, linha);
+              iv.adjust_mat[1][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.adjust_mat[1][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
 
-            getline(txtFile, linha);
-            iv.adjust_mat[1][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.adjust_mat[1][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+              getline(txtFile, linha);
+              iv.adjust_mat[2][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.adjust_mat[2][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
 
-            getline(txtFile, linha);
-            iv.adjust_mat[2][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.adjust_mat[2][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+              getline(txtFile, linha);
+              iv.adjust_mat[3][0] = atoi(linha.c_str());
+              getline(txtFile, linha);
+              iv.adjust_mat[3][1] = atoi(linha.c_str());
+              //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
 
-            getline(txtFile, linha);
-            iv.adjust_mat[3][0] = atoi(linha.c_str());
-            getline(txtFile, linha);
-            iv.adjust_mat[3][1] = atoi(linha.c_str());
-            //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+              txtFile.close();
 
-            txtFile.close();
+              v.bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
+              warped=true;
+              iv.adjust_rdy = true;
+              v.HScale_offsetL.set_value(v.offsetL);
+              v.HScale_offsetR.set_value(v.offsetR);
+
+
             v.load_warp_flag = false;
-            v.bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
-
-            warped=true;
-            iv.adjust_rdy = true;
-            v.HScale_offsetL.set_value(v.offsetL);
-            v.HScale_offsetR.set_value(v.offsetR);
             iv.warp_event_flag =false;
             v.warp_event_flag =false;
 
@@ -1491,10 +1507,6 @@ class CamCap:
             createIDsFrame();
             createFunctionsFrame();
             createSpeedsFrame();
-            //createRobotOneInfoFrame();
-
-
-
 
             info_hbox.pack_end(buttons_vbox, false, true, 5);
             buttons_vbox.pack_start(start_game_hbox, false, true, 5);
@@ -1504,7 +1516,6 @@ class CamCap:
             start_game_bt.property_always_show_image();
             start_game_bt.set_size_request(50,100);
             start_game_bt.set_image(red_button_released);
-
 
 
             pack_start(camera_vbox, true, true, 10);
@@ -1859,13 +1870,20 @@ class CamCap:
                     return;
             }
 
-
-            for (int i = 0; i < 3; i++) {
-                txtFile << robots_id_box[i].get_text() <<std::endl;
-                txtFile << cb_robot_function[i].get_active_row_number() <<std::endl;
-                txtFile << robots_speed_hscale[i].get_value() <<std::endl;
+            if (txtFile.is_open())
+            {
+              for (int i = 0; i < 3; i++) {
+                  txtFile << robots_id_box[i].get_text() <<std::endl;
+                  txtFile << cb_robot_function[i].get_active_row_number() <<std::endl;
+                  txtFile << robots_speed_hscale[i].get_value() <<std::endl;
+              }
+              txtFile.close();
             }
-            txtFile.close();
+            else
+            {
+              std::cout<<"Error: could not save INFO file."<<std::endl;
+            }
+
 
         }
 
@@ -1888,54 +1906,57 @@ class CamCap:
                     return;
             }
 
-            std::string linha;
+            if (txtFile.is_open())
+            {
+              std::string linha;
+              for (int i = 0; i < 3; i++) {
+                  getline(txtFile, linha);
+                  robots_id_box[i].set_text(linha.c_str());
+                  robot_list[i].ID = linha.c_str()[0];
+
+                  getline(txtFile, linha);
+                  cb_robot_function[i].set_active(atoi(linha.c_str()));
+                  if (cb_robot_function[i].get_active_row_number() == 0)
+                  {
+                      std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+                      robot_list[i].role = 0;
+                  }
+                  else if (cb_robot_function[i].get_active_row_number() == 1)
+                  {
+                      std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+                      robot_list[i].role = 1;
+                  }
+                  else if (cb_robot_function[i].get_active_row_number() == 2)
+                  {
+                      std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+                      robot_list[i].role = 2;
+                  }
+                   else if (cb_robot_function[i].get_active_row_number() == 3)
+                  {
+                      std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
+                      robot_list[i].role = 3;
+                  }
+                  else
+                  {
+                      std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+                  }
+
+                  getline(txtFile, linha);
+                  robots_speed_hscale[i].set_value(atof(linha.c_str()));
+                  robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
+
+                  robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
+                  robots_speed_progressBar[i].set_text(to_string(robots_speed_hscale[i].get_value()).substr(0,3));
 
 
-            for (int i = 0; i < 3; i++) {
-                getline(txtFile, linha);
-                robots_id_box[i].set_text(linha.c_str());
-                robot_list[i].ID = linha.c_str()[0];
-
-                getline(txtFile, linha);
-                cb_robot_function[i].set_active(atoi(linha.c_str()));
-                if (cb_robot_function[i].get_active_row_number() == 0)
-                {
-                    std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
-                    robot_list[i].role = 0;
-                }
-                else if (cb_robot_function[i].get_active_row_number() == 1)
-                {
-                    std::cout << "Robot " << i+1 << ": Defense." << std::endl;
-                    robot_list[i].role = 1;
-                }
-                else if (cb_robot_function[i].get_active_row_number() == 2)
-                {
-                    std::cout << "Robot " << i+1 << ": Attack." << std::endl;
-                    robot_list[i].role = 2;
-                }
-                 else if (cb_robot_function[i].get_active_row_number() == 3)
-                {
-                    std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
-                    robot_list[i].role = 3;
-                }
-                else
-                {
-                    std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
-                }
-
-                getline(txtFile, linha);
-                robots_speed_hscale[i].set_value(atof(linha.c_str()));
-                robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
-
-
-
-                robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
-                robots_speed_progressBar[i].set_text(to_string(robots_speed_hscale[i].get_value()).substr(0,3));
-
+              }
+              txtFile.close();
 
             }
-            txtFile.close();
-
+            else
+            {
+              std::cout << "Error: could not load INFO file. Maybe it does not exist." << std::endl;
+            }
 
         }
 

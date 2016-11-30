@@ -72,16 +72,23 @@ void V4LInterface::__event_bt_save_cam_prop_clicked() {
             return;
     }
 
-    struct v4l2_queryctrl qctrl;
-    struct v4l2_control control;
-    std::list<ControlHolder>::iterator iter;
+    if (txtFile.is_open())
+    {
+      struct v4l2_queryctrl qctrl;
+      struct v4l2_control control;
+      std::list<ControlHolder>::iterator iter;
 
-    for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
-        qctrl = (*iter).qctrl;
-        vcap.get_control(&control, qctrl.id);
-        txtFile <<qctrl.id<<std::endl<<control.value<<std::endl;
+      for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+          qctrl = (*iter).qctrl;
+          vcap.get_control(&control, qctrl.id);
+          txtFile <<qctrl.id<<std::endl<<control.value<<std::endl;
+      }
+      txtFile.close();
     }
-    txtFile.close();
+    else
+    {
+      std::cout<<"Error: could not save CAMERA file."<<std::endl;
+    }
 
 }
 void V4LInterface::__event_bt_load_cam_prop_clicked() {
@@ -102,24 +109,31 @@ void V4LInterface::__event_bt_load_cam_prop_clicked() {
             return;
     }
 
-    std::string linha;
+    if (txtFile.is_open())
+    {
+      std::string linha;
 
-    struct v4l2_queryctrl qctrl;
-    struct v4l2_control control;
-    std::list<ControlHolder>::iterator iter;
+      struct v4l2_queryctrl qctrl;
+      struct v4l2_control control;
+      std::list<ControlHolder>::iterator iter;
 
-    for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
-        getline(txtFile, linha);
-        qctrl.id = atoi(linha.c_str());
-        getline(txtFile, linha);
-        control.value=atoi(linha.c_str());
-        if (!vcap.set_control(qctrl.id, control.value)) {
-            std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value << std::endl;
-        }
+      for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+          getline(txtFile, linha);
+          qctrl.id = atoi(linha.c_str());
+          getline(txtFile, linha);
+          control.value=atoi(linha.c_str());
+          if (!vcap.set_control(qctrl.id, control.value)) {
+              std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value << std::endl;
+          }
+      }
+      txtFile.close();
+
+      __update_control_widgets(ctrl_list_default);
     }
-    txtFile.close();
-
-    __update_control_widgets(ctrl_list_default);
+    else
+    {
+      std::cout<<"Error: could not load CAMERA file. Maybe it does not exist."<<std::endl;
+    }
 
 }
 
