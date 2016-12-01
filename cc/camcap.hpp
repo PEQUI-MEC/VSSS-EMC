@@ -9,6 +9,7 @@
 #define CAMCAP_HPP_
 #define PI 3.14159265453
 
+//#include <capture/v4l_device.hpp>
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -18,6 +19,7 @@
 
 #include "strategyGUI.hpp"
 #include "controlGUI.hpp"
+//#include "filechooser.cpp"
 #include <capture-gui/V4LInterface.hpp>
 #include <capture-gui/ImageView.hpp>
 #include <boost/thread/thread.hpp>
@@ -81,7 +83,6 @@ class CamCap:
         int Selec_index=-1;
         bool fixed_ball[3];
         double threshouldAuto[3][2];
-
         // VARIÁVEIS PARA A FRAME INFO
         Gtk::Label *label;
         Gtk::HBox info_hbox;
@@ -138,6 +139,24 @@ class CamCap:
         Gtk::Button robots_function_done_bt;
         bool robots_function_edit_flag = false;
 
+        /*Gtk::Frame robot_one_fm;
+        Gtk::Button robot_one_edit_bt;
+        Gtk::Button robot_one_done_bt;
+        Gtk::VBox robot_one_vbox;
+        Gtk::HBox robot_one_hbox[4];
+
+        Gtk::Frame robot_two_fm;
+        Gtk::Button robot_two_edit_bt;
+        Gtk::Button robot_two_done_bt;
+        Gtk::VBox robot_two_vbox;
+        Gtk::HBox robot_two_hbox[4];
+
+        Gtk::Frame robot_three_fm;
+        Gtk::Button robot_three_edit_bt;
+        Gtk::Button robot_three_done_bt;
+        Gtk::VBox robot_three_vbox;
+        Gtk::HBox robot_three_hbox[4];*/
+
         std::string function[3];
 
         // KALMAN FILTER
@@ -146,7 +165,7 @@ class CamCap:
         int contrSize = 0;
 
         unsigned int type = CV_32F;
-
+        
         cv::KalmanFilter kfBall;
 
         cv::Mat state;// [x,y,v_x,v_y,w,h]
@@ -155,7 +174,17 @@ class CamCap:
         double ticks = 0;
         bool found = false;
         int notFoundCount = 0;
+        
+        /*
+        	virtual bool on_key_release_event(GdkEventKey *event)
+        	{
 
+                cerr << event->keyval << endl;
+
+        		return true;
+
+        		}
+        		*/
 
         // Função para retornar a posição de um robo
         cv::Point getRobotPosition(int robot_list_index) {
@@ -289,16 +318,16 @@ class CamCap:
                 robots_load_bt.set_state(Gtk::STATE_INSENSITIVE);
 
             }
-
+            
             v.__event_bt_quick_load_clicked();
-
-
+            
+            
         //KALMAN FILTER INIT
         cv::Mat stateAux(stateSize, 1, type);
         cv::Mat measAux(measSize, 1, type);
 		state = stateAux;  // [x,y,v_x,v_y,w,h]
         meas = measAux;    // [z_x,z_y,z_w,z_h]
-
+        
         kfBall.init(stateSize, measSize, contrSize, type);
         /*//cv::Mat procNoise(stateSize, 1, type)
         // [E_x,E_y,E_v_x,E_v_y,E_w,E_h]
@@ -345,7 +374,7 @@ class CamCap:
 
         // Measures Noise Covariance Matrix R
         cv::setIdentity(kfBall.measurementNoiseCov, cv::Scalar(1e-1));
-
+        
             return true;
         }
 
@@ -525,18 +554,18 @@ class CamCap:
                     //line(image,robot_list[2].position,robot_list[2].ternary,cv::Scalar(100,255,0), 2);
                     putText(image,"3",cv::Point(robot_list[2].position.x-5,robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
                     circle(image,Ball, 7, cv::Scalar(255,255,255), 2);
-
+                    
                     //PREDIÇÃO DA BOLA
                   /*  double precTick = ticks;
-					ticks = (double) cv::getTickCount();
-					double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
+					ticks = (double) cv::getTickCount(); 
+					double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds						
 					kfBall.transitionMatrix.at<float>(2) = dT;
-					kfBall.transitionMatrix.at<float>(9) = dT;
+					kfBall.transitionMatrix.at<float>(9) = dT;         
 					state = kfBall.predict();
-					cv::Point center;
-					center.x = state.at<float>(0);
-					center.y = state.at<float>(1);
-					circle(image,center, 5, cv::Scalar(0,0,255), 2);    */
+					cv::Point center;          
+					center.x = state.at<float>(0);          
+					center.y = state.at<float>(1);				
+					circle(image,center, 5, cv::Scalar(0,0,255), 2);    */               
                    // strats.set_Ball(Ball);
 					//strats.set_Ball_Est(center);
                     for(int i=0; i<Adv_Main.size(); i++)
@@ -566,7 +595,7 @@ class CamCap:
 
             // ----------- ESTRATEGIA -----------------//
 			strats.set_Ball(Ball);
-
+           
             /*
             line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
             line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
@@ -614,7 +643,7 @@ class CamCap:
 						robot_list[i].target = strats.get_opp_target(robot_list[i].position, robot_list[i].orientation);
                         robot_list[i].fixedPos = strats.Opponent.fixedPos;
                         robot_list[i].status = strats.Opponent.status;
-
+                     
                      break;
                     }
                     //cout<<robot_list[0].target.x<<" - "<<robot_list[0].target.y<<endl;
@@ -729,7 +758,9 @@ class CamCap:
 
             }
 
+            //cout<<"---------------------------------------------------"<<endl;
 
+		
         }
 
         void robot_creation_unitag() {
@@ -956,7 +987,7 @@ class CamCap:
             Team_Sec_area.push_back(a);
 
             for(int i =0; i<6; i++) {
-
+                
                 threshold_threads.add_thread(new boost::thread(&CamCap::img_tracking,this, boost::ref(image_copy), (i)));
             }
 
@@ -1098,20 +1129,20 @@ class CamCap:
                     cv::Moments moment = moments((cv::Mat)contours[0]);
                     double area = contourArea(contours[0]);
                     //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
-
-
+                    
+                    
                     if(area >= v.Amin[color_id]/100) {
                         Ball = cv::Point(moment.m10/area,moment.m01/area);
-
+                        
                        /* kfBall.statePost = state;
-
+                        
                         notFoundCount = 0;
-
+ 
 						meas.at<float>(0) = Ball.x;
 						meas.at<float>(1) = Ball.y;
 						meas.at<float>(2) = (float) 5;
 						meas.at<float>(3) = (float) 5;
-
+				 
 						if (!found) // First detection!
 						{
 							// >>>> Initialization
@@ -1121,7 +1152,7 @@ class CamCap:
 							kfBall.errorCovPre.at<float>(21) = 1;
 							kfBall.errorCovPre.at<float>(28) = 1; // px
 							kfBall.errorCovPre.at<float>(35) = 1; // px
-
+				 
 							state.at<float>(0) = meas.at<float>(0);
 							state.at<float>(1) = meas.at<float>(1);
 							state.at<float>(2) = 0;
@@ -1129,15 +1160,15 @@ class CamCap:
 							state.at<float>(4) = meas.at<float>(2);
 							state.at<float>(5) = meas.at<float>(3);
 							// <<<< Initialization
-
+				 
 							found = true;
 						}
 						else
 							kfBall.correct(meas); // Kalman Correction
-
+         
                     //}else{
 						//notFoundCount++;
-						//cout << "notFoundCount:" << notFoundCount << endl;
+						//cout << "notFoundCount:" << notFoundCount << endl;          
 						//if( notFoundCount >= 10 ){
 						//	found = false;
 						//}
@@ -1551,6 +1582,64 @@ class CamCap:
             data = 0;
         }
 
+        /*void createRobotOneInfoFrame()
+        {
+        	robot_one_fm.set_label("Robot 1");
+        	info_hbox.pack_start(robot_one_fm, false, true, 5);
+        	robot_one_fm.add(robot_one_vbox);
+
+        	robot_one_edit_bt.set_label("Edit");
+        	robot_one_hbox[0].pack_start(robot_one_edit_bt, false, true, 5);
+        	robot_one_done_bt.set_label("Done");
+        	robot_one_hbox[0].pack_end(robot_one_done_bt, false, true, 5);
+        	robot_one_vbox.pack_start(robot_one_hbox[0], false, true, 5);
+
+        	label = new Gtk::Label("ID: ");
+        	robot_one_hbox[1].pack_start(*label, false, true, 5);
+        	robot_one_hbox[1].pack_start(robots_id_box[0], false, true, 5);
+        	robots_id_box[0].set_max_length(1);
+        	robots_id_box[0].set_width_chars(2);
+        	robots_id_box[0].set_text(Glib::ustring::format("A"));
+        	robot_one_vbox.pack_start(robot_one_hbox[1], false, true, 5);
+
+        	label = new Gtk::Label("Function: ");
+        	function[0].clear();
+        	function[0].append("Goalkeeper");
+        	cb_robot_function[0].append(function[0]);
+        	cb_robot_function[0].set_active_text(function[0]);
+        	robot_one_hbox[2].pack_start(*label, false, true, 5);
+        	robot_one_hbox[2].pack_start(cb_robot_function[0], false, true, 5);
+        	robot_one_vbox.pack_start(robot_one_hbox[2], false, true, 5);
+
+        	label = new Gtk::Label("Speed:");
+        	robots_speed_hscale[0].set_digits(1);
+        	robots_speed_hscale[0].set_increments(0.1,1);
+        	robots_speed_hscale[0].set_range(0,6);
+        	robots_speed_hscale[0].set_size_request(100,-1);
+        	robots_speed_hscale[0].set_value(6);
+        	robot_one_hbox[3].pack_start(*label, false, true, 0);
+        	robot_one_hbox[3].pack_start(robots_speed_vbox[1], false, true, 0);
+        	robots_speed_vbox[1].pack_start(robots_speed_hscale[0], false, true, 0);
+        	robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
+        	robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
+        	robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
+        	robots_speed_progressBar[0].set_text(to_string(robot_list[0].V).substr(0,3));
+        	robots_speed_progressBar[0].set_show_text(true);
+        	robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
+        	robot_one_vbox.pack_start(robot_one_hbox[3], false, true, 0);
+
+
+        }
+
+        void createRobotTwoInfoFrame()
+        {
+
+        }
+
+        void createRobotThreeInfoFrame()
+        {
+
+        }*/
 
         void event_robots_id_edit_bt_signal_pressed(){
             if (!robots_id_edit_flag)
@@ -1656,7 +1745,7 @@ class CamCap:
                 start_game_flag = false;
                 start_game_bt.set_image(red_button_released);
             }
-
+          
             for(int i=0; i<3; i++)
                 robot_list[i].histWipe();
         }
@@ -2115,3 +2204,4 @@ class CamCap:
 };
 
 #endif /* CAMCAP_HPP_ */
+
