@@ -747,7 +747,184 @@ void V4LInterface::__make_control_list_default() {
     }
 
 }
+/*
+	void V4LInterface::__make_control_list_user() {
 
+		ctrl_list_user.clear();
+		struct v4l2_queryctrl qctrl;
+		struct v4l2_querymenu qmenu;
+
+		if (vcap.enum_control_default(&qctrl, true)) {
+			do {
+
+				Gtk::Widget * wctrl = 0;
+				ControlHolder hold;
+				Glib::RefPtr<Gtk::ListStore> lstore;
+
+				switch (qctrl.type) {
+					case V4L2_CTRL_TYPE_INTEGER:
+					case V4L2_CTRL_TYPE_INTEGER64:
+
+						wctrl = new Gtk::HScale();
+						static_cast<Gtk::HScale *>(wctrl)->set_value_pos(Gtk::POS_RIGHT);
+						static_cast<Gtk::HScale *>(wctrl)->set_range(qctrl.minimum, qctrl.maximum);
+						static_cast<Gtk::HScale *>(wctrl)->set_increments(qctrl.step, 10 * qctrl.step);
+						hold.con = static_cast<Gtk::HScale *>(wctrl)->signal_change_value().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control_hscale),
+						                &ctrl_list_user, wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_BOOLEAN:
+
+						wctrl = new Gtk::CheckButton((const char *) qctrl.name);
+						hold.con = static_cast<Gtk::CheckButton *>(wctrl)->signal_clicked().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_user,
+						                wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_BUTTON:
+
+						wctrl = new Gtk::Button((const char *) qctrl.name);
+						hold.con = static_cast<Gtk::Button *>(wctrl)->signal_clicked().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_user,
+						                wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_STRING:
+
+						wctrl = new Gtk::Label((const char *) qctrl.name);
+						break;
+
+					case V4L2_CTRL_TYPE_MENU:
+					case V4L2_CTRL_TYPE_INTEGER_MENU:
+
+						wctrl = new Gtk::ComboBox();
+						lstore = Gtk::ListStore::create(model_control_menu);
+						static_cast<Gtk::ComboBox *>(wctrl)->set_model(lstore);
+						static_cast<Gtk::ComboBox *>(wctrl)->pack_start(model_control_menu.m_col_name);
+
+						if (vcap.enum_control_menu(&qmenu, qctrl, 0, true)) {
+							do {
+								Gtk::TreeModel::Row row = *(lstore->append());
+								Glib::ustring name = (const char *) qmenu.name;
+								row[model_control_menu.m_col_name] = name;
+								row[model_control_menu.m_col_data] = qmenu;
+							} while (vcap.enum_control_menu(&qmenu, qctrl));
+						}
+
+						hold.con = static_cast<Gtk::ComboBox *>(wctrl)->signal_changed().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_user,
+						                wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_CTRL_CLASS:
+					case V4L2_CTRL_TYPE_BITMASK:
+					default:
+						wctrl = 0;
+						break;
+
+				}
+
+				if (wctrl) {
+					hold.qctrl = qctrl;
+					hold.widget = wctrl;
+					ctrl_list_user.push_back(hold);
+				}
+
+			} while (vcap.enum_control_default(&qctrl));
+		}
+
+	}
+*/
+/*
+	void V4LInterface::__make_control_list_private() {
+
+		ctrl_list_private.clear();
+		struct v4l2_queryctrl qctrl;
+		struct v4l2_querymenu qmenu;
+
+		if (vcap.enum_control_default(&qctrl, true)) {
+			do {
+
+				Gtk::Widget * wctrl = 0;
+				ControlHolder hold;
+				Glib::RefPtr<Gtk::ListStore> lstore;
+
+				switch (qctrl.type) {
+					case V4L2_CTRL_TYPE_INTEGER:
+					case V4L2_CTRL_TYPE_INTEGER64:
+
+						wctrl = new Gtk::HScale();
+						static_cast<Gtk::HScale *>(wctrl)->set_value_pos(Gtk::POS_RIGHT);
+						static_cast<Gtk::HScale *>(wctrl)->set_range(qctrl.minimum, qctrl.maximum);
+						static_cast<Gtk::HScale *>(wctrl)->set_increments(qctrl.step, 10 * qctrl.step);
+						hold.con = static_cast<Gtk::HScale *>(wctrl)->signal_change_value().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control_hscale),
+						                &ctrl_list_private, wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_BOOLEAN:
+
+						wctrl = new Gtk::CheckButton((const char *) qctrl.name);
+						hold.con = static_cast<Gtk::CheckButton *>(wctrl)->signal_clicked().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_private,
+						                wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_BUTTON:
+
+						wctrl = new Gtk::Button((const char *) qctrl.name);
+						hold.con = static_cast<Gtk::Button *>(wctrl)->signal_clicked().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_private,
+						                wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_STRING:
+
+						wctrl = new Gtk::Label((const char *) qctrl.name);
+						break;
+
+					case V4L2_CTRL_TYPE_MENU:
+					case V4L2_CTRL_TYPE_INTEGER_MENU:
+
+						wctrl = new Gtk::ComboBox();
+						lstore = Gtk::ListStore::create(model_control_menu);
+						static_cast<Gtk::ComboBox *>(wctrl)->set_model(lstore);
+						static_cast<Gtk::ComboBox *>(wctrl)->pack_start(model_control_menu.m_col_name);
+
+						if (vcap.enum_control_menu(&qmenu, qctrl, 0, true)) {
+							do {
+								Gtk::TreeModel::Row row = *(lstore->append());
+								Glib::ustring name = (const char *) qmenu.name;
+								row[model_control_menu.m_col_name] = name;
+								row[model_control_menu.m_col_data] = qmenu;
+							} while (vcap.enum_control_menu(&qmenu, qctrl));
+						}
+
+						hold.con = static_cast<Gtk::ComboBox *>(wctrl)->signal_changed().connect(
+						        sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_private,
+						                wctrl));
+						break;
+
+					case V4L2_CTRL_TYPE_CTRL_CLASS:
+					case V4L2_CTRL_TYPE_BITMASK:
+					default:
+						wctrl = 0;
+						break;
+
+				}
+
+				if (wctrl) {
+					hold.qctrl = qctrl;
+					hold.widget = wctrl;
+					ctrl_list_private.push_back(hold);
+				}
+
+			} while (vcap.enum_control_default(&qctrl));
+		}
+
+	}
+*/
 void V4LInterface::__make_control_table(std::list<ControlHolder>& list, const char * title) {
 
     // create new controls =====================================================
@@ -1173,6 +1350,7 @@ V4LInterface::V4LInterface() :
     bt_reset_warp.set_sensitive(false);
     bt_load_warp.set_sensitive(false);
     bt_save_warp.set_sensitive(false);
+    //bt_invert_image.set_sensitive(false);
     bt_quick_save.set_sensitive(false);
     bt_quick_load.set_sensitive(false);
     m_signal_start.emit(false);
@@ -1185,10 +1363,18 @@ V4LInterface::V4LInterface() :
     HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
     HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
     HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
+    //bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+    //bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
     bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
     bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
     bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
     bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
+
+
+
+
+
 
     notebook.set_scrollable(true);
     warp_event_flag = false;
@@ -1292,3 +1478,4 @@ V4LInterface::V4LInterface() :
 
 }
 }
+
