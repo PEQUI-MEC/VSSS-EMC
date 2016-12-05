@@ -17,31 +17,30 @@
 #include <string.h>
 
 #include <iostream>
-using namespace std;
+
 #include "vision.hpp"
 #include <gtkmm.h>
 #include "camcap.hpp"
 #include "opencv2/opencv.hpp"
 
-
 int main(int argc, char ** argv) {
-
+std::cout << "a" << std::endl;
 	Gtk::Main kit(argc, argv);
 	Gtk::Window window;
-
+std::cout << "b" << std::endl;
 	CamCap camcap;
-
+std::cout << "c" << std::endl;
 	window.set_position(Gtk::WIN_POS_CENTER);
 	window.set_border_width(10);
 	window.maximize();
 	window.set_title("VS - Pequi");
-	
+std::cout << "d" << std::endl;
 	window.add(camcap);
-
+std::cout << "e" << std::endl;
 	window.show_all();
-
+std::cout << "f" << std::endl;
 	Gtk::Main::run(window);
-
+std::cout << "g" << std::endl;
 	return EXIT_SUCCESS;
-}
 
+}

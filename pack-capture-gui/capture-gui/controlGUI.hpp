@@ -22,7 +22,6 @@
 #include <fstream>
 #include <string>
 #include "SerialW.hpp"
-#include "filechooser.cpp"
 
 class ControlGUI: public Gtk::VBox
 {
@@ -125,13 +124,13 @@ void _PID_Test(){
 	{
 
 		PID_test_flag = false;
-		std::cout<<PID_test_flag<<endl;
+		std::cout<<PID_test_flag<<std::endl;
 
 	}
 	else
 	{
 		PID_test_flag = true;
-		std::cout<<PID_test_flag<<endl;
+		std::cout<<PID_test_flag<<std::endl;
 	}
 
 }
