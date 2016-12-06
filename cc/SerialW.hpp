@@ -24,17 +24,17 @@ int start(std::string serial){
 	struct termios tty;
 	struct termios tty_old;
 	memset (&tty, 0, sizeof tty);
-
+	
 	USB = open(serial.c_str(), O_WRONLY| O_NOCTTY);
     if(USB != -1)
     {
         Serial_Enabled=true;
     }else{
-
+		
 		Serial_Enabled=false;
 		return USB;
 	}
-
+	
 
 
 /* Error Handling */
@@ -75,12 +75,12 @@ if ( tcsetattr ( USB, TCSANOW, &tty ) != 0) {
    std::cout << "Error " << errno << " from tcsetattr" << std::endl;
 }
 
-return USB;
+return USB;	
 	}
-
+	
 
 void sendToRobot(Robot r){
-	std::stringstream cmd;
+	stringstream cmd;
 	double temp0= floor(r.Vr*100)/100;
 	double temp1= floor(r.Vl*100)/100;
 	cmd<<r.ID<< temp0<<";"<<temp1<<"#";
@@ -88,7 +88,7 @@ void sendToRobot(Robot r){
 	//std::cout<<cmd.str()<<std::endl;
 	}
 void sendToThree(Robot r1,Robot r2,Robot r3){
-	std::stringstream cmd;
+	stringstream cmd;
 	double temp0, temp1;
 	//if(r1.Vr!=0||r1.Vl!=0){
 	temp0= round(r1.Vr*100)/100;
@@ -111,11 +111,11 @@ void sendToThree(Robot r1,Robot r2,Robot r3){
 void sendSerial(std::string cmd){
 
 int n_written = write( USB, cmd.c_str(),cmd.size());
-
+	
 	}
-
+	
 std::string readSerial(){
-
+	
 	int n = 0,
     spot = 0;
 	char buf = '\0';
@@ -139,9 +139,9 @@ else if (n == 0) {
 else {
     std::cout << "Response: " << response << std::endl;
 }
-
+	
 	return std::string(response);
-
-	}
+	
+	}	
 };
 #endif /* CONTROLGUI_HPP_ */
