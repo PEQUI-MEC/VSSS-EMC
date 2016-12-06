@@ -9,7 +9,6 @@
 #define CAMCAP_HPP_
 #define PI 3.14159265453
 
-//#include <capture/v4l_device.hpp>
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -75,26 +74,10 @@ class CamCap:
         int Selec_index=-1;
         bool fixed_ball[3];
         double threshouldAuto[3][2];
-
         sigc::connection con;
 
-        /*Gtk::Frame robot_one_fm;
-        Gtk::Button robot_one_edit_bt;
-        Gtk::Button robot_one_done_bt;
-        Gtk::VBox robot_one_vbox;
-        Gtk::HBox robot_one_hbox[4];
 
-        Gtk::Frame robot_two_fm;
-        Gtk::Button robot_two_edit_bt;
-        Gtk::Button robot_two_done_bt;
-        Gtk::VBox robot_two_vbox;
-        Gtk::HBox robot_two_hbox[4];
 
-        Gtk::Frame robot_three_fm;
-        Gtk::Button robot_three_edit_bt;
-        Gtk::Button robot_three_done_bt;
-        Gtk::VBox robot_three_vbox;
-        Gtk::HBox robot_three_hbox[4];*/
 
         std::string function[3];
 
@@ -114,16 +97,6 @@ class CamCap:
         bool found = false;
         int notFoundCount = 0;
 
-        /*
-        	virtual bool on_key_release_event(GdkEventKey *event)
-        	{
-
-                cerr << event->keyval << endl;
-
-        		return true;
-
-        		}
-        		*/
 
 
 
@@ -579,6 +552,7 @@ class CamCap:
 						            v.robot_list[i].target = strats.get_opp_target(v.robot_list[i].position, v.robot_list[i].orientation);
                         v.robot_list[i].fixedPos = strats.Opponent.fixedPos;
                         v.robot_list[i].status = strats.Opponent.status;
+
                      break;
                     }
                     //std::cout<<v.robot_list[0].target.x<<" - "<<v.robot_list[0].target.y<<std::endl;
@@ -692,8 +666,6 @@ class CamCap:
                 }
 
             }
-
-            //cout<<"---------------------------------------------------"<<endl;
 
 
         }
@@ -1103,11 +1075,7 @@ class CamCap:
 
                     //}else{
 						//notFoundCount++;
-<<<<<<< HEAD
 						//std::cout << "notFoundCount:" << notFoundCount << std::endl;
-=======
-						//cout << "notFoundCount:" << notFoundCount << endl;
->>>>>>> abd6571dfc379e699cb887721d9ceee2c89512be
 						//if( notFoundCount >= 10 ){
 						//	found = false;
 						//}

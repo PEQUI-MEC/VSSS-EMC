@@ -39,10 +39,6 @@ void V4LInterface::__event_bt_quick_load_clicked()
     __event_bt_load_HSV_calib_clicked();
     __event_bt_warp_clicked();
 
-    /*HSV_calib_event_flag = true;
-    bt_HSV_calib.set_active(false);
-    __event_bt_HSV_calib_pressed();*/
-
     // quick_save_flag é setado como false dentro do load_HSV() no camcap.hpp.
 
 }
@@ -845,16 +841,10 @@ void V4LInterface::__event_cb_device_changed() {
     }
 
     __make_control_list_default();
-    //__make_control_list_user();
-    //__make_control_list_private();
 
     __make_control_table(ctrl_list_default, "Cam Configs");
-    //__make_control_table(ctrl_list_user, "User");
-    //__make_control_table(ctrl_list_private, "Private");
 
     __update_control_widgets(ctrl_list_default);
-    //__update_control_widgets(ctrl_list_user);
-    //__update_control_widgets(ctrl_list_private);
 
 }
 
@@ -957,8 +947,6 @@ bool V4LInterface::__set_control_hscale(int type, double val, std::list<ControlH
     if (!vcap.get_control(&ctrl, qctrl.id)) return false;
 
     __update_control_widgets(ctrl_list_default);
-    //__update_control_widgets(ctrl_list_user);
-    //__update_control_widgets(ctrl_list_private);
 
     return true;
 
@@ -982,11 +970,6 @@ void V4LInterface::__set_control(std::list<ControlHolder> * list, Gtk::Widget * 
     default:
         break;
 
-    //				value = static_cast<Gtk::HScale *>(wctrl)->get_value();
-    //				if (!vd.set_control(qctrl.id, value)) {
-    //					std::cout << "Can not update control [" << qctrl.name << "] with value " << value << std::endl;
-    //				}
-    //				break;
 
     case V4L2_CTRL_TYPE_BOOLEAN:
         value = static_cast<Gtk::CheckButton *>(wctrl)->get_active();
@@ -1019,21 +1002,8 @@ void V4LInterface::__set_control(std::list<ControlHolder> * list, Gtk::Widget * 
     }
 
     __update_control_widgets(ctrl_list_default);
-    //__update_control_widgets(ctrl_list_user);
-    //__update_control_widgets(ctrl_list_private);
 
 }
 
-/*bool V4LInterface::  on_button_press_event(GdkEventButton *event){
 
-	if (event->button == 1)
-{
-	// Memorize pointer position
-	lastXMouse=event->x;
-	lastYMouse=event->y;
-
-	return true;
 }
-	}*/
-}
-
