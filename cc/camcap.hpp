@@ -240,7 +240,7 @@ class CamCap:
                 Ball.x=0;
                 Ball.y=0;
 
-                GdkScreen* screen = gdk_screen_get_default();
+                /*GdkScreen* screen = gdk_screen_get_default();
                 if (v.vcap.format_dest.fmt.pix.width > gdk_screen_get_width(screen)/2 || v.vcap.format_dest.fmt.pix.height > gdk_screen_get_height(screen)/2)
                 {
                   width = gdk_screen_get_width(screen)/2;
@@ -248,11 +248,11 @@ class CamCap:
                   strats.set_constants(width,height);
                 }
                 else
-                {
+                {*/
                   width = v.vcap.format_dest.fmt.pix.width;
                   height = v.vcap.format_dest.fmt.pix.height;
                   strats.set_constants(width,height);
-                }
+                //}
 
 
                 // Liberar os botões de edit
