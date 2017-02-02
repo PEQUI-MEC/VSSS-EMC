@@ -15,12 +15,70 @@
 #include <gtkmm/messagedialog.h>
 #include <linux/videodev2.h>
 #include <capture/v4lcap.hpp>
+#include "Robot.hpp"
 
 namespace capture {
 
 class V4LInterface: public Gtk::VBox {
 
     public:
+
+      bool start_game_flag = false;
+
+      std::vector<Robot> robot_list;
+
+      Gtk::Image red_button_released;
+          Gtk::Image red_button_pressed;
+
+          Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
+          Gtk::Label *ball_pos_lb;
+
+      Gtk::Frame robots_id_fm;
+          Gtk::HBox info_hbox;
+          Gtk::VBox robots_pos_vbox;
+          Gtk::HBox robots_pos_hbox[7];
+          Gtk::HBox start_game_hbox;
+          Gtk::VBox buttons_vbox;
+          std::vector<std::string> robot_pos;
+          Gtk::Button start_game_bt;
+
+          Gtk::Frame robots_pos_fm;
+          Gtk::Frame robots_buttons_fm;
+          Gtk::Frame robots_checkbox_fm;
+          Gtk::VBox robots_pos_buttons_vbox;
+          Gtk::Button robots_save_bt;
+          Gtk::Button robots_load_bt;
+          Gtk::HBox robots_buttons_hbox;
+          Gtk::CheckButton draw_info_checkbox;
+          Gtk::HBox draw_info_hbox;
+          bool draw_info_flag = false;
+
+      Gtk::VBox robots_id_vbox;
+          Gtk::HBox robots_id_hbox[4];
+          Gtk::Button robots_id_edit_bt;
+          Gtk::Button robots_id_done_bt;
+          Gtk::Entry robots_id_box[3];
+          Glib::ustring robots_id_tmp[3];
+          bool robots_id_edit_flag = false;
+
+          Gtk::Frame robots_speed_fm;
+          Gtk::VBox robots_speed_vbox[4];
+          Gtk::HScale robots_speed_hscale[3];
+          double robots_speed_tmp[3];
+          Gtk::HBox robots_speed_hbox[4];
+          Gtk::ProgressBar robots_speed_progressBar[3];
+          Gtk::Button robots_speed_edit_bt;
+          Gtk::Button robots_speed_done_bt;
+          bool robots_speed_edit_flag = false;
+
+          Gtk::Frame robots_function_fm;
+          Gtk::VBox robots_function_vbox;
+          Gtk::HBox robots_function_hbox[4];
+          Gtk::ComboBoxText cb_robot_function[3];
+          int robots_function_tmp[3];
+          Gtk::Button robots_function_edit_bt;
+          Gtk::Button robots_function_done_bt;
+          bool robots_function_edit_flag = false;
 
         capture::v4lcap vcap;
         V4LInterface();
@@ -144,6 +202,23 @@ class V4LInterface: public Gtk::VBox {
         void __event_cb_format_desc_changed();
         void __event_cb_frame_size_changed();
         void __event_cb_frame_interval_changed();
+
+        void createIDsFrame();
+        void createSpeedsFrame();
+        void update_speed_progressBars();
+        void event_draw_info_checkbox_signal_clicked();
+        void createPositionsAndButtonsFrame();
+        void createFunctionsFrame();
+
+        void event_robots_function_done_bt_signal_clicked();
+        void event_robots_function_edit_bt_signal_clicked();
+        void event_start_game_bt_signal_clicked();
+        void event_robots_speed_done_bt_signal_clicked();
+        void event_robots_speed_edit_bt_signal_pressed();
+        void event_robots_id_done_bt_signal_clicked();
+        void event_robots_id_edit_bt_signal_pressed();
+        void event_robots_save_bt_signal_clicked();
+        void event_robots_load_bt_signal_clicked();
 
 
     public:
