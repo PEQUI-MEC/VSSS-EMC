@@ -329,14 +329,9 @@ class CamCap:
             iv.PID_test_flag = control.PID_test_flag;
             iv.adjust_event_flag = v.adjust_event_flag;
 
-            if (v.load_robots_info_flag)	event_robots_load_bt_signal_clicked();
-
             if(v.save_warp_flag)	 save_warp();
             if(v.load_warp_flag)	 load_warp();
             if(v.reset_warp_flag)	 reset_warp();
-
-            if(v.save_HSV_calib_flag)	 save_HSV();
-            if(v.load_HSV_calib_flag) 	 load_HSV();
 
 
 
@@ -1125,6 +1120,7 @@ class CamCap:
                 else
                 {
                     v.save_warp_flag = false;
+                    v.quick_save_flag = false;
                     return;
                 }
             }
@@ -1141,113 +1137,9 @@ class CamCap:
             txtFile << iv.adjust_mat[3][0] <<std::endl<<iv.adjust_mat[3][1] <<std::endl;
             txtFile.close();
             v.save_warp_flag = false;
-        }
-
-        void save_HSV(){
-            ofstream txtFile;
-
-            if (v.quick_save_flag)
-            {
-                txtFile.open("HSV_quicksave.txt");
-            }
-            else
-            {
-                FileChooser loadWindow2;
-                if (loadWindow2.result == Gtk::RESPONSE_OK)
-                {
-                    txtFile.open(loadWindow2.filename);
-                }
-                else
-                {
-                    v.save_HSV_calib_flag = false;
-                    return;
-                }
-            }
-
-            if (txtFile.is_open())
-            {
-              for(int i=0; i<6; i++) {
-                  txtFile <<v.H[i][0]<<std::endl<<v.H[i][1]<<std::endl;
-                  txtFile <<v.S[i][0]<<std::endl<<v.S[i][1]<<std::endl;
-                  txtFile <<v.V[i][0]<<std::endl<<v.V[i][1]<<std::endl;
-                  txtFile <<v.Amin[i]<<std::endl;
-
-              }
-
-              txtFile.close();
-            }
-            else
-            {
-              std::cout<<"Error: could not save HSV file."<<std::endl;
-            }
-            v.save_HSV_calib_flag = false;
             v.quick_save_flag = false;
         }
 
-        void load_HSV(){
-            ifstream txtFile;
-
-            if (v.quick_load_flag)
-            {
-                txtFile.open("HSV_quicksave.txt");
-            }
-            else
-            {
-                FileChooser loadWindow3;
-                if (loadWindow3.result == Gtk::RESPONSE_OK)
-                {
-                    txtFile.open(loadWindow3.filename);
-                }
-                else
-                {
-                    v.load_HSV_calib_flag = false;
-                    return;
-                }
-            }
-
-
-            string linha;
-
-            if (txtFile.is_open())
-            {
-              for(int i=0; i<6; i++) {
-                  getline(txtFile, linha);
-                  v.H[i][0]=atoi(linha.c_str());
-                  getline(txtFile, linha);
-                  v.H[i][1]=atoi(linha.c_str());
-                  getline(txtFile, linha);
-                  v.S[i][0]=atoi(linha.c_str());
-                  getline(txtFile, linha);
-                  v.S[i][1]=atoi(linha.c_str());
-                  getline(txtFile, linha);
-                  v.V[i][0]=atoi(linha.c_str());
-                  getline(txtFile, linha);
-                  v.V[i][1]=atoi(linha.c_str());
-                  getline(txtFile, linha);
-                  v.Amin[i]=atoi(linha.c_str());
-              }
-
-              txtFile.close();
-              v.HScale_Hmin.set_value(v.H[v.Img_id][0]);
-              v.HScale_Hmax.set_value(v.H[v.Img_id][1]);
-
-              v.HScale_Smin.set_value(v.S[v.Img_id][0]);
-              v.HScale_Smax.set_value(v.S[v.Img_id][1]);
-
-              v.HScale_Vmin.set_value(v.V[v.Img_id][0]);
-              v.HScale_Vmax.set_value(v.V[v.Img_id][1]);
-              v.HScale_Amin.set_value(v.Amin[v.Img_id]);
-            }
-            else
-            {
-              std::cout<<"Error: could not load HSV file. Maybe it does not exist."<<std::endl;
-            }
-
-            v.load_HSV_calib_flag = false;
-            v.quick_load_flag = false;
-
-
-        }
 
         void load_warp(){
             ifstream txtFile;
@@ -1266,6 +1158,7 @@ class CamCap:
                 else
                 {
                     v.load_warp_flag = false;
+                    v.quick_load_flag = false;
                     return;
                 }
             }
@@ -1338,6 +1231,7 @@ class CamCap:
             v.load_warp_flag = false;
             iv.warp_event_flag =false;
             v.warp_event_flag =false;
+            v.quick_load_flag = false;
 
         }
 
@@ -1495,88 +1389,6 @@ class CamCap:
 
             data = 0;
         }
-
-
-
-
-
-
-
-
-        void event_robots_load_bt_signal_clicked(){
-            std::ifstream txtFile;
-            if (v.quick_load_flag)
-            {
-                txtFile.open("INFO_quicksave.txt");
-                v.load_robots_info_flag = false;
-            }
-            else
-            {
-                std::cout<<"loading robots info"<<std::endl;
-                FileChooser loadWindow;
-
-
-                if (loadWindow.result == Gtk::RESPONSE_OK)
-                    txtFile.open(loadWindow.filename.c_str());
-                else
-                    return;
-            }
-
-            if (txtFile.is_open())
-            {
-              std::string linha;
-              for (int i = 0; i < 3; i++) {
-                  getline(txtFile, linha);
-                  v.robots_id_box[i].set_text(linha.c_str());
-                  v.robot_list[i].ID = linha.c_str()[0];
-
-                  getline(txtFile, linha);
-                  v.cb_robot_function[i].set_active(atoi(linha.c_str()));
-                  if (v.cb_robot_function[i].get_active_row_number() == 0)
-                  {
-                      std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
-                      v.robot_list[i].role = 0;
-                  }
-                  else if (v.cb_robot_function[i].get_active_row_number() == 1)
-                  {
-                      std::cout << "Robot " << i+1 << ": Defense." << std::endl;
-                      v.robot_list[i].role = 1;
-                  }
-                  else if (v.cb_robot_function[i].get_active_row_number() == 2)
-                  {
-                      std::cout << "Robot " << i+1 << ": Attack." << std::endl;
-                      v.robot_list[i].role = 2;
-                  }
-                   else if (v.cb_robot_function[i].get_active_row_number() == 3)
-                  {
-                      std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
-                      v.robot_list[i].role = 3;
-                  }
-                  else
-                  {
-                      std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
-                  }
-
-                  getline(txtFile, linha);
-                  v.robots_speed_hscale[i].set_value(atof(linha.c_str()));
-                  v.robot_list[i].vmax = (float) v.robots_speed_hscale[i].get_value();
-
-                  v.robots_speed_progressBar[i].set_fraction( v.robots_speed_hscale[i].get_value()/6);
-                  v.robots_speed_progressBar[i].set_text(to_string(v.robots_speed_hscale[i].get_value()).substr(0,3));
-
-
-              }
-              txtFile.close();
-
-            }
-            else
-            {
-              std::cout << "Error: could not load INFO file. Maybe it does not exist." << std::endl;
-            }
-
-        }
-
-
 
 };
 

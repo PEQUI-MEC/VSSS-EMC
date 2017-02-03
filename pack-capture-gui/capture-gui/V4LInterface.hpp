@@ -100,13 +100,9 @@ class V4LInterface: public Gtk::VBox {
 
 
         bool HSV_calib_event_flag;
-        bool save_HSV_calib_flag;
-        bool load_HSV_calib_flag;
         bool auto_calib_flag = false;
         bool quick_save_flag = false;
         bool quick_load_flag = false;
-        bool save_robots_info_flag = false;
-        bool load_robots_info_flag = false;
 
         Gtk::ToggleButton bt_warp;
         Gtk::ToggleButton bt_adjust;

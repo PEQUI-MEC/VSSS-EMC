@@ -23,10 +23,10 @@ void V4LInterface::__event_bt_quick_save_clicked()
     quick_save_flag = true;
     __event_bt_save_robots_info_clicked();
     __event_bt_save_cam_prop_clicked();
-    __event_bt_save_warp_clicked();
     __event_bt_save_HSV_calib_clicked();
+    __event_bt_save_warp_clicked();
 
-    // quick_save_flag é setado como false dentro do save_HSV() no camcap.hpp.
+    // quick_save_flag se torna falso dentro do save_warp() do camcap.hpp
 }
 
 void V4LInterface::__event_bt_quick_load_clicked()
@@ -35,11 +35,11 @@ void V4LInterface::__event_bt_quick_load_clicked()
     quick_load_flag = true;
     __event_bt_load_robots_info_clicked();
     __event_bt_load_cam_prop_clicked();
-    __event_bt_load_warp_clicked();
     __event_bt_load_HSV_calib_clicked();
+    __event_bt_load_warp_clicked();
     __event_bt_warp_clicked();
 
-    // quick_save_flag é setado como false dentro do load_HSV() no camcap.hpp.
+    // quick_load_flag se torna falso dentro do load_warp() do camcap.hpp
 
 }
 
@@ -80,7 +80,74 @@ void V4LInterface::__event_bt_save_robots_info_clicked()
 
 void V4LInterface::__event_bt_load_robots_info_clicked()
 {
-    load_robots_info_flag = true;
+    std::ifstream txtFile;
+    if (quick_load_flag)
+    {
+        txtFile.open("INFO_quicksave.txt");
+    }
+    else
+    {
+        std::cout<<"loading robots info"<<std::endl;
+        FileChooser loadWindow;
+
+
+        if (loadWindow.result == Gtk::RESPONSE_OK)
+            txtFile.open(loadWindow.filename.c_str());
+        else
+            return;
+    }
+
+    if (txtFile.is_open())
+    {
+      std::string linha;
+      for (int i = 0; i < 3; i++) {
+          getline(txtFile, linha);
+          robots_id_box[i].set_text(linha.c_str());
+          robot_list[i].ID = linha.c_str()[0];
+
+          getline(txtFile, linha);
+          cb_robot_function[i].set_active(atoi(linha.c_str()));
+          if (cb_robot_function[i].get_active_row_number() == 0)
+          {
+              std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+              robot_list[i].role = 0;
+          }
+          else if (cb_robot_function[i].get_active_row_number() == 1)
+          {
+              std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+              robot_list[i].role = 1;
+          }
+          else if (cb_robot_function[i].get_active_row_number() == 2)
+          {
+              std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+              robot_list[i].role = 2;
+          }
+           else if (cb_robot_function[i].get_active_row_number() == 3)
+          {
+              std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
+              robot_list[i].role = 3;
+          }
+          else
+          {
+              std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+          }
+
+          getline(txtFile, linha);
+          robots_speed_hscale[i].set_value(atof(linha.c_str()));
+          robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
+
+          robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
+          robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+
+
+      }
+      txtFile.close();
+
+    }
+    else
+    {
+      std::cout << "Error: could not load INFO file. Maybe it does not exist." << std::endl;
+    }
 }
 
 void V4LInterface::__event_bt_save_cam_prop_clicked() {
@@ -166,6 +233,8 @@ void V4LInterface::__event_bt_load_cam_prop_clicked() {
     }
 
 }
+
+
 
 void V4LInterface::__event_bt_start_clicked() {
 
@@ -364,13 +433,101 @@ void V4LInterface::__event_bt_HSV_calib_pressed() {
 
 void V4LInterface::__event_bt_save_HSV_calib_clicked() {
     std::cout<<"Saving HSV calibs."<<std::endl;
-    save_HSV_calib_flag=true;
-    std::cout<<save_HSV_calib_flag<<std::endl;
+    std::ofstream txtFile;
+
+    if (quick_save_flag)
+    {
+        txtFile.open("HSV_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow2;
+        if (loadWindow2.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow2.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if (txtFile.is_open())
+    {
+      for(int i=0; i<6; i++) {
+          txtFile <<H[i][0]<<std::endl<<H[i][1]<<std::endl;
+          txtFile <<S[i][0]<<std::endl<<S[i][1]<<std::endl;
+          txtFile <<V[i][0]<<std::endl<<V[i][1]<<std::endl;
+          txtFile <<Amin[i]<<std::endl;
+
+      }
+
+      txtFile.close();
+    }
+    else
+    {
+      std::cout<<"Error: could not save HSV file."<<std::endl;
+    }
 }
 
 void V4LInterface::__event_bt_load_HSV_calib_clicked() {
     std::cout<<"Loading HSV calibs"<<std::endl;
-    load_HSV_calib_flag=true;
+    std::ifstream txtFile;
+
+    if (quick_load_flag)
+    {
+        txtFile.open("HSV_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow3;
+        if (loadWindow3.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow3.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+
+    std::string linha;
+
+    if (txtFile.is_open())
+    {
+      for(int i=0; i<6; i++) {
+          getline(txtFile, linha);
+          H[i][0]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          H[i][1]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          S[i][0]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          S[i][1]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          V[i][0]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          V[i][1]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          Amin[i]=atoi(linha.c_str());
+      }
+
+      txtFile.close();
+      HScale_Hmin.set_value(H[Img_id][0]);
+      HScale_Hmax.set_value(H[Img_id][1]);
+
+      HScale_Smin.set_value(S[Img_id][0]);
+      HScale_Smax.set_value(S[Img_id][1]);
+
+      HScale_Vmin.set_value(V[Img_id][0]);
+      HScale_Vmax.set_value(V[Img_id][1]);
+      HScale_Amin.set_value(Amin[Img_id]);
+    }
+    else
+    {
+      std::cout<<"Error: could not load HSV file. Maybe it does not exist."<<std::endl;
+    }
 }
 
 void V4LInterface::__event_bt_auto_calib_pressed()
@@ -932,7 +1089,6 @@ void V4LInterface::event_draw_info_checkbox_signal_clicked(){
             if (quick_save_flag)
             {
                 txtFile.open("INFO_quicksave.txt");
-                save_robots_info_flag = false;
             }
             else
             {
@@ -960,7 +1116,6 @@ void V4LInterface::event_draw_info_checkbox_signal_clicked(){
             if (quick_load_flag)
             {
                 txtFile.open("INFO_quicksave.txt");
-                load_robots_info_flag = false;
             }
             else
             {
