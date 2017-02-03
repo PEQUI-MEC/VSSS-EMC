@@ -1293,44 +1293,12 @@ class CamCap:
             notebook.append_page(v, "Vision");
             notebook.append_page(control, "Control");
             notebook.append_page(strategy, "Strategy");
-            Robot r;
-
-            v.red_button_pressed.set("img/1475197289_pause-circle-outline.png");
-            v.red_button_released.set("img/1475197265_play-circle-outline.png");
-            v.red_button_released.set_size_request(100,100);
-            v.red_button_pressed.set_size_request(100,100);
 
             vector< double > a;
             Team_Sec_area.push_back(a);
             Team_Sec_area.push_back(a);
             Team_Sec_area.push_back(a);
 
-            v.robot_list.push_back(r);
-            v.robot_list.push_back(r);
-            v.robot_list.push_back(r);
-
-
-            v.robot_list[0].ID = 'A';
-            v.robot_list[1].ID = 'B';
-            v.robot_list[2].ID = 'C';
-
-            v.robot_list[0].role = 0;
-            v.robot_list[1].role = 1;
-            v.robot_list[2].role = 2;
-
-            for(int i =0; i<6; i++) {
-                v.HScale_Hmin.set_value(-1);
-                v.HScale_Hmax.set_value(256);
-                v.HScale_Smin.set_value(-1);
-                v.HScale_Smax.set_value(256);
-                v.HScale_Vmin.set_value(-1);
-                v.HScale_Vmax.set_value(256);
-            }
-
-
-            for(int i=0; i<v.robot_list.size(); i++) {
-                v.robot_list[i].position = cv::Point(-1,-1);
-            }
             vector< cv::Point > p;
 
 
@@ -1353,21 +1321,6 @@ class CamCap:
             camera_vbox.pack_start(fm, false, true, 10);
             camera_vbox.pack_start(info_fm, false, true, 10);
             info_fm.add(v.info_hbox);
-
-            v.createPositionsAndButtonsFrame();
-            v.createIDsFrame();
-            v.createFunctionsFrame();
-            v.createSpeedsFrame();
-
-            v.info_hbox.pack_end(v.buttons_vbox, false, true, 5);
-            v.buttons_vbox.pack_start(v.start_game_hbox, false, true, 5);
-            v.start_game_hbox.pack_start(v.start_game_bt, false, true, 5);
-            v.buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
-            //v.start_game_bt.set_label("BRING IT ON!");
-            v.start_game_bt.property_always_show_image();
-            v.start_game_bt.set_size_request(50,100);
-            v.start_game_bt.set_image(v.red_button_released);
-
 
             pack_start(camera_vbox, true, true, 10);
             pack_start(notebook, false, false, 10);

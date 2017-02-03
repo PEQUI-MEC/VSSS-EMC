@@ -1151,6 +1151,11 @@ namespace capture {
                                   offsetL=0;
                                   offsetR=0;
                                   HSV_calib_event_flag=false;
+                                  Robot r;
+
+                                  robot_list.push_back(r);
+                                  robot_list.push_back(r);
+                                  robot_list.push_back(r);
 
                                   cb_device.set_sensitive(true);
                                   cb_input.set_sensitive(true);
@@ -1212,6 +1217,48 @@ namespace capture {
                                   __create_frm_calibration();
 
                                   __update_cb_device();
+
+                                  red_button_pressed.set("img/1475197289_pause-circle-outline.png");
+                                  red_button_released.set("img/1475197265_play-circle-outline.png");
+                                  red_button_released.set_size_request(100,100);
+                                  red_button_pressed.set_size_request(100,100);
+
+                                  robot_list[0].ID = 'A';
+                                  robot_list[1].ID = 'B';
+                                  robot_list[2].ID = 'C';
+
+                                  robot_list[0].role = 0;
+                                  robot_list[1].role = 1;
+                                  robot_list[2].role = 2;
+
+                                  for(int i =0; i<6; i++) {
+                                      HScale_Hmin.set_value(-1);
+                                      HScale_Hmax.set_value(256);
+                                      HScale_Smin.set_value(-1);
+                                      HScale_Smax.set_value(256);
+                                      HScale_Vmin.set_value(-1);
+                                      HScale_Vmax.set_value(256);
+                                  }
+
+
+                                  for(int i=0; i<robot_list.size(); i++) {
+                                      robot_list[i].position = cv::Point(-1,-1);
+                                  }
+
+                                  createPositionsAndButtonsFrame();
+                                  createIDsFrame();
+                                  createFunctionsFrame();
+                                  createSpeedsFrame();
+
+                                  info_hbox.pack_end(buttons_vbox, false, true, 5);
+                                  buttons_vbox.pack_start(start_game_hbox, false, true, 5);
+                                  start_game_hbox.pack_start(start_game_bt, false, true, 5);
+                                  buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
+                                  //v.start_game_bt.set_label("BRING IT ON!");
+                                  start_game_bt.property_always_show_image();
+                                  start_game_bt.set_size_request(50,100);
+                                  start_game_bt.set_image(red_button_released);
+
 
 
                                   start_game_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_start_game_bt_signal_clicked));
