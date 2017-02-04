@@ -35,8 +35,8 @@ void V4LInterface::__event_bt_quick_load_clicked()
     __event_bt_load_robots_info_clicked();
     __event_bt_load_cam_prop_clicked();
     __event_bt_load_HSV_calib_clicked();
-    __event_bt_load_warp_clicked();
     __event_bt_warp_clicked();
+    __event_bt_load_warp_clicked();
     quick_load_flag = false;
 
 }
