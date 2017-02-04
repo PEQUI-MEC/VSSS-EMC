@@ -15,12 +15,75 @@
 #include <gtkmm/messagedialog.h>
 #include <linux/videodev2.h>
 #include <capture/v4lcap.hpp>
+#include "Robot.hpp"
+#include "ImageView.hpp"
 
 namespace capture {
 
 class V4LInterface: public Gtk::VBox {
 
     public:
+
+      bool warped = false;
+
+      ImageView iv;
+
+      bool start_game_flag = false;
+
+      std::vector<Robot> robot_list;
+
+      Gtk::Image red_button_released;
+          Gtk::Image red_button_pressed;
+
+          Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
+          Gtk::Label *ball_pos_lb;
+
+      Gtk::Frame robots_id_fm;
+          Gtk::HBox info_hbox;
+          Gtk::VBox robots_pos_vbox;
+          Gtk::HBox robots_pos_hbox[7];
+          Gtk::HBox start_game_hbox;
+          Gtk::VBox buttons_vbox;
+          std::vector<std::string> robot_pos;
+          Gtk::Button start_game_bt;
+
+          Gtk::Frame robots_pos_fm;
+          Gtk::Frame robots_buttons_fm;
+          Gtk::Frame robots_checkbox_fm;
+          Gtk::VBox robots_pos_buttons_vbox;
+          Gtk::Button robots_save_bt;
+          Gtk::Button robots_load_bt;
+          Gtk::HBox robots_buttons_hbox;
+          Gtk::CheckButton draw_info_checkbox;
+          Gtk::HBox draw_info_hbox;
+          bool draw_info_flag = false;
+
+      Gtk::VBox robots_id_vbox;
+          Gtk::HBox robots_id_hbox[4];
+          Gtk::Button robots_id_edit_bt;
+          Gtk::Button robots_id_done_bt;
+          Gtk::Entry robots_id_box[3];
+          Glib::ustring robots_id_tmp[3];
+          bool robots_id_edit_flag = false;
+
+          Gtk::Frame robots_speed_fm;
+          Gtk::VBox robots_speed_vbox[4];
+          Gtk::HScale robots_speed_hscale[3];
+          double robots_speed_tmp[3];
+          Gtk::HBox robots_speed_hbox[4];
+          Gtk::ProgressBar robots_speed_progressBar[3];
+          Gtk::Button robots_speed_edit_bt;
+          Gtk::Button robots_speed_done_bt;
+          bool robots_speed_edit_flag = false;
+
+          Gtk::Frame robots_function_fm;
+          Gtk::VBox robots_function_vbox;
+          Gtk::HBox robots_function_hbox[4];
+          Gtk::ComboBoxText cb_robot_function[3];
+          int robots_function_tmp[3];
+          Gtk::Button robots_function_edit_bt;
+          Gtk::Button robots_function_done_bt;
+          bool robots_function_edit_flag = false;
 
         capture::v4lcap vcap;
         V4LInterface();
@@ -33,22 +96,14 @@ class V4LInterface: public Gtk::VBox {
         int S[6][2];
         int V[6][2];
         int Img_id = 0;
-        bool warp_event_flag;
         bool adjust_event_flag;
-        bool save_warp_flag;
-        bool load_warp_flag;
-        bool reset_warp_flag;
         bool invert_image_flag = false;
 
 
         bool HSV_calib_event_flag;
-        bool save_HSV_calib_flag;
-        bool load_HSV_calib_flag;
         bool auto_calib_flag = false;
         bool quick_save_flag = false;
         bool quick_load_flag = false;
-        bool save_robots_info_flag = false;
-        bool load_robots_info_flag = false;
 
         Gtk::ToggleButton bt_warp;
         Gtk::ToggleButton bt_adjust;
@@ -144,6 +199,23 @@ class V4LInterface: public Gtk::VBox {
         void __event_cb_format_desc_changed();
         void __event_cb_frame_size_changed();
         void __event_cb_frame_interval_changed();
+
+        void createIDsFrame();
+        void createSpeedsFrame();
+        void update_speed_progressBars();
+        void event_draw_info_checkbox_signal_clicked();
+        void createPositionsAndButtonsFrame();
+        void createFunctionsFrame();
+
+        void event_robots_function_done_bt_signal_clicked();
+        void event_robots_function_edit_bt_signal_clicked();
+        void event_start_game_bt_signal_clicked();
+        void event_robots_speed_done_bt_signal_clicked();
+        void event_robots_speed_edit_bt_signal_pressed();
+        void event_robots_id_done_bt_signal_clicked();
+        void event_robots_id_edit_bt_signal_pressed();
+        void event_robots_save_bt_signal_clicked();
+        void event_robots_load_bt_signal_clicked();
 
 
     public:
@@ -242,13 +314,9 @@ class V4LInterface: public Gtk::VBox {
             sigc::connection con;
         } ControlHolder;
         std::list<ControlHolder> ctrl_list_default;
-        //std::list<ControlHolder> ctrl_list_user;
-        //std::list<ControlHolder> ctrl_list_private;
 
         void __make_controls();
         void __make_control_list_default();
-        //void __make_control_list_user();
-        //void __make_control_list_private();
 
         void __make_control_table(std::list<ControlHolder>& list, const char * title);
 

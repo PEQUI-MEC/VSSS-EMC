@@ -23,10 +23,9 @@ void V4LInterface::__event_bt_quick_save_clicked()
     quick_save_flag = true;
     __event_bt_save_robots_info_clicked();
     __event_bt_save_cam_prop_clicked();
-    __event_bt_save_warp_clicked();
     __event_bt_save_HSV_calib_clicked();
-
-    // quick_save_flag é setado como false dentro do save_HSV() no camcap.hpp.
+    __event_bt_save_warp_clicked();
+    quick_save_flag = false;
 }
 
 void V4LInterface::__event_bt_quick_load_clicked()
@@ -35,26 +34,118 @@ void V4LInterface::__event_bt_quick_load_clicked()
     quick_load_flag = true;
     __event_bt_load_robots_info_clicked();
     __event_bt_load_cam_prop_clicked();
-    __event_bt_load_warp_clicked();
     __event_bt_load_HSV_calib_clicked();
     __event_bt_warp_clicked();
-
-    /*HSV_calib_event_flag = true;
-    bt_HSV_calib.set_active(false);
-    __event_bt_HSV_calib_pressed();*/
-
-    // quick_save_flag é setado como false dentro do load_HSV() no camcap.hpp.
+    __event_bt_load_warp_clicked();
+    quick_load_flag = false;
 
 }
 
 void V4LInterface::__event_bt_save_robots_info_clicked()
 {
-    save_robots_info_flag = true;
+  std::ofstream txtFile;
+
+
+  if (quick_save_flag)
+  {
+      txtFile.open("INFO_quicksave.txt");
+  }
+  else
+  {
+      std::cout<<"saving robots info"<<std::endl;
+      FileChooser loadWindow;
+
+      if (loadWindow.result == Gtk::RESPONSE_OK)
+          txtFile.open(loadWindow.filename.c_str());
+      else
+          return;
+  }
+
+  if (txtFile.is_open())
+  {
+    for (int i = 0; i < 3; i++) {
+        txtFile << robots_id_box[i].get_text() <<std::endl;
+        txtFile << cb_robot_function[i].get_active_row_number() <<std::endl;
+        txtFile << robots_speed_hscale[i].get_value() <<std::endl;
+    }
+    txtFile.close();
+  }
+  else
+  {
+    std::cout<<"Error: could not save INFO file."<<std::endl;
+  }
 }
 
 void V4LInterface::__event_bt_load_robots_info_clicked()
 {
-    load_robots_info_flag = true;
+    std::ifstream txtFile;
+    if (quick_load_flag)
+    {
+        txtFile.open("INFO_quicksave.txt");
+    }
+    else
+    {
+        std::cout<<"loading robots info"<<std::endl;
+        FileChooser loadWindow;
+
+
+        if (loadWindow.result == Gtk::RESPONSE_OK)
+            txtFile.open(loadWindow.filename.c_str());
+        else
+            return;
+    }
+
+    if (txtFile.is_open())
+    {
+      std::string linha;
+      for (int i = 0; i < 3; i++) {
+          getline(txtFile, linha);
+          robots_id_box[i].set_text(linha.c_str());
+          robot_list[i].ID = linha.c_str()[0];
+
+          getline(txtFile, linha);
+          cb_robot_function[i].set_active(atoi(linha.c_str()));
+          if (cb_robot_function[i].get_active_row_number() == 0)
+          {
+              std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+              robot_list[i].role = 0;
+          }
+          else if (cb_robot_function[i].get_active_row_number() == 1)
+          {
+              std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+              robot_list[i].role = 1;
+          }
+          else if (cb_robot_function[i].get_active_row_number() == 2)
+          {
+              std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+              robot_list[i].role = 2;
+          }
+           else if (cb_robot_function[i].get_active_row_number() == 3)
+          {
+              std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
+              robot_list[i].role = 3;
+          }
+          else
+          {
+              std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+          }
+
+          getline(txtFile, linha);
+          robots_speed_hscale[i].set_value(atof(linha.c_str()));
+          robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
+
+          robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
+          robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+
+
+      }
+      txtFile.close();
+
+    }
+    else
+    {
+      std::cout << "Error: could not load INFO file. Maybe it does not exist." << std::endl;
+    }
 }
 
 void V4LInterface::__event_bt_save_cam_prop_clicked() {
@@ -76,16 +167,23 @@ void V4LInterface::__event_bt_save_cam_prop_clicked() {
             return;
     }
 
-    struct v4l2_queryctrl qctrl;
-    struct v4l2_control control;
-    std::list<ControlHolder>::iterator iter;
+    if (txtFile.is_open())
+    {
+      struct v4l2_queryctrl qctrl;
+      struct v4l2_control control;
+      std::list<ControlHolder>::iterator iter;
 
-    for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
-        qctrl = (*iter).qctrl;
-        vcap.get_control(&control, qctrl.id);
-        txtFile <<qctrl.id<<std::endl<<control.value<<std::endl;
+      for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+          qctrl = (*iter).qctrl;
+          vcap.get_control(&control, qctrl.id);
+          txtFile <<qctrl.id<<std::endl<<control.value<<std::endl;
+      }
+      txtFile.close();
     }
-    txtFile.close();
+    else
+    {
+      std::cout<<"Error: could not save CAMERA file."<<std::endl;
+    }
 
 }
 void V4LInterface::__event_bt_load_cam_prop_clicked() {
@@ -106,26 +204,35 @@ void V4LInterface::__event_bt_load_cam_prop_clicked() {
             return;
     }
 
-    std::string linha;
+    if (txtFile.is_open())
+    {
+      std::string linha;
 
-    struct v4l2_queryctrl qctrl;
-    struct v4l2_control control;
-    std::list<ControlHolder>::iterator iter;
+      struct v4l2_queryctrl qctrl;
+      struct v4l2_control control;
+      std::list<ControlHolder>::iterator iter;
 
-    for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
-        getline(txtFile, linha);
-        qctrl.id = atoi(linha.c_str());
-        getline(txtFile, linha);
-        control.value=atoi(linha.c_str());
-        if (!vcap.set_control(qctrl.id, control.value)) {
-            std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value << std::endl;
-        }
+      for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
+          getline(txtFile, linha);
+          qctrl.id = atoi(linha.c_str());
+          getline(txtFile, linha);
+          control.value=atoi(linha.c_str());
+          if (!vcap.set_control(qctrl.id, control.value)) {
+              std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value << std::endl;
+          }
+      }
+      txtFile.close();
+
+      __update_control_widgets(ctrl_list_default);
     }
-    txtFile.close();
-
-    __update_control_widgets(ctrl_list_default);
+    else
+    {
+      std::cout<<"Error: could not load CAMERA file. Maybe it does not exist."<<std::endl;
+    }
 
 }
+
+
 
 void V4LInterface::__event_bt_start_clicked() {
 
@@ -224,14 +331,14 @@ void V4LInterface::__event_bt_start_clicked() {
 
 void V4LInterface::__event_bt_warp_clicked() {
     std::cout<<"Warp drive engaged"<<std::endl;
-    if (!warp_event_flag) {
-        warp_event_flag=true;
+    if (!iv.warp_event_flag) {
+        iv.warp_event_flag=true;
         bt_reset_warp.set_sensitive(true);
         bt_load_warp.set_sensitive(true);
         bt_save_warp.set_sensitive(true);
         //bt_invert_image.set_sensitive(true);
     } else {
-        warp_event_flag=false;
+        iv.warp_event_flag=false;
         bt_reset_warp.set_sensitive(false);
         bt_load_warp.set_sensitive(false);
         bt_save_warp.set_sensitive(false);
@@ -254,17 +361,139 @@ void V4LInterface::__event_bt_adjust_pressed() {
 
 void V4LInterface::__event_bt_save_warp_clicked() {
     std::cout<<"Saving warp matrix."<<std::endl;
-    save_warp_flag=true;
+    std::ofstream txtFile;
+
+    if (quick_save_flag)
+    {
+        txtFile.open("WARP_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow1;
+        if (loadWindow1.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow1.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+
+    txtFile << iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+    txtFile << iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+    txtFile << iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+    txtFile << iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+    txtFile << offsetL <<std::endl<<offsetR <<std::endl;
+    txtFile << iv.adjust_mat[0][0] <<std::endl<<iv.adjust_mat[0][1] <<std::endl;
+    txtFile << iv.adjust_mat[1][0] <<std::endl<<iv.adjust_mat[1][1] <<std::endl;
+    txtFile << iv.adjust_mat[2][0] <<std::endl<<iv.adjust_mat[2][1] <<std::endl;
+    txtFile << iv.adjust_mat[3][0] <<std::endl<<iv.adjust_mat[3][1] <<std::endl;
+    txtFile.close();
 }
 
 void V4LInterface::__event_bt_load_warp_clicked() {
     std::cout<<"Loading warp matrix"<<std::endl;
-    load_warp_flag=true;
+    std::ifstream txtFile;
+
+    if (quick_load_flag)
+    {
+        txtFile.open("WARP_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow4;
+        if (loadWindow4.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow4.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+
+      std::string linha;
+
+      getline(txtFile, linha);
+      iv.warp_mat[0][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[0][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.warp_mat[1][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[1][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.warp_mat[2][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[2][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.warp_mat[3][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[3][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+      getline(txtFile, linha);
+      offsetL = atoi(linha.c_str());
+      getline(txtFile, linha);
+      offsetR = atoi(linha.c_str());
+
+      getline(txtFile, linha);
+      iv.adjust_mat[0][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[0][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.adjust_mat[1][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[1][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.adjust_mat[2][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[2][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.adjust_mat[3][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[3][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+
+      txtFile.close();
+
+      bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
+      warped=true;
+      iv.adjust_rdy = true;
+      HScale_offsetL.set_value(offsetL);
+      HScale_offsetR.set_value(offsetR);
+
+
+    iv.warp_event_flag =false;
 }
 
 void V4LInterface::__event_bt_reset_warp_clicked() {
     std::cout<<"Resetting warp matrix."<<std::endl;
-    reset_warp_flag=true;
+    warped=false;
+    bt_warp.set_state(Gtk::STATE_NORMAL);
+    bt_adjust.set_active(false);
+    bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+    adjust_event_flag = false;
+    iv.adjust_rdy=false;
+    offsetL = 0;
+    offsetR = 0;
+    HScale_offsetL.set_value(0);
+    HScale_offsetR.set_value(0);
 }
 
 void V4LInterface::__event_bt_invert_image_signal_clicked() {
@@ -324,13 +553,101 @@ void V4LInterface::__event_bt_HSV_calib_pressed() {
 
 void V4LInterface::__event_bt_save_HSV_calib_clicked() {
     std::cout<<"Saving HSV calibs."<<std::endl;
-    save_HSV_calib_flag=true;
-    std::cout<<save_HSV_calib_flag<<std::endl;
+    std::ofstream txtFile;
+
+    if (quick_save_flag)
+    {
+        txtFile.open("HSV_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow2;
+        if (loadWindow2.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow2.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if (txtFile.is_open())
+    {
+      for(int i=0; i<6; i++) {
+          txtFile <<H[i][0]<<std::endl<<H[i][1]<<std::endl;
+          txtFile <<S[i][0]<<std::endl<<S[i][1]<<std::endl;
+          txtFile <<V[i][0]<<std::endl<<V[i][1]<<std::endl;
+          txtFile <<Amin[i]<<std::endl;
+
+      }
+
+      txtFile.close();
+    }
+    else
+    {
+      std::cout<<"Error: could not save HSV file."<<std::endl;
+    }
 }
 
 void V4LInterface::__event_bt_load_HSV_calib_clicked() {
     std::cout<<"Loading HSV calibs"<<std::endl;
-    load_HSV_calib_flag=true;
+    std::ifstream txtFile;
+
+    if (quick_load_flag)
+    {
+        txtFile.open("HSV_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow3;
+        if (loadWindow3.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow3.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+
+    std::string linha;
+
+    if (txtFile.is_open())
+    {
+      for(int i=0; i<6; i++) {
+          getline(txtFile, linha);
+          H[i][0]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          H[i][1]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          S[i][0]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          S[i][1]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          V[i][0]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          V[i][1]=atoi(linha.c_str());
+          getline(txtFile, linha);
+          Amin[i]=atoi(linha.c_str());
+      }
+
+      txtFile.close();
+      HScale_Hmin.set_value(H[Img_id][0]);
+      HScale_Hmax.set_value(H[Img_id][1]);
+
+      HScale_Smin.set_value(S[Img_id][0]);
+      HScale_Smax.set_value(S[Img_id][1]);
+
+      HScale_Vmin.set_value(V[Img_id][0]);
+      HScale_Vmax.set_value(V[Img_id][1]);
+      HScale_Amin.set_value(Amin[Img_id]);
+    }
+    else
+    {
+      std::cout<<"Error: could not load HSV file. Maybe it does not exist."<<std::endl;
+    }
 }
 
 void V4LInterface::__event_bt_auto_calib_pressed()
@@ -540,16 +857,10 @@ void V4LInterface::__event_cb_device_changed() {
     }
 
     __make_control_list_default();
-    //__make_control_list_user();
-    //__make_control_list_private();
 
     __make_control_table(ctrl_list_default, "Cam Configs");
-    //__make_control_table(ctrl_list_user, "User");
-    //__make_control_table(ctrl_list_private, "Private");
 
     __update_control_widgets(ctrl_list_default);
-    //__update_control_widgets(ctrl_list_user);
-    //__update_control_widgets(ctrl_list_private);
 
 }
 
@@ -652,8 +963,6 @@ bool V4LInterface::__set_control_hscale(int type, double val, std::list<ControlH
     if (!vcap.get_control(&ctrl, qctrl.id)) return false;
 
     __update_control_widgets(ctrl_list_default);
-    //__update_control_widgets(ctrl_list_user);
-    //__update_control_widgets(ctrl_list_private);
 
     return true;
 
@@ -677,11 +986,6 @@ void V4LInterface::__set_control(std::list<ControlHolder> * list, Gtk::Widget * 
     default:
         break;
 
-    //				value = static_cast<Gtk::HScale *>(wctrl)->get_value();
-    //				if (!vd.set_control(qctrl.id, value)) {
-    //					std::cout << "Can not update control [" << qctrl.name << "] with value " << value << std::endl;
-    //				}
-    //				break;
 
     case V4L2_CTRL_TYPE_BOOLEAN:
         value = static_cast<Gtk::CheckButton *>(wctrl)->get_active();
@@ -714,21 +1018,289 @@ void V4LInterface::__set_control(std::list<ControlHolder> * list, Gtk::Widget * 
     }
 
     __update_control_widgets(ctrl_list_default);
-    //__update_control_widgets(ctrl_list_user);
-    //__update_control_widgets(ctrl_list_private);
 
 }
 
-/*bool V4LInterface::  on_button_press_event(GdkEventButton *event){
+void V4LInterface::event_draw_info_checkbox_signal_clicked(){
+        draw_info_flag = !draw_info_flag;
+    }
 
-	if (event->button == 1)
-{
-	// Memorize pointer position
-	lastXMouse=event->x;
-	lastYMouse=event->y;
+    void V4LInterface::event_robots_id_edit_bt_signal_pressed(){
+            if (!robots_id_edit_flag)
+            {
+                robots_id_edit_flag = true;
+                robots_id_edit_bt.set_label("Cancel");
+                robots_id_box[0].set_state(Gtk::STATE_NORMAL);
+                robots_id_box[1].set_state(Gtk::STATE_NORMAL);
+                robots_id_box[2].set_state(Gtk::STATE_NORMAL);
+                robots_id_done_bt.set_state(Gtk::STATE_NORMAL);
+                robots_id_tmp[0] = robots_id_box[0].get_text();
+                robots_id_tmp[1] = robots_id_box[1].get_text();
+                robots_id_tmp[2] = robots_id_box[2].get_text();
 
-	return true;
+            }
+            else
+            {
+                robots_id_edit_flag = false;
+                robots_id_edit_bt.set_label("Edit");
+                robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
+                robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
+                robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
+                robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+                robots_id_box[0].set_text(robots_id_tmp[0]);
+                robots_id_box[1].set_text(robots_id_tmp[1]);
+                robots_id_box[2].set_text(robots_id_tmp[2]);
+            }
+        }
+
+        void V4LInterface::event_robots_id_done_bt_signal_clicked(){
+            std::string str;
+            str = robots_id_box[0].get_text();
+            robot_list[0].ID = str[0];
+            str = robots_id_box[1].get_text();
+            robot_list[1].ID = str[0];
+            str = robots_id_box[2].get_text();
+            robot_list[2].ID = str[0];
+
+            robots_id_edit_flag = false;
+            robots_id_edit_bt.set_label("Edit");
+            robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
+            robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
+            robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
+            robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+
+        }
+
+        void V4LInterface::event_robots_speed_edit_bt_signal_pressed(){
+            if (!robots_speed_edit_flag)
+            {
+                robots_speed_edit_flag = true;
+                robots_speed_edit_bt.set_label("Cancel");
+                robots_speed_done_bt.set_state(Gtk::STATE_NORMAL);
+                robots_speed_hscale[0].set_state(Gtk::STATE_NORMAL);
+                robots_speed_hscale[1].set_state(Gtk::STATE_NORMAL);
+                robots_speed_hscale[2].set_state(Gtk::STATE_NORMAL);
+                robots_speed_tmp[0] = robots_speed_hscale[0].get_value();
+                robots_speed_tmp[1] = robots_speed_hscale[1].get_value();
+                robots_speed_tmp[2] = robots_speed_hscale[2].get_value();
+            }
+            else
+            {
+                robots_speed_edit_flag = false;
+                robots_speed_edit_bt.set_label("Edit");
+                robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+                robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
+                robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
+                robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
+                robots_speed_hscale[0].set_value(robots_speed_tmp[0]);
+                robots_speed_hscale[1].set_value(robots_speed_tmp[1]);
+                robots_speed_hscale[2].set_value(robots_speed_tmp[2]);
+
+            }
+        }
+
+        void V4LInterface::event_robots_speed_done_bt_signal_clicked(){
+            robot_list[0].vmax = (float) robots_speed_hscale[0].get_value();
+            robot_list[1].vmax = (float) robots_speed_hscale[1].get_value();
+            robot_list[2].vmax = (float) robots_speed_hscale[2].get_value();
+            robots_speed_edit_flag = false;
+            robots_speed_edit_bt.set_label("Edit");
+            robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+            robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
+            robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
+            robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
+
+        }
+
+        void V4LInterface::event_start_game_bt_signal_clicked(){
+            if (!start_game_flag)
+            {
+                start_game_flag = true;
+                start_game_bt.set_image(red_button_pressed);
+            }
+            else
+            {
+                start_game_flag = false;
+                start_game_bt.set_image(red_button_released);
+            }
+
+            for(int i=0; i<3; i++)
+                robot_list[i].histWipe();
+        }
+
+        void V4LInterface::event_robots_function_edit_bt_signal_clicked(){
+            if (!robots_function_edit_flag)
+            {
+                robots_function_edit_flag = true;
+                robots_function_edit_bt.set_label("Cancel");
+                robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
+                cb_robot_function[0].set_state(Gtk::STATE_NORMAL);
+                cb_robot_function[1].set_state(Gtk::STATE_NORMAL);
+                cb_robot_function[2].set_state(Gtk::STATE_NORMAL);
+                robots_function_done_bt.set_state(Gtk::STATE_NORMAL);
+                robots_function_tmp[0] = cb_robot_function[0].get_active_row_number();
+                robots_function_tmp[1] = cb_robot_function[1].get_active_row_number();
+                robots_function_tmp[2] = cb_robot_function[2].get_active_row_number();
+
+            }
+            else
+            {
+                robots_function_edit_flag = false;
+                robots_function_edit_bt.set_label("Edit");
+                cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
+                cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
+                cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
+                robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+                cb_robot_function[0].set_active(robots_function_tmp[0]);
+                cb_robot_function[1].set_active(robots_function_tmp[1]);
+                cb_robot_function[2].set_active(robots_function_tmp[2]);
+            }
+        }
+
+        void V4LInterface::event_robots_function_done_bt_signal_clicked(){
+            std::string s[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                s[i] = cb_robot_function[i].get_active_text();
+
+                if (s[i].compare("Goalkeeper") == 0)
+                {
+                    std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+                    robot_list[i].role = 0;
+                }
+                else if (s[i].compare("Defense") == 0)
+                {
+                    std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+                    robot_list[i].role = 1;
+                }
+                else if (s[i].compare("Attack") == 0)
+                {
+                    std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+                    robot_list[i].role = 2;
+                }
+                else if (s[i].compare("Opponent") == 0)
+                {
+                    std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
+                    robot_list[i].role = 3;
+                }
+                else
+                {
+                    std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+                }
+
+
+            }
+
+            robots_function_edit_flag = false;
+            robots_function_edit_bt.set_label("Edit");
+            cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
+            cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
+            cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
+            robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+
+        }
+
+
+        void V4LInterface::event_robots_save_bt_signal_clicked(){
+            std::ofstream txtFile;
+
+
+            if (quick_save_flag)
+            {
+                txtFile.open("INFO_quicksave.txt");
+            }
+            else
+            {
+                std::cout<<"saving robots info"<<std::endl;
+                FileChooser loadWindow;
+
+                if (loadWindow.result == Gtk::RESPONSE_OK)
+                    txtFile.open(loadWindow.filename.c_str());
+                else
+                    return;
+            }
+
+
+            for (int i = 0; i < 3; i++) {
+                txtFile << robots_id_box[i].get_text() <<std::endl;
+                txtFile << cb_robot_function[i].get_active_row_number() <<std::endl;
+                txtFile << robots_speed_hscale[i].get_value() <<std::endl;
+            }
+            txtFile.close();
+
+        }
+
+        void V4LInterface::event_robots_load_bt_signal_clicked(){
+            std::ifstream txtFile;
+            if (quick_load_flag)
+            {
+                txtFile.open("INFO_quicksave.txt");
+            }
+            else
+            {
+                std::cout<<"loading robots info"<<std::endl;
+                FileChooser loadWindow;
+
+
+                if (loadWindow.result == Gtk::RESPONSE_OK)
+                    txtFile.open(loadWindow.filename.c_str());
+                else
+                    return;
+            }
+
+            std::string linha;
+
+
+            for (int i = 0; i < 3; i++) {
+                getline(txtFile, linha);
+                robots_id_box[i].set_text(linha.c_str());
+                robot_list[i].ID = linha.c_str()[0];
+
+                getline(txtFile, linha);
+                cb_robot_function[i].set_active(atoi(linha.c_str()));
+                if (cb_robot_function[i].get_active_row_number() == 0)
+                {
+                    std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
+                    robot_list[i].role = 0;
+                }
+                else if (cb_robot_function[i].get_active_row_number() == 1)
+                {
+                    std::cout << "Robot " << i+1 << ": Defense." << std::endl;
+                    robot_list[i].role = 1;
+                }
+                else if (cb_robot_function[i].get_active_row_number() == 2)
+                {
+                    std::cout << "Robot " << i+1 << ": Attack." << std::endl;
+                    robot_list[i].role = 2;
+                }
+                 else if (cb_robot_function[i].get_active_row_number() == 3)
+                {
+                    std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
+                    robot_list[i].role = 3;
+                }
+                else
+                {
+                    std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
+                }
+
+                getline(txtFile, linha);
+                robots_speed_hscale[i].set_value(atof(linha.c_str()));
+                robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
+
+
+
+                robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
+                robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+
+
+            }
+            txtFile.close();
+
+
+        }
+
+
+
+
 }
-	}*/
-}
-

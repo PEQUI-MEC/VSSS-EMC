@@ -3,7 +3,7 @@
 #define PI 3.14159265453
 #include "opencv2/opencv.hpp"
 #include "LS.cpp"
-#include "Robot.hpp"
+#include "../pack-capture-gui/capture-gui/Robot.hpp"
 #include "SerialW.hpp"
 #include <math.h>
 #define PREDICAO_NUM_SAMPLES 15
@@ -421,7 +421,7 @@ class Strategy
                 target.y = Ball.y;
                 //	cout<<"Nao deixa area - ";
                 //		Não permite que o alvo esteja dentro da área
-   } 
+   }
 
 
 
@@ -431,7 +431,7 @@ class Strategy
         }
 
 		cv::Point get_opp_target(cv::Point robot, double orientation){ // Estratégia de oponente clássico (Estratégia Clássica espelhada)
-			
+
 			  Opponent.previous_status = Opponent.status;
 
             distBall = sqrt(pow(robot.x - Ball.x, 2) + pow(robot.y - Ball.y, 2));
@@ -477,7 +477,7 @@ class Strategy
 
                     }
                     else if (orientation >  atan2(float(MIN_GOL_Y - robot.y),float(0-robot.x)) &&
-                             orientation <  atan2(float(MAX_GOL_Y - robot.y),float(0-robot.x)) && 
+                             orientation <  atan2(float(MAX_GOL_Y - robot.y),float(0-robot.x)) &&
                              robot.x > Ball.x) {
                         //Posse de bola? && Orientação robô + bola voltada para o lado adversário?
 						  cout<<"Orientação Correta"<<"|";
@@ -511,7 +511,7 @@ class Strategy
 
                     }
                     else if ( robot.y < MAX_GOL_Y &&
-                     robot.y > MIN_GOL_Y && 
+                     robot.y > MIN_GOL_Y &&
                      robot.x > (0.1*float(width)/1.70)) {
 						 cout<<"Situação de Gol"<<"|";
                         Opponent.status = 2;
@@ -616,7 +616,7 @@ class Strategy
 
 				Opponent.status = 0;
                 Opponent.fixedPos=false;
-                
+
 
                 if (distBall < round(0.08*float(width)/1.70) && robot.x < Ball.x - 15) { //Posse de bola? && Orientação robô + bola voltada para o lado dversário?
                     //cout<<"Posse de Bola "<<"|";
@@ -709,7 +709,7 @@ class Strategy
 
 
             }
-            
+
 
 		/*if(target.x >COMPRIMENTO_CAMPO-LIMITE_AREA_X && (target.y > LARGURA_CAMPO/2-TAMANHO_AREA/2 && target.y < LARGURA_CAMPO/2+TAMANHO_AREA/2)) {
                 target.x = COMPRIMENTO_CAMPO-LINHA_ZAGA;
@@ -718,7 +718,7 @@ class Strategy
                 //	cout<<"Nao deixa area - ";
                 //		Não permite que o alvo esteja dentro da área
    } */
-           
+
             return target;
 
 			}
