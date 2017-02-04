@@ -16,12 +16,17 @@
 #include <linux/videodev2.h>
 #include <capture/v4lcap.hpp>
 #include "Robot.hpp"
+#include "ImageView.hpp"
 
 namespace capture {
 
 class V4LInterface: public Gtk::VBox {
 
     public:
+
+      bool warped = false;
+
+      ImageView iv;
 
       bool start_game_flag = false;
 
@@ -91,11 +96,7 @@ class V4LInterface: public Gtk::VBox {
         int S[6][2];
         int V[6][2];
         int Img_id = 0;
-        bool warp_event_flag;
         bool adjust_event_flag;
-        bool save_warp_flag;
-        bool load_warp_flag;
-        bool reset_warp_flag;
         bool invert_image_flag = false;
 
 

@@ -25,8 +25,7 @@ void V4LInterface::__event_bt_quick_save_clicked()
     __event_bt_save_cam_prop_clicked();
     __event_bt_save_HSV_calib_clicked();
     __event_bt_save_warp_clicked();
-
-    // quick_save_flag se torna falso dentro do save_warp() do camcap.hpp
+    quick_save_flag = false;
 }
 
 void V4LInterface::__event_bt_quick_load_clicked()
@@ -38,8 +37,7 @@ void V4LInterface::__event_bt_quick_load_clicked()
     __event_bt_load_HSV_calib_clicked();
     __event_bt_load_warp_clicked();
     __event_bt_warp_clicked();
-
-    // quick_load_flag se torna falso dentro do load_warp() do camcap.hpp
+    quick_load_flag = false;
 
 }
 
@@ -333,14 +331,14 @@ void V4LInterface::__event_bt_start_clicked() {
 
 void V4LInterface::__event_bt_warp_clicked() {
     std::cout<<"Warp drive engaged"<<std::endl;
-    if (!warp_event_flag) {
-        warp_event_flag=true;
+    if (!iv.warp_event_flag) {
+        iv.warp_event_flag=true;
         bt_reset_warp.set_sensitive(true);
         bt_load_warp.set_sensitive(true);
         bt_save_warp.set_sensitive(true);
         //bt_invert_image.set_sensitive(true);
     } else {
-        warp_event_flag=false;
+        iv.warp_event_flag=false;
         bt_reset_warp.set_sensitive(false);
         bt_load_warp.set_sensitive(false);
         bt_save_warp.set_sensitive(false);
@@ -363,17 +361,139 @@ void V4LInterface::__event_bt_adjust_pressed() {
 
 void V4LInterface::__event_bt_save_warp_clicked() {
     std::cout<<"Saving warp matrix."<<std::endl;
-    save_warp_flag=true;
+    std::ofstream txtFile;
+
+    if (quick_save_flag)
+    {
+        txtFile.open("WARP_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow1;
+        if (loadWindow1.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow1.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+
+    txtFile << iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+    txtFile << iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+    txtFile << iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+    txtFile << iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+    txtFile << offsetL <<std::endl<<offsetR <<std::endl;
+    txtFile << iv.adjust_mat[0][0] <<std::endl<<iv.adjust_mat[0][1] <<std::endl;
+    txtFile << iv.adjust_mat[1][0] <<std::endl<<iv.adjust_mat[1][1] <<std::endl;
+    txtFile << iv.adjust_mat[2][0] <<std::endl<<iv.adjust_mat[2][1] <<std::endl;
+    txtFile << iv.adjust_mat[3][0] <<std::endl<<iv.adjust_mat[3][1] <<std::endl;
+    txtFile.close();
 }
 
 void V4LInterface::__event_bt_load_warp_clicked() {
     std::cout<<"Loading warp matrix"<<std::endl;
-    load_warp_flag=true;
+    std::ifstream txtFile;
+
+    if (quick_load_flag)
+    {
+        txtFile.open("WARP_quicksave.txt");
+    }
+    else
+    {
+        FileChooser loadWindow4;
+        if (loadWindow4.result == Gtk::RESPONSE_OK)
+        {
+            txtFile.open(loadWindow4.filename);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+
+      std::string linha;
+
+      getline(txtFile, linha);
+      iv.warp_mat[0][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[0][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.warp_mat[1][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[1][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.warp_mat[2][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[2][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.warp_mat[3][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.warp_mat[3][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+      getline(txtFile, linha);
+      offsetL = atoi(linha.c_str());
+      getline(txtFile, linha);
+      offsetR = atoi(linha.c_str());
+
+      getline(txtFile, linha);
+      iv.adjust_mat[0][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[0][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.adjust_mat[1][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[1][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.adjust_mat[2][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[2][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+
+      getline(txtFile, linha);
+      iv.adjust_mat[3][0] = atoi(linha.c_str());
+      getline(txtFile, linha);
+      iv.adjust_mat[3][1] = atoi(linha.c_str());
+      //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+
+      txtFile.close();
+
+      bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
+      warped=true;
+      iv.adjust_rdy = true;
+      HScale_offsetL.set_value(offsetL);
+      HScale_offsetR.set_value(offsetR);
+
+
+    iv.warp_event_flag =false;
 }
 
 void V4LInterface::__event_bt_reset_warp_clicked() {
     std::cout<<"Resetting warp matrix."<<std::endl;
-    reset_warp_flag=true;
+    warped=false;
+    bt_warp.set_state(Gtk::STATE_NORMAL);
+    bt_adjust.set_active(false);
+    bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+    adjust_event_flag = false;
+    iv.adjust_rdy=false;
+    offsetL = 0;
+    offsetR = 0;
+    HScale_offsetL.set_value(0);
+    HScale_offsetR.set_value(0);
 }
 
 void V4LInterface::__event_bt_invert_image_signal_clicked() {
