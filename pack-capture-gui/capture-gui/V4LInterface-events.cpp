@@ -135,7 +135,7 @@ void V4LInterface::__event_bt_load_robots_info_clicked()
           robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
 
           robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
-          robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+          //robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
 
 
       }
@@ -372,7 +372,7 @@ void V4LInterface::__event_bt_save_warp_clicked() {
         FileChooser loadWindow1;
         if (loadWindow1.result == Gtk::RESPONSE_OK)
         {
-            txtFile.open(loadWindow1.filename);
+            txtFile.open(loadWindow1.filename.c_str());
         }
         else
         {
@@ -406,7 +406,7 @@ void V4LInterface::__event_bt_load_warp_clicked() {
         FileChooser loadWindow4;
         if (loadWindow4.result == Gtk::RESPONSE_OK)
         {
-            txtFile.open(loadWindow4.filename);
+            txtFile.open(loadWindow4.filename.c_str());
         }
         else
         {
@@ -564,7 +564,7 @@ void V4LInterface::__event_bt_save_HSV_calib_clicked() {
         FileChooser loadWindow2;
         if (loadWindow2.result == Gtk::RESPONSE_OK)
         {
-            txtFile.open(loadWindow2.filename);
+            txtFile.open(loadWindow2.filename.c_str());
         }
         else
         {
@@ -603,7 +603,7 @@ void V4LInterface::__event_bt_load_HSV_calib_clicked() {
         FileChooser loadWindow3;
         if (loadWindow3.result == Gtk::RESPONSE_OK)
         {
-            txtFile.open(loadWindow3.filename);
+            txtFile.open(loadWindow3.filename.c_str());
         }
         else
         {
@@ -1291,7 +1291,7 @@ void V4LInterface::event_draw_info_checkbox_signal_clicked(){
 
 
                 robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
-                robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+                //robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
 
 
             }

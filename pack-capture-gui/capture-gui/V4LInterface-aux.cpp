@@ -944,7 +944,7 @@ namespace capture
                 robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
                 robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
-                robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
+                //robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
                 robots_speed_progressBar[0].set_show_text(true);
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
@@ -963,7 +963,7 @@ namespace capture
                 robots_speed_vbox[2].pack_start(robots_speed_progressBar[1], false, true, 0);
                 robots_speed_progressBar[1].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
-                robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
+                //robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
                 robots_speed_progressBar[1].set_show_text(true);
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
@@ -982,7 +982,7 @@ namespace capture
                 robots_speed_vbox[3].pack_start(robots_speed_progressBar[2], false, true, 0);
                 robots_speed_progressBar[2].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
-                robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
+                //robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
                 robots_speed_progressBar[2].set_show_text(true);
                 robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
@@ -1002,11 +1002,11 @@ namespace capture
 
               void V4LInterface::update_speed_progressBars(){
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V/6);
-                robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
+                //robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V/6);
-                robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
+                //robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
                 robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V/6);
-                robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
+                //robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
               }
 
               void V4LInterface::createFunctionsFrame(){
