@@ -438,8 +438,8 @@ class CamCap:
             parallel_tracking(image);
 
             if(!v.HSV_calib_event_flag) {
-                //robot_creation_unitag();
-                robot_creation();
+                robot_creation_unitag();
+                //robot_creation();
 
                 if (!v.draw_info_flag)
                 {
@@ -683,7 +683,7 @@ class CamCap:
                 robot.push_back(r);
                 distanceRef1 = 999999999.0;
                 distanceRef2 = 999999999.0;
-                for(int i = 0; i < 3; i++) {
+                for(int i = 0; i < 1; i++) {
                     for(int k = 0; k < Team_Sec[i].size(); k++) {
 
                         distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
@@ -708,16 +708,20 @@ class CamCap:
                 robot[l].position = Team_Main[j];
                 //cout<<"3.1"<<endl;
                 //cout<<"AMARELO: "<<j<<"| AREA 1: "<<Team_Sec_area[index1[0]][index1[1]]<<"| AREA 2: "<<Team_Sec_area[index2[0]][index2[1]]<<endl;
-                if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
-                    robot[l].secundary = Team_Sec[index1[0]][index1[1]];
-                    robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
+                if (!Team_Sec_area[0].empty())
+                {
+                  if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
+                      robot[l].secundary = Team_Sec[index1[0]][index1[1]];
+                      robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
 
-                    //cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
-                } else {
-                    robot[l].secundary = Team_Sec[index2[0]][index2[1]];
-                    robot[l].ternary = Team_Sec[index1[0]][index1[1]];
-                    //cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
+                      //cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
+                  } else {
+                      robot[l].secundary = Team_Sec[index2[0]][index2[1]];
+                      robot[l].ternary = Team_Sec[index1[0]][index1[1]];
+                      //cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
+                  }
                 }
+
 
                 //cout<<"3.2"<<endl;
 

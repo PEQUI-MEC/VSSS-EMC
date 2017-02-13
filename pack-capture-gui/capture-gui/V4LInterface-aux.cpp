@@ -353,7 +353,7 @@ namespace capture
       hbox3->pack_start(bt_HSV_left, false, true, 10);
       bt_HSV_left.set_label(" < ");
       bt_HSV_left.set_alignment(.5, .5);
-      HSV_label.set_text("Principal");
+      HSV_label.set_text("Main");
       //HSV_label.set_alignment(0, .5);
       hbox3->pack_start(HSV_label, false, true, 10);
       hbox3->pack_start(bt_HSV_right, false, true, 10);

@@ -676,7 +676,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
     HScale_Amin.set_value(Amin[Img_id]);
     switch(Img_id) {
     case 0:
-        HSV_label.set_text("Primaria");
+        HSV_label.set_text("Main");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -687,7 +687,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 1:
-        HSV_label.set_text("Secundaria 1");
+        HSV_label.set_text("Secondary 1");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -698,7 +698,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 2:
-        HSV_label.set_text("Secundaria 2");
+        HSV_label.set_text("Secondary 2");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -709,7 +709,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 3:
-        HSV_label.set_text("Secundaria 3");
+        HSV_label.set_text("Secondary 3");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -720,7 +720,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 4:
-        HSV_label.set_text("Bola");
+        HSV_label.set_text("Ball");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -731,7 +731,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 5:
-        HSV_label.set_text("Adversario");
+        HSV_label.set_text("Opponent");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -762,7 +762,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 1:
-        HSV_label.set_text("Secundaria 1");
+        HSV_label.set_text("Secondary 1");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -773,7 +773,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 2:
-        HSV_label.set_text("Secundaria 2");
+        HSV_label.set_text("Secondary 2");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -784,7 +784,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 3:
-        HSV_label.set_text("Secundaria 3");
+        HSV_label.set_text("Secondary 3");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -795,7 +795,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 4:
-        HSV_label.set_text("Bola");
+        HSV_label.set_text("Ball");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -806,7 +806,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 5:
-        HSV_label.set_text("Adversario");
+        HSV_label.set_text("Opponent");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
