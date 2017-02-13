@@ -944,7 +944,10 @@ namespace capture
                 robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
                 robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
-                //robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
+                std::ostringstream strs0;
+                strs0 << robot_list[0].V;
+                std::string str0 = strs0.str();
+                robots_speed_progressBar[0].set_text(str0.substr(0,3));
                 robots_speed_progressBar[0].set_show_text(true);
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
@@ -963,7 +966,10 @@ namespace capture
                 robots_speed_vbox[2].pack_start(robots_speed_progressBar[1], false, true, 0);
                 robots_speed_progressBar[1].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
-                //robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
+                std::ostringstream strs1;
+                strs1 << robot_list[1].V;
+                std::string str1 = strs1.str();
+                robots_speed_progressBar[1].set_text(str1.substr(0,3));
                 robots_speed_progressBar[1].set_show_text(true);
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
@@ -982,7 +988,10 @@ namespace capture
                 robots_speed_vbox[3].pack_start(robots_speed_progressBar[2], false, true, 0);
                 robots_speed_progressBar[2].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
-                //robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
+                std::ostringstream strs2;
+                strs2 << robot_list[2].V;
+                std::string str2 = strs2.str();
+                robots_speed_progressBar[2].set_text(str2.substr(0,3));
                 robots_speed_progressBar[2].set_show_text(true);
                 robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
@@ -1001,12 +1010,23 @@ namespace capture
               }
 
               void V4LInterface::update_speed_progressBars(){
+                std::ostringstream strs0, strs1, strs2;
+                std::string str0, str1, str2;
+
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V/6);
-                //robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
+                strs0 << (double) robot_list[0].V;
+                str0 = strs0.str();
+                robots_speed_progressBar[0].set_text(str0.substr(0,4));
+
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V/6);
-                //robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
+                strs1 << (double) robot_list[1].V;
+                str1 = strs1.str();
+                robots_speed_progressBar[1].set_text(str1.substr(0,4));
+
                 robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V/6);
-                //robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
+                strs2 << (double) robot_list[2].V;
+                str2 = strs2.str();
+                robots_speed_progressBar[2].set_text(str2.substr(0,4));
               }
 
               void V4LInterface::createFunctionsFrame(){
@@ -1271,8 +1291,8 @@ namespace capture
                 cb_frame_interval_signal = cb_frame_interval.signal_changed().connect(sigc::mem_fun(*this, &V4LInterface::__event_cb_frame_interval_changed));
 
                 draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_draw_info_checkbox_signal_clicked));
-                robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_save_bt_signal_clicked));
-                robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_load_bt_signal_clicked));
+                robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::__event_bt_save_robots_info_clicked));
+                robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::__event_bt_load_robots_info_clicked));
 
               }
             }
