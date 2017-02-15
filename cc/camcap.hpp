@@ -29,7 +29,7 @@
 #include <math.h>
 #include <fstream>
 #include "CPUTimer.cpp"
-#include "Strategy.hpp"
+
 boost::mutex io_mutex;
 boost::thread_group threshold_threads;
 struct ImageGray;
@@ -39,7 +39,7 @@ class CamCap:
 
     public Gtk::HBox {
     public:
-        Strategy strats;
+
         cv::Mat image_copy;
         cv::Point Ball_Est;
 
@@ -192,13 +192,13 @@ class CamCap:
                 {
                   width = gdk_screen_get_width(screen)/2;
                   height = gdk_screen_get_height(screen)/2;
-                  strats.set_constants(width,height);
+                  strategy.strats.set_constants(width,height);
                 }
                 else
                 {*/
                   width = v.vcap.format_dest.fmt.pix.width;
                   height = v.vcap.format_dest.fmt.pix.height;
-                  strats.set_constants(width,height);
+                  strategy.strats.set_constants(width,height);
                 //}
 
 
@@ -468,8 +468,8 @@ class CamCap:
 					center.x = state.at<float>(0);
 					center.y = state.at<float>(1);
 					circle(image,center, 5, cv::Scalar(0,0,255), 2);    */
-                   // strats.set_Ball(Ball);
-					//strats.set_Ball_Est(center);
+                   // strategy.strats.set_Ball(Ball);
+					//strategy.strats.set_Ball_Est(center);
                     for(int i=0; i<Adv_Main.size(); i++)
                         circle(image,Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
                 }
@@ -496,35 +496,35 @@ class CamCap:
             }
 
             // ----------- ESTRATEGIA -----------------//
-			strats.set_Ball(Ball);
+			strategy.strats.set_Ball(Ball);
 
             /*
-            line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2-strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(image, cv::Point(strats.LIMITE_AREA_X,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2),cv::Point(0,strats.LARGURA_CAMPO/2+strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
-            line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MAX_GOL_Y),cv::Point(width,strats.MAX_GOL_Y), cv::Scalar(255,255,255),2);
-            line(image, cv::Point(strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strats.MIN_GOL_Y),cv::Point(width,strats.MIN_GOL_Y), cv::Scalar(255,255,255),2);
+            line(image, cv::Point(strategy.strats.LIMITE_AREA_X,strategy.strats.LARGURA_CAMPO/2-strategy.strats.TAMANHO_AREA/2),cv::Point(strategy.strats.LIMITE_AREA_X,strategy.strats.LARGURA_CAMPO/2+strategy.strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+            line(image, cv::Point(strategy.strats.LIMITE_AREA_X,strategy.strats.LARGURA_CAMPO/2-strategy.strats.TAMANHO_AREA/2),cv::Point(0,strategy.strats.LARGURA_CAMPO/2-strategy.strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+            line(image, cv::Point(strategy.strats.LIMITE_AREA_X,strategy.strats.LARGURA_CAMPO/2+strategy.strats.TAMANHO_AREA/2),cv::Point(0,strategy.strats.LARGURA_CAMPO/2+strategy.strats.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+            line(image, cv::Point(strategy.strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strategy.strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
+            line(image, cv::Point(strategy.strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strategy.strats.MAX_GOL_Y),cv::Point(width,strategy.strats.MAX_GOL_Y), cv::Scalar(255,255,255),2);
+            line(image, cv::Point(strategy.strats.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strategy.strats.MIN_GOL_Y),cv::Point(width,strategy.strats.MIN_GOL_Y), cv::Scalar(255,255,255),2);
             */
             if(v.start_game_flag) {
-                Ball_Est=strats.get_Ball_Est();
+                Ball_Est=strategy.strats.get_Ball_Est();
                 line(image,Ball,Ball_Est,cv::Scalar(255,140,0), 2);
                 circle(image,Ball_Est, 7, cv::Scalar(255,140,0), 2);
                 char buffer[3];
                 for(int i =0; i<3; i++) {
                     switch (v.robot_list[i].role)	{
                     case 0:
-                        v.robot_list[i].target = strats.get_gk_target(Adv_Main);
-                        v.robot_list[i].fixedPos = strats.Goalkeeper.fixedPos;
-                        if(strats.GOAL_DANGER_ZONE) {
+                        v.robot_list[i].target = strategy.strats.get_gk_target(Adv_Main);
+                        v.robot_list[i].fixedPos = strategy.strats.Goalkeeper.fixedPos;
+                        if(strategy.strats.GOAL_DANGER_ZONE) {
                             //	cout<<"hist_wipe"<<endl;
                             v.robot_list[i].histWipe();
                         }
                         break;
                     case 2:
-                        v.robot_list[i].target = strats.get_atk_target(v.robot_list[i].position, v.robot_list[i].orientation);
-                        v.robot_list[i].fixedPos = strats.Attack.fixedPos;
-                        v.robot_list[i].status = strats.Attack.status;
+                        v.robot_list[i].target = strategy.strats.get_atk_target(v.robot_list[i].position, v.robot_list[i].orientation);
+                        v.robot_list[i].fixedPos = strategy.strats.Attack.fixedPos;
+                        v.robot_list[i].status = strategy.strats.Attack.status;
                         /*	for(int j=0;j<Adv_Main.size();j++){
                         		if ( sqrt(pow(Adv_Main[j].x - v.robot_list[i].position.x, 2) + pow(Adv_Main[j].y - v.robot_list[i].position.y, 2)) < 50) {
                         			v.robot_list[i].histWipe();
@@ -532,9 +532,9 @@ class CamCap:
                         	}*/
                         break;
                     case 1:
-                        v.robot_list[i].target = strats.get_def_target(v.robot_list[i].position);
-                        v.robot_list[i].fixedPos = strats.Defense.fixedPos;
-                        v.robot_list[i].status = strats.Defense.status;
+                        v.robot_list[i].target = strategy.strats.get_def_target(v.robot_list[i].position);
+                        v.robot_list[i].fixedPos = strategy.strats.Defense.fixedPos;
+                        v.robot_list[i].status = strategy.strats.Defense.status;
                         /*	for(int j=0;j<Adv_Main.size();j++){
                         		if ( sqrt(pow(Adv_Main[j].x - v.robot_list[i].position.x, 2) + pow(Adv_Main[j].y - v.robot_list[i].position.y, 2)) < 50) {
                         			v.robot_list[i].spin = true;
@@ -542,9 +542,9 @@ class CamCap:
                         	}*/
                         break;
                      case 3:
-						v.robot_list[i].target = strats.get_opp_target(v.robot_list[i].position, v.robot_list[i].orientation);
-                        v.robot_list[i].fixedPos = strats.Opponent.fixedPos;
-                        v.robot_list[i].status = strats.Opponent.status;
+						v.robot_list[i].target = strategy.strats.get_opp_target(v.robot_list[i].position, v.robot_list[i].orientation);
+                        v.robot_list[i].fixedPos = strategy.strats.Opponent.fixedPos;
+                        v.robot_list[i].status = strategy.strats.Opponent.status;
 
                      break;
                     }

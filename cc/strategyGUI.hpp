@@ -9,6 +9,7 @@
 #define STRATEGYGUI_HPP_
 
 #include <gtkmm.h>
+#include "Strategy.hpp"
 
 class StrategyGUI: public Gtk::VBox
 {
@@ -42,7 +43,7 @@ public:
 	Gtk::VBox info_text_hbox;
 
 	Gtk::Image strategy_img;
-	
+
 	Gtk::Button select_button;
 	Gtk::Label strategy_title_label;
 
@@ -50,8 +51,11 @@ public:
 	Gtk::TextView strategy_description_view;
 	Glib::RefPtr<Gtk::TextBuffer> strategy_description_text;
 
+	Strategy strats;
+
 	StrategyGUI()
 	{
+
 		createSelectionFrame();
 		createMenuFrame();
 		createInfoTextFrame();
@@ -75,7 +79,7 @@ public:
 		menu_fm.add(menu_vbox);
 
 
-		
+
   		menu_hbox[0].pack_start(m_TreeView, false, true, 5);
   		menu_hbox[0].set_halign(Gtk::ALIGN_CENTER);
   		m_TreeView.set_size_request(450,200);
@@ -109,7 +113,7 @@ public:
   		m_ScrolledWindow.set_min_content_width(450);
 		strategy_description_text = Gtk::TextBuffer::create();
   		strategy_description_text->set_text("This is the text from TextBuffer #1.\n\n\n\n");
-  		strategy_description_view.set_buffer(strategy_description_text);	
+  		strategy_description_view.set_buffer(strategy_description_text);
 	}
 
 	void createInfoImageFrame()
@@ -123,7 +127,7 @@ public:
 	~StrategyGUI()
 	{}
 
-	
+
 
 
 
