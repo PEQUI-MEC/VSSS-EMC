@@ -441,6 +441,8 @@ class CamCap:
                 robot_creation_unitag();
                 //robot_creation();
 
+                drawStrategyConstants(image, w, h);
+
                 if (!v.draw_info_flag)
                 {
                     circle(image,v.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
@@ -661,6 +663,60 @@ class CamCap:
             }
 
 
+        }
+
+        void drawStrategyConstants(cv::Mat image, int w, int h)
+        {
+          if (strategy.get_deslocamentoZagaAtaque_flag())
+            line(image,cv::Point(strategy.strats.DESLOCAMENTO_ZAGA_ATAQUE, 0),cv::Point(strategy.strats.DESLOCAMENTO_ZAGA_ATAQUE, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_goalSize_flag())
+            line(image,cv::Point(strategy.strats.TAMANHO_GOL, h/2-strategy.strats.TAMANHO_GOL/2),cv::Point(strategy.strats.TAMANHO_GOL, h/2+strategy.strats.TAMANHO_GOL/2),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_fieldWwidth_flag())
+            line(image,cv::Point(0, h/2),cv::Point(strategy.strats.LARGURA_CAMPO, h/2),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_totalFieldLength_flag())
+            line(image,cv::Point(w/2, 0),cv::Point(w/2, strategy.strats.COMPRIMENTO_CAMPO_TOTAL),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_fieldLength_flag())
+            line(image,cv::Point(strategy.strats.TAMANHO_GOL, h/2),cv::Point(strategy.strats.COMPRIMENTO_CAMPO_TOTAL-strategy.strats.TAMANHO_GOL, h/2),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_coneRatio_flag())
+            line(image,cv::Point(strategy.strats.CONE_RATIO, 0),cv::Point(strategy.strats.CONE_RATIO, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_offsetRatio_flag())
+            line(image,cv::Point(strategy.strats.OFFSET_RATIO, 0),cv::Point(strategy.strats.OFFSET_RATIO, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_defenseLine_flag())
+            line(image,cv::Point(strategy.strats.LINHA_ZAGA, 0),cv::Point(strategy.strats.LINHA_ZAGA, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_goalMax_flag())
+            putText(image, "X", cv::Point(w-strategy.strats.COMPRIMENTO_PISTA, strategy.strats.MEIO_GOL_Y+strategy.strats.TAMANHO_GOL/2),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_goalMin_flag())
+            putText(image, "X", cv::Point(w-strategy.strats.COMPRIMENTO_PISTA, strategy.strats.MEIO_GOL_Y-strategy.strats.TAMANHO_GOL/2),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_goalCenterY_flag())
+            putText(image, "X", cv::Point(strategy.strats.MEIO_GOL_X, strategy.strats.MEIO_GOL_Y),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_goalCenterX_flag())
+            putText(image, "X", cv::Point(strategy.strats.MEIO_GOL_X, strategy.strats.MEIO_GOL_Y),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_banheira_flag())
+            line(image,cv::Point(strategy.strats.BANHEIRA, 0),cv::Point(strategy.strats.BANHEIRA, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_banheiraOffset_flag())
+            line(image,cv::Point(strategy.strats.OFFSET_BANHEIRA, 0),cv::Point(strategy.strats.OFFSET_BANHEIRA, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_areasDivision_flag())
+            line(image,cv::Point(strategy.strats.DIVISAO_AREAS, 0),cv::Point(strategy.strats.DIVISAO_AREAS, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_areaSize_flag())
+            line(image,cv::Point(strategy.strats.TAMANHO_AREA, 0),cv::Point(strategy.strats.TAMANHO_AREA, h),cv::Scalar(255,255,0), 2);
+
+          if (strategy.get_areaLimitX_flag())
+            line(image,cv::Point(strategy.strats.LIMITE_AREA_X, 0),cv::Point(strategy.strats.LIMITE_AREA_X, h),cv::Scalar(255,255,0), 2);
         }
 
         void robot_creation_unitag() {

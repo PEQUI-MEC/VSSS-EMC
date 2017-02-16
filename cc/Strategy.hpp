@@ -3,7 +3,7 @@
 #define PI 3.14159265453
 #include "opencv2/opencv.hpp"
 #include "LS.cpp"
-#include "Robot.hpp"
+#include "../pack-capture-gui/capture-gui/Robot.hpp"
 #include "SerialW.hpp"
 #include <math.h>
 #define PREDICAO_NUM_SAMPLES 15
