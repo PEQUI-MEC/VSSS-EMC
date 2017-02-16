@@ -680,7 +680,7 @@ class CamCap:
             line(image,cv::Point(w/2, 0),cv::Point(w/2, strategy.strats.COMPRIMENTO_CAMPO_TOTAL),cv::Scalar(255,255,0), 2);
 
           if (strategy.get_fieldLength_flag())
-            line(image,cv::Point(strategy.strats.TAMANHO_GOL, h/2),cv::Point(strategy.strats.COMPRIMENTO_CAMPO_TOTAL-strategy.strats.TAMANHO_GOL, h/2),cv::Scalar(255,255,0), 2);
+            line(image,cv::Point(round(0.10*float(h)/1.70), h/2),cv::Point(strategy.strats.COMPRIMENTO_PISTA, h/2),cv::Scalar(255,255,0), 2);
 
           if (strategy.get_coneRatio_flag())
             line(image,cv::Point(strategy.strats.CONE_RATIO, 0),cv::Point(strategy.strats.CONE_RATIO, h),cv::Scalar(255,255,0), 2);
@@ -697,10 +697,7 @@ class CamCap:
           if (strategy.get_goalMin_flag())
             putText(image, "X", cv::Point(w-strategy.strats.COMPRIMENTO_PISTA, strategy.strats.MEIO_GOL_Y-strategy.strats.TAMANHO_GOL/2),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
 
-          if (strategy.get_goalCenterY_flag())
-            putText(image, "X", cv::Point(strategy.strats.MEIO_GOL_X, strategy.strats.MEIO_GOL_Y),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
-
-          if (strategy.get_goalCenterX_flag())
+          if (strategy.get_goalCenter_flag())
             putText(image, "X", cv::Point(strategy.strats.MEIO_GOL_X, strategy.strats.MEIO_GOL_Y),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
 
           if (strategy.get_banheira_flag())

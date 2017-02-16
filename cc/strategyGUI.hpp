@@ -65,8 +65,7 @@ protected:
 	Gtk::CheckButton banheira_bt;
 	Gtk::CheckButton areasDivision_bt;
 	Gtk::CheckButton banheiraOffset_bt;
-	Gtk::CheckButton goalCenterX_bt;
-	Gtk::CheckButton goalCenterY_bt;
+	Gtk::CheckButton goalCenter_bt;
 	Gtk::CheckButton goalMin_bt;
 	Gtk::CheckButton goalMax_bt;
 	Gtk::CheckButton defenseLine_bt;
@@ -85,8 +84,7 @@ private:
 	bool defenseLine_flag = false;
 	bool goalMax_flag = false;
 	bool goalMin_flag = false;
-	bool goalCenterY_flag = false;
-	bool goalCenterX_flag = false;
+	bool goalCenter_flag = false;
 	bool banheiraOffset_flag = false;
 	bool areasDivision_flag = false;
 	bool banheira_flag = false;
@@ -145,14 +143,9 @@ public:
 		return goalMin_flag;
 	}
 
-	bool get_goalCenterY_flag()
+	bool get_goalCenter_flag()
 	{
-		return goalCenterY_flag;
-	}
-
-	bool get_goalCenterX_flag()
-	{
-		return goalCenterX_flag;
+		return goalCenter_flag;
 	}
 
 	bool get_banheiraOffset_flag()
@@ -204,8 +197,7 @@ public:
 		banheira_bt.set_label("Banheira");
 		areasDivision_bt.set_label("Areas Division");
 		banheiraOffset_bt.set_label("Banheira Offset");
-		goalCenterX_bt.set_label("Goal Center X");
-		goalCenterY_bt.set_label("Goal Center Y");
+		goalCenter_bt.set_label("Goal Center");
 		goalMin_bt.set_label("Goal Min.");
 		goalMax_bt.set_label("Goal Max.");
 		defenseLine_bt.set_label("Defense Line");
@@ -216,28 +208,27 @@ public:
 		constants_grid.set_border_width(10);
 		constants_grid.set_column_spacing(5);
 
-		constants_grid.add(fieldLength_bt);
-		constants_grid.add(totalFieldLength_bt);
-		constants_grid.add(fieldWwidth_bt);
+		constants_grid.attach(fieldLength_bt, 0, 0, 1 , 1);
+		constants_grid.attach(totalFieldLength_bt, 1, 0, 1, 1);
+		constants_grid.attach(fieldWwidth_bt, 2, 0, 1, 1);
 
-		constants_grid.attach_next_to(goalSize_bt, fieldLength_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(areaSize_bt, totalFieldLength_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(areaLimitX_bt, fieldWwidth_bt, Gtk::POS_BOTTOM, 1, 1);
+		constants_grid.attach(goalSize_bt, 0, 1, 1, 1);
+		constants_grid.attach(areaSize_bt, 1, 1, 1, 1);
+		constants_grid.attach(areaLimitX_bt, 2, 1, 1, 1);
 
-		constants_grid.attach_next_to(banheira_bt, goalSize_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(areasDivision_bt, areaSize_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(banheiraOffset_bt, areaLimitX_bt, Gtk::POS_BOTTOM, 1, 1);
+		constants_grid.attach(banheira_bt, 0, 2, 1, 1);
+		constants_grid.attach(areasDivision_bt, 1, 2, 1, 1);
+		constants_grid.attach(banheiraOffset_bt, 2, 2, 1, 1);
 
-		constants_grid.attach_next_to(goalCenterX_bt, banheira_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(goalCenterY_bt, areasDivision_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(goalMin_bt, banheiraOffset_bt, Gtk::POS_BOTTOM, 1, 1);
+		constants_grid.attach(goalCenter_bt, 0, 3, 1, 1);
+		constants_grid.attach(goalMin_bt, 1, 3, 1, 1);
+		constants_grid.attach(goalMax_bt, 2, 3, 1, 1);
 
-		constants_grid.attach_next_to(goalMax_bt, goalCenterX_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(defenseLine_bt, goalCenterY_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(offsetRatio_bt, goalMin_bt, Gtk::POS_BOTTOM, 1, 1);
+		constants_grid.attach(defenseLine_bt, 0, 4, 1, 1);
+		constants_grid.attach(offsetRatio_bt, 1, 4, 1, 1);
+		constants_grid.attach(coneRatio_bt, 2, 4, 1, 1);
 
-		constants_grid.attach_next_to(coneRatio_bt, goalMax_bt, Gtk::POS_BOTTOM, 1, 1);
-		constants_grid.attach_next_to(deslocamentoZagaAtaque_bt, defenseLine_bt, Gtk::POS_BOTTOM, 1, 1);
+		constants_grid.attach(deslocamentoZagaAtaque_bt, 0, 5, 2, 1);
 
 		fieldLength_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_fieldLength_bt_clicked));
 		totalFieldLength_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_totalFieldLength_bt_clicked));
@@ -248,8 +239,7 @@ public:
 		banheira_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_banheira_bt_clicked));
 		areasDivision_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_areasDivision_bt_clicked));
 		banheiraOffset_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_banheiraOffset_bt_clicked));
-		goalCenterX_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalCenterX_bt_clicked));
-		goalCenterY_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalCenterY_bt_clicked));
+		goalCenter_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalCenter_bt_clicked));
 		goalMin_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalMin_bt_clicked));
 		goalMax_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalMax_bt_clicked));
 		defenseLine_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_defenseLine_bt_clicked));
@@ -304,14 +294,9 @@ private:
 		banheiraOffset_flag = !banheiraOffset_flag;
 	}
 
-	void _event_goalCenterX_bt_clicked()
+	void _event_goalCenter_bt_clicked()
 	{
-		goalCenterX_flag = !goalCenterX_flag;
-	}
-
-	void _event_goalCenterY_bt_clicked()
-	{
-		goalCenterY_flag = !goalCenterY_flag;
+		goalCenter_flag = !goalCenter_flag;
 	}
 
 	void _event_goalMin_bt_clicked()
