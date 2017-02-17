@@ -7,7 +7,10 @@
 
 #include "V4LInterface.hpp"
 
-#include <iostream>
+
+#include <string>       // std::string
+#include <iostream>     // std::cout
+#include <sstream>      // std::stringstream
 
 #define DEFAULT_STR " - "
 
@@ -866,6 +869,25 @@ namespace capture
 
               }
 
+              void V4LInterface::updateRobotLabels()
+              {
+                std::stringstream aux1;
+                aux1 << "(" << round((robot_list[0].position.x))<< "," << round((robot_list[0].position.y))<< "," << round(robot_list[0].orientation*(180/PI)) << ")";
+                robot1_pos_lb->set_text(aux1.str());
+
+                std::stringstream aux2;
+                aux2 << "(" << round((robot_list[1].position.x))<< "," << round((robot_list[1].position.y))<< "," << round((robot_list[1].orientation*(180/PI))) << ")";
+                robot2_pos_lb->set_text(aux2.str());
+
+                std::stringstream aux3;
+                aux3 << "(" << round((robot_list[2].position.x))<< "," << round((robot_list[2].position.y)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
+
+                robot3_pos_lb->set_text(aux3.str());
+                std::stringstream aux4;
+                aux4 << "(" << round((ballX))<< "," << round((ballY)) << ")";
+                ball_pos_lb->set_text(aux4.str());
+              }
+
               void V4LInterface::createIDsFrame(){
                 Gtk::Label *label;
                 info_hbox.pack_start(robots_id_fm, false, true, 5);
@@ -1245,7 +1267,7 @@ namespace capture
                 for(int i=0; i<robot_list.size(); i++) {
                   robot_list[i].position = cv::Point(-1,-1);
                 }
-
+                
                 createPositionsAndButtonsFrame();
                 createIDsFrame();
                 createFunctionsFrame();

@@ -28,6 +28,8 @@ class V4LInterface: public Gtk::VBox {
 
       ImageView iv;
 
+      double ballX, ballY;
+
       bool start_game_flag = false;
 
       std::vector<Robot> robot_list;
@@ -214,6 +216,8 @@ class V4LInterface: public Gtk::VBox {
         void event_robots_speed_edit_bt_signal_pressed();
         void event_robots_id_done_bt_signal_clicked();
         void event_robots_id_edit_bt_signal_pressed();
+
+        void updateRobotLabels();
 
     public:
 
