@@ -1167,6 +1167,21 @@ namespace capture
                 draw_info_checkbox.set_can_focus(false);
               }
 
+              void V4LInterface::init_HSV()
+              {
+                for(int i =0; i<6; i++) {
+                  HScale_Hmin.set_value(-1);
+                  HScale_Hmax.set_value(256);
+                  HScale_Smin.set_value(-1);
+                  HScale_Smax.set_value(256);
+                  HScale_Vmin.set_value(-1);
+                  HScale_Vmax.set_value(256);
+                  HScale_Amin.set_value(500);
+
+                  __event_bt_left_HSV_calib_clicked();
+                }
+              }
+
               // Constructor
 
               V4LInterface::V4LInterface() :
@@ -1198,6 +1213,11 @@ namespace capture
                 bt_save_warp.set_sensitive(false);
                 bt_quick_save.set_sensitive(false);
                 bt_quick_load.set_sensitive(false);
+                bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+                bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+                bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
+                bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
                 m_signal_start.emit(false);
 
 
@@ -1208,10 +1228,7 @@ namespace capture
                 HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-                bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-                bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-                bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
-                bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
 
                 notebook.set_scrollable(true);
                 adjust_event_flag = false;
@@ -1254,20 +1271,12 @@ namespace capture
                 robot_list[1].role = 1;
                 robot_list[2].role = 2;
 
-                for(int i =0; i<6; i++) {
-                  HScale_Hmin.set_value(-1);
-                  HScale_Hmax.set_value(256);
-                  HScale_Smin.set_value(-1);
-                  HScale_Smax.set_value(256);
-                  HScale_Vmin.set_value(-1);
-                  HScale_Vmax.set_value(256);
-                }
-
+                init_HSV();
 
                 for(int i=0; i<robot_list.size(); i++) {
                   robot_list[i].position = cv::Point(-1,-1);
                 }
-                
+
                 createPositionsAndButtonsFrame();
                 createIDsFrame();
                 createFunctionsFrame();
@@ -1277,7 +1286,6 @@ namespace capture
                 buttons_vbox.pack_start(start_game_hbox, false, true, 5);
                 start_game_hbox.pack_start(start_game_bt, false, true, 5);
                 buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
-                //v.start_game_bt.set_label("BRING IT ON!");
                 start_game_bt.property_always_show_image();
                 start_game_bt.set_size_request(50,100);
                 start_game_bt.set_image(red_button_released);

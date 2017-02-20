@@ -45,12 +45,12 @@ public:
 
   unsigned char **threshold = NULL;
 
-  int getRobotListSize()
+  int get_robot_list_size()
   {
     return robot_list.size();
   }
 
-  Robot getRobotFromList(int index)
+  Robot get_robot_from_list(int index)
   {
     Robot r;
     if (index < robot_list.size() && index >= 0)
@@ -62,7 +62,7 @@ public:
     }
   }
 
-  cv::Point getBallPosition()
+  cv::Point get_ball_position()
   {
     return Ball;
   }

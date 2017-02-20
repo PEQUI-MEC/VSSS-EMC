@@ -66,19 +66,23 @@ class CamCap:
 
         void updateAllPositions()
         {
+          Robot robot;
+          cv::Point ballPosition;
           //  cout<<"AQUI"<<endl;
           vision->robot_creation_unitag();
           //vision->robot_creation();
         //    cout<<"AQUI"<<endl;
-          for (int i = 0; i < vision->getRobotListSize(); i++)
+          for (int i = 0; i < vision->get_robot_list_size(); i++)
           {
-            interface.robot_list[i].position = vision->getRobotFromList(i).position;
-            interface.robot_list[i].orientation = vision->getRobotFromList(i).orientation;
-              interface.robot_list[i].secundary = vision->getRobotFromList(i).secundary;
+            robot = vision->get_robot_from_list(i);
+            interface.robot_list[i].position = robot.position;
+            interface.robot_list[i].orientation = robot.orientation;
+            interface.robot_list[i].secundary = robot.secundary;
           }
-      //    cout<<"AQUI"<<endl;
-          interface.ballX = vision->getBallPosition().x;
-          interface.ballY = vision->getBallPosition().y;
+
+          ballPosition = vision->get_ball_position();
+          interface.ballX = ballPosition.x;
+          interface.ballY = ballPosition.y;
 
           interface.robot_list[0].feedHist(interface.robot_list[0].position);
           interface.robot_list[1].feedHist(interface.robot_list[1].position);
@@ -143,7 +147,7 @@ class CamCap:
 
             }
 
-            interface.__event_bt_quick_load_clicked();
+            //interface.__event_bt_quick_load_clicked();
 
             return true;
         }
@@ -220,7 +224,7 @@ class CamCap:
                     line(imageView,interface.robot_list[2].position,interface.robot_list[2].secundary,cv::Scalar(255,255,0), 2);
                     //line(imageView,interface.robot_list[2].position,interface.robot_list[2].ternary,cv::Scalar(100,255,0), 2);
                     putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                    circle(imageView,vision->getBallPosition(), 7, cv::Scalar(255,255,255), 2);
+                    circle(imageView,vision->get_ball_position(), 7, cv::Scalar(255,255,255), 2);
 
                     for(int i=0; i<vision->Adv_Main.size(); i++)
                         circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
@@ -248,7 +252,7 @@ class CamCap:
             }
 
             // ----------- ESTRATEGIA -----------------//
-		       	strategyGUI.strategy.set_Ball(vision->getBallPosition());
+		       	strategyGUI.strategy.set_Ball(vision->get_ball_position());
 
             /*
             line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
@@ -260,7 +264,7 @@ class CamCap:
             */
             if(interface.start_game_flag) {
                 Ball_Est=strategyGUI.strategy.get_Ball_Est();
-                line(imageView,vision->getBallPosition(),Ball_Est,cv::Scalar(255,140,0), 2);
+                line(imageView,vision->get_ball_position(),Ball_Est,cv::Scalar(255,140,0), 2);
                 circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
                 char buffer[3];
                 for(int i =0; i<3; i++) {
@@ -352,7 +356,7 @@ class CamCap:
         void send_vel_to_robots() {
             for(int i=0; i<interface.robot_list.size(); i++) {
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
-                    interface.robot_list[i].goTo(interface.robot_list[i].target,vision->getBallPosition());
+                    interface.robot_list[i].goTo(interface.robot_list[i].target,vision->get_ball_position());
                 } else {
                     interface.robot_list[i].Vr = 0 ;
                     interface.robot_list[i].Vl = 0 ;
@@ -377,12 +381,12 @@ class CamCap:
             }
             if(Selec_index>-1) {
                 interface.robot_list[Selec_index].histWipe();
-                if(sqrt(pow((vision->getBallPosition().x-interface.robot_list[Selec_index].target.x),2)+pow((vision->getBallPosition().y-interface.robot_list[Selec_index].target.y),2))<=7)
+                if(sqrt(pow((vision->get_ball_position().x-interface.robot_list[Selec_index].target.x),2)+pow((vision->get_ball_position().y-interface.robot_list[Selec_index].target.y),2))<=7)
                     fixed_ball[Selec_index]=true;
 
 
                 if(fixed_ball[Selec_index])
-                    interface.robot_list[Selec_index].target=vision->getBallPosition();
+                    interface.robot_list[Selec_index].target=vision->get_ball_position();
                 else
                     interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
             }
@@ -390,7 +394,7 @@ class CamCap:
 
             for(int i=0; i<interface.robot_list.size(); i++) {
                 if(fixed_ball[i])
-                    interface.robot_list[i].target=vision->getBallPosition();
+                    interface.robot_list[i].target=vision->get_ball_position();
                 else {
                     if(sqrt(pow((interface.robot_list[i].position.x-interface.robot_list[i].target.x),2)+
                             pow((interface.robot_list[i].position.y-interface.robot_list[i].target.y),2))<15) {
@@ -402,7 +406,7 @@ class CamCap:
                         interface.robot_list[i].Vl = 0 ;
                     }
                     if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
-                        interface.robot_list[i].goTo(interface.robot_list[i].target,vision->getBallPosition());
+                        interface.robot_list[i].goTo(interface.robot_list[i].target,vision->get_ball_position());
                     } else {
                         interface.robot_list[i].Vr = 0 ;
                         interface.robot_list[i].Vl = 0 ;
@@ -419,39 +423,28 @@ class CamCap:
         {
 
           if (strategyGUI.get_deslocamentoZagaAtaque_flag())
+            line(imageView,cv::Point(strategyGUI.strategy.DESLOCAMENTO_ZAGA_ATAQUE, 0),cv::Point(strategyGUI.strategy.DESLOCAMENTO_ZAGA_ATAQUE, h),cv::Scalar(255,255,0), 2);
+
+          if (strategyGUI.get_goalArea_flag())
           {
-          line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-        line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-         line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-
-          line(imageView, cv::Point(strategyGUI.strategy.Ball.x, strategyGUI.strategy.Ball.y - 100),cv::Point(strategyGUI.strategy.Ball.x, strategyGUI.strategy.Ball.y + 100), cv::Scalar(255,0,0),2);
-            line(imageView, cv::Point(strategyGUI.strategy.Ball),cv::Point(strategyGUI.strategy.Ball.x - 100, strategyGUI.strategy.Ball.y), cv::Scalar(255,0,0),2);
-
-              line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,0),cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MIN_GOL_Y), cv::Scalar(255,255,255),2);
-              line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,height),cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MAX_GOL_Y), cv::Scalar(255,255,255),2);
-              line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MAX_GOL_Y),cv::Point(width,strategyGUI.strategy.MAX_GOL_Y), cv::Scalar(255,255,255),2);
-              line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MIN_GOL_Y),cv::Point(width,strategyGUI.strategy.MIN_GOL_Y), cv::Scalar(255,255,255),2);
-
-              line(imageView,cv::Point(strategyGUI.strategy.DESLOCAMENTO_ZAGA_ATAQUE, 0),cv::Point(strategyGUI.strategy.DESLOCAMENTO_ZAGA_ATAQUE, h),cv::Scalar(255,255,0), 2);
+            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
+            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
           }
 
-          if (strategyGUI.get_goalSize_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.TAMANHO_GOL, h/2-strategyGUI.strategy.TAMANHO_GOL/2),cv::Point(strategyGUI.strategy.TAMANHO_GOL, h/2+strategyGUI.strategy.TAMANHO_GOL/2),cv::Scalar(255,255,0), 2);
+          if (strategyGUI.get_sideRectangles_flag())
+          {
+            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,0),cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MIN_GOL_Y), cv::Scalar(255,255,255),2);
+            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,height),cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MAX_GOL_Y), cv::Scalar(255,255,255),2);
+            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MAX_GOL_Y),cv::Point(width,strategyGUI.strategy.MAX_GOL_Y), cv::Scalar(255,255,255),2);
+            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MIN_GOL_Y),cv::Point(width,strategyGUI.strategy.MIN_GOL_Y), cv::Scalar(255,255,255),2);
+          }
 
-          if (strategyGUI.get_fieldWwidth_flag())
-            line(imageView,cv::Point(0, h/2),cv::Point(strategyGUI.strategy.LARGURA_CAMPO, h/2),cv::Scalar(255,255,0), 2);
-
-          if (strategyGUI.get_totalFieldLength_flag())
-            line(imageView,cv::Point(w/2, 0),cv::Point(w/2, strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL),cv::Scalar(255,255,0), 2);
-
-          if (strategyGUI.get_fieldLength_flag())
-            line(imageView,cv::Point(round(0.10*float(h)/1.70), h/2),cv::Point(strategyGUI.strategy.COMPRIMENTO_PISTA, h/2),cv::Scalar(255,255,0), 2);
-
-          if (strategyGUI.get_coneRatio_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.CONE_RATIO, 0),cv::Point(strategyGUI.strategy.CONE_RATIO, h),cv::Scalar(255,255,0), 2);
-
-          if (strategyGUI.get_offsetRatio_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.OFFSET_RATIO, 0),cv::Point(strategyGUI.strategy.OFFSET_RATIO, h),cv::Scalar(255,255,0), 2);
+          if (strategyGUI.get_ballRadius_flag())
+          {
+            ellipse(imageView, strategyGUI.strategy.Ball, cv::Size(100,100), 90, 0, 180, cv::Scalar(255,0,0), 2);
+            line(imageView, cv::Point(strategyGUI.strategy.Ball.x, strategyGUI.strategy.Ball.y+100), cv::Point(strategyGUI.strategy.Ball.x, strategyGUI.strategy.Ball.y-100), cv::Scalar(255,0,0), 2);
+          }
 
           if (strategyGUI.get_defenseLine_flag())
             line(imageView,cv::Point(strategyGUI.strategy.LINHA_ZAGA, 0),cv::Point(strategyGUI.strategy.LINHA_ZAGA, h),cv::Scalar(255,255,0), 2);
@@ -468,14 +461,8 @@ class CamCap:
           if (strategyGUI.get_banheira_flag())
             line(imageView,cv::Point(strategyGUI.strategy.BANHEIRA, 0),cv::Point(strategyGUI.strategy.BANHEIRA, h),cv::Scalar(255,255,0), 2);
 
-          if (strategyGUI.get_banheiraOffset_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.OFFSET_BANHEIRA, 0),cv::Point(strategyGUI.strategy.OFFSET_BANHEIRA, h),cv::Scalar(255,255,0), 2);
-
           if (strategyGUI.get_areasDivision_flag())
             line(imageView,cv::Point(strategyGUI.strategy.DIVISAO_AREAS, 0),cv::Point(strategyGUI.strategy.DIVISAO_AREAS, h),cv::Scalar(255,255,0), 2);
-
-          if (strategyGUI.get_areaSize_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.TAMANHO_AREA, 0),cv::Point(strategyGUI.strategy.TAMANHO_AREA, h),cv::Scalar(255,255,0), 2);
 
           if (strategyGUI.get_areaLimitX_flag())
             line(imageView,cv::Point(strategyGUI.strategy.LIMITE_AREA_X, 0),cv::Point(strategyGUI.strategy.LIMITE_AREA_X, h),cv::Scalar(255,255,0), 2);

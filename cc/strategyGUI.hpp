@@ -56,76 +56,52 @@ public:
 
 protected:
 	Gtk::Grid constants_grid;
-	Gtk::CheckButton fieldLength_bt;
-	Gtk::CheckButton totalFieldLength_bt;
-	Gtk::CheckButton fieldWwidth_bt;
-	Gtk::CheckButton goalSize_bt;
-	Gtk::CheckButton areaSize_bt;
 	Gtk::CheckButton areaLimitX_bt;
 	Gtk::CheckButton banheira_bt;
 	Gtk::CheckButton areasDivision_bt;
-	Gtk::CheckButton banheiraOffset_bt;
 	Gtk::CheckButton goalCenter_bt;
 	Gtk::CheckButton goalMin_bt;
 	Gtk::CheckButton goalMax_bt;
 	Gtk::CheckButton defenseLine_bt;
-	Gtk::CheckButton offsetRatio_bt;
-	Gtk::CheckButton coneRatio_bt;
 	Gtk::CheckButton deslocamentoZagaAtaque_bt;
+	Gtk::CheckButton ballRadius_bt;
+	Gtk::CheckButton goalArea_bt;
+	Gtk::CheckButton sideRectangles_bt;
 
 private:
 	bool deslocamentoZagaAtaque_flag = false;
 	bool goalSize_flag = false;
-	bool fieldWwidth_flag = false;
-	bool totalFieldLength_flag = false;
-	bool fieldLength_flag = false;
-	bool coneRatio_flag = false;
-	bool offsetRatio_flag = false;
 	bool defenseLine_flag = false;
 	bool goalMax_flag = false;
 	bool goalMin_flag = false;
 	bool goalCenter_flag = false;
-	bool banheiraOffset_flag = false;
 	bool areasDivision_flag = false;
 	bool banheira_flag = false;
 	bool areaLimitX_flag = false;
-	bool areaSize_flag = false;
+	bool ballRadius_flag = false;
+	bool goalArea_flag = false;
+	bool sideRectangles_flag = false;
 
 public:
+
+	bool get_ballRadius_flag()
+	{
+		return ballRadius_flag;
+	}
+
+	bool get_goalArea_flag()
+	{
+		return goalArea_flag;
+	}
+
+	bool get_sideRectangles_flag()
+	{
+		return sideRectangles_flag;
+	}
 
 	bool get_deslocamentoZagaAtaque_flag()
 	{
 		return deslocamentoZagaAtaque_flag;
-	}
-
-	bool get_goalSize_flag()
-	{
-		return goalSize_flag;
-	}
-
-	bool get_fieldWwidth_flag()
-	{
-		return fieldWwidth_flag;
-	}
-
-	bool get_totalFieldLength_flag()
-	{
-		return totalFieldLength_flag;
-	}
-
-	bool get_fieldLength_flag()
-	{
-		return fieldLength_flag;
-	}
-
-	bool get_coneRatio_flag()
-	{
-		return coneRatio_flag;
-	}
-
-	bool get_offsetRatio_flag()
-	{
-		return offsetRatio_flag;
 	}
 
 	bool get_defenseLine_flag()
@@ -148,11 +124,6 @@ public:
 		return goalCenter_flag;
 	}
 
-	bool get_banheiraOffset_flag()
-	{
-		return banheiraOffset_flag;
-	}
-
 	bool get_areasDivision_flag()
 	{
 		return areasDivision_flag;
@@ -163,10 +134,6 @@ public:
 		return banheira_flag;
 	}
 
-	bool get_areaSize_flag()
-	{
-		return areaSize_flag;
-	}
 
 	bool get_areaLimitX_flag()
 	{
@@ -188,90 +155,66 @@ public:
 		constants_fm.add(constants_grid);
 		constants_fm.set_label("Draw Constants");
 
-		fieldLength_bt.set_label("Field Length");
-		totalFieldLength_bt.set_label("Total Field Length");
-		fieldWwidth_bt.set_label("Field Width");
-		goalSize_bt.set_label("Goal Size");
-		areaSize_bt.set_label("Area Size");
 		areaLimitX_bt.set_label("Area Limit X");
 		banheira_bt.set_label("Banheira");
 		areasDivision_bt.set_label("Areas Division");
-		banheiraOffset_bt.set_label("Banheira Offset");
 		goalCenter_bt.set_label("Goal Center");
 		goalMin_bt.set_label("Goal Min.");
 		goalMax_bt.set_label("Goal Max.");
 		defenseLine_bt.set_label("Defense Line");
-		offsetRatio_bt.set_label("Offset Ratio");
-		coneRatio_bt.set_label("Cone Ratio");
 		deslocamentoZagaAtaque_bt.set_label("Deslocamento Zaga Ataque");
+		ballRadius_bt.set_label("Ball Radius");
+		goalArea_bt.set_label("Goal Area");
+		sideRectangles_bt.set_label("Side Rectangles");
 
 		constants_grid.set_border_width(10);
 		constants_grid.set_column_spacing(5);
 
-		constants_grid.attach(fieldLength_bt, 0, 0, 1 , 1);
-		constants_grid.attach(totalFieldLength_bt, 1, 0, 1, 1);
-		constants_grid.attach(fieldWwidth_bt, 2, 0, 1, 1);
+		constants_grid.attach(ballRadius_bt, 0, 0, 1, 1);
+		constants_grid.attach(goalArea_bt, 1, 0, 1, 1);
 
-		constants_grid.attach(goalSize_bt, 0, 1, 1, 1);
-		constants_grid.attach(areaSize_bt, 1, 1, 1, 1);
-		constants_grid.attach(areaLimitX_bt, 2, 1, 1, 1);
+		constants_grid.attach(sideRectangles_bt, 0, 1, 1, 1);
+		constants_grid.attach(areaLimitX_bt, 1, 1, 1, 1);
 
 		constants_grid.attach(banheira_bt, 0, 2, 1, 1);
 		constants_grid.attach(areasDivision_bt, 1, 2, 1, 1);
-		constants_grid.attach(banheiraOffset_bt, 2, 2, 1, 1);
 
 		constants_grid.attach(goalCenter_bt, 0, 3, 1, 1);
 		constants_grid.attach(goalMin_bt, 1, 3, 1, 1);
-		constants_grid.attach(goalMax_bt, 2, 3, 1, 1);
 
-		constants_grid.attach(defenseLine_bt, 0, 4, 1, 1);
-		constants_grid.attach(offsetRatio_bt, 1, 4, 1, 1);
-		constants_grid.attach(coneRatio_bt, 2, 4, 1, 1);
+		constants_grid.attach(goalMax_bt, 0, 4, 1, 1);
+		constants_grid.attach(defenseLine_bt, 1, 4, 1, 1);
 
 		constants_grid.attach(deslocamentoZagaAtaque_bt, 0, 5, 2, 1);
 
-		fieldLength_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_fieldLength_bt_clicked));
-		totalFieldLength_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_totalFieldLength_bt_clicked));
-		fieldWwidth_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_fieldWwidth_bt_clicked));
-		goalSize_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalSize_bt_clicked));
-		areaSize_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_areaSize_bt_clicked));
+		ballRadius_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_ballRadius_bt_clicked));
+		goalArea_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalArea_bt_clicked));
+		sideRectangles_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_sideRectangles_bt_clicked));
 		areaLimitX_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_areaLimitX_bt_clicked));
 		banheira_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_banheira_bt_clicked));
 		areasDivision_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_areasDivision_bt_clicked));
-		banheiraOffset_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_banheiraOffset_bt_clicked));
 		goalCenter_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalCenter_bt_clicked));
 		goalMin_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalMin_bt_clicked));
 		goalMax_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalMax_bt_clicked));
 		defenseLine_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_defenseLine_bt_clicked));
-		offsetRatio_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_offsetRatio_bt_clicked));
-		coneRatio_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_coneRatio_bt_clicked));
 		deslocamentoZagaAtaque_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_deslocamentoZagaAtaque_bt_clicked));
 	}
 
 private:
-	void _event_fieldLength_bt_clicked()
+
+	void _event_sideRectangles_bt_clicked()
 	{
-		fieldLength_flag = !fieldLength_flag;
+		sideRectangles_flag = !sideRectangles_flag;
 	}
 
-	void _event_totalFieldLength_bt_clicked()
+	void _event_ballRadius_bt_clicked()
 	{
-		totalFieldLength_flag = !totalFieldLength_flag;
+		ballRadius_flag = !ballRadius_flag;
 	}
 
-	void _event_fieldWwidth_bt_clicked()
+	void _event_goalArea_bt_clicked()
 	{
-		fieldWwidth_flag = !fieldWwidth_flag;
-	}
-
-	void _event_goalSize_bt_clicked()
-	{
-		goalSize_flag = !goalSize_flag;
-	}
-
-	void _event_areaSize_bt_clicked()
-	{
-		areaSize_flag = !areaSize_flag;
+		goalArea_flag = !goalArea_flag;
 	}
 
 	void _event_areaLimitX_bt_clicked()
@@ -287,11 +230,6 @@ private:
 	void _event_areasDivision_bt_clicked()
 	{
 		areasDivision_flag = !areasDivision_flag;
-	}
-
-	void _event_banheiraOffset_bt_clicked()
-	{
-		banheiraOffset_flag = !banheiraOffset_flag;
 	}
 
 	void _event_goalCenter_bt_clicked()
@@ -312,16 +250,6 @@ private:
 	void _event_defenseLine_bt_clicked()
 	{
 		defenseLine_flag = !defenseLine_flag;
-	}
-
-	void _event_offsetRatio_bt_clicked()
-	{
-		offsetRatio_flag = !offsetRatio_flag;
-	}
-
-	void _event_coneRatio_bt_clicked()
-	{
-		coneRatio_flag = !coneRatio_flag;
 	}
 
 	void _event_deslocamentoZagaAtaque_bt_clicked()

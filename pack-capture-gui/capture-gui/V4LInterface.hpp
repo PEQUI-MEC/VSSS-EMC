@@ -218,6 +218,7 @@ class V4LInterface: public Gtk::VBox {
         void event_robots_id_edit_bt_signal_pressed();
 
         void updateRobotLabels();
+        void init_HSV();
 
     public:
 
