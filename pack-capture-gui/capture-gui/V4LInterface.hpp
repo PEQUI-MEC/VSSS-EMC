@@ -26,7 +26,7 @@ class V4LInterface: public Gtk::VBox {
 
       bool warped = false;
 
-      ImageView iv;
+      ImageView imageView;
 
       double ballX, ballY;
 

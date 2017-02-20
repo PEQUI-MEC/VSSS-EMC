@@ -52,7 +52,7 @@ public:
 	Gtk::TextView strategy_description_view;
 	Glib::RefPtr<Gtk::TextBuffer> strategy_description_text;
 
-	Strategy strats;
+	Strategy strategy;
 
 protected:
 	Gtk::Grid constants_grid;
