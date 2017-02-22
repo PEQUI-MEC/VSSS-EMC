@@ -194,9 +194,6 @@ class CamCap:
 
             }
 
-
-
-
             vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
             //TRACKING CAMERA
 
@@ -226,6 +223,10 @@ class CamCap:
                     putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
                     circle(imageView,vision->get_ball_position(), 7, cv::Scalar(255,255,255), 2);
 
+                    //std::cout << "Robot 0 position: (" << interface.robot_list[0].position.x << "," << interface.robot_list[0].position.y << ")" << std::endl;
+                    //std::cout << "Robot 1 position: (" << interface.robot_list[1].position.x << "," << interface.robot_list[1].position.y << ")" << std::endl;
+                    //std::cout << "Robot 2 position: (" << interface.robot_list[2].position.x << "," << interface.robot_list[2].position.y << ")" << std::endl;
+
                     for(int i=0; i<vision->Adv_Main.size(); i++)
                         circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
                 }
@@ -254,14 +255,6 @@ class CamCap:
             // ----------- ESTRATEGIA -----------------//
 		       	strategyGUI.strategy.set_Ball(vision->get_ball_position());
 
-            /*
-            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),0),cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),height), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strategyGUI.strategy.MAX_GOL_Y),cv::Point(width,strategyGUI.strategy.MAX_GOL_Y), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO - round(0.2*float(width)/1.70),strategyGUI.strategy.MIN_GOL_Y),cv::Point(width,strategyGUI.strategy.MIN_GOL_Y), cv::Scalar(255,255,255),2);
-            */
             if(interface.start_game_flag) {
                 Ball_Est=strategyGUI.strategy.get_Ball_Est();
                 line(imageView,vision->get_ball_position(),Ball_Est,cv::Scalar(255,140,0), 2);
@@ -273,7 +266,6 @@ class CamCap:
                         interface.robot_list[i].target = strategyGUI.strategy.get_gk_target(vision->Adv_Main);
                         interface.robot_list[i].fixedPos = strategyGUI.strategy.Goalkeeper.fixedPos;
                         if(strategyGUI.strategy.GOAL_DANGER_ZONE) {
-                            //	cout<<"hist_wipe"<<endl;
                             interface.robot_list[i].histWipe();
                         }
                         break;
@@ -298,7 +290,7 @@ class CamCap:
                         	}*/
                         break;
                      case 3:
-						interface.robot_list[i].target = strategyGUI.strategy.get_opp_target(interface.robot_list[i].position, interface.robot_list[i].orientation);
+						            interface.robot_list[i].target = strategyGUI.strategy.get_opp_target(interface.robot_list[i].position, interface.robot_list[i].orientation);
                         interface.robot_list[i].fixedPos = strategyGUI.strategy.Opponent.fixedPos;
                         interface.robot_list[i].status = strategyGUI.strategy.Opponent.status;
 
@@ -317,34 +309,11 @@ class CamCap:
             // ----------------------------------------//
 
 
-            //PRINT RAW POSITIONS
-            /*	 cout<<"--------------------------------------------------------------- "<<endl;
-            	 cout<<"Team Size "<<Team_Main.size()<<endl;
-            	 for(int i=0;i<Team_Main.size();i++){
-            		cout<<i<<" "<<Team_Main[i].x<<" "<<Team_Main[i].y<<" ";
-            }
-            cout<<endl;
-            	 cout<<"Sec Size "<<Team_Sec[0].size()<<" "<<Team_Sec[1].size()<<" "<<Team_Sec[2].size()<<endl;
-            	for(int j=0;j<Team_Sec.size();j++){
-            		cout<<"TS "<<j<<" ";
 
-            	for(int i=0;i<Team_Sec[j].size();i++)
-            		cout<<i<<" "<<Team_Sec[j][i].x<<" "<<Team_Sec[j][i].y<<" ";
-
-            		cout<<endl;
-            }
-            		 cout<<"Advs Size "<<vision->Adv_Main.size()<<endl;
-            	 for(int i=0;i<vision->Adv_Main.size();i++){
-            		cout<<i<<" "<<vision->Adv_Main[i].x<<" "<<vision->Adv_Main[i].y<<" ";
-            }
-            	cout<<endl;
-            		cout<<"BALL "<<Ball.x<<" "<<Ball.y<<endl;
-            cout<<"--------------------------------------------------------------- "<<endl;
 
             		//timer.stop();
             		//cout<<"Time: "<<timer.getCPUTotalSecs()<<"	FPS: "<<1/timer.getCPUTotalSecs()<<endl;
             		//timer.reset();
-            		* */
 
             if(interface.HSV_calib_event_flag) {
                 for(int i=0; i<3*(width*height + width) +2; i++)
@@ -467,10 +436,6 @@ class CamCap:
           if (strategyGUI.get_areaLimitX_flag())
             line(imageView,cv::Point(strategyGUI.strategy.LIMITE_AREA_X, 0),cv::Point(strategyGUI.strategy.LIMITE_AREA_X, h),cv::Scalar(255,255,0), 2);
         }
-
-
-
-
 
         void warp_transform(cv::Mat imageView){
             cv::Point2f inputQuad[4];

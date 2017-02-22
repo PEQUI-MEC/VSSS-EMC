@@ -735,11 +735,11 @@ void set_Ball_Est(cv::Point b) {
 }
 void set_Ball(cv::Point b) {
 	Ball = b;
-	//LS_ball_x.addValue(Ball.x);
-	//LS_ball_y.addValue(Ball.y);
+	LS_ball_x.addValue(Ball.x);
+	LS_ball_y.addValue(Ball.y);
 
-	//	Ball_Est.x =  LS_ball_x.estimate(5);
-	//Ball_Est.y =  LS_ball_y.estimate(5);
+	Ball_Est.x =  LS_ball_x.estimate(5);
+	Ball_Est.y =  LS_ball_y.estimate(5);
 
 }
 

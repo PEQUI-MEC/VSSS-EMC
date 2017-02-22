@@ -251,14 +251,14 @@ public:
   void robot_creation_unitag() {
         vector <Robot> robot;
           Robot r;
-          double omax = -99999;
-          double omin = 99999;
+          double omax = -99999; // angulo maximo
+          double omin = 99999; // angulo minimo
         //  cout<<"1"<<endl;
           cv::Point secundary;
-          int index1[2] = {0,0};
-          int index2[2] = {0,0};
-          float sx,sy,px,py,tx,ty;
-          int l=0;
+          int index1[2] = {0,0}; // index do robo com img_tracking
+          int index2[2] = {0,0}; // index do robo com img_tracking (usado para trocar o index)
+          float sx,sy,px,py,tx,ty; // posilções x e y das tags primária, secundária e ternária
+          int l=0; // índice do robo
           float distanceRef1 = 999999999.0;
           float distanceRef2 = 999999999.0;
           float distance = 0;
@@ -269,7 +269,7 @@ public:
               distanceRef2 = 999999999.0;
 
 
-              for(int i = 0; i < 3; i++) {
+
                   for(int k = 0; k < Team_Sec[i].size(); k++) {
 
                       distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
@@ -328,36 +328,30 @@ public:
           double o = 0;
 
           for(int i=0; i<l; i++) {
-              o = atan2(sin(robot[i].orientation2-robot[i].orientation+3.1415),cos(robot[i].orientation2-robot[i].orientation+3.1415));
-             // cout<<o*180/PI<<" ";
-              if(o>=30*PI/180) {
+                o = atan2(sin(robot[i].orientation2-robot[i].orientation+3.1415),cos(robot[i].orientation2-robot[i].orientation+3.1415));
+               // cout<<o*180/PI<<" ";
+                if(o>=35*PI/180) {
 
-                  robot_list[0].position = robot[i].position; // colocar em um vetor
+                    robot_list[0].position = robot[i].position; // colocar em um vetor
+                    robot_list[0].secundary = robot[i].secundary; // colocar em um vetor
+                    robot_list[0].orientation =  robot[i].orientation;
 
-                  robot_list[0].secundary = robot[i].secundary; // colocar em um vetor
-                  robot_list[0].orientation =  robot[i].orientation;
+                }else if(o<=-35*PI/180) {
 
+                    robot_list[1].position = robot[i].position; // colocar em um vetor
+                    robot_list[1].secundary = robot[i].secundary; // colocar em um vetor
+                    robot_list[1].orientation =  robot[i].orientation;
 
-              }
-              if(o<=-30*PI/180) {
+                }
+                if((o<30*PI/180)&&(o>-30*PI/180)) {
+              else{
+                    robot_list[2].position = robot[i].position; // colocar em um vetor
+                    robot_list[2].secundary = robot[i].secundary; // colocar em um vetor
+                    robot_list[2].orientation =  robot[i].orientation;
 
-                  robot_list[1].position = robot[i].position; // colocar em um vetor
-                  robot_list[1].secundary = robot[i].secundary; // colocar em um vetor
-                  robot_list[1].orientation =  robot[i].orientation;
+                }
 
-
-
-              }
-              if((o<=15*PI/180)&&(o>=-15*PI/180)) {
-                  robot_list[2].position = robot[i].position; // colocar em um vetor
-
-                  robot_list[2].secundary = robot[i].secundary; // colocar em um vetor
-                  robot_list[2].orientation =  robot[i].orientation;
-
-
-              }
-          }
-
+            }
 
   }
 
