@@ -269,7 +269,7 @@ public:
               distanceRef2 = 999999999.0;
 
 
-
+              for(int i = 0; i < 1; i++) {
                   for(int k = 0; k < Team_Sec[i].size(); k++) {
 
                       distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
@@ -343,14 +343,13 @@ public:
                     robot_list[1].orientation =  robot[i].orientation;
 
                 }
-                if((o<30*PI/180)&&(o>-30*PI/180)) {
+              //  if((o<30*PI/180)&&(o>-30*PI/180)) {
               else{
                     robot_list[2].position = robot[i].position; // colocar em um vetor
                     robot_list[2].secundary = robot[i].secundary; // colocar em um vetor
                     robot_list[2].orientation =  robot[i].orientation;
 
                 }
-
             }
 
   }
