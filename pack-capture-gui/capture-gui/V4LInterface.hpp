@@ -219,6 +219,7 @@ class V4LInterface: public Gtk::VBox {
 
         void updateRobotLabels();
         void init_HSV();
+        bool get_start_game_flag();
 
     public:
 

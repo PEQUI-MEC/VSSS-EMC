@@ -69,8 +69,8 @@ class CamCap:
           Robot robot;
           cv::Point ballPosition;
           //  cout<<"AQUI"<<endl;
-          vision->robot_creation_unitag();
-          //vision->robot_creation();
+          //vision->robot_creation_unitag();
+          vision->robot_creation();
         //    cout<<"AQUI"<<endl;
           for (int i = 0; i < vision->get_robot_list_size(); i++)
           {
@@ -154,6 +154,10 @@ class CamCap:
 
         bool capture_and_show() {
             if (!data) return false;
+
+            if (interface.get_start_game_flag())
+              control.set_PID_test_flag(false);
+
 
             //timer.start();
             interface.vcap.grab_rgb(data);
@@ -494,7 +498,7 @@ class CamCap:
             fm.add(interface.imageView);
             notebook.append_page(interface, "Vision");
             notebook.append_page(control, "Control");
-            notebook.append_page(strategyGUI, "strategyGUI");
+            notebook.append_page(strategyGUI, "Strategy");
 
 
             for(int i=0; i<4; i++) {

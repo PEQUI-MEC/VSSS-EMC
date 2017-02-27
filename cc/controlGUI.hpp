@@ -33,7 +33,6 @@ public:
 	// Flag para saber se o botão PID está pressionado ou não.
 
 	bool Serial_Enabled;
-	bool PID_bt_event_flag = false;
 	bool PID_test_flag = false;
 	// Containers para o conteúdo da interface gráfica
 	Gtk::Frame Serial_fm;
@@ -64,10 +63,18 @@ public:
 	Gtk::ComboBoxText cb_pid;
 	bool pid_edit_flag = false;
 
+	bool get_PID_test_flag()
+	{
+		return PID_test_flag;
+	}
+
+	void set_PID_test_flag(bool input)
+	{
+		PID_test_flag = input;
+	}
+
 	ControlGUI()
 	{
-		PID_bt_event_flag=false;
-		PID_bt_event_flag =false;
 		Serial_Enabled=false;
 		// Adicionar o frame do Serial e sua VBOX
 		pack_start(Top_hbox, false, true, 5);

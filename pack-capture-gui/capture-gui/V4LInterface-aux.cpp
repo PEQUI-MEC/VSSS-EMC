@@ -30,6 +30,11 @@ namespace capture
 
   }
 
+  bool V4LInterface::get_start_game_flag()
+  {
+    return start_game_flag;
+  }
+
   void V4LInterface::HScale_Amin_value_changed() {
 
     Amin[Img_id]=HScale_Amin.get_value();
