@@ -269,7 +269,7 @@ public:
               distanceRef2 = 999999999.0;
 
 
-              for(int i = 0; i < 1; i++) {
+              for(int i = 0; i < 2; i++) {
                   for(int k = 0; k < Team_Sec[i].size(); k++) {
 
                       distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
