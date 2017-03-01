@@ -66,9 +66,11 @@ class CamCap:
           Robot robot;
           cv::Point ballPosition;
           //  cout<<"AQUI"<<endl;
-          vision->robot_creation_unitag();
+          //vision->robot_creation_unitag();
           //vision->robot_creation();
+          vision->robot_creation_uni_duni_tag();
         //    cout<<"AQUI"<<endl;
+
           for (int i = 0; i < vision->get_robot_list_size(); i++)
           {
             robot = vision->get_robot_from_list(i);
@@ -98,6 +100,7 @@ class CamCap:
                     interface.imageView.disable_image_show();
                     free(data);
                     data = 0;
+
                 }
 
 
@@ -256,7 +259,7 @@ class CamCap:
             if(Selec_index!=-1) {
                 circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
             }
-            
+
             for(int i=0; i<interface.robot_list.size(); i++) {
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
                     line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);

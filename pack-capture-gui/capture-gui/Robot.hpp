@@ -10,6 +10,7 @@ class Robot
     public:
         cv::Point position, secundary, target, ternary;
         char ID;
+        bool pink = false;
         double orientation=0;
         double orientation2=0;
         bool backward = false;
@@ -262,8 +263,8 @@ class Robot
                         Vl = vmax;
                         spin = true;
                     }
-						
-						
+
+
 						}
                 } else { //se nao esta perto da bola, o robo deve dar re
                     if(spin) {

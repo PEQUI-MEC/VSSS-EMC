@@ -133,6 +133,7 @@ void V4LInterface::__event_bt_load_robots_info_clicked()
 
           getline(txtFile, linha);
           double value = atof(linha.c_str());
+          std::cout << "ATOF " << atof(linha.c_str()) << std::endl;
           robots_speed_hscale[i].set_value(value);
           robot_list[i].vmax = (float) value;
 
