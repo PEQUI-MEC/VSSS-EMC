@@ -129,7 +129,7 @@ public:
 
 		bt_Serial_test.set_label("Send");
 
-		_create_pid_frame();
+		//_create_pid_frame();
 
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
