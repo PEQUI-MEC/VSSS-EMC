@@ -84,7 +84,7 @@ public:
 		LIMITE_AREA_X	=		113;
 
 		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
-		DIVISAO_AREAS	=	round((0.50*COMPRIMENTO_CAMPO_TOTAL));
+		DIVISAO_AREAS	=	round((0.50*COMPRIMENTO_CAMPO_TOTAL) - 10); // O valor negativo é um offset para não ficar exatamente no meio.
 		OFFSET_BANHEIRA=	round(0.20*float(width)/1.70);
 		MEIO_GOL_X		=	round(COMPRIMENTO_CAMPO_TOTAL-round(0.05*float(width)/1.70));
 		MEIO_GOL_Y		=	round(LARGURA_CAMPO/2);

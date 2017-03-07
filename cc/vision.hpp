@@ -436,7 +436,7 @@ public:
 
                 o = atan2(sin(robot[l].orientation2-robot[l].orientation+3.1415),
                 cos(robot[l].orientation2-robot[l].orientation+3.1415));
-            cout<<"Robot "<<l<<"  "<<o*180/PI<<"  ";
+            //cout<<"Robot "<<l<<"  "<<o*180/PI<<"  ";
                if(robot[l].pink){
                  robot_list[2].position = robot[l].position; // colocar em um vetor
                  robot_list[2].secundary = robot[l].secundary; // colocar em um vetor
@@ -459,7 +459,7 @@ public:
                 l==3? : l++;
 
             }
-            cout<<endl;
+            //cout<<endl;
           }
           //  cout<<"4"<<endl;
 
