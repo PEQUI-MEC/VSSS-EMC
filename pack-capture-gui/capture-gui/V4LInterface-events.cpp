@@ -757,7 +757,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
     HScale_Amin.set_value(Amin[Img_id]);
     switch(Img_id) {
     case 0:
-        HSV_label.set_text("Primaria");
+        HSV_label.set_text("Main");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
