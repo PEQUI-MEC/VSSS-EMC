@@ -26,7 +26,9 @@ class V4LInterface: public Gtk::VBox {
 
       bool warped = false;
 
-      ImageView iv;
+      ImageView imageView;
+
+      double ballX, ballY;
 
       bool start_game_flag = false;
 
@@ -214,9 +216,10 @@ class V4LInterface: public Gtk::VBox {
         void event_robots_speed_edit_bt_signal_pressed();
         void event_robots_id_done_bt_signal_clicked();
         void event_robots_id_edit_bt_signal_pressed();
-        void event_robots_save_bt_signal_clicked();
-        void event_robots_load_bt_signal_clicked();
 
+        void updateRobotLabels();
+        void init_HSV();
+        bool get_start_game_flag();
 
     public:
 

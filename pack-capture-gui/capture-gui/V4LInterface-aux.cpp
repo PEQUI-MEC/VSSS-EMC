@@ -7,7 +7,10 @@
 
 #include "V4LInterface.hpp"
 
-#include <iostream>
+
+#include <string>       // std::string
+#include <iostream>     // std::cout
+#include <sstream>      // std::stringstream
 
 #define DEFAULT_STR " - "
 
@@ -25,6 +28,11 @@ namespace capture
     } else
     return false;
 
+  }
+
+  bool V4LInterface::get_start_game_flag()
+  {
+    return start_game_flag;
   }
 
   void V4LInterface::HScale_Amin_value_changed() {
@@ -353,7 +361,7 @@ namespace capture
       hbox3->pack_start(bt_HSV_left, false, true, 10);
       bt_HSV_left.set_label(" < ");
       bt_HSV_left.set_alignment(.5, .5);
-      HSV_label.set_text("Principal");
+      HSV_label.set_text("Main");
       //HSV_label.set_alignment(0, .5);
       hbox3->pack_start(HSV_label, false, true, 10);
       hbox3->pack_start(bt_HSV_right, false, true, 10);
@@ -866,6 +874,25 @@ namespace capture
 
               }
 
+              void V4LInterface::updateRobotLabels()
+              {
+                std::stringstream aux1;
+                aux1 << "(" << round((robot_list[0].position.x))<< "," << round((robot_list[0].position.y))<< "," << round(robot_list[0].orientation*(180/PI)) << ")";
+                robot1_pos_lb->set_text(aux1.str());
+
+                std::stringstream aux2;
+                aux2 << "(" << round((robot_list[1].position.x))<< "," << round((robot_list[1].position.y))<< "," << round((robot_list[1].orientation*(180/PI))) << ")";
+                robot2_pos_lb->set_text(aux2.str());
+
+                std::stringstream aux3;
+                aux3 << "(" << round((robot_list[2].position.x))<< "," << round((robot_list[2].position.y)) << "," <<  round((robot_list[2].orientation*(180/PI))) << ")";
+
+                robot3_pos_lb->set_text(aux3.str());
+                std::stringstream aux4;
+                aux4 << "(" << round((ballX))<< "," << round((ballY)) << ")";
+                ball_pos_lb->set_text(aux4.str());
+              }
+
               void V4LInterface::createIDsFrame(){
                 Gtk::Label *label;
                 info_hbox.pack_start(robots_id_fm, false, true, 5);
@@ -944,7 +971,10 @@ namespace capture
                 robots_speed_vbox[1].pack_start(robots_speed_progressBar[0], false, true, 0);
                 robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
-                //robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
+                std::ostringstream strs0;
+                strs0 << robot_list[0].V;
+                std::string str0 = strs0.str();
+                robots_speed_progressBar[0].set_text(str0.substr(0,3));
                 robots_speed_progressBar[0].set_show_text(true);
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
@@ -963,7 +993,10 @@ namespace capture
                 robots_speed_vbox[2].pack_start(robots_speed_progressBar[1], false, true, 0);
                 robots_speed_progressBar[1].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
-                //robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
+                std::ostringstream strs1;
+                strs1 << robot_list[1].V;
+                std::string str1 = strs1.str();
+                robots_speed_progressBar[1].set_text(str1.substr(0,3));
                 robots_speed_progressBar[1].set_show_text(true);
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
@@ -982,7 +1015,10 @@ namespace capture
                 robots_speed_vbox[3].pack_start(robots_speed_progressBar[2], false, true, 0);
                 robots_speed_progressBar[2].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
-                //robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
+                std::ostringstream strs2;
+                strs2 << robot_list[2].V;
+                std::string str2 = strs2.str();
+                robots_speed_progressBar[2].set_text(str2.substr(0,3));
                 robots_speed_progressBar[2].set_show_text(true);
                 robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
@@ -1001,12 +1037,23 @@ namespace capture
               }
 
               void V4LInterface::update_speed_progressBars(){
+                std::ostringstream strs0, strs1, strs2;
+                std::string str0, str1, str2;
+
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V/6);
-                //robots_speed_progressBar[0].set_text(std::to_string(robot_list[0].V).substr(0,3));
+                strs0 << (double) robot_list[0].V;
+                str0 = strs0.str();
+                robots_speed_progressBar[0].set_text(str0.substr(0,4));
+
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V/6);
-                //robots_speed_progressBar[1].set_text(std::to_string(robot_list[1].V).substr(0,3));
+                strs1 << (double) robot_list[1].V;
+                str1 = strs1.str();
+                robots_speed_progressBar[1].set_text(str1.substr(0,4));
+
                 robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V/6);
-                //robots_speed_progressBar[2].set_text(std::to_string(robot_list[2].V).substr(0,3));
+                strs2 << (double) robot_list[2].V;
+                str2 = strs2.str();
+                robots_speed_progressBar[2].set_text(str2.substr(0,4));
               }
 
               void V4LInterface::createFunctionsFrame(){
@@ -1125,6 +1172,21 @@ namespace capture
                 draw_info_checkbox.set_can_focus(false);
               }
 
+              void V4LInterface::init_HSV()
+              {
+                for(int i =0; i<6; i++) {
+                  HScale_Hmin.set_value(-1);
+                  HScale_Hmax.set_value(256);
+                  HScale_Smin.set_value(-1);
+                  HScale_Smax.set_value(256);
+                  HScale_Vmin.set_value(-1);
+                  HScale_Vmax.set_value(256);
+                  HScale_Amin.set_value(500);
+
+                  __event_bt_left_HSV_calib_clicked();
+                }
+              }
+
               // Constructor
 
               V4LInterface::V4LInterface() :
@@ -1156,6 +1218,11 @@ namespace capture
                 bt_save_warp.set_sensitive(false);
                 bt_quick_save.set_sensitive(false);
                 bt_quick_load.set_sensitive(false);
+                bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+                bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+                bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
+                bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
                 m_signal_start.emit(false);
 
 
@@ -1166,10 +1233,7 @@ namespace capture
                 HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-                bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-                bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-                bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
-                bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+
 
                 notebook.set_scrollable(true);
                 adjust_event_flag = false;
@@ -1212,15 +1276,7 @@ namespace capture
                 robot_list[1].role = 1;
                 robot_list[2].role = 2;
 
-                for(int i =0; i<6; i++) {
-                  HScale_Hmin.set_value(-1);
-                  HScale_Hmax.set_value(256);
-                  HScale_Smin.set_value(-1);
-                  HScale_Smax.set_value(256);
-                  HScale_Vmin.set_value(-1);
-                  HScale_Vmax.set_value(256);
-                }
-
+                init_HSV();
 
                 for(int i=0; i<robot_list.size(); i++) {
                   robot_list[i].position = cv::Point(-1,-1);
@@ -1235,7 +1291,6 @@ namespace capture
                 buttons_vbox.pack_start(start_game_hbox, false, true, 5);
                 start_game_hbox.pack_start(start_game_bt, false, true, 5);
                 buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
-                //v.start_game_bt.set_label("BRING IT ON!");
                 start_game_bt.property_always_show_image();
                 start_game_bt.set_size_request(50,100);
                 start_game_bt.set_image(red_button_released);
@@ -1271,8 +1326,8 @@ namespace capture
                 cb_frame_interval_signal = cb_frame_interval.signal_changed().connect(sigc::mem_fun(*this, &V4LInterface::__event_cb_frame_interval_changed));
 
                 draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_draw_info_checkbox_signal_clicked));
-                robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_save_bt_signal_clicked));
-                robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_load_bt_signal_clicked));
+                robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::__event_bt_save_robots_info_clicked));
+                robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::__event_bt_load_robots_info_clicked));
 
               }
             }

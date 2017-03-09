@@ -16,6 +16,7 @@ namespace capture {
 
 	class ImageView: public Gtk::DrawingArea {
 
+
 		virtual bool on_button_press_event(GdkEventButton *event){
 
 		if(warp_event_flag){
@@ -77,6 +78,7 @@ namespace capture {
 		    }
 
 		}else if(PID_test_flag){
+
 			robot_pos[0]=0;
 			robot_pos[1]=0;
 			if (event->button == 1)
@@ -94,16 +96,6 @@ namespace capture {
 			}
 
 
-		}
-
-		if (auto_calib_flag){
-			if (event->button == 1)	{
-				pointClicked = cv::Point((int)event->x,(int)event->y);
-				std::cout<<"("<<(int)event->x<<","<<(int)event->y<<")"<<std::endl;
-				auto_calib_flag = false; // Analisar
-				//return true;
-
-			}
 		}
 
 }

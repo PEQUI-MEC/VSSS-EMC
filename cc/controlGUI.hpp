@@ -33,7 +33,6 @@ public:
 	// Flag para saber se o botão PID está pressionado ou não.
 
 	bool Serial_Enabled;
-	bool PID_bt_event_flag = false;
 	bool PID_test_flag = false;
 	// Containers para o conteúdo da interface gráfica
 	Gtk::Frame Serial_fm;
@@ -54,10 +53,28 @@ public:
 	Gtk::Entry Tbox_V1;
 	Gtk::Entry Tbox_V2;
 
+	Gtk::Frame pid_fm;
+	Gtk::VBox pid_vbox;
+	Gtk::HBox pid_hbox[2];
+	Gtk::Button pid_edit_bt;
+	Gtk::Button pid_done_bt;
+	Gtk::Entry pid_box[3];
+	Glib::ustring pid_tmp[4];
+	Gtk::ComboBoxText cb_pid;
+	bool pid_edit_flag = false;
+
+	bool get_PID_test_flag()
+	{
+		return PID_test_flag;
+	}
+
+	void set_PID_test_flag(bool input)
+	{
+		PID_test_flag = input;
+	}
+
 	ControlGUI()
 	{
-		PID_bt_event_flag=false;
-		PID_bt_event_flag =false;
 		Serial_Enabled=false;
 		// Adicionar o frame do Serial e sua VBOX
 		pack_start(Top_hbox, false, true, 5);
@@ -111,6 +128,8 @@ public:
 		bt_Serial_Refresh.set_label("Refresh");
 
 		bt_Serial_test.set_label("Send");
+
+		//_create_pid_frame();
 
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
@@ -269,6 +288,190 @@ for(int i = 0; i < 256; ++i)
 		cb_test.set_state(Gtk::STATE_INSENSITIVE);
 
 }
+
+void _create_pid_frame(){
+
+		pack_start(pid_fm, false, true, 5);
+		pid_fm.set_label("PID");
+		pid_fm.add(pid_vbox);
+		pid_vbox.pack_start(pid_hbox[0], false, true, 5);
+		pid_vbox.pack_start(pid_hbox[1], false, true, 5);
+
+		pid_hbox[0].pack_start(pid_edit_bt, false, true, 5);
+		pid_hbox[0].pack_end(pid_done_bt, false, true, 5);
+		pid_edit_bt.set_label("Edit");
+		pid_done_bt.set_label("Done");
+
+		cb_pid.append("All Robots");
+		cb_pid.append("Robot A");
+		cb_pid.append("Robot B");
+		cb_pid.append("Robot C");
+		cb_pid.append("Robot D");
+		cb_pid.set_active(0);
+
+		pid_hbox[1].pack_start(cb_pid, false, true, 5);
+		label = new Gtk::Label("P: ");
+		pid_hbox[1].pack_start(*label, false, true, 5);
+		pid_hbox[1].pack_start(pid_box[0], false, true, 5);
+		pid_box[0].set_max_length(5);
+		pid_box[0].set_width_chars(6);
+		pid_box[0].set_text(Glib::ustring::format("0"));
+
+		label = new Gtk::Label("I: ");
+		pid_hbox[1].pack_start(*label, false, true, 5);
+		pid_hbox[1].pack_start(pid_box[1], false, true, 5);
+		pid_box[1].set_max_length(5);
+		pid_box[1].set_width_chars(6);
+		pid_box[1].set_text(Glib::ustring::format("0"));
+
+		label = new Gtk::Label("D: ");
+		pid_hbox[1].pack_start(*label, false, true, 5);
+		pid_hbox[1].pack_start(pid_box[2], false, true, 5);
+		pid_box[2].set_max_length(5);
+		pid_box[2].set_width_chars(6);
+		pid_box[2].set_text(Glib::ustring::format("0"));
+
+		/*pid_box[0].set_state(Gtk::STATE_INSENSITIVE);
+		pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
+		pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
+		pid_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+		pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+		cb_pid.set_state(Gtk::STATE_INSENSITIVE);*/
+
+		pid_edit_bt.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_event_pid_edit_bt_clicked));
+		pid_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_event_pid_done_bt_clicked));
+	}
+
+	void _event_pid_edit_bt_clicked(){
+		if (!pid_edit_flag)
+		{
+			pid_edit_flag = true;
+			pid_edit_bt.set_label("Cancel");
+			pid_box[0].set_state(Gtk::STATE_NORMAL);
+			pid_box[1].set_state(Gtk::STATE_NORMAL);
+			pid_box[2].set_state(Gtk::STATE_NORMAL);
+			pid_done_bt.set_state(Gtk::STATE_NORMAL);
+			cb_pid.set_state(Gtk::STATE_NORMAL);
+			pid_tmp[0] = pid_box[0].get_text();
+			pid_tmp[1] = pid_box[1].get_text();
+			pid_tmp[2] = pid_box[2].get_text();
+
+		}
+		else
+		{
+			pid_edit_flag = false;
+			pid_edit_bt.set_label("Edit");
+			pid_box[0].set_state(Gtk::STATE_INSENSITIVE);
+			pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
+			pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
+			pid_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+			cb_pid.set_state(Gtk::STATE_INSENSITIVE);
+			pid_box[0].set_text(pid_tmp[0]);
+			pid_box[1].set_text(pid_tmp[1]);
+			pid_box[2].set_text(pid_tmp[2]);
+		}
+	}
+
+	void _event_pid_done_bt_clicked()
+	{
+		std::string cmd;
+		switch (cb_pid.get_active_row_number())
+		{
+			case 0:
+			cmd.append("AK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+
+			cmd.append("BK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+
+			cmd.append("CK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+
+			cmd.append("DK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+			s.sendSerial(cmd);
+			break;
+
+			case 1:
+			cmd.append("AK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+			s.sendSerial(cmd);
+			break;
+
+			case 2:
+			cmd.append("BK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+			s.sendSerial(cmd);
+			break;
+
+			case 3:
+			cmd.append("CK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+			s.sendSerial(cmd);
+			break;
+
+			case 4:
+			cmd.append("DK");
+			cmd.append(pid_box[0].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[1].get_text());
+			cmd.append(";");
+			cmd.append(pid_box[2].get_text());
+			cmd.append("#");
+			s.sendSerial(cmd);
+			break;
+
+			default:
+			std::cout << "SET PID ERROR: Could not set PID." << std::endl;
+			break;
+		}
+
+		std::cout << "Set PID - cmd: " << cmd << std::endl;
+
+		pid_edit_flag = false;
+		pid_edit_bt.set_label("Edit");
+		pid_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+		pid_box[0].set_state(Gtk::STATE_INSENSITIVE);
+		pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
+		pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
+		cb_pid.set_state(Gtk::STATE_INSENSITIVE);
+
+	}
 
 };
 

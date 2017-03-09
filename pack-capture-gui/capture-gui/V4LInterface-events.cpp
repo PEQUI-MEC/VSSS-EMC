@@ -9,6 +9,7 @@
 #include "../../cc/filechooser.hpp"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #define DEFAULT_STR " - "
 
@@ -131,11 +132,16 @@ void V4LInterface::__event_bt_load_robots_info_clicked()
           }
 
           getline(txtFile, linha);
-          robots_speed_hscale[i].set_value(atof(linha.c_str()));
-          robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
+          double value = atof(linha.c_str());
+          std::cout << "ATOF " << atof(linha.c_str()) << std::endl;
+          robots_speed_hscale[i].set_value(value);
+          robot_list[i].vmax = (float) value;
 
-          robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
-          //robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
+          robots_speed_progressBar[i].set_fraction(robots_speed_hscale[i].get_value()/6);
+          std::ostringstream strs;
+          strs << robots_speed_hscale[i].get_value();
+          std::string str = strs.str();
+          robots_speed_progressBar[i].set_text(str.substr(0,4));
 
 
       }
@@ -331,14 +337,14 @@ void V4LInterface::__event_bt_start_clicked() {
 
 void V4LInterface::__event_bt_warp_clicked() {
     std::cout<<"Warp drive engaged"<<std::endl;
-    if (!iv.warp_event_flag) {
-        iv.warp_event_flag=true;
+    if (!imageView.warp_event_flag) {
+        imageView.warp_event_flag=true;
         bt_reset_warp.set_sensitive(true);
         bt_load_warp.set_sensitive(true);
         bt_save_warp.set_sensitive(true);
         //bt_invert_image.set_sensitive(true);
     } else {
-        iv.warp_event_flag=false;
+        imageView.warp_event_flag=false;
         bt_reset_warp.set_sensitive(false);
         bt_load_warp.set_sensitive(false);
         bt_save_warp.set_sensitive(false);
@@ -381,15 +387,15 @@ void V4LInterface::__event_bt_save_warp_clicked() {
     }
 
 
-    txtFile << iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
-    txtFile << iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
-    txtFile << iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
-    txtFile << iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+    txtFile << imageView.warp_mat[0][0] <<std::endl<<imageView.warp_mat[0][1] <<std::endl;
+    txtFile << imageView.warp_mat[1][0] <<std::endl<<imageView.warp_mat[1][1] <<std::endl;
+    txtFile << imageView.warp_mat[2][0] <<std::endl<<imageView.warp_mat[2][1] <<std::endl;
+    txtFile << imageView.warp_mat[3][0] <<std::endl<<imageView.warp_mat[3][1] <<std::endl;
     txtFile << offsetL <<std::endl<<offsetR <<std::endl;
-    txtFile << iv.adjust_mat[0][0] <<std::endl<<iv.adjust_mat[0][1] <<std::endl;
-    txtFile << iv.adjust_mat[1][0] <<std::endl<<iv.adjust_mat[1][1] <<std::endl;
-    txtFile << iv.adjust_mat[2][0] <<std::endl<<iv.adjust_mat[2][1] <<std::endl;
-    txtFile << iv.adjust_mat[3][0] <<std::endl<<iv.adjust_mat[3][1] <<std::endl;
+    txtFile << imageView.adjust_mat[0][0] <<std::endl<<imageView.adjust_mat[0][1] <<std::endl;
+    txtFile << imageView.adjust_mat[1][0] <<std::endl<<imageView.adjust_mat[1][1] <<std::endl;
+    txtFile << imageView.adjust_mat[2][0] <<std::endl<<imageView.adjust_mat[2][1] <<std::endl;
+    txtFile << imageView.adjust_mat[3][0] <<std::endl<<imageView.adjust_mat[3][1] <<std::endl;
     txtFile.close();
 }
 
@@ -418,68 +424,68 @@ void V4LInterface::__event_bt_load_warp_clicked() {
       std::string linha;
 
       getline(txtFile, linha);
-      iv.warp_mat[0][0] = atoi(linha.c_str());
+      imageView.warp_mat[0][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.warp_mat[0][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+      imageView.warp_mat[0][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[0][0] <<std::endl<<imageView.warp_mat[0][1] <<std::endl;
 
       getline(txtFile, linha);
-      iv.warp_mat[1][0] = atoi(linha.c_str());
+      imageView.warp_mat[1][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.warp_mat[1][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+      imageView.warp_mat[1][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[1][0] <<std::endl<<imageView.warp_mat[1][1] <<std::endl;
 
       getline(txtFile, linha);
-      iv.warp_mat[2][0] = atoi(linha.c_str());
+      imageView.warp_mat[2][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.warp_mat[2][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+      imageView.warp_mat[2][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[2][0] <<std::endl<<imageView.warp_mat[2][1] <<std::endl;
 
       getline(txtFile, linha);
-      iv.warp_mat[3][0] = atoi(linha.c_str());
+      imageView.warp_mat[3][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.warp_mat[3][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+      imageView.warp_mat[3][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[3][0] <<std::endl<<imageView.warp_mat[3][1] <<std::endl;
       getline(txtFile, linha);
       offsetL = atoi(linha.c_str());
       getline(txtFile, linha);
       offsetR = atoi(linha.c_str());
 
       getline(txtFile, linha);
-      iv.adjust_mat[0][0] = atoi(linha.c_str());
+      imageView.adjust_mat[0][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.adjust_mat[0][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[0][0] <<std::endl<<iv.warp_mat[0][1] <<std::endl;
+      imageView.adjust_mat[0][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[0][0] <<std::endl<<imageView.warp_mat[0][1] <<std::endl;
 
       getline(txtFile, linha);
-      iv.adjust_mat[1][0] = atoi(linha.c_str());
+      imageView.adjust_mat[1][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.adjust_mat[1][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[1][0] <<std::endl<<iv.warp_mat[1][1] <<std::endl;
+      imageView.adjust_mat[1][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[1][0] <<std::endl<<imageView.warp_mat[1][1] <<std::endl;
 
       getline(txtFile, linha);
-      iv.adjust_mat[2][0] = atoi(linha.c_str());
+      imageView.adjust_mat[2][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.adjust_mat[2][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[2][0] <<std::endl<<iv.warp_mat[2][1] <<std::endl;
+      imageView.adjust_mat[2][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[2][0] <<std::endl<<imageView.warp_mat[2][1] <<std::endl;
 
       getline(txtFile, linha);
-      iv.adjust_mat[3][0] = atoi(linha.c_str());
+      imageView.adjust_mat[3][0] = atoi(linha.c_str());
       getline(txtFile, linha);
-      iv.adjust_mat[3][1] = atoi(linha.c_str());
-      //std::cout<< iv.warp_mat[3][0] <<std::endl<<iv.warp_mat[3][1] <<std::endl;
+      imageView.adjust_mat[3][1] = atoi(linha.c_str());
+      //std::cout<< imageView.warp_mat[3][0] <<std::endl<<imageView.warp_mat[3][1] <<std::endl;
 
       txtFile.close();
 
       bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
 
       warped=true;
-      iv.adjust_rdy = true;
+      imageView.adjust_rdy = true;
       HScale_offsetL.set_value(offsetL);
       HScale_offsetR.set_value(offsetR);
 
 
-    iv.warp_event_flag =false;
+    imageView.warp_event_flag =false;
 }
 
 void V4LInterface::__event_bt_reset_warp_clicked() {
@@ -489,7 +495,7 @@ void V4LInterface::__event_bt_reset_warp_clicked() {
     bt_adjust.set_active(false);
     bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
     adjust_event_flag = false;
-    iv.adjust_rdy=false;
+    imageView.adjust_rdy=false;
     offsetL = 0;
     offsetR = 0;
     HScale_offsetL.set_value(0);
@@ -500,12 +506,12 @@ void V4LInterface::__event_bt_invert_image_signal_clicked() {
     if (!invert_image_flag)
     {
         invert_image_flag = true;
-        std::cout << "image >>>>>>>INVERTED<<<<<<<" << std::endl;
+        std::cout << "imageView >>>>>>>INVERTED<<<<<<<" << std::endl;
     }
     else
     {
         invert_image_flag = false;
-        std::cout << "image >>>>>>>NORMAL<<<<<<<" << std::endl;
+        std::cout << "imageView >>>>>>>NORMAL<<<<<<<" << std::endl;
     }
 }
 
@@ -676,7 +682,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
     HScale_Amin.set_value(Amin[Img_id]);
     switch(Img_id) {
     case 0:
-        HSV_label.set_text("Primaria");
+        HSV_label.set_text("Main");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -687,7 +693,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 1:
-        HSV_label.set_text("Secundaria 1");
+        HSV_label.set_text("Secondary 1");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -698,7 +704,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 2:
-        HSV_label.set_text("Secundaria 2");
+        HSV_label.set_text("Secondary 2");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -709,7 +715,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 3:
-        HSV_label.set_text("Secundaria 3");
+        HSV_label.set_text("Secondary 3");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -720,7 +726,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 4:
-        HSV_label.set_text("Bola");
+        HSV_label.set_text("Ball");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -731,7 +737,7 @@ void V4LInterface::__event_bt_right_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 5:
-        HSV_label.set_text("Adversario");
+        HSV_label.set_text("Opponent");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -751,7 +757,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
     HScale_Amin.set_value(Amin[Img_id]);
     switch(Img_id) {
     case 0:
-        HSV_label.set_text("Primaria");
+        HSV_label.set_text("Main");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -762,7 +768,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 1:
-        HSV_label.set_text("Secundaria 1");
+        HSV_label.set_text("Secondary 1");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -773,7 +779,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 2:
-        HSV_label.set_text("Secundaria 2");
+        HSV_label.set_text("Secondary 2");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -784,7 +790,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 3:
-        HSV_label.set_text("Secundaria 3");
+        HSV_label.set_text("Secondary 3");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -795,7 +801,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 4:
-        HSV_label.set_text("Bola");
+        HSV_label.set_text("Ball");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -806,7 +812,7 @@ void V4LInterface::__event_bt_left_HSV_calib_clicked() {
         HScale_Vmax.set_value(V[Img_id][1]);
         break;
     case 5:
-        HSV_label.set_text("Adversario");
+        HSV_label.set_text("Opponent");
         HScale_Hmin.set_value(H[Img_id][0]);
         HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -1202,103 +1208,6 @@ void V4LInterface::event_draw_info_checkbox_signal_clicked(){
         }
 
 
-        void V4LInterface::event_robots_save_bt_signal_clicked(){
-            std::ofstream txtFile;
-
-
-            if (quick_save_flag)
-            {
-                txtFile.open("INFO_quicksave.txt");
-            }
-            else
-            {
-                std::cout<<"saving robots info"<<std::endl;
-                FileChooser loadWindow;
-
-                if (loadWindow.result == Gtk::RESPONSE_OK)
-                    txtFile.open(loadWindow.filename.c_str());
-                else
-                    return;
-            }
-
-
-            for (int i = 0; i < 3; i++) {
-                txtFile << robots_id_box[i].get_text() <<std::endl;
-                txtFile << cb_robot_function[i].get_active_row_number() <<std::endl;
-                txtFile << robots_speed_hscale[i].get_value() <<std::endl;
-            }
-            txtFile.close();
-
-        }
-
-        void V4LInterface::event_robots_load_bt_signal_clicked(){
-            std::ifstream txtFile;
-            if (quick_load_flag)
-            {
-                txtFile.open("INFO_quicksave.txt");
-            }
-            else
-            {
-                std::cout<<"loading robots info"<<std::endl;
-                FileChooser loadWindow;
-
-
-                if (loadWindow.result == Gtk::RESPONSE_OK)
-                    txtFile.open(loadWindow.filename.c_str());
-                else
-                    return;
-            }
-
-            std::string linha;
-
-
-            for (int i = 0; i < 3; i++) {
-                getline(txtFile, linha);
-                robots_id_box[i].set_text(linha.c_str());
-                robot_list[i].ID = linha.c_str()[0];
-
-                getline(txtFile, linha);
-                cb_robot_function[i].set_active(atoi(linha.c_str()));
-                if (cb_robot_function[i].get_active_row_number() == 0)
-                {
-                    std::cout << "Robot " << i+1 << ": Goalkeeper." << std::endl;
-                    robot_list[i].role = 0;
-                }
-                else if (cb_robot_function[i].get_active_row_number() == 1)
-                {
-                    std::cout << "Robot " << i+1 << ": Defense." << std::endl;
-                    robot_list[i].role = 1;
-                }
-                else if (cb_robot_function[i].get_active_row_number() == 2)
-                {
-                    std::cout << "Robot " << i+1 << ": Attack." << std::endl;
-                    robot_list[i].role = 2;
-                }
-                 else if (cb_robot_function[i].get_active_row_number() == 3)
-                {
-                    std::cout << "Robot " << i+1 << ": Opponent." << std::endl;
-                    robot_list[i].role = 3;
-                }
-                else
-                {
-                    std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
-                }
-
-                getline(txtFile, linha);
-                robots_speed_hscale[i].set_value(atof(linha.c_str()));
-                robot_list[i].vmax = (float) robots_speed_hscale[i].get_value();
-
-
-
-                robots_speed_progressBar[i].set_fraction( robots_speed_hscale[i].get_value()/6);
-                //robots_speed_progressBar[i].set_text(std::to_string(robots_speed_hscale[i].get_value()).substr(0,3));
-
-
-            }
-            txtFile.close();
-
-
-        }
 
 
 
