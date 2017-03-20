@@ -63,6 +63,7 @@ class CamCap:
 
         void updateAllPositions()
         {
+          //std::cout << 5.1 << std::endl;
           Robot robot;
           cv::Point ballPosition;
           //  cout<<"AQUI"<<endl;
@@ -70,7 +71,7 @@ class CamCap:
           //vision->robot_creation();
           vision->robot_creation_uni_duni_tag();
         //    cout<<"AQUI"<<endl;
-
+        //std::cout << 5.2 << std::endl;
           for (int i = 0; i < vision->get_robot_list_size(); i++)
           {
             robot = vision->get_robot_from_list(i);
@@ -78,6 +79,7 @@ class CamCap:
             interface.robot_list[i].orientation = robot.orientation;
             interface.robot_list[i].secundary = robot.secundary;
           }
+          //std::cout << 5.3 << std::endl;
 
           ballPosition = vision->get_ball_position();
           interface.ballX = ballPosition.x;
@@ -86,8 +88,9 @@ class CamCap:
           interface.robot_list[0].feedHist(interface.robot_list[0].position);
           interface.robot_list[1].feedHist(interface.robot_list[1].position);
           interface.robot_list[2].feedHist(interface.robot_list[2].position);
-
+          //std::cout << 5.4 << std::endl;
           interface.updateRobotLabels();
+          //std::cout << 5.5 << std::endl;
         }
 
         bool start_signal(bool b) {
@@ -157,7 +160,7 @@ class CamCap:
 
 
 
-
+            //std::cout << 1 << std::endl;
 
             //timer.start();
             interface.vcap.grab_rgb(data);
@@ -173,7 +176,7 @@ class CamCap:
 
 
             cv::Mat imageView(h,w,CV_8UC3,d);
-
+            //std::cout << 2 << std::endl;
             if(interface.imageView.hold_warp) {
                 interface.warped = true;
                 interface.bt_adjust.set_state(Gtk::STATE_NORMAL);
@@ -198,20 +201,20 @@ class CamCap:
                 }
 
             }
-
+            //std::cout << 3 << std::endl;
             vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
             //TRACKING CAMERA
 
-
+            //std::cout << 4 << std::endl;
             vision->parallel_tracking(imageView);
 
 
-
+            //std::cout << 5 << std::endl;
             if(!interface.HSV_calib_event_flag) {
               updateAllPositions();
-
+              //std::cout << 6 << std::endl;
                 drawStrategyConstants(imageView, w, h);
-
+              //  std::cout << 7 << std::endl;
                 if (!interface.draw_info_flag)
                 {
                     circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
@@ -235,10 +238,10 @@ class CamCap:
                     for(int i=0; i<vision->Adv_Main.size(); i++)
                         circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
                 }
-
+                //std::cout << 8 << std::endl;
 
             }
-
+            //std::cout << 9 << std::endl;
             if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
             {
               control.button_PID_Test.set_active(true);
@@ -251,21 +254,21 @@ class CamCap:
                 }
                 Selec_index=-1;
             }
-
+            //std::cout << 10 << std::endl;
             if (interface.imageView.PID_test_flag && interface.get_start_game_flag())
               control.button_PID_Test.set_active(false);
 
-
+              //std::cout << 11 << std::endl;
             if(Selec_index!=-1) {
                 circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
             }
-
+            //std::cout << 12 << std::endl;
             for(int i=0; i<interface.robot_list.size(); i++) {
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
                     line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
                    circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
             }
-
+          //  std::cout << 13 << std::endl;
             // ----------- ESTRATEGIA -----------------//
 		       	strategyGUI.strategy.set_Ball(vision->get_ball_position());
 
@@ -328,11 +331,12 @@ class CamCap:
             		//timer.stop();
             		//cout<<"Time: "<<timer.getCPUTotalSecs()<<"	FPS: "<<1/timer.getCPUTotalSecs()<<endl;
             		//timer.reset();
-
+                //std::cout << 14 << std::endl;
             if(interface.HSV_calib_event_flag) {
                 for(int i=0; i<3*(width*height + width) +2; i++)
                     d[i]=vision->threshold[interface.Img_id][i];
             }
+          //  std::cout << 15 << std::endl;
             return true;
         }
 

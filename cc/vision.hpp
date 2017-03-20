@@ -358,7 +358,7 @@ public:
     void robot_creation_uni_duni_tag() {
           vector <Robot> robot;
             Robot r;
-
+          //  std::cout << "5.1.1" << std::endl;
             double omax = -99999; // angulo maximo
             double omin = 99999; // angulo minimo
           //  cout<<"1"<<endl;
@@ -372,12 +372,13 @@ public:
             float distance = 0;
         //  cout<<"2"<<endl;
         double o = 0;
+          //std::cout << "5.1.2" << std::endl;
             for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
                 robot.push_back(r);
                 distanceRef1 = 999999999.0;
                 distanceRef2 = 999999999.0;
 
-
+              //  std::cout << "5.1.3" << std::endl;
                 for(int i = 0; i < 2; i++) {
                     for(int k = 0; k < Team_Sec[i].size(); k++) {
 
@@ -402,22 +403,37 @@ public:
                     }
 
                 }
+                //std::cout << "5.1.4" << std::endl;
               //  cout<<"3"<<endl;
                 robot[l].position = Team_Main[j];
               //  cout<<"3.1"<<endl;
               //cout<<"index1[0]: "<<index1[0] <<" index1[1]: "<<index1[1] <<" index2[0]: "<<index2[0] <<" index2[1]: "<<index2[1] <<endl;
               //cout<<Team_Sec_area[0].size()<<Team_Sec_area[1].size()<<Team_Sec_area[2].size()<<endl;
+            //  std::cout << "5.1.5" << std::endl;
+              if (Team_Sec_area[index1[0]].size() > index1[1] && Team_Sec_area[index2[0]].size() > index2[1])
+              {
                 if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
+                //  std::cout << "5.1.5.1" << std::endl;
                     robot[l].secundary = Team_Sec[index1[0]][index1[1]];
                     robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
+                  //  std::cout << "5.1.5.2" << std::endl;
 
                 //  cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
                 } else {
+                //  std::cout << "5.1.5.3" << std::endl;
                     robot[l].secundary = Team_Sec[index2[0]][index2[1]];
                     robot[l].ternary = Team_Sec[index1[0]][index1[1]];
+                    //std::cout << "5.1.5.3" << std::endl;
                 //    cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
                 }
+              }
+              else
+              {
+                // ainda não foi calibrado, não precisa achar os robôs.
+                return;
+              }
 
+                //std::cout << "5.1.6" << std::endl;
             //   cout<<"3.2"<<endl;
 
 
@@ -430,13 +446,14 @@ public:
                 tx = robot[l].ternary.x;
                 ty =  robot[l].ternary.y;
 
-
+                //std::cout << "5.1.7" << std::endl;
                 robot[l].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
                 robot[l].orientation2 = atan2((ty-py)*1.3/480,(tx-px)*1.5/640);
 
                 o = atan2(sin(robot[l].orientation2-robot[l].orientation+3.1415),
                 cos(robot[l].orientation2-robot[l].orientation+3.1415));
             //cout<<"Robot "<<l<<"  "<<o*180/PI<<"  ";
+              //std::cout << "5.1.8" << std::endl;
                if(robot[l].pink){
                  robot_list[2].position = robot[l].position; // colocar em um vetor
                  robot_list[2].secundary = robot[l].secundary; // colocar em um vetor
@@ -460,6 +477,7 @@ public:
 
             }
             //cout<<endl;
+            //std::cout << "5.1.9" << std::endl;
           }
           //  cout<<"4"<<endl;
 

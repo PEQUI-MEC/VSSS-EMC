@@ -33,11 +33,17 @@ void V4LInterface::__event_bt_quick_load_clicked()
 {
     std::cout << "QUICK LOAD" << std::endl;
     quick_load_flag = true;
+    //std::cout << "Robots Info" << std::endl;
     __event_bt_load_robots_info_clicked();
+    //std::cout << "Cam Properties" << std::endl;
     __event_bt_load_cam_prop_clicked();
+    //std::cout << "HSV" << std::endl;
     __event_bt_load_HSV_calib_clicked();
+    //std::cout << "Clicking WARP" << std::endl;
     __event_bt_warp_clicked();
+    //std::cout << "Load Warp" << std::endl;
     __event_bt_load_warp_clicked();
+    //std::cout << "END OF QUICKLOAD" << std::endl;
     quick_load_flag = false;
 
 }
@@ -585,7 +591,6 @@ void V4LInterface::__event_bt_save_HSV_calib_clicked() {
           txtFile <<S[i][0]<<std::endl<<S[i][1]<<std::endl;
           txtFile <<V[i][0]<<std::endl<<V[i][1]<<std::endl;
           txtFile <<Amin[i]<<std::endl;
-
       }
 
       txtFile.close();
@@ -627,16 +632,20 @@ void V4LInterface::__event_bt_load_HSV_calib_clicked() {
           H[i][0]=atoi(linha.c_str());
           getline(txtFile, linha);
           H[i][1]=atoi(linha.c_str());
+          //std::cout << "Hmin = " << H[i][0] << std::endl << "Hmax = " << H[i][1] << std::endl;
           getline(txtFile, linha);
           S[i][0]=atoi(linha.c_str());
           getline(txtFile, linha);
           S[i][1]=atoi(linha.c_str());
+          //std::cout << "Smin = " << S[i][0] << std::endl << "Smax = " << S[i][1] << std::endl;
           getline(txtFile, linha);
           V[i][0]=atoi(linha.c_str());
           getline(txtFile, linha);
           V[i][1]=atoi(linha.c_str());
+          //std::cout << "Vmin = " << V[i][0] << std::endl << "Vmax = " << V[i][1] << std::endl;
           getline(txtFile, linha);
           Amin[i]=atoi(linha.c_str());
+          //std::cout << "Amin = " << Amin[i] << std::endl;
       }
 
       txtFile.close();
