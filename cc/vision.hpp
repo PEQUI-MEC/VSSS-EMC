@@ -12,12 +12,16 @@
 #include <boost/bind.hpp>
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
 #include <iostream>     // std::cout
+#include "Kalman_Filter.hpp"
 
 boost::thread_group threshold_threads;
 
 class Vision
 {
 public:
+
+      vector< KalmanFilter > KF_Robot;
+      KalmanFilter KF_Ball;
   // Team_Main[INDEX] - Vector de cv::Point
   //   GUARDA A POSIÇÃO DAS TAGS PRIMÁRIAS DO TIME(.x e .y acessam a posição)
   vector< cv::Point > Team_Main;
@@ -54,7 +58,7 @@ public:
   {
     Robot r;
     if (index < robot_list.size() && index >= 0)
-      return robot_list[index];
+    return robot_list[index];
     else
     {
       std::cout << "COULD NOT GET ROBOT "<<index<<" FROM LIST (VISION). QUER ME FUDER??!" << std::endl;
@@ -72,7 +76,7 @@ public:
     for (int i = 0; i < 6; i++)
     {
       areaMin[i] = Amin[i];
-    //  cout<<"area "<<areaMin[i]<<endl;
+      //  cout<<"area "<<areaMin[i]<<endl;
       for (int j = 0; j < 2; j++)
       {
         hue[i][j] = H[i][j];
@@ -96,6 +100,10 @@ public:
 
     threshold_threads.join_all();
     image_copy.release();
+
+
+
+
   }
 
   void img_tracking(cv::Mat image,int color_id) {
@@ -249,237 +257,241 @@ public:
   }
 
   void robot_creation_unitag() {
-        vector <Robot> robot;
-          Robot r;
-          double omax = -99999; // angulo maximo
-          double omin = 99999; // angulo minimo
-        //  cout<<"1"<<endl;
-          cv::Point secundary;
-          int index1[2] = {0,0}; // index do robo com img_tracking
-          int index2[2] = {0,0}; // index do robo com img_tracking (usado para trocar o index)
-          float sx,sy,px,py,tx,ty; // posilções x e y das tags primária, secundária e ternária
-          int l=0; // índice do robo
-          float distanceRef1 = 999999999.0;
-          float distanceRef2 = 999999999.0;
-          float distance = 0;
-      //  cout<<"2"<<endl;
-          for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
-              robot.push_back(r);
-              distanceRef1 = 999999999.0;
-              distanceRef2 = 999999999.0;
+    vector <Robot> robot;
+    Robot r;
+    double omax = -99999; // angulo maximo
+    double omin = 99999; // angulo minimo
+    //  cout<<"1"<<endl;
+    cv::Point secundary;
+    int index1[2] = {0,0}; // index do robo com img_tracking
+    int index2[2] = {0,0}; // index do robo com img_tracking (usado para trocar o index)
+    float sx,sy,px,py,tx,ty; // posilções x e y das tags primária, secundária e ternária
+    int l=0; // índice do robo
+    float distanceRef1 = 999999999.0;
+    float distanceRef2 = 999999999.0;
+    float distance = 0;
+    //  cout<<"2"<<endl;
+    for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
+      robot.push_back(r);
+      distanceRef1 = 999999999.0;
+      distanceRef2 = 999999999.0;
 
 
-              for(int i = 0; i < 2; i++) {
-                  for(int k = 0; k < Team_Sec[i].size(); k++) {
+      for(int i = 0; i < 2; i++) {
+        for(int k = 0; k < Team_Sec[i].size(); k++) {
 
-                      distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
+          distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
 
-                      if(distance <= distanceRef1) {
-                          distanceRef2 = distanceRef1;
-                          index2[0] = index1[0];
-                          index2[1] = index1[1];
+          if(distance <= distanceRef1) {
+            distanceRef2 = distanceRef1;
+            index2[0] = index1[0];
+            index2[1] = index1[1];
 
-                          distanceRef1 = distance;
-                          index1[0] = i;
-                          index1[1] = k;
+            distanceRef1 = distance;
+            index1[0] = i;
+            index1[1] = k;
 
-                      } else if(distance < distanceRef2) {
-                          distanceRef2 = distance;
-                          index2[0] = i;
-                          index2[1] = k;
-                      }
-                  }
-              }
-            //  cout<<"3"<<endl;
-              robot[l].position = Team_Main[j];
-            //  cout<<"3.1"<<endl;
-            //cout<<"index1[0]: "<<index1[0] <<" index1[1]: "<<index1[1] <<" index2[0]: "<<index2[0] <<" index2[1]: "<<index2[1] <<endl;
-            //cout<<Team_Sec_area[0].size()<<Team_Sec_area[1].size()<<Team_Sec_area[2].size()<<endl;
-              if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
-                  robot[l].secundary = Team_Sec[index1[0]][index1[1]];
-                  robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
-
-              //  cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
-              } else {
-                  robot[l].secundary = Team_Sec[index2[0]][index2[1]];
-                  robot[l].ternary = Team_Sec[index1[0]][index1[1]];
-              //    cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
-              }
-
-          //   cout<<"3.2"<<endl;
-
-
-              sx = robot[l].secundary.x;
-              sy =  robot[l].secundary.y;
-
-              px = robot[l].position.x;
-              py = robot[l].position.y;
-
-              tx = robot[l].ternary.x;
-              ty =  robot[l].ternary.y;
-
-
-              robot[l].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
-              robot[l].orientation2 = atan2((ty-py)*1.3/480,(tx-px)*1.5/640);
-              l==3? : l++;
-
+          } else if(distance < distanceRef2) {
+            distanceRef2 = distance;
+            index2[0] = i;
+            index2[1] = k;
           }
-        //  cout<<"4"<<endl;
-          double o = 0;
+        }
+      }
+      //  cout<<"3"<<endl;
+      robot[l].position = Team_Main[j];
+      //  cout<<"3.1"<<endl;
+      //cout<<"index1[0]: "<<index1[0] <<" index1[1]: "<<index1[1] <<" index2[0]: "<<index2[0] <<" index2[1]: "<<index2[1] <<endl;
+      //cout<<Team_Sec_area[0].size()<<Team_Sec_area[1].size()<<Team_Sec_area[2].size()<<endl;
+      if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
+        robot[l].secundary = Team_Sec[index1[0]][index1[1]];
+        robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
 
-          for(int i=0; i<l; i++) {
-                o = atan2(sin(robot[i].orientation2-robot[i].orientation+3.1415),cos(robot[i].orientation2-robot[i].orientation+3.1415));
-               // cout<<o*180/PI<<" ";
-                if(o>=35*PI/180) {
+        //  cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
+      } else {
+        robot[l].secundary = Team_Sec[index2[0]][index2[1]];
+        robot[l].ternary = Team_Sec[index1[0]][index1[1]];
+        //    cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
+      }
 
-                    robot_list[0].position = robot[i].position; // colocar em um vetor
-                    robot_list[0].secundary = robot[i].secundary; // colocar em um vetor
-                    robot_list[0].orientation =  robot[i].orientation;
+      //   cout<<"3.2"<<endl;
 
-                }else if(o<=-35*PI/180) {
 
-                    robot_list[1].position = robot[i].position; // colocar em um vetor
-                    robot_list[1].secundary = robot[i].secundary; // colocar em um vetor
-                    robot_list[1].orientation =  robot[i].orientation;
+      sx = robot[l].secundary.x;
+      sy =  robot[l].secundary.y;
 
-                }
-              //  if((o<30*PI/180)&&(o>-30*PI/180)) {
-              else{
-                    robot_list[2].position = robot[i].position; // colocar em um vetor
-                    robot_list[2].secundary = robot[i].secundary; // colocar em um vetor
-                    robot_list[2].orientation =  robot[i].orientation;
+      px = robot[l].position.x;
+      py = robot[l].position.y;
 
-                }
-            }
+      tx = robot[l].ternary.x;
+      ty =  robot[l].ternary.y;
+
+
+      robot[l].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
+      robot[l].orientation2 = atan2((ty-py)*1.3/480,(tx-px)*1.5/640);
+      l==3? : l++;
+
+    }
+    //  cout<<"4"<<endl;
+    double o = 0;
+
+    for(int i=0; i<l; i++) {
+      o = atan2(sin(robot[i].orientation2-robot[i].orientation+3.1415),cos(robot[i].orientation2-robot[i].orientation+3.1415));
+      // cout<<o*180/PI<<" ";
+      if(o>=35*PI/180) {
+
+        robot_list[0].position = robot[i].position; // colocar em um vetor
+        robot_list[0].secundary = robot[i].secundary; // colocar em um vetor
+        robot_list[0].orientation =  robot[i].orientation;
+
+      }else if(o<=-35*PI/180) {
+
+        robot_list[1].position = robot[i].position; // colocar em um vetor
+        robot_list[1].secundary = robot[i].secundary; // colocar em um vetor
+        robot_list[1].orientation =  robot[i].orientation;
+
+      }
+      //  if((o<30*PI/180)&&(o>-30*PI/180)) {
+      else{
+        robot_list[2].position = robot[i].position; // colocar em um vetor
+        robot_list[2].secundary = robot[i].secundary; // colocar em um vetor
+        robot_list[2].orientation =  robot[i].orientation;
+
+      }
+    }
 
   }
 
 
-    void robot_creation_uni_duni_tag() {
-          vector <Robot> robot;
-            Robot r;
-          //  std::cout << "5.1.1" << std::endl;
-            double omax = -99999; // angulo maximo
-            double omin = 99999; // angulo minimo
-          //  cout<<"1"<<endl;
-            cv::Point secundary;
-            int index1[2] = {0,0}; // index do robo com img_tracking
-            int index2[2] = {0,0}; // index do robo com img_tracking (usado para trocar o index)
-            float sx,sy,px,py,tx,ty; // posilções x e y das tags primária, secundária e ternária
-            int l=0; // índice do robo
-            float distanceRef1 = 999999999.0;
-            float distanceRef2 = 999999999.0;
-            float distance = 0;
-        //  cout<<"2"<<endl;
-        double o = 0;
-          //std::cout << "5.1.2" << std::endl;
-            for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
-                robot.push_back(r);
-                distanceRef1 = 999999999.0;
-                distanceRef2 = 999999999.0;
+  void robot_creation_uni_duni_tag() {
+    vector <Robot> robot;
+    Robot r;
+    //  std::cout << "5.1.1" << std::endl;
+    double omax = -99999; // angulo maximo
+    double omin = 99999; // angulo minimo
+    //  cout<<"1"<<endl;
+    cv::Point secundary;
+    int index1[2] = {0,0}; // index do robo com img_tracking
+    int index2[2] = {0,0}; // index do robo com img_tracking (usado para trocar o index)
+    float sx,sy,px,py,tx,ty; // posilções x e y das tags primária, secundária e ternária
+    int l=0; // índice do robo
+    float distanceRef1 = 999999999.0;
+    float distanceRef2 = 999999999.0;
+    float distance = 0;
+    //  cout<<"2"<<endl;
+    double o = 0;
+    //std::cout << "5.1.2" << std::endl;
+    for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
+      robot.push_back(r);
+      distanceRef1 = 999999999.0;
+      distanceRef2 = 999999999.0;
 
-              //  std::cout << "5.1.3" << std::endl;
-                for(int i = 0; i < 2; i++) {
-                    for(int k = 0; k < Team_Sec[i].size(); k++) {
+      //  std::cout << "5.1.3" << std::endl;
+      for(int i = 0; i < 2; i++) {
+        for(int k = 0; k < Team_Sec[i].size(); k++) {
 
-                        distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
+          distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
 
-                        if(distance <= distanceRef1) {
-                            distanceRef2 = distanceRef1;
-                            index2[0] = index1[0];
-                            index2[1] = index1[1];
+          if(distance <= distanceRef1) {
+            distanceRef2 = distanceRef1;
+            index2[0] = index1[0];
+            index2[1] = index1[1];
 
-                            distanceRef1 = distance;
-                            index1[0] = i;
-                            index1[1] = k;
-                            if(i==1)
-                            robot[l].pink=true;
+            distanceRef1 = distance;
+            index1[0] = i;
+            index1[1] = k;
+            if(i==1)
+            robot[l].pink=true;
 
-                        } else if(distance < distanceRef2) {
-                            distanceRef2 = distance;
-                            index2[0] = i;
-                            index2[1] = k;
-                        }
-                    }
-
-                }
-                //std::cout << "5.1.4" << std::endl;
-              //  cout<<"3"<<endl;
-                robot[l].position = Team_Main[j];
-              //  cout<<"3.1"<<endl;
-              //cout<<"index1[0]: "<<index1[0] <<" index1[1]: "<<index1[1] <<" index2[0]: "<<index2[0] <<" index2[1]: "<<index2[1] <<endl;
-              //cout<<Team_Sec_area[0].size()<<Team_Sec_area[1].size()<<Team_Sec_area[2].size()<<endl;
-            //  std::cout << "5.1.5" << std::endl;
-              if (Team_Sec_area[index1[0]].size() > index1[1] && Team_Sec_area[index2[0]].size() > index2[1])
-              {
-                if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
-                //  std::cout << "5.1.5.1" << std::endl;
-                    robot[l].secundary = Team_Sec[index1[0]][index1[1]];
-                    robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
-                  //  std::cout << "5.1.5.2" << std::endl;
-
-                //  cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
-                } else {
-                //  std::cout << "5.1.5.3" << std::endl;
-                    robot[l].secundary = Team_Sec[index2[0]][index2[1]];
-                    robot[l].ternary = Team_Sec[index1[0]][index1[1]];
-                    //std::cout << "5.1.5.3" << std::endl;
-                //    cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
-                }
-              }
-              else
-              {
-                // ainda não foi calibrado, não precisa achar os robôs.
-                return;
-              }
-
-                //std::cout << "5.1.6" << std::endl;
-            //   cout<<"3.2"<<endl;
-
-
-                sx = robot[l].secundary.x;
-                sy =  robot[l].secundary.y;
-
-                px = robot[l].position.x;
-                py = robot[l].position.y;
-
-                tx = robot[l].ternary.x;
-                ty =  robot[l].ternary.y;
-
-                //std::cout << "5.1.7" << std::endl;
-                robot[l].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
-                robot[l].orientation2 = atan2((ty-py)*1.3/480,(tx-px)*1.5/640);
-
-                o = atan2(sin(robot[l].orientation2-robot[l].orientation+3.1415),
-                cos(robot[l].orientation2-robot[l].orientation+3.1415));
-            //cout<<"Robot "<<l<<"  "<<o*180/PI<<"  ";
-              //std::cout << "5.1.8" << std::endl;
-               if(robot[l].pink){
-                 robot_list[2].position = robot[l].position; // colocar em um vetor
-                 robot_list[2].secundary = robot[l].secundary; // colocar em um vetor
-                 robot_list[2].orientation =  robot[l].orientation;
-
-               }else  if(o>0) {
-
-                    robot_list[0].position = robot[l].position; // colocar em um vetor
-                    robot_list[0].secundary = robot[l].secundary; // colocar em um vetor
-                    robot_list[0].orientation =  robot[l].orientation;
-
-                }else {
-
-                    robot_list[1].position = robot[l].position; // colocar em um vetor
-                    robot_list[1].secundary = robot[l].secundary; // colocar em um vetor
-                    robot_list[1].orientation =  robot[l].orientation;
-
-                }
-
-                l==3? : l++;
-
-            }
-            //cout<<endl;
-            //std::cout << "5.1.9" << std::endl;
+          } else if(distance < distanceRef2) {
+            distanceRef2 = distance;
+            index2[0] = i;
+            index2[1] = k;
           }
-          //  cout<<"4"<<endl;
+        }
+
+      }
+      //std::cout << "5.1.4" << std::endl;
+      //  cout<<"3"<<endl;
+      robot[l].position = Team_Main[j];
+      //  cout<<"3.1"<<endl;
+      //cout<<"index1[0]: "<<index1[0] <<" index1[1]: "<<index1[1] <<" index2[0]: "<<index2[0] <<" index2[1]: "<<index2[1] <<endl;
+      //cout<<Team_Sec_area[0].size()<<Team_Sec_area[1].size()<<Team_Sec_area[2].size()<<endl;
+      //  std::cout << "5.1.5" << std::endl;
+      if (Team_Sec_area[index1[0]].size() > index1[1] && Team_Sec_area[index2[0]].size() > index2[1])
+      {
+        if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
+          //  std::cout << "5.1.5.1" << std::endl;
+          robot[l].secundary = Team_Sec[index1[0]][index1[1]];
+          robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
+          //  std::cout << "5.1.5.2" << std::endl;
+
+          //  cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
+        } else {
+          //  std::cout << "5.1.5.3" << std::endl;
+          robot[l].secundary = Team_Sec[index2[0]][index2[1]];
+          robot[l].ternary = Team_Sec[index1[0]][index1[1]];
+          //std::cout << "5.1.5.3" << std::endl;
+          //    cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
+        }
+      }
+      else
+      {
+        // ainda não foi calibrado, não precisa achar os robôs.
+        return;
+      }
+
+      //std::cout << "5.1.6" << std::endl;
+      //   cout<<"3.2"<<endl;
+
+
+      sx = robot[l].secundary.x;
+      sy =  robot[l].secundary.y;
+
+      px = robot[l].position.x;
+      py = robot[l].position.y;
+
+      tx = robot[l].ternary.x;
+      ty =  robot[l].ternary.y;
+
+      //std::cout << "5.1.7" << std::endl;
+      robot[l].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
+      robot[l].orientation2 = atan2((ty-py)*1.3/480,(tx-px)*1.5/640);
+
+      o = atan2(sin(robot[l].orientation2-robot[l].orientation+3.1415),
+      cos(robot[l].orientation2-robot[l].orientation+3.1415));
+      //cout<<"Robot "<<l<<"  "<<o*180/PI<<"  ";
+      //std::cout << "5.1.8" << std::endl;
+      if(robot[l].pink){
+        robot_list[2].position = robot[l].position; // colocar em um vetor
+        robot_list[2].secundary = robot[l].secundary; // colocar em um vetor
+        robot_list[2].orientation =  robot[l].orientation;
+
+      }else  if(o>0) {
+
+        robot_list[0].position = robot[l].position; // colocar em um vetor
+        robot_list[0].secundary = robot[l].secundary; // colocar em um vetor
+        robot_list[0].orientation =  robot[l].orientation;
+
+      }else {
+
+        robot_list[1].position = robot[l].position; // colocar em um vetor
+        robot_list[1].secundary = robot[l].secundary; // colocar em um vetor
+        robot_list[1].orientation =  robot[l].orientation;
+
+      }
+
+      l==3? : l++;
+
+    }
+    //cout<<endl;
+    //std::cout << "5.1.9" << std::endl;
+
+
+
+
+  }
+  //  cout<<"4"<<endl;
 
 
 
@@ -487,57 +499,57 @@ public:
 
 
   void robot_creation() {
-      Robot robot;
-      cv::Point secundary;
-      int index[2];
+    Robot robot;
+    cv::Point secundary;
+    int index[2];
 
-  //  cout<<"1"<<endl;
-      float distanceRef = 999999999.0;
-      float distance = 0;
-      for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
-          for(int i = 0; i < 3; i++) {
-              for(int k = 0; k < Team_Sec[i].size(); k++) {
+    //  cout<<"1"<<endl;
+    float distanceRef = 999999999.0;
+    float distance = 0;
+    for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
+      for(int i = 0; i < 3; i++) {
+        for(int k = 0; k < Team_Sec[i].size(); k++) {
 
-                  distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
-                  if(distance < distanceRef) {
-                      distanceRef = distance;
-                      index[0] = i;
-                      index[1] = k;
-                  }
-              }
+          distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
+          if(distance < distanceRef) {
+            distanceRef = distance;
+            index[0] = i;
+            index[1] = k;
           }
-        //  cout<<"2"<<endl;
-          robot.position = Team_Main[j];
-          robot.secundary = Team_Sec[index[0]][index[1]];
+        }
+      }
+      //  cout<<"2"<<endl;
+      robot.position = Team_Main[j];
+      robot.secundary = Team_Sec[index[0]][index[1]];
       //    cout<<"index "<<index[0]<<" size "<<robot_list.size()<<endl;
-          distanceRef = 999999999.0;
+      distanceRef = 999999999.0;
       //    cout<<"3"<<endl;
-          robot_list[index[0]].position = robot.position; // colocar em um vetor
-          robot_list[index[0]].secundary = robot.secundary; // colocar em um vetor
-        //  cout<<"4"<<endl;
+      robot_list[index[0]].position = robot.position; // colocar em um vetor
+      robot_list[index[0]].secundary = robot.secundary; // colocar em um vetor
+      //  cout<<"4"<<endl;
 
-          calcOrientation(index[0]);
+      calcOrientation(index[0]);
       //    cout<<"5"<<endl;
 
-      }
+    }
   }
 
   void calcOrientation(int tag_id) { //Define a orientação da tag em analise;
-      float sx,sy,px,py;
+    float sx,sy,px,py;
 
-      sx =  robot_list[tag_id].secundary.x;
-      sy =  robot_list[tag_id].secundary.y;
+    sx =  robot_list[tag_id].secundary.x;
+    sy =  robot_list[tag_id].secundary.y;
 
-      px = robot_list[tag_id].position.x;
-      py = robot_list[tag_id].position.y;
+    px = robot_list[tag_id].position.x;
+    py = robot_list[tag_id].position.y;
 
-      robot_list[tag_id].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
-      robot_list[tag_id].position.x = robot_list[tag_id].position.x;
-      robot_list[tag_id].position.y = robot_list[tag_id].position.y;
+    robot_list[tag_id].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
+    robot_list[tag_id].position.x = robot_list[tag_id].position.x;
+    robot_list[tag_id].position.y = robot_list[tag_id].position.y;
   }
 
   float calcDistance(cv::Point position, cv::Point secundary) {
-      return sqrt(pow(position.x-secundary.x,2) + pow(position.y-secundary.y,2));
+    return sqrt(pow(position.x-secundary.x,2) + pow(position.y-secundary.y,2));
   }
 
 
@@ -567,15 +579,18 @@ public:
     Team_Main.push_back(cv::Point(0,0));
 
 
+    KF_Robot.push_back(KF_Ball);
+    KF_Robot.push_back(KF_Ball);
+    KF_Robot.push_back(KF_Ball);
 
     threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));
     for(int i = 0; i < 6; i++)
     {
-        threshold[i] =  (unsigned char*) malloc((3*(width*height + width) +3) * sizeof(unsigned char));
-        if(threshold[i] == NULL)
-        {
-            cout<<"out of memory\n"<<endl;
-        }
+      threshold[i] =  (unsigned char*) malloc((3*(width*height + width) +3) * sizeof(unsigned char));
+      if(threshold[i] == NULL)
+      {
+        cout<<"out of memory\n"<<endl;
+      }
     }
   }
 
@@ -584,9 +599,9 @@ public:
   {
     if (threshold != NULL)
     {
-        for(int i = 0; i < 6; i++)
-            free(threshold[i]);
-        free(threshold);
+      for(int i = 0; i < 6; i++)
+      free(threshold[i]);
+      free(threshold);
     }
   }
 
