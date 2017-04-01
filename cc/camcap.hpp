@@ -63,6 +63,7 @@ public:
 
   bool KF_FIRST = true;
   cv::Point Ball_kf_est;
+  vector <cv::Point> robot_kf_est;
 
   void updateAllPositions()
   {
@@ -107,14 +108,26 @@ public:
       //KALMAN FILTER INIT
       vision->KF_Ball.KF_init(ballPosition);
       for(int i=0; i<3; i++) {
-        vision->KF_Robot[i].KF_init(interface.robot_list[i].position);
+        vision->KF_Robot[i].KF_init(vision->robot_list[i].position);
       }
       std::cout<<"KALMAN FILTER INITIALIZED"<<std::endl;
       KF_FIRST = false;
 
-      Ball_kf_est = vision->KF_Ball.KF_Predition(ballPosition);
+      Ball_kf_est = vision->KF_Ball.KF_Prediction(ballPosition);
+
+      robot_kf_est[0] = vision->KF_Robot[0].KF_Prediction(vision->robot_list[0].position);
+     robot_kf_est[1] = vision->KF_Robot[1].KF_Prediction(vision->robot_list[1].position);
+      robot_kf_est[2] = vision->KF_Robot[2].KF_Prediction(vision->robot_list[2].position);
+
     }
-      Ball_kf_est = vision->KF_Ball.KF_Predition(ballPosition);
+    Ball_kf_est = vision->KF_Ball.KF_Prediction(ballPosition);
+
+    robot_kf_est[0] = vision->KF_Robot[0].KF_Prediction(vision->robot_list[0].position);
+    robot_kf_est[1] = vision->KF_Robot[1].KF_Prediction(vision->robot_list[1].position);
+    robot_kf_est[2] = vision->KF_Robot[2].KF_Prediction(vision->robot_list[2].position);
+
+
+
   }
 
   bool start_signal(bool b) {
@@ -236,13 +249,22 @@ bool capture_and_show() {
   //std::cout << 5 << std::endl;
   if(!interface.HSV_calib_event_flag) {
     updateAllPositions();
-    rectangle(imageView,cv::Point(Ball_kf_est.x-50,Ball_kf_est.y-50),
-    cv::Point(Ball_kf_est.x+50,Ball_kf_est.y+50),CV_RGB(0,127,255),5,8);
-    //std::cout << 6 << std::endl;
-    drawStrategyConstants(imageView, w, h);
-    //  std::cout << 7 << std::endl;
+
     if (!interface.draw_info_flag)
     {
+      drawStrategyConstants(imageView, w, h);
+
+      rectangle(imageView,cv::Point(Ball_kf_est.x-50,Ball_kf_est.y-50),
+      cv::Point(Ball_kf_est.x+50,Ball_kf_est.y+50),CV_RGB(0,127,255),5,8);
+
+      rectangle(imageView,cv::Point(robot_kf_est[0].x-50,robot_kf_est[0].y-50),
+      cv::Point(robot_kf_est[0].x+50,robot_kf_est[0].y+50),CV_RGB(0,255,255),5,8);
+      rectangle(imageView,cv::Point(robot_kf_est[1].x-50,robot_kf_est[1].y-50),
+      cv::Point(robot_kf_est[1].x+50,robot_kf_est[1].y+50),CV_RGB(0,255,255),5,8);
+      rectangle(imageView,cv::Point(robot_kf_est[2].x-50,robot_kf_est[2].y-50),
+      cv::Point(robot_kf_est[2].x+50,robot_kf_est[2].y+50),CV_RGB(0,255,255),5,8);
+
+
       circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
       line(imageView,interface.robot_list[0].position,interface.robot_list[0].secundary,cv::Scalar(255,255,0), 2);
       //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
@@ -542,14 +564,15 @@ CamCap() : data(0), width(0), height(0){
   notebook.append_page(control, "Control");
   notebook.append_page(strategyGUI, "Strategy");
 
+  robot_kf_est.push_back(Ball_Est);
+  robot_kf_est.push_back(Ball_Est);
+  robot_kf_est.push_back(Ball_Est);
+
 
   for(int i=0; i<4; i++) {
     interface.imageView.adjust_mat[i][0] = -1;
     interface.imageView.adjust_mat[i][1] = -1;
   }
-
-
-
 
   camera_vbox.pack_start(fm, false, true, 10);
   camera_vbox.pack_start(info_fm, false, true, 10);

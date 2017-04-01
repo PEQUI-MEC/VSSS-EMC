@@ -578,10 +578,10 @@ public:
     Team_Main.push_back(cv::Point(0,0));
     Team_Main.push_back(cv::Point(0,0));
 
-
-    KF_Robot.push_back(KF_Ball);
-    KF_Robot.push_back(KF_Ball);
-    KF_Robot.push_back(KF_Ball);
+    KalmanFilter kf;
+    KF_Robot.push_back(kf);
+    KF_Robot.push_back(kf);
+    KF_Robot.push_back(kf);
 
     threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));
     for(int i = 0; i < 6; i++)

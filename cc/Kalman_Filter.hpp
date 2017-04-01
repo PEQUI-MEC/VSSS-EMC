@@ -2,14 +2,15 @@
 #define KALMANFILTER_HPP_
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
-
-cv::KalmanFilter KF;
-cv::Mat KF_state;// [x,y,v_x,v_y,w,h]
-cv::Mat KF_meas; // [z_x,z_y,z_w,z_h]
-bool kf_found ;
-double ticks;
 class KalmanFilter
 {
+
+  cv::KalmanFilter KF;
+  cv::Mat KF_state;// [x,y,v_x,v_y,w,h]
+  cv::Mat KF_meas; // [z_x,z_y,z_w,z_h]
+  bool kf_found ;
+  double ticks;
+
 public:
   void KF_init(cv::Point pos) {
 
@@ -68,7 +69,7 @@ public:
 
 
 
-  cv::Point KF_Predition(cv::Point pos) {
+  cv::Point KF_Prediction(cv::Point pos) {
     //std::cout<<"KF1"<<std::endl;
     KF.statePost = KF_state;
     //std::cout<<"KF1.1"<<std::endl;
