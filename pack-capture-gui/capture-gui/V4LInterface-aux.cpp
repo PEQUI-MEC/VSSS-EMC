@@ -905,8 +905,6 @@ namespace capture
                 robots_id_edit_bt.set_label("Edit");
                 robots_id_done_bt.set_label("Done");
 
-
-
                 label = new Gtk::Label("Robot 1: ");
                 robots_id_hbox[1].pack_start(*label, false, true, 5);
                 robots_id_hbox[1].pack_start(robots_id_box[0], false, true, 5);
@@ -915,8 +913,6 @@ namespace capture
                 robots_id_box[0].set_text(Glib::ustring::format("A"));
                 robots_id_vbox.pack_start(robots_id_hbox[1], false, true, 5);
 
-
-
                 label = new Gtk::Label("Robot 2: ");
                 robots_id_hbox[2].pack_start(*label, false, true, 5);
                 robots_id_hbox[2].pack_start(robots_id_box[1], false, true, 5);
@@ -924,7 +920,6 @@ namespace capture
                 robots_id_box[1].set_width_chars(2);
                 robots_id_box[1].set_text(Glib::ustring::format("B"));
                 robots_id_vbox.pack_start(robots_id_hbox[2], false, true, 5);
-
 
                 label = new Gtk::Label("Robot 3: ");
                 robots_id_hbox[3].pack_start(*label, false, true, 5);
@@ -949,7 +944,6 @@ namespace capture
                 info_hbox.pack_start(robots_speed_fm, false, true, 5);
                 robots_speed_fm.set_label("Speeds");
                 robots_speed_fm.add(robots_speed_vbox[0]);
-
 
                 robots_speed_hbox[0].pack_start(robots_speed_edit_bt, false, true, 5);
                 robots_speed_edit_bt.set_label("Edit");
@@ -1031,9 +1025,6 @@ namespace capture
 
                 robots_speed_edit_bt.signal_pressed().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_speed_edit_bt_signal_pressed));
                 robots_speed_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_speed_done_bt_signal_clicked));
-
-
-
               }
 
               void V4LInterface::update_speed_progressBars(){
@@ -1109,10 +1100,6 @@ namespace capture
                 cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
                 robots_function_edit_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_function_edit_bt_signal_clicked));
                 robots_function_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_robots_function_done_bt_signal_clicked));
-
-
-
-
               }
 
               void V4LInterface::createPositionsAndButtonsFrame(){

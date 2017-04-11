@@ -116,10 +116,12 @@ public:
       Ball_kf_est = vision->KF_Ball.KF_Prediction(ballPosition);
 
       robot_kf_est[0] = vision->KF_Robot[0].KF_Prediction(vision->robot_list[0].position);
-     robot_kf_est[1] = vision->KF_Robot[1].KF_Prediction(vision->robot_list[1].position);
+      robot_kf_est[1] = vision->KF_Robot[1].KF_Prediction(vision->robot_list[1].position);
       robot_kf_est[2] = vision->KF_Robot[2].KF_Prediction(vision->robot_list[2].position);
 
     }
+
+
     Ball_kf_est = vision->KF_Ball.KF_Prediction(ballPosition);
 
     robot_kf_est[0] = vision->KF_Robot[0].KF_Prediction(vision->robot_list[0].position);
@@ -238,17 +240,27 @@ bool capture_and_show() {
     }
 
   }
+
+
   //std::cout << 3 << std::endl;
   vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
   //TRACKING CAMERA
 
-  //std::cout << 4 << std::endl;
+  vision->set_ROI(Ball_kf_est);
+
+  if(vision-> isBallLost()){
   vision->parallel_tracking(imageView);
 
+  }else{
+  vision->camshift_parallel_tracking(imageView);
+  }
+
+  //LEMBRAR DE ATUALIZAR KF_FIRST
 
   //std::cout << 5 << std::endl;
+
   if(!interface.HSV_calib_event_flag) {
-    updateAllPositions();
+  updateAllPositions();
 
     if (!interface.draw_info_flag)
     {
@@ -287,6 +299,9 @@ bool capture_and_show() {
       circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
     }
     //std::cout << 8 << std::endl;
+
+  }else{
+  vision->parallel_tracking(imageView);
 
   }
   //std::cout << 9 << std::endl;
