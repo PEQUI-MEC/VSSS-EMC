@@ -20,16 +20,22 @@ class Vision
 public:
   boost::thread_group threshold_threads;
   cv::Point  Ballorigin;
+  vector< cv:Point > robotOrigin;
 
       vector< KalmanFilter > KF_Robot;
       KalmanFilter KF_Ball;
   // Team_Main[INDEX] - Vector de cv::Point
   //   GUARDA A POSIÇÃO DAS TAGS PRIMÁRIAS DO TIME(.x e .y acessam a posição)
   vector< cv::Point > Team_Main;
+  vector<vector< cv::Point >> TeamMainNew;
   // Team_Sec[COLOR_INDEX][INDEX] - Vector de Vector de cv::Point
   //	 CADA POSIÇÃO GUARDA UM VECTOR DE cv::Point PARA CADA COR SECUNDÁRIA DO TIME
   vector<vector< cv::Point >> Team_Sec;
   vector<vector< double >> Team_Sec_area;
+  vector<vector< cv::Point >> TeamSec1New;
+  vector<vector< cv::Point >> TeamSec2New;
+  vector<vector< double >> TeamSec1NewArea;
+  vector<vector< double >> TeamSec2NewArea;
 
   // ADV_Main[INDEX] - Vector de cv::Point
   //   GUARDA A POSIÇÃO DAS TAGS PRIMÁRIAS DO ADVERSÁRIO(.x e .y acessam a posição)
@@ -38,6 +44,7 @@ public:
   //   GUARDA A POSIÇÃO DA BOLA
   cv::Point Ball;
   cv::Point KF_Ball_point;
+  std::vector<cv::Point> KF_Robot_point;
   std::vector<Robot> robot_list;
   bool Ball_lost;
   int hue[6][2];
@@ -50,9 +57,13 @@ public:
 
   unsigned char **threshold = NULL;
 
-  void set_ROI (cv::Point kf_point){
+  void set_ROI(cv::Point kf_ball_point, vector <cv::Point> kf_robot_point){
 
-    KF_Ball_point = kf_point;
+    KF_Ball_point = kf_ball_point;
+    for (int i = 0; i < kf_robot_point.size(); i++)
+    {
+      KF_Robot_point.push_back(kf_robot_point[i]);
+    }
   }
 
   bool isBallLost(){
@@ -97,35 +108,45 @@ public:
   }
 
   void camshift_parallel_tracking(cv::Mat im) {
-    cv::Point p1;
-    cv::Point p2;
+    cv::Point ball_p1;
+    cv::Point ball_p2;
+    vector< cv::Point > robot_p1;
+    vector< cv::Point > robot_p2;
 
-    cv::Mat dummy;
-    cv::Mat crop;
+    cv::Mat dummy[4];
+    cv::Mat crop[4];
     cv::Mat image_copy = im.clone();
     cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
     cv::medianBlur(image_copy, image_copy, 5);
 
-    p1 = cv::Point(KF_Ball_point.x-50<=0 ? 0 : KF_Ball_point.x-50, KF_Ball_point.y-50<=0 ? 0 : KF_Ball_point.y-50);
-    p2 = cv::Point(KF_Ball_point.x+50>=width ? width  : KF_Ball_point.x+50, KF_Ball_point.y+50>=height? height: KF_Ball_point.y+50);
-
-    cv::Rect  rect(p1,p2);
-      Ballorigin = p1;
-
-        dummy = image_copy(rect);
-        crop = dummy.clone();
-
-    for(int i =0; i<4; i++) {
-
-      threshold_threads.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), (i)));
+    for (int i = 0; i < 3; i++)
+    {
+      robot_p1.push_back(cv::Point(KF_Robot_point[i].x-50<=0 ? 0 : KF_Robot_point[i].x-50, KF_Robot_point[i].y-50<=0 ? 0 : KF_Robot_point[i].y-50));
+      robot_p2.push_back(cv::Point((KF_Robot_point[i].x+50>=width ? width  : KF_Robot_point[i].x+50, KF_Robot_point[i].y+50>=height? height: KF_Robot_point[i].y+50));
+      robotOrigin[i] = robot_p1[i];
+      cv::Rect  rect(robot_p1[i],robot_p2[i]);
+      dummy[i] = image_copy(rect);
+      crop[i] = dummy[i].clone();
     }
 
-        // Tracking Bola
-        threshold_threads.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop), 4,p1,p2));
-        //cv::imwrite("teste.png",crop);
+    ball_p1 = cv::Point(KF_Ball_point.x-50<=0 ? 0 : KF_Ball_point.x-50, KF_Ball_point.y-50<=0 ? 0 : KF_Ball_point.y-50);
+    ball_p2 = cv::Point(KF_Ball_point.x+50>=width ? width  : KF_Ball_point.x+50, KF_Ball_point.y+50>=height? height: KF_Ball_point.y+50);
+    Ballorigin = ball_p1;
+    cv::Rect  rect(ball_p1,ball_p2);
+    dummy[3] = image_copy(rect);
+    crop[3] = dummy[3].clone();
 
-        //Tracking Adversário
-      threshold_threads.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), 5));
+
+    for(int i =0; i<3; i++) {
+      threshold_threads.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop), 4, i, robot_p1[i], robot_p2[i]));
+    }
+
+    // Tracking Bola
+    threshold_threads.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop), 4, 3, ball_p1, ball_p2));
+    //cv::imwrite("teste.png",crop);
+
+    //Tracking Adversário
+    threshold_threads.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), 5));
 
 
     threshold_threads.join_all();
@@ -156,7 +177,7 @@ public:
   }
 
 
-  void camshift_img_tracking(cv::Mat image,int color_id, cv::Point p1,cv::Point p2) {
+  void camshift_img_tracking(cv::Mat image,int color_id, int window_id, cv::Point p1,cv::Point p2) {
     int ec,e3c,H,S,V;
     vector< vector<cv::Point> > contours;
     vector<cv::Vec4i> hierarchy;
@@ -207,18 +228,17 @@ public:
       case 0:// TEAM MAIN COLOR
 
       if (hierarchy.size() > 0) {
-        Team_Main.clear();
-        int index = 0;
-        while(index >= 0) {
-          cv::Moments moment = moments((cv::Mat)contours[index]);
-          double area = contourArea(contours[index]);
-          //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
-          if(area >= areaMin[color_id]/100) {
-            Team_Main.push_back(cv::Point(moment.m10/area,moment.m01/area));
-          }
-          index = hierarchy[index][0];
-        }
-
+            TeamMainNew[window_id].clear();
+            int index = 0;
+            while(index >= 0) {
+              cv::Moments moment = moments((cv::Mat)contours[index]);
+              double area = contourArea(contours[index]);
+              //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
+              if(area >= areaMin[color_id]/100) {
+                TeamMainNew[window_id].push_back(cv::Point(moment.m10/area,moment.m01/area));
+              }
+              index = hierarchy[index][0];
+            }
       }
 
       break;
@@ -226,16 +246,16 @@ public:
 
       case 1:// TEAM FIRST SECUNDARY COLOR
       if (hierarchy.size() > 0) {
-        Team_Sec_area[0].clear();
-        Team_Sec[0].clear();
+        TeamSec1NewArea[window_id].clear();
+        TeamSec1New[window_id].clear();
         int index = 0;
         while(index >= 0) {
           cv::Moments moment = moments((cv::Mat)contours[index]);
           double area = contourArea(contours[index]);
           //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
           if(area >= areaMin[color_id]/100) {
-            Team_Sec[0].push_back(cv::Point(moment.m10/area,moment.m01/area));
-            Team_Sec_area[0].push_back(area);
+            TeamSec1New[window_id].push_back(cv::Point(moment.m10/area,moment.m01/area));
+            TeamSec1NewArea[window_id].push_back(area);
           }
           index = hierarchy[index][0];
         }
@@ -246,16 +266,16 @@ public:
 
       case 2:// TEAM SECOND SECUNDARY COLOR
       if (hierarchy.size() > 0) {
-        Team_Sec_area[1].clear();
-        Team_Sec[1].clear();
+        TeamSec2NewArea[window_id].clear();
+        TeamSec2New[window_id].clear();
         int index = 0;
         while(index >= 0) {
           cv::Moments moment = moments((cv::Mat)contours[index]);
           double area = contourArea(contours[index]);
           //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
           if(area >= areaMin[color_id]/100) {
-            Team_Sec[1].push_back(cv::Point(moment.m10/area,moment.m01/area));
-            Team_Sec_area[1].push_back(area);
+            TeamSec2New[window_id].push_back(cv::Point(moment.m10/area,moment.m01/area));
+            TeamSec2NewArea[window_id].push_back(area);
 
           }
           index = hierarchy[index][0];
@@ -263,41 +283,6 @@ public:
       }
       break;
       case 3:// TEAM THIRD SECUNDARY COLOR
-      if (hierarchy.size() > 0) {
-        Team_Sec_area[2].clear();
-        Team_Sec[2].clear();
-        int index = 0;
-        while(index >= 0) {
-          cv::Moments moment = moments((cv::Mat)contours[index]);
-          double area = contourArea(contours[index]);
-          //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
-          if(area >= areaMin[color_id]/100) {
-            Team_Sec[2].push_back(cv::Point(moment.m10/area,moment.m01/area));
-            Team_Sec_area[2].push_back(area);
-          }
-          index = hierarchy[index][0];
-        }
-      }
-      break;
-
-      case 5:// ADVERSARY MAIN COLOR
-
-      if (hierarchy.size() > 0) {
-        Adv_Main.clear();
-        int j =0;
-        int index = 0;
-        while(index >= 0) {
-          cv::Moments moment = moments((cv::Mat)contours[index]);
-          double area = contourArea(contours[index]);
-          //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
-          if(area >= areaMin[color_id]/100) {
-            Adv_Main.push_back(cv::Point(moment.m10/area,moment.m01/area));
-          }
-          index = hierarchy[index][0];
-        }
-
-      }
-
       break;
 
       case 4:// BALL
@@ -314,9 +299,29 @@ public:
         }
       }else{
         Ball_lost = true;
-        std::cout<<"BALL LOST"<<std::endl;
+        //std::cout<<"BALL LOST"<<std::endl;
 
       }
+      break;
+
+      case 5:// ADVERSARY MAIN COLOR
+/*
+      if (hierarchy.size() > 0) {
+        Adv_Main.clear();
+        int j =0;
+        int index = 0;
+        while(index >= 0) {
+          cv::Moments moment = moments((cv::Mat)contours[index]);
+          double area = contourArea(contours[index]);
+          //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
+          if(area >= areaMin[color_id]/100) {
+            Adv_Main.push_back(cv::Point(moment.m10/area,moment.m01/area));
+          }
+          index = hierarchy[index][0];
+        }
+
+      }*/
+
       break;
 
     }
@@ -582,6 +587,135 @@ public:
 
   }
 
+  void camshift_robot_creation_uni_duni_tag(int window) {
+    vector <Robot> robot;
+    Robot r;
+    //  std::cout << "5.1.1" << std::endl;
+    double omax = -99999; // angulo maximo
+    double omin = 99999; // angulo minimo
+    //  cout<<"1"<<endl;
+    cv::Point secundary;
+    int index1[2] = {0,0}; // index do robo com img_tracking
+    int index2[2] = {0,0}; // index do robo com img_tracking (usado para trocar o index)
+    float sx,sy,px,py,tx,ty; // posilções x e y das tags primária, secundária e ternária
+    int l=0; // índice do robo
+    float distanceRef1 = 999999999.0;
+    float distanceRef2 = 999999999.0;
+    float distance = 0;
+    //  cout<<"2"<<endl;
+    double o = 0;
+    //std::cout << "5.1.2" << std::endl;
+    for(int j = 0; j < Team_Main.size()&&j<=3; j++) {
+      robot.push_back(r);
+      distanceRef1 = 999999999.0;
+      distanceRef2 = 999999999.0;
+
+      //  std::cout << "5.1.3" << std::endl;
+      for(int i = 0; i < 2; i++) {
+        for(int k = 0; k < Team_Sec[i].size(); k++) {
+
+          distance = calcDistance(Team_Main[j],Team_Sec[i][k]);
+
+          if(distance <= distanceRef1) {
+            distanceRef2 = distanceRef1;
+            index2[0] = index1[0];
+            index2[1] = index1[1];
+
+            distanceRef1 = distance;
+            index1[0] = i;
+            index1[1] = k;
+            if(i==1)
+            robot[l].pink=true;
+
+          } else if(distance < distanceRef2) {
+            distanceRef2 = distance;
+            index2[0] = i;
+            index2[1] = k;
+          }
+        }
+
+      }
+      //std::cout << "5.1.4" << std::endl;
+      //  cout<<"3"<<endl;
+      robot[l].position = Team_Main[j];
+      //  cout<<"3.1"<<endl;
+      //cout<<"index1[0]: "<<index1[0] <<" index1[1]: "<<index1[1] <<" index2[0]: "<<index2[0] <<" index2[1]: "<<index2[1] <<endl;
+      //cout<<Team_Sec_area[0].size()<<Team_Sec_area[1].size()<<Team_Sec_area[2].size()<<endl;
+      //  std::cout << "5.1.5" << std::endl;
+      if (Team_Sec_area[index1[0]].size() > index1[1] && Team_Sec_area[index2[0]].size() > index2[1])
+      {
+        if(Team_Sec_area[index1[0]][index1[1]]>Team_Sec_area[index2[0]][index2[1]]) {
+          //  std::cout << "5.1.5.1" << std::endl;
+          robot[l].secundary = Team_Sec[index1[0]][index1[1]];
+          robot[l].ternary =  Team_Sec[index2[0]][index2[1]];
+          //  std::cout << "5.1.5.2" << std::endl;
+
+          //  cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
+        } else {
+          //  std::cout << "5.1.5.3" << std::endl;
+          robot[l].secundary = Team_Sec[index2[0]][index2[1]];
+          robot[l].ternary = Team_Sec[index1[0]][index1[1]];
+          //std::cout << "5.1.5.3" << std::endl;
+          //    cout<<"Area 2 = Secundary"<<"	Area 1 = Ternary"<<endl;
+        }
+      }
+      else
+      {
+        // ainda não foi calibrado, não precisa achar os robôs.
+        return;
+      }
+
+      //std::cout << "5.1.6" << std::endl;
+      //   cout<<"3.2"<<endl;
+
+
+      sx = robot[l].secundary.x;
+      sy =  robot[l].secundary.y;
+
+      px = robot[l].position.x;
+      py = robot[l].position.y;
+
+      tx = robot[l].ternary.x;
+      ty =  robot[l].ternary.y;
+
+      //std::cout << "5.1.7" << std::endl;
+      robot[l].orientation = atan2((sy-py)*1.3/480,(sx-px)*1.5/640);
+      robot[l].orientation2 = atan2((ty-py)*1.3/480,(tx-px)*1.5/640);
+
+      o = atan2(sin(robot[l].orientation2-robot[l].orientation+3.1415),
+      cos(robot[l].orientation2-robot[l].orientation+3.1415));
+      //cout<<"Robot "<<l<<"  "<<o*180/PI<<"  ";
+      //std::cout << "5.1.8" << std::endl;
+      if(robot[l].pink){
+        robot_list[2].position = robot[l].position; // colocar em um vetor
+        robot_list[2].secundary = robot[l].secundary; // colocar em um vetor
+        robot_list[2].orientation =  robot[l].orientation;
+
+      }else  if(o>0) {
+
+        robot_list[0].position = robot[l].position; // colocar em um vetor
+        robot_list[0].secundary = robot[l].secundary; // colocar em um vetor
+        robot_list[0].orientation =  robot[l].orientation;
+
+      }else {
+
+        robot_list[1].position = robot[l].position; // colocar em um vetor
+        robot_list[1].secundary = robot[l].secundary; // colocar em um vetor
+        robot_list[1].orientation =  robot[l].orientation;
+
+      }
+
+      l==3? : l++;
+
+    }
+    //cout<<endl;
+    //std::cout << "5.1.9" << std::endl;
+
+
+
+
+  }
+
 
   void robot_creation_uni_duni_tag() {
     vector <Robot> robot;
@@ -801,6 +935,8 @@ public:
     Team_Main.push_back(cv::Point(0,0));
     Team_Main.push_back(cv::Point(0,0));
     Team_Main.push_back(cv::Point(0,0));
+
+    TeamMainNew
 
     KalmanFilter kf;
     KF_Robot.push_back(kf);

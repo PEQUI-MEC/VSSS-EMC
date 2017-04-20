@@ -197,7 +197,13 @@ public:
 bool capture_and_show() {
   if (!data) return false;
 
-
+  /*cv::VideoWriter outputVideo;
+  outputVideo.open("video.mpeg",-1, 13, cv::Size(640,480), true);
+  if (!outputVideo.isOpened())
+    {
+        cout  << "Could not open the output video for write. "<< endl;
+        return -1;
+    }*/
 
   //std::cout << 1 << std::endl;
 
@@ -246,13 +252,13 @@ bool capture_and_show() {
   vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
   //TRACKING CAMERA
 
-  vision->set_ROI(Ball_kf_est);
+  vision->set_ROI(Ball_kf_est, robot_kf_est);
 
   if(vision-> isBallLost()){
-  vision->parallel_tracking(imageView);
+    vision->parallel_tracking(imageView);
 
   }else{
-  vision->camshift_parallel_tracking(imageView);
+    vision->camshift_parallel_tracking(imageView);
   }
 
   //LEMBRAR DE ATUALIZAR KF_FIRST
@@ -260,11 +266,12 @@ bool capture_and_show() {
   //std::cout << 5 << std::endl;
 
   if(!interface.HSV_calib_event_flag) {
-  updateAllPositions();
+    updateAllPositions();
 
     if (!interface.draw_info_flag)
     {
       drawStrategyConstants(imageView, w, h);
+
 
       rectangle(imageView,cv::Point(Ball_kf_est.x-50,Ball_kf_est.y-50),
       cv::Point(Ball_kf_est.x+50,Ball_kf_est.y+50),CV_RGB(0,127,255),5,8);
@@ -301,7 +308,7 @@ bool capture_and_show() {
     //std::cout << 8 << std::endl;
 
   }else{
-  vision->parallel_tracking(imageView);
+    vision->parallel_tracking(imageView);
 
   }
   //std::cout << 9 << std::endl;
@@ -400,6 +407,9 @@ if(interface.HSV_calib_event_flag) {
   d[i]=vision->threshold[interface.Img_id][i];
 }
 //  std::cout << 15 << std::endl;
+//outputVideo << imageView;
+
+
 return true;
 }
 
