@@ -272,7 +272,6 @@ bool capture_and_show() {
     {
       drawStrategyConstants(imageView, w, h);
 
-
       rectangle(imageView,cv::Point(Ball_kf_est.x-50,Ball_kf_est.y-50),
       cv::Point(Ball_kf_est.x+50,Ball_kf_est.y+50),CV_RGB(0,127,255),5,8);
 
