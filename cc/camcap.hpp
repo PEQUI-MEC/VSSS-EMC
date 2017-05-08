@@ -73,25 +73,12 @@ public:
     //  cout<<"AQUI"<<endl;
     //vision->robot_creation_unitag();
     //vision->robot_creation();
-    if (vision->robot_lost[0] || vision->robot_lost[1] || vision->robot_lost[2])
-    {
-      vision->robot_creation_uni_duni_tag();
-    }
-    else
-    {
-      vision->camshift_robot_creation_uni_duni_tag(0);
-      vision->camshift_robot_creation_uni_duni_tag(1);
-      vision->camshift_robot_creation_uni_duni_tag(2);
-    }
+
 
     //    cout<<"AQUI"<<endl;
     //std::cout << 5.2 << std::endl;
 
     // KALMAN FILTER
-
-
-
-
 
     for (int i = 0; i < vision->get_robot_list_size(); i++)
     {
@@ -263,12 +250,23 @@ bool capture_and_show() {
   //TRACKING CAMERA
 
   vision->set_ROI(Ball_kf_est, robot_kf_est);
-
-  if(vision-> isBallLost()){
+  //std::cout << 4 << std::endl;
+  if(vision->isBallLost() || vision->isAnyRobotLost()){
+    //std::cout << 4.1 << std::endl;
+    std::cout << "Old Parallel Tracking" << endl;
     vision->parallel_tracking(imageView);
+    vision->robot_creation_uni_duni_tag();
+
 
   }else{
+    //std::cout << 4.2 << std::endl;
+    std::cout << "Camshift Parallel Tracking" << endl;
     vision->camshift_parallel_tracking(imageView);
+    vision->camshift_robot_creation_uni_duni_tag(0);
+    vision->camshift_robot_creation_uni_duni_tag(1);
+    vision->camshift_robot_creation_uni_duni_tag(2);
+    //std::cout << 4.3 << std::endl;
+
   }
 
   //LEMBRAR DE ATUALIZAR KF_FIRST
