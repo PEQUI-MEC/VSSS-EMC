@@ -51,6 +51,9 @@ public:
   Gtk::Notebook notebook;
   int w, h;
   CPUTimer timer;
+  int fps_average = 0;
+  vector < int > fps;
+  int timerCounter = 0;
 
   Gtk::Frame fm;
   Gtk::Frame info_fm;
@@ -253,14 +256,14 @@ bool capture_and_show() {
   //std::cout << 4 << std::endl;
   if(vision->isBallLost() || vision->isAnyRobotLost()){
     //std::cout << 4.1 << std::endl;
-    std::cout << "Old Parallel Tracking" << endl;
+    //std::cout << "Old Parallel Tracking" << endl;
     vision->parallel_tracking(imageView);
     vision->robot_creation_uni_duni_tag();
 
 
   }else{
     //std::cout << 4.2 << std::endl;
-    std::cout << "Camshift Parallel Tracking" << endl;
+    //std::cout << "Camshift Parallel Tracking" << endl;
     vision->camshift_parallel_tracking(imageView);
     vision->camshift_robot_creation_uni_duni_tag(0);
     vision->camshift_robot_creation_uni_duni_tag(1);
@@ -405,9 +408,23 @@ send_vel_to_robots();
 
 
 
-//timer.stop();
-//cout<<"Time: "<<timer.getCPUTotalSecs()<<"	FPS: "<<1/timer.getCPUTotalSecs()<<endl;
-//timer.reset();
+/*timer.stop();
+if (timerCounter == 30)
+{
+  for (int i = 0; i < fps.size(); i++)
+  {
+    fps_average += fps[i];
+  }
+  fps_average = fps_average / fps.size();
+  cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
+  timerCounter = 0;
+  fps.clear();
+}
+timerCounter++;
+fps.push_back(1/timer.getCPUTotalSecs());
+timer.reset();*/
+
+
 //std::cout << 14 << std::endl;
 if(interface.HSV_calib_event_flag) {
   for(int i=0; i<3*(width*height + width) +2; i++)
