@@ -68,7 +68,7 @@ public:
 
   bool isAnyRobotLost()
   {
-    //std::cout << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
+    std::cout << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
     return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
   }
 
@@ -150,13 +150,16 @@ public:
     //imwrite( "window2-2.png", crop[7] );
     //imwrite( "window2-3.png", crop[8] );
 
-
+    cout << "BALL 1" << endl;
     ball_p1 = cv::Point(KF_Ball_point.x-50<=0 ? 0 : KF_Ball_point.x-50, KF_Ball_point.y-50<=0 ? 0 : KF_Ball_point.y-50);
     ball_p2 = cv::Point(KF_Ball_point.x+50>=width ? width  : KF_Ball_point.x+50, KF_Ball_point.y+50>=height? height: KF_Ball_point.y+50);
     Ballorigin = ball_p1;
+    cout << "BALL 2" << endl;
     cv::Rect  rect(ball_p1,ball_p2);
     dummy[9] = image_copy(rect);
     crop[9] = dummy[9].clone();
+    cout << "BALL 3" << endl;
+
 
 
     for(int i = 0; i < 3; i++) {
@@ -752,22 +755,28 @@ public:
         robot_list[2].position = robot.position; // colocar em um vetor
         robot_list[2].secundary = robot.secundary; // colocar em um vetor
         robot_list[2].orientation =  robot.orientation;
+        robot_lost[window_id] = false;
+        return;
 
       }else  if(o>0) {
 
         robot_list[0].position = robot.position; // colocar em um vetor
         robot_list[0].secundary = robot.secundary; // colocar em um vetor
         robot_list[0].orientation =  robot.orientation;
+        robot_lost[window_id] = false;
+        return;
 
       }else {
 
         robot_list[1].position = robot.position; // colocar em um vetor
         robot_list[1].secundary = robot.secundary; // colocar em um vetor
         robot_list[1].orientation =  robot.orientation;
+        robot_lost[window_id] = false;
+        return;
 
       }
 
-      robot_lost[window_id] = false;
+      robot_lost[window_id] = true;
       //cout<<"8"<<endl;
 
   }
