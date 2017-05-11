@@ -121,15 +121,10 @@ public:
 
     }
 
-
     Ball_kf_est = vision->KF_Ball.KF_Prediction(ballPosition);
-
     robot_kf_est[0] = vision->KF_Robot[0].KF_Prediction(vision->robot_list[0].position);
     robot_kf_est[1] = vision->KF_Robot[1].KF_Prediction(vision->robot_list[1].position);
     robot_kf_est[2] = vision->KF_Robot[2].KF_Prediction(vision->robot_list[2].position);
-
-
-
   }
 
   bool start_signal(bool b) {
@@ -144,8 +139,6 @@ public:
         data = 0;
 
       }
-
-
       /*GdkScreen* screen = gdk_screen_get_default();
       if (interface.vcap.format_dest.fmt.pix.width > gdk_screen_get_width(screen)/2 || interface.vcap.format_dest.fmt.pix.height > gdk_screen_get_height(screen)/2)
       {
@@ -208,6 +201,7 @@ bool capture_and_show() {
   //std::cout << 1 << std::endl;
 
   //timer.start();
+
   interface.vcap.grab_rgb(data);
   interface.imageView.set_data(data, width, height);
 
@@ -269,7 +263,6 @@ bool capture_and_show() {
     vision->camshift_robot_creation_uni_duni_tag(1);
     vision->camshift_robot_creation_uni_duni_tag(2);
     //std::cout << 4.3 << std::endl;
-
   }
 
   //LEMBRAR DE ATUALIZAR KF_FIRST
@@ -317,10 +310,8 @@ bool capture_and_show() {
     }
     //std::cout << 8 << std::endl;
 
-  }else{
-    vision->parallel_tracking(imageView);
-
   }
+
   //std::cout << 9 << std::endl;
   if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
   {
@@ -408,21 +399,21 @@ send_vel_to_robots();
 
 
 
-/*timer.stop();
-if (timerCounter == 30)
-{
-  for (int i = 0; i < fps.size(); i++)
-  {
-    fps_average += fps[i];
-  }
-  fps_average = fps_average / fps.size();
-  cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
-  timerCounter = 0;
-  fps.clear();
-}
-timerCounter++;
-fps.push_back(1/timer.getCPUTotalSecs());
-timer.reset();*/
+// timer.stop();
+// if (timerCounter == 30)
+// {
+//   for (int i = 0; i < fps.size(); i++)
+//   {
+//     fps_average += fps[i];
+//   }
+//   fps_average = fps_average / fps.size();
+//   cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
+//   timerCounter = 0;
+//   fps.clear();
+// }
+// timerCounter++;
+// fps.push_back(1/timer.getCPUTotalSecs());
+// timer.reset();
 
 
 //std::cout << 14 << std::endl;

@@ -68,7 +68,7 @@ public:
 
   bool isAnyRobotLost()
   {
-    std::cout << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
+    std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
     return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
   }
 
@@ -128,8 +128,10 @@ public:
 
     for (int i = 0; i < 3; i++)
     {
+      //cout << "ROBOT 1" << endl;
       robot_p1[i] = cv::Point(KF_Robot_point[i].x-50<=0 ? 0 : KF_Robot_point[i].x-50, KF_Robot_point[i].y-50<=0 ? 0 : KF_Robot_point[i].y-50);
       robot_p2[i] = cv::Point(KF_Robot_point[i].x+50>=width ? width  : KF_Robot_point[i].x+50, KF_Robot_point[i].y+50>=height? height: KF_Robot_point[i].y+50);
+      //cout << "ROBOT 2" << endl;
       robotOrigin[i] = robot_p1[i];
       cv::Rect  rect(robot_p1[i],robot_p2[i]);
       dummy[3*i] = image_copy(rect);
@@ -138,6 +140,7 @@ public:
       crop[1+3*i] = dummy[1+3*i].clone();
       dummy[2+3*i] = image_copy(rect);
       crop[2+3*i] = dummy[2+3*i].clone();
+      //cout << "ROBOT 3" << endl;
     }
 
     //imwrite( "window0-1.png", crop[0] );
@@ -150,15 +153,15 @@ public:
     //imwrite( "window2-2.png", crop[7] );
     //imwrite( "window2-3.png", crop[8] );
 
-    cout << "BALL 1" << endl;
+    //cout << "BALL 1" << endl;
     ball_p1 = cv::Point(KF_Ball_point.x-50<=0 ? 0 : KF_Ball_point.x-50, KF_Ball_point.y-50<=0 ? 0 : KF_Ball_point.y-50);
     ball_p2 = cv::Point(KF_Ball_point.x+50>=width ? width  : KF_Ball_point.x+50, KF_Ball_point.y+50>=height? height: KF_Ball_point.y+50);
     Ballorigin = ball_p1;
-    cout << "BALL 2" << endl;
+    //cout << "BALL 2" << endl;
     cv::Rect  rect(ball_p1,ball_p2);
     dummy[9] = image_copy(rect);
     crop[9] = dummy[9].clone();
-    cout << "BALL 3" << endl;
+    //cout << "BALL 3" << endl;
 
 
 
@@ -661,14 +664,12 @@ public:
     else if (TeamMainNew[window_id].size() == 1)
       main_tag = 0;
     else
-      main_tag = getMostCenteredMainTag(window_id);
+      main_tag = getCorrectMainTag(window_id);
 
     //std::cout << "5.1.2" << std::endl;
       distanceRef1 = 999999999.0;
       distanceRef2 = 999999999.0;
-      //cout<<"TeamMainNew Size = " << TeamMainNew[window_id].size() <<endl;
-      //cout<<"TeamSecNew Size = " << TeamSecNew[window_id].size() <<endl;
-      //cout<<"Window ID = " << window_id <<endl;
+
       //  std::cout << "5.1.3" << std::endl;
       for(int i = 0; i < 2; i++) {
         for(int k = 0; k < TeamSecNew[window_id][i].size(); k++) {
@@ -711,7 +712,6 @@ public:
           robot.secundary = TeamSecNew[window_id][index1[0]][index1[1]]+robotOrigin[window_id];
           robot.ternary =  TeamSecNew[window_id][index2[0]][index2[1]]+robotOrigin[window_id];
           //  std::cout << "5.1.5.2" << std::endl;
-
           //  cout<<"Area 1 = Secundary"<<"	Area 2 = Ternary"<<endl;
         } else {
           //  std::cout << "5.1.5.3" << std::endl;
@@ -756,6 +756,10 @@ public:
         robot_list[2].secundary = robot.secundary; // colocar em um vetor
         robot_list[2].orientation =  robot.orientation;
         robot_lost[window_id] = false;
+        if (window_id != 2)
+          robot_lost[window_id] = true;
+        else
+          robot_lost[window_id] = false;
         return;
 
       }else  if(o>0) {
@@ -763,7 +767,10 @@ public:
         robot_list[0].position = robot.position; // colocar em um vetor
         robot_list[0].secundary = robot.secundary; // colocar em um vetor
         robot_list[0].orientation =  robot.orientation;
-        robot_lost[window_id] = false;
+        if (window_id != 0)
+          robot_lost[window_id] = true;
+        else
+          robot_lost[window_id] = false;
         return;
 
       }else {
@@ -771,7 +778,10 @@ public:
         robot_list[1].position = robot.position; // colocar em um vetor
         robot_list[1].secundary = robot.secundary; // colocar em um vetor
         robot_list[1].orientation =  robot.orientation;
-        robot_lost[window_id] = false;
+        if (window_id != 1)
+          robot_lost[window_id] = true;
+        else
+          robot_lost[window_id] = false;
         return;
 
       }
@@ -781,23 +791,23 @@ public:
 
   }
 
-  int getMostCenteredMainTag(int window_id)
+  int getCorrectMainTag(int window_id)
   {
-    float minDistance = 9999999.0;
+    float minDistance = 99999.0;
     float distance;
-    int mostCenteredTag;
+    int correctTag;
 
     for (int i = 0; i < TeamMainNew[window_id].size(); i++)
     {
-      distance = calcDistance(TeamMainNew[window_id][i],cv::Point(50,50));
-      if (distance < minDistance)
+      // Compara a distancia entre a tag do frame atual com a tag do frame anterior
+      distance = calcDistance(TeamMainNew[window_id][i]+robotOrigin[window_id],robot_list[window_id].position);
+      if (distance <= minDistance)
       {
-        mostCenteredTag = i;
         minDistance = distance;
+        correctTag = i;
       }
     }
-
-    return mostCenteredTag;
+    return correctTag;
   }
 
 
