@@ -15,9 +15,12 @@
 #include "Kalman_Filter.hpp"
 
 
+
 class Vision
 {
 public:
+  int const RHWS = 25; // Robot Half Window Size
+  int const BHWS = 25; // Ball Half Window Size
   boost::thread_group threshold_threads;
   boost::thread_group threshold_threadsNew;
   cv::Point  Ballorigin;
@@ -68,7 +71,7 @@ public:
 
   bool isAnyRobotLost()
   {
-    std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
+    //std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
     return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
   }
 
@@ -128,19 +131,21 @@ public:
 
     for (int i = 0; i < 3; i++)
     {
-      //cout << "ROBOT 1" << endl;
-      robot_p1[i] = cv::Point(KF_Robot_point[i].x-50<=0 ? 0 : KF_Robot_point[i].x-50, KF_Robot_point[i].y-50<=0 ? 0 : KF_Robot_point[i].y-50);
-      robot_p2[i] = cv::Point(KF_Robot_point[i].x+50>=width ? width  : KF_Robot_point[i].x+50, KF_Robot_point[i].y+50>=height? height: KF_Robot_point[i].y+50);
-      //cout << "ROBOT 2" << endl;
+      cout << "ROBOT 1" << endl;
+      robot_p1[i] = cv::Point(KF_Robot_point[i].x-RHWS<=0 ? 0 : KF_Robot_point[i].x-RHWS, KF_Robot_point[i].y-RHWS<=0 ? 0 : KF_Robot_point[i].y-RHWS);
+      robot_p2[i] = cv::Point(KF_Robot_point[i].x+RHWS>=width ? width  : KF_Robot_point[i].x+RHWS, KF_Robot_point[i].y+RHWS>=height? height: KF_Robot_point[i].y+RHWS);
+      cout << "ROBOT 2" << endl;
       robotOrigin[i] = robot_p1[i];
+      cout << "ROBOT 3" << endl;
       cv::Rect  rect(robot_p1[i],robot_p2[i]);
-      dummy[3*i] = image_copy(rect);
-      crop[3*i] = dummy[3*i].clone();
-      dummy[1+3*i] = image_copy(rect);
-      crop[1+3*i] = dummy[1+3*i].clone();
-      dummy[2+3*i] = image_copy(rect);
-      crop[2+3*i] = dummy[2+3*i].clone();
-      //cout << "ROBOT 3" << endl;
+      cout << "ROBOT 4" << endl;
+      dummy[3*i] = image_copy(rect); // bug
+      crop[3*i] = dummy[3*i].clone(); // bug
+      dummy[1+3*i] = image_copy(rect); // bug
+      crop[1+3*i] = dummy[1+3*i].clone(); // bug
+      dummy[2+3*i] = image_copy(rect); // bug
+      crop[2+3*i] = dummy[2+3*i].clone(); // bug
+      cout << "ROBOT 5" << endl;
     }
 
     //imwrite( "window0-1.png", crop[0] );
@@ -153,15 +158,17 @@ public:
     //imwrite( "window2-2.png", crop[7] );
     //imwrite( "window2-3.png", crop[8] );
 
-    //cout << "BALL 1" << endl;
-    ball_p1 = cv::Point(KF_Ball_point.x-50<=0 ? 0 : KF_Ball_point.x-50, KF_Ball_point.y-50<=0 ? 0 : KF_Ball_point.y-50);
-    ball_p2 = cv::Point(KF_Ball_point.x+50>=width ? width  : KF_Ball_point.x+50, KF_Ball_point.y+50>=height? height: KF_Ball_point.y+50);
+    cout << "BALL 1" << endl;
+    ball_p1 = cv::Point(KF_Ball_point.x-BHWS<=0 ? 0 : KF_Ball_point.x-BHWS, KF_Ball_point.y-BHWS<=0 ? 0 : KF_Ball_point.y-BHWS);
+    ball_p2 = cv::Point(KF_Ball_point.x+BHWS>=width ? width  : KF_Ball_point.x+BHWS, KF_Ball_point.y+BHWS>=height? height: KF_Ball_point.y+BHWS);
     Ballorigin = ball_p1;
-    //cout << "BALL 2" << endl;
+    cout << "BALL 2" << endl;
     cv::Rect  rect(ball_p1,ball_p2);
-    dummy[9] = image_copy(rect);
-    crop[9] = dummy[9].clone();
-    //cout << "BALL 3" << endl;
+    cout << "BALL 3" << endl;
+    dummy[9] = image_copy(rect); // bug
+    crop[9] = dummy[9].clone(); // bug
+    cout << "BALL 4" << endl;
+
 
 
 

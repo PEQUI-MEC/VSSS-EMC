@@ -276,15 +276,15 @@ bool capture_and_show() {
     {
       drawStrategyConstants(imageView, w, h);
 
-      rectangle(imageView,cv::Point(Ball_kf_est.x-50,Ball_kf_est.y-50),
-      cv::Point(Ball_kf_est.x+50,Ball_kf_est.y+50),CV_RGB(0,127,255),5,8);
+      rectangle(imageView,cv::Point(Ball_kf_est.x-vision->BHWS,Ball_kf_est.y-vision->BHWS),
+        cv::Point(Ball_kf_est.x+vision->BHWS,Ball_kf_est.y+vision->BHWS),CV_RGB(0,127,255),2,8);
 
-      rectangle(imageView,cv::Point(robot_kf_est[0].x-50,robot_kf_est[0].y-50),
-      cv::Point(robot_kf_est[0].x+50,robot_kf_est[0].y+50),CV_RGB(0,255,255),5,8);
-      rectangle(imageView,cv::Point(robot_kf_est[1].x-50,robot_kf_est[1].y-50),
-      cv::Point(robot_kf_est[1].x+50,robot_kf_est[1].y+50),CV_RGB(0,255,255),5,8);
-      rectangle(imageView,cv::Point(robot_kf_est[2].x-50,robot_kf_est[2].y-50),
-      cv::Point(robot_kf_est[2].x+50,robot_kf_est[2].y+50),CV_RGB(0,255,255),5,8);
+      rectangle(imageView,cv::Point(robot_kf_est[0].x-vision->RHWS,robot_kf_est[0].y-vision->RHWS),
+        cv::Point(robot_kf_est[0].x+vision->RHWS,robot_kf_est[0].y+vision->RHWS),CV_RGB(0,255,255),2,8);
+      rectangle(imageView,cv::Point(robot_kf_est[1].x-vision->RHWS,robot_kf_est[1].y-vision->RHWS),
+        cv::Point(robot_kf_est[1].x+vision->RHWS,robot_kf_est[1].y+vision->RHWS),CV_RGB(0,255,255),2,8);
+      rectangle(imageView,cv::Point(robot_kf_est[2].x-vision->RHWS,robot_kf_est[2].y-vision->RHWS),
+        cv::Point(robot_kf_est[2].x+vision->RHWS,robot_kf_est[2].y+vision->RHWS),CV_RGB(0,255,255),2,8);
 
 
       circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
