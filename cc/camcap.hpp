@@ -128,7 +128,7 @@ public:
   }
 
   bool start_signal(bool b) {
-
+    
     if (b) {
 
       cout << "Start Clicked!" << endl;
@@ -193,188 +193,188 @@ bool capture_and_show() {
   /*cv::VideoWriter outputVideo;
   outputVideo.open("video.mpeg",-1, 13, cv::Size(640,480), true);
   if (!outputVideo.isOpened())
-    {
-        cout  << "Could not open the output video for write. "<< endl;
-        return -1;
-    }*/
-
-  //std::cout << 1 << std::endl;
-
-  //timer.start();
-
-  interface.vcap.grab_rgb(data);
-  interface.imageView.set_data(data, width, height);
-
-
-  interface.imageView.refresh();
-  d = interface.imageView.get_data();
-
-  w = interface.imageView.get_width();
-  h = interface.imageView.get_height();
-
-
-
-  cv::Mat imageView(h,w,CV_8UC3,d);
-  //std::cout << 2 << std::endl;
-  if(interface.imageView.hold_warp) {
-    interface.warped = true;
-    interface.bt_adjust.set_state(Gtk::STATE_NORMAL);
-    interface.imageView.warp_event_flag = false;
-    interface.imageView.warp_event_flag = false;
-    interface.imageView.hold_warp=false;
-  }
-
-
-  interface.imageView.PID_test_flag = control.PID_test_flag;
-  interface.imageView.adjust_event_flag = interface.adjust_event_flag;
-
-  if(interface.warped) {
-    interface.bt_warp.set_active(false);
-    interface.bt_warp.set_state(Gtk::STATE_INSENSITIVE);
-    warp_transform(imageView);
-    interface.imageView.warp_event_flag=false;
-
-    if(interface.invert_image_flag)
-    {
-      cv::flip(imageView,imageView, -1);
-    }
-
-  }
-
-
-  //std::cout << 3 << std::endl;
-  vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
-  //TRACKING CAMERA
-
-  vision->set_ROI(Ball_kf_est, robot_kf_est);
-  //std::cout << 4 << std::endl;
-  if(vision->isBallLost() || vision->isAnyRobotLost()){
-    //std::cout << 4.1 << std::endl;
-    //std::cout << "Old Parallel Tracking" << endl;
-    vision->parallel_tracking(imageView);
-    vision->robot_creation_uni_duni_tag();
-
-
-  }else{
-    //std::cout << 4.2 << std::endl;
-    //std::cout << "Camshift Parallel Tracking" << endl;
-    vision->camshift_parallel_tracking(imageView);
-    vision->camshift_robot_creation_uni_duni_tag(0);
-    vision->camshift_robot_creation_uni_duni_tag(1);
-    vision->camshift_robot_creation_uni_duni_tag(2);
-    //std::cout << 4.3 << std::endl;
-  }
-
-  //LEMBRAR DE ATUALIZAR KF_FIRST
-
-  //std::cout << 5 << std::endl;
-
-  if(!interface.HSV_calib_event_flag) {
-    updateAllPositions();
-
-    if (!interface.draw_info_flag)
-    {
-      drawStrategyConstants(imageView, w, h);
-
-      rectangle(imageView,cv::Point(Ball_kf_est.x-vision->BHWS,Ball_kf_est.y-vision->BHWS),
-        cv::Point(Ball_kf_est.x+vision->BHWS,Ball_kf_est.y+vision->BHWS),CV_RGB(0,127,255),2,8);
-
-      rectangle(imageView,cv::Point(robot_kf_est[0].x-vision->RHWS,robot_kf_est[0].y-vision->RHWS),
-        cv::Point(robot_kf_est[0].x+vision->RHWS,robot_kf_est[0].y+vision->RHWS),CV_RGB(0,255,255),2,8);
-      rectangle(imageView,cv::Point(robot_kf_est[1].x-vision->RHWS,robot_kf_est[1].y-vision->RHWS),
-        cv::Point(robot_kf_est[1].x+vision->RHWS,robot_kf_est[1].y+vision->RHWS),CV_RGB(0,255,255),2,8);
-      rectangle(imageView,cv::Point(robot_kf_est[2].x-vision->RHWS,robot_kf_est[2].y-vision->RHWS),
-        cv::Point(robot_kf_est[2].x+vision->RHWS,robot_kf_est[2].y+vision->RHWS),CV_RGB(0,255,255),2,8);
-
-
-      circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
-      line(imageView,interface.robot_list[0].position,interface.robot_list[0].secundary,cv::Scalar(255,255,0), 2);
-      //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
-      putText(imageView,"1",cv::Point(interface.robot_list[0].position.x-5,interface.robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-      circle(imageView,interface.robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
-      line(imageView,interface.robot_list[1].position,interface.robot_list[1].secundary,cv::Scalar(255,255,0), 2);
-      //line(imageView,interface.robot_list[1].position,interface.robot_list[1].ternary,cv::Scalar(100,255,0), 2);
-      putText(imageView,"2",cv::Point(interface.robot_list[1].position.x-5,interface.robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-      circle(imageView,interface.robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
-      line(imageView,interface.robot_list[2].position,interface.robot_list[2].secundary,cv::Scalar(255,255,0), 2);
-      //line(imageView,interface.robot_list[2].position,interface.robot_list[2].ternary,cv::Scalar(100,255,0), 2);
-      putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-      circle(imageView,vision->get_ball_position(), 7, cv::Scalar(255,255,255), 2);
-
-      //std::cout << "Robot 0 position: (" << interface.robot_list[0].position.x << "," << interface.robot_list[0].position.y << ")" << std::endl;
-      //std::cout << "Robot 1 position: (" << interface.robot_list[1].position.x << "," << interface.robot_list[1].position.y << ")" << std::endl;
-      //std::cout << "Robot 2 position: (" << interface.robot_list[2].position.x << "," << interface.robot_list[2].position.y << ")" << std::endl;
-
-      for(int i=0; i<vision->Adv_Main.size(); i++)
-      circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
-    }
-    //std::cout << 8 << std::endl;
-
-  }
-
-  //std::cout << 9 << std::endl;
-  if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
   {
-    control.button_PID_Test.set_active(true);
-    PID_test();
+  cout  << "Could not open the output video for write. "<< endl;
+  return -1;
+}*/
+
+//std::cout << 1 << std::endl;
+
+//timer.start();
+
+interface.vcap.grab_rgb(data);
+interface.imageView.set_data(data, width, height);
+
+
+interface.imageView.refresh();
+d = interface.imageView.get_data();
+
+w = interface.imageView.get_width();
+h = interface.imageView.get_height();
+
+
+
+cv::Mat imageView(h,w,CV_8UC3,d);
+//std::cout << 2 << std::endl;
+if(interface.imageView.hold_warp) {
+  interface.warped = true;
+  interface.bt_adjust.set_state(Gtk::STATE_NORMAL);
+  interface.imageView.warp_event_flag = false;
+  interface.imageView.warp_event_flag = false;
+  interface.imageView.hold_warp=false;
+}
+
+
+interface.imageView.PID_test_flag = control.PID_test_flag;
+interface.imageView.adjust_event_flag = interface.adjust_event_flag;
+
+if(interface.warped) {
+  interface.bt_warp.set_active(false);
+  interface.bt_warp.set_state(Gtk::STATE_INSENSITIVE);
+  warp_transform(imageView);
+  interface.imageView.warp_event_flag=false;
+
+  if(interface.invert_image_flag)
+  {
+    cv::flip(imageView,imageView, -1);
   }
 
-  else {
-    for(int i=0; i<interface.robot_list.size(); i++) {
-      interface.robot_list[i].target=cv::Point(-1,-1);
-    }
-    Selec_index=-1;
-  }
-  //std::cout << 10 << std::endl;
-  if (interface.imageView.PID_test_flag && interface.get_start_game_flag())
-  control.button_PID_Test.set_active(false);
+}
 
-  //std::cout << 11 << std::endl;
-  if(Selec_index!=-1) {
-    circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
+
+//std::cout << 3 << std::endl;
+vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
+//TRACKING CAMERA
+
+vision->set_ROI(Ball_kf_est, robot_kf_est);
+//std::cout << 4 << std::endl;
+if(vision->isBallLost() || vision->isAnyRobotLost()){
+  //std::cout << 4.1 << std::endl;
+  //std::cout << "Old Parallel Tracking" << endl;
+  vision->parallel_tracking(imageView);
+  vision->robot_creation_uni_duni_tag();
+
+
+}else{
+  //std::cout << 4.2 << std::endl;
+  //std::cout << "Camshift Parallel Tracking" << endl;
+  vision->camshift_parallel_tracking(imageView);
+  vision->camshift_robot_creation_uni_duni_tag(0);
+  vision->camshift_robot_creation_uni_duni_tag(1);
+  vision->camshift_robot_creation_uni_duni_tag(2);
+  //std::cout << 4.3 << std::endl;
+}
+
+//LEMBRAR DE ATUALIZAR KF_FIRST
+
+//std::cout << 5 << std::endl;
+
+if(!interface.HSV_calib_event_flag) {
+  updateAllPositions();
+
+  if (!interface.draw_info_flag)
+  {
+    drawStrategyConstants(imageView, w, h);
+
+    rectangle(imageView,cv::Point(Ball_kf_est.x-vision->BHWS,Ball_kf_est.y-vision->BHWS),
+    cv::Point(Ball_kf_est.x+vision->BHWS,Ball_kf_est.y+vision->BHWS),CV_RGB(0,127,255),2,8);
+
+    rectangle(imageView,cv::Point(robot_kf_est[0].x-vision->RHWS,robot_kf_est[0].y-vision->RHWS),
+    cv::Point(robot_kf_est[0].x+vision->RHWS,robot_kf_est[0].y+vision->RHWS),CV_RGB(0,255,255),2,8);
+    rectangle(imageView,cv::Point(robot_kf_est[1].x-vision->RHWS,robot_kf_est[1].y-vision->RHWS),
+    cv::Point(robot_kf_est[1].x+vision->RHWS,robot_kf_est[1].y+vision->RHWS),CV_RGB(0,255,255),2,8);
+    rectangle(imageView,cv::Point(robot_kf_est[2].x-vision->RHWS,robot_kf_est[2].y-vision->RHWS),
+    cv::Point(robot_kf_est[2].x+vision->RHWS,robot_kf_est[2].y+vision->RHWS),CV_RGB(0,255,255),2,8);
+
+
+    circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
+    line(imageView,interface.robot_list[0].position,interface.robot_list[0].secundary,cv::Scalar(255,255,0), 2);
+    //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
+    putText(imageView,"1",cv::Point(interface.robot_list[0].position.x-5,interface.robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
+    circle(imageView,interface.robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
+    line(imageView,interface.robot_list[1].position,interface.robot_list[1].secundary,cv::Scalar(255,255,0), 2);
+    //line(imageView,interface.robot_list[1].position,interface.robot_list[1].ternary,cv::Scalar(100,255,0), 2);
+    putText(imageView,"2",cv::Point(interface.robot_list[1].position.x-5,interface.robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
+    circle(imageView,interface.robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
+    line(imageView,interface.robot_list[2].position,interface.robot_list[2].secundary,cv::Scalar(255,255,0), 2);
+    //line(imageView,interface.robot_list[2].position,interface.robot_list[2].ternary,cv::Scalar(100,255,0), 2);
+    putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
+    circle(imageView,vision->get_ball_position(), 7, cv::Scalar(255,255,255), 2);
+
+    //std::cout << "Robot 0 position: (" << interface.robot_list[0].position.x << "," << interface.robot_list[0].position.y << ")" << std::endl;
+    //std::cout << "Robot 1 position: (" << interface.robot_list[1].position.x << "," << interface.robot_list[1].position.y << ")" << std::endl;
+    //std::cout << "Robot 2 position: (" << interface.robot_list[2].position.x << "," << interface.robot_list[2].position.y << ")" << std::endl;
+
+    for(int i=0; i<vision->Adv_Main.size(); i++)
+    circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
   }
-  //std::cout << 12 << std::endl;
+  //std::cout << 8 << std::endl;
+
+}
+
+//std::cout << 9 << std::endl;
+if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
+{
+  control.button_PID_Test.set_active(true);
+  PID_test();
+}
+
+else {
   for(int i=0; i<interface.robot_list.size(); i++) {
-    if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
-    line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
-    circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
+    interface.robot_list[i].target=cv::Point(-1,-1);
   }
-  //  std::cout << 13 << std::endl;
-  // ----------- ESTRATEGIA -----------------//
-  strategyGUI.strategy.set_Ball(vision->get_ball_position());
+  Selec_index=-1;
+}
+//std::cout << 10 << std::endl;
+if (interface.imageView.PID_test_flag && interface.get_start_game_flag())
+control.button_PID_Test.set_active(false);
 
-  if(interface.start_game_flag) {
-    Ball_Est=strategyGUI.strategy.get_Ball_Est();
-    line(imageView,vision->get_ball_position(),Ball_Est,cv::Scalar(255,140,0), 2);
-    circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
-    char buffer[3];
-    for(int i =0; i<3; i++) {
-      switch (interface.robot_list[i].role)	{
-        case 0:
-        interface.robot_list[i].target = strategyGUI.strategy.get_gk_target(vision->Adv_Main);
-        interface.robot_list[i].fixedPos = strategyGUI.strategy.Goalkeeper.fixedPos;
-        if(strategyGUI.strategy.GOAL_DANGER_ZONE) {
-          interface.robot_list[i].histWipe();
-        }
-        break;
-        case 2:
-        interface.robot_list[i].target = strategyGUI.strategy.get_atk_target(interface.robot_list[i].position, interface.robot_list[i].orientation);
-        interface.robot_list[i].fixedPos = strategyGUI.strategy.Attack.fixedPos;
-        interface.robot_list[i].status = strategyGUI.strategy.Attack.status;
-        /*	for(int j=0;j<vision->Adv_Main.size();j++){
-        if ( sqrt(pow(vision->Adv_Main[j].x - interface.robot_list[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
+//std::cout << 11 << std::endl;
+if(Selec_index!=-1) {
+  circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
+}
+//std::cout << 12 << std::endl;
+for(int i=0; i<interface.robot_list.size(); i++) {
+  if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
+  line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
+  circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
+}
+//  std::cout << 13 << std::endl;
+// ----------- ESTRATEGIA -----------------//
+strategyGUI.strategy.set_Ball(vision->get_ball_position());
+
+if(interface.start_game_flag) {
+  Ball_Est=strategyGUI.strategy.get_Ball_Est();
+  line(imageView,vision->get_ball_position(),Ball_Est,cv::Scalar(255,140,0), 2);
+  circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
+  char buffer[3];
+  for(int i =0; i<3; i++) {
+    switch (interface.robot_list[i].role)	{
+      case 0:
+      interface.robot_list[i].target = strategyGUI.strategy.get_gk_target(vision->Adv_Main);
+      interface.robot_list[i].fixedPos = strategyGUI.strategy.Goalkeeper.fixedPos;
+      if(strategyGUI.strategy.GOAL_DANGER_ZONE) {
         interface.robot_list[i].histWipe();
       }
-    }*/
-    break;
-    case 1:
-    interface.robot_list[i].target = strategyGUI.strategy.get_def_target(interface.robot_list[i].position);
-    interface.robot_list[i].fixedPos = strategyGUI.strategy.Defense.fixedPos;
-    interface.robot_list[i].status = strategyGUI.strategy.Defense.status;
-    /*	for(int j=0;j<vision->Adv_Main.size();j++){
-    if ( sqrt(pow(vision->Adv_Main[j].x - interface.robot_list[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
-    interface.robot_list[i].spin = true;
-  }
+      break;
+      case 2:
+      interface.robot_list[i].target = strategyGUI.strategy.get_atk_target(interface.robot_list[i].position, interface.robot_list[i].orientation);
+      interface.robot_list[i].fixedPos = strategyGUI.strategy.Attack.fixedPos;
+      interface.robot_list[i].status = strategyGUI.strategy.Attack.status;
+      /*	for(int j=0;j<vision->Adv_Main.size();j++){
+      if ( sqrt(pow(vision->Adv_Main[j].x - interface.robot_list[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
+      interface.robot_list[i].histWipe();
+    }
+  }*/
+  break;
+  case 1:
+  interface.robot_list[i].target = strategyGUI.strategy.get_def_target(interface.robot_list[i].position);
+  interface.robot_list[i].fixedPos = strategyGUI.strategy.Defense.fixedPos;
+  interface.robot_list[i].status = strategyGUI.strategy.Defense.status;
+  /*	for(int j=0;j<vision->Adv_Main.size();j++){
+  if ( sqrt(pow(vision->Adv_Main[j].x - interface.robot_list[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
+  interface.robot_list[i].spin = true;
+}
 }*/
 break;
 case 3:
