@@ -200,7 +200,7 @@ bool capture_and_show() {
 
   //std::cout << 1 << std::endl;
 
-  //timer.start();
+  timer.start();
 
   interface.vcap.grab_rgb(data);
   interface.imageView.set_data(data, width, height);
@@ -268,9 +268,10 @@ bool capture_and_show() {
   //LEMBRAR DE ATUALIZAR KF_FIRST
 
   //std::cout << 5 << std::endl;
+  updateAllPositions();
 
   if(!interface.HSV_calib_event_flag) {
-    updateAllPositions();
+
 
     if (!interface.draw_info_flag)
     {
@@ -399,21 +400,21 @@ send_vel_to_robots();
 
 
 
-// timer.stop();
-// if (timerCounter == 30)
-// {
-//   for (int i = 0; i < fps.size(); i++)
-//   {
-//     fps_average += fps[i];
-//   }
-//   fps_average = fps_average / fps.size();
-//   cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
-//   timerCounter = 0;
-//   fps.clear();
-// }
-// timerCounter++;
-// fps.push_back(1/timer.getCPUTotalSecs());
-// timer.reset();
+timer.stop();
+if (timerCounter == 30)
+{
+  for (int i = 0; i < fps.size(); i++)
+  {
+    fps_average += fps[i];
+  }
+  fps_average = fps_average / fps.size();
+  cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
+  timerCounter = 0;
+  fps.clear();
+}
+timerCounter++;
+fps.push_back(1/timer.getCPUTotalSecs());
+timer.reset();
 
 
 //std::cout << 14 << std::endl;

@@ -21,6 +21,10 @@ class Vision
 public:
   int const RHWS = 25; // Robot Half Window Size
   int const BHWS = 25; // Ball Half Window Size
+  cv::Point ball_p1;
+  cv::Point ball_p2;
+  cv::Point robot_p1[3];
+  cv::Point robot_p2[3];
   boost::thread_group threshold_threads;
   boost::thread_group threshold_threadsNew;
   cv::Point  Ballorigin;
@@ -84,6 +88,65 @@ public:
     return robot_list.size();
   }
 
+  void setWindowSize(cv::Point KF, bool isRobot, int index)
+  {
+
+    cv::Point aux;
+
+    //Determinar o x do ponto 1
+    if (KF.x-RHWS<=0)
+      aux.x = 0;
+    else if (KF.x-RHWS>=width)
+      aux.x = width;
+    else
+      aux.x = KF.x-RHWS;
+
+    //Determinar o y do ponto 1
+    if (KF.y-RHWS<=0)
+      aux.y = 0;
+    else if (KF.y-RHWS>=height)
+      aux.y = height;
+    else
+      aux.y = KF.y-RHWS;
+
+    // Definir o ponto 1
+    if (isRobot)
+      robot_p1[index] = cv::Point(aux.x, aux.y);
+    else //isBall
+      ball_p1 = cv::Point(aux.x, aux.y);
+
+    //Determinar o x do ponto 2
+    if (KF.x+RHWS<=0)
+      aux.x = 0;
+    else if (KF.x+RHWS>=width)
+      aux.x = width;
+    else
+      aux.x = KF.x+RHWS;
+
+    //Determinar o y do ponto 2
+    if (KF.y+RHWS<=0)
+      aux.y = 0;
+    else if (KF.y+RHWS>=height)
+      aux.y = height;
+    else
+      aux.y = KF.y+RHWS;
+
+    //Definir Ponto 2
+    if (isRobot)
+      robot_p2[index] = cv::Point(aux.x, aux.y);
+    else //isBall
+      ball_p2 = cv::Point(aux.x, aux.y);
+  }
+
+  // Verifica se a janela é realmente uma janela e não uma linha
+  bool checkWindowSize(cv::Point p1, cv::Point p2)
+  {
+    if (abs(p1.x - p2.x) > 0 && abs(p1.y - p2.y) > 0)
+      return true;
+    else
+      return false;
+  }
+
   Robot get_robot_from_list(int index)
   {
     Robot r;
@@ -117,35 +180,36 @@ public:
   }
 
   void camshift_parallel_tracking(cv::Mat im) {
-    cv::Point ball_p1;
-    cv::Point ball_p2;
-    cv::Point robot_p1[3];
-    cv::Point robot_p2[3];
 
     cv::Mat dummy[10];
     cv::Mat crop[10];
     cv::Mat image_copy = im.clone();
-    cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-    cv::medianBlur(image_copy, image_copy, 5);
 
 
     for (int i = 0; i < 3; i++)
     {
-      cout << "ROBOT 1" << endl;
-      robot_p1[i] = cv::Point(KF_Robot_point[i].x-RHWS<=0 ? 0 : KF_Robot_point[i].x-RHWS, KF_Robot_point[i].y-RHWS<=0 ? 0 : KF_Robot_point[i].y-RHWS);
-      robot_p2[i] = cv::Point(KF_Robot_point[i].x+RHWS>=width ? width  : KF_Robot_point[i].x+RHWS, KF_Robot_point[i].y+RHWS>=height? height: KF_Robot_point[i].y+RHWS);
-      cout << "ROBOT 2" << endl;
+      //cout << "KF_Robot_point[" << i << "].x = " << KF_Robot_point[i].x << " || KF_Robot_point[" << i << "].y = " << KF_Robot_point[i].y << endl;
+      setWindowSize(KF_Robot_point[i], true, i);
+      if (!checkWindowSize(robot_p1[i], robot_p2[i]))
+      {
+        robot_lost[i] = true;
+        return;
+      }
+      // robot_p1[i] = cv::Point(KF_Robot_point[i].x-RHWS<=0 ? 0 : KF_Robot_point[i].x-RHWS, KF_Robot_point[i].y-RHWS<=0 ? 0 : KF_Robot_point[i].y-RHWS);
+      // robot_p2[i] = cv::Point(KF_Robot_point[i].x+RHWS>=width ? width  : KF_Robot_point[i].x+RHWS, KF_Robot_point[i].y+RHWS>=height? height: KF_Robot_point[i].y+RHWS);
+      //cout << "ROBOT 2" << endl;
       robotOrigin[i] = robot_p1[i];
-      cout << "ROBOT 3" << endl;
+      //cout << "ROBOT 3" << endl;
       cv::Rect  rect(robot_p1[i],robot_p2[i]);
-      cout << "ROBOT 4" << endl;
+      //cout << "ROBOT 4" << endl;
+      //cout << "Robot[" << i << "] p1(" << robot_p1[i].x << ", " << robot_p1[i].y << ")" << " - Robot[" << i << "] p2(" << robot_p2[i].x << ", " << robot_p2[i].y << ")" << endl;
       dummy[3*i] = image_copy(rect); // bug
       crop[3*i] = dummy[3*i].clone(); // bug
       dummy[1+3*i] = image_copy(rect); // bug
       crop[1+3*i] = dummy[1+3*i].clone(); // bug
       dummy[2+3*i] = image_copy(rect); // bug
       crop[2+3*i] = dummy[2+3*i].clone(); // bug
-      cout << "ROBOT 5" << endl;
+      //cout << "ROBOT 5" << endl;
     }
 
     //imwrite( "window0-1.png", crop[0] );
@@ -158,16 +222,27 @@ public:
     //imwrite( "window2-2.png", crop[7] );
     //imwrite( "window2-3.png", crop[8] );
 
-    cout << "BALL 1" << endl;
-    ball_p1 = cv::Point(KF_Ball_point.x-BHWS<=0 ? 0 : KF_Ball_point.x-BHWS, KF_Ball_point.y-BHWS<=0 ? 0 : KF_Ball_point.y-BHWS);
-    ball_p2 = cv::Point(KF_Ball_point.x+BHWS>=width ? width  : KF_Ball_point.x+BHWS, KF_Ball_point.y+BHWS>=height? height: KF_Ball_point.y+BHWS);
+    //cout << "KF_Ball_point.x = " << KF_Ball_point.x << " || KF_Ball_point.y = " << KF_Ball_point.y << endl;
+
+    //cout << "BALL 1" << endl;
+    // ball_p1 = cv::Point(KF_Ball_point.x-BHWS<=0 ? 0 : KF_Ball_point.x-BHWS, KF_Ball_point.y-BHWS<=0 ? 0 : KF_Ball_point.y-BHWS);
+    // ball_p2 = cv::Point(KF_Ball_point.x+BHWS>=width ? width  : KF_Ball_point.x+BHWS, KF_Ball_point.y+BHWS>=height? height: KF_Ball_point.y+BHWS);
+    setWindowSize(KF_Ball_point, false, 0);
+    if (!checkWindowSize(ball_p1, ball_p2))
+    {
+      Ball_lost = true;
+      return;
+    }
     Ballorigin = ball_p1;
-    cout << "BALL 2" << endl;
+
+
+
+    //cout << "BALL 2" << endl;
     cv::Rect  rect(ball_p1,ball_p2);
-    cout << "BALL 3" << endl;
+    //cout << "Ball p1(" << ball_p1.x << ", " << ball_p1.y << ")" << " - Ball p2(" << ball_p2.x << ", " << ball_p2.y << ")" << endl;
     dummy[9] = image_copy(rect); // bug
     crop[9] = dummy[9].clone(); // bug
-    cout << "BALL 4" << endl;
+    //cout << "BALL 4" << endl;
 
 
 
@@ -223,6 +298,9 @@ public:
     int ec,e3c,H,S,V;
     vector< vector<cv::Point> > contours;
     vector<cv::Vec4i> hierarchy;
+
+    cv::cvtColor(image,image,cv::COLOR_RGB2HSV);
+    cv::medianBlur(image, image, 5);
 
 
   //  cout<<width<<endl;
