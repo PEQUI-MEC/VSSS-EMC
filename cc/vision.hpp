@@ -180,21 +180,23 @@ public:
   }
 
   void camshift_parallel_tracking(cv::Mat im) {
-
+  //  cout << "1.1" << endl;
     cv::Mat dummy[10];
     cv::Mat crop[10];
     cv::Mat image_copy = im.clone();
 
-
+  //  cout << "1.2" << endl;
     for (int i = 0; i < 3; i++)
     {
       //cout << "KF_Robot_point[" << i << "].x = " << KF_Robot_point[i].x << " || KF_Robot_point[" << i << "].y = " << KF_Robot_point[i].y << endl;
       setWindowSize(KF_Robot_point[i], true, i);
       if (!checkWindowSize(robot_p1[i], robot_p2[i]))
       {
+        TeamMainNew[i].clear();
         robot_lost[i] = true;
         return;
       }
+
       // robot_p1[i] = cv::Point(KF_Robot_point[i].x-RHWS<=0 ? 0 : KF_Robot_point[i].x-RHWS, KF_Robot_point[i].y-RHWS<=0 ? 0 : KF_Robot_point[i].y-RHWS);
       // robot_p2[i] = cv::Point(KF_Robot_point[i].x+RHWS>=width ? width  : KF_Robot_point[i].x+RHWS, KF_Robot_point[i].y+RHWS>=height? height: KF_Robot_point[i].y+RHWS);
       //cout << "ROBOT 2" << endl;
@@ -211,6 +213,7 @@ public:
       crop[2+3*i] = dummy[2+3*i].clone(); // bug
       //cout << "ROBOT 5" << endl;
     }
+  //  cout << "1.3" << endl;
 
     //imwrite( "window0-1.png", crop[0] );
     //imwrite( "window0-2.png", crop[1] );
@@ -227,13 +230,18 @@ public:
     //cout << "BALL 1" << endl;
     // ball_p1 = cv::Point(KF_Ball_point.x-BHWS<=0 ? 0 : KF_Ball_point.x-BHWS, KF_Ball_point.y-BHWS<=0 ? 0 : KF_Ball_point.y-BHWS);
     // ball_p2 = cv::Point(KF_Ball_point.x+BHWS>=width ? width  : KF_Ball_point.x+BHWS, KF_Ball_point.y+BHWS>=height? height: KF_Ball_point.y+BHWS);
+  //  cout << "1.4" << endl;
     setWindowSize(KF_Ball_point, false, 0);
+    //cout << KF_Ball_point << endl;
+    //cout << ball_p1 << ", " << ball_p2 << endl;
     if (!checkWindowSize(ball_p1, ball_p2))
     {
       Ball_lost = true;
+      //cout << "1.5 return" << endl;
       return;
     }
     Ballorigin = ball_p1;
+  //  cout << "1.5" << endl;
 
 
 
@@ -244,31 +252,35 @@ public:
     crop[9] = dummy[9].clone(); // bug
     //cout << "BALL 4" << endl;
 
-
-
-
+  //  cout << "1.6" << endl;
     for(int i = 0; i < 3; i++) {
+      //camshift_img_tracking(crop[3*i], 0, i, robot_p1[i], robot_p2[i]);
+      //camshift_img_tracking(crop[1+3*i], 1, i, robot_p1[i], robot_p2[i]);
+      //camshift_img_tracking(crop[2+3*i], 2, i, robot_p1[i], robot_p2[i]);
       threshold_threadsNew.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop[3*i]), 0, i, robot_p1[i], robot_p2[i]));
       threshold_threadsNew.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop[1+3*i]), 1, i, robot_p1[i], robot_p2[i]));
       threshold_threadsNew.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop[2+3*i]), 2, i, robot_p1[i], robot_p2[i]));
     }
 
+    camshift_img_tracking(crop[9], 4, 3, ball_p1, ball_p2);
+
     // Tracking Bola
-    threshold_threadsNew.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop[9]), 4, 3, ball_p1, ball_p2));
+    //threshold_threadsNew.add_thread(new boost::thread(&Vision::camshift_img_tracking,this, boost::ref(crop[9]), 4, 3, ball_p1, ball_p2));
     //imwrite("teste.png",crop[9]);
 
 
     //Tracking Adversário
-    threshold_threadsNew.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), 5));
+    //threshold_threadsNew.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), 5));
 
     threshold_threadsNew.join_all();
+  //  cout << "1.7" << endl;
     image_copy.release();
     for (int i = 0; i < 10; i++)
     {
       crop[i].release();
       dummy[i].release();
     }
-
+  //  cout << "1.8" << endl;
 
   }
 
@@ -295,6 +307,7 @@ public:
 
   void camshift_img_tracking(cv::Mat image,int color_id, int window_id, cv::Point p1,cv::Point p2) {
     //cout << "Camshift IMG TRACKING" << endl;
+  //  cout << window_id << " - 1.6.1" << endl;
     int ec,e3c,H,S,V;
     vector< vector<cv::Point> > contours;
     vector<cv::Vec4i> hierarchy;
@@ -306,7 +319,7 @@ public:
     //  cout<<width<<endl;
     cv::Mat dummy;
     cv::Mat crop;
-
+  //  cout << window_id << " - 1.6.2" << endl;
     for(int i =0; i<image.cols; i++) { //Threshold calculations
       for(int j =0; j<image.rows; j++) {
         ec = image.cols*i + j;
@@ -332,6 +345,7 @@ public:
         }
       }
     }
+  //  cout << window_id << " - 1.6.3" << endl;
     cv::Rect  rect(p1,p2);
 
 
@@ -341,7 +355,7 @@ public:
     //cv::imwrite("image.png",image);
     cv::cvtColor(crop,crop,cv::COLOR_RGB2GRAY);
     //cv::imwrite("threshold.png",crop);
-
+  //  cout << window_id << " - 1.6.4" << endl;
     //if (window_id == 0)
     //imwrite( "window0-bw.png", crop );
     //if (window_id == 1)
@@ -350,7 +364,7 @@ public:
     //imwrite( "window2-bw.png", crop );
 
     cv::findContours(crop,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
-
+  //  cout << window_id << " - 1.6.5" << endl;
     switch(color_id) {
 
       case 0:// TEAM MAIN COLOR
@@ -457,6 +471,7 @@ public:
 break;
 
 }
+//cout << window_id << " - 1.6.6" << endl;
 }
 
 void img_tracking(cv::Mat image,int color_id) {
@@ -744,6 +759,7 @@ void camshift_robot_creation_uni_duni_tag(int window_id) {
   if (TeamMainNew[window_id].size() <= 0)
   {
     robot_lost[window_id] = true;
+    TeamMainNew[window_id].clear();
     return;
   }
   else if (TeamMainNew[window_id].size() == 1)
@@ -810,6 +826,7 @@ void camshift_robot_creation_uni_duni_tag(int window_id) {
   {
     // ainda não foi calibrado, não precisa achar os robôs.
     robot_lost[window_id] = true;
+    TeamMainNew[window_id].clear();
     return;
   }
   //cout<<"6"<<endl;
@@ -872,6 +889,7 @@ void camshift_robot_creation_uni_duni_tag(int window_id) {
   }
 
   robot_lost[window_id] = true;
+  TeamMainNew[window_id].clear();
   //cout<<"8"<<endl;
 
 }

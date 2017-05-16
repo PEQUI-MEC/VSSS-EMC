@@ -198,13 +198,7 @@ bool capture_and_show() {
   return -1;
 }*/
 
-<<<<<<< HEAD
-  timer.start();
-=======
-//std::cout << 1 << std::endl;
->>>>>>> 865e16bfcf0585967104fe2aa7bdd8eceb13d93a
-
-//timer.start();
+  //timer.start();
 
 interface.vcap.grab_rgb(data);
 interface.imageView.set_data(data, width, height);
@@ -252,29 +246,48 @@ vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
 
 vision->set_ROI(Ball_kf_est, robot_kf_est);
 //std::cout << 4 << std::endl;
-if(vision->isBallLost() || vision->isAnyRobotLost()){
-  //std::cout << 4.1 << std::endl;
-  //std::cout << "Old Parallel Tracking" << endl;
-  vision->parallel_tracking(imageView);
-  vision->robot_creation_uni_duni_tag();
 
 
-}else{
-  //std::cout << 4.2 << std::endl;
-  //std::cout << "Camshift Parallel Tracking" << endl;
-  vision->camshift_parallel_tracking(imageView);
-  vision->camshift_robot_creation_uni_duni_tag(0);
-  vision->camshift_robot_creation_uni_duni_tag(1);
-  vision->camshift_robot_creation_uni_duni_tag(2);
-  //std::cout << 4.3 << std::endl;
-}
 
 
-  updateAllPositions();
 
-
+  // timer.stop();
+  // if (timerCounter == 30)
+  // {
+  //   for (int i = 0; i < fps.size(); i++)
+  //   {
+  //     fps_average += fps[i];
+  //   }
+  //   fps_average = fps_average / fps.size();
+  //   cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
+  //   timerCounter = 0;
+  //   fps.clear();
+  // }
+  // timerCounter++;
+  // fps.push_back(1/timer.getCPUTotalSecs());
+  // timer.reset();
 
 if(!interface.HSV_calib_event_flag) {
+  if(vision->isBallLost() || vision->isAnyRobotLost()){
+    //std::cout << 4.1 << std::endl;
+    //std::cout << "Old Parallel Tracking" << endl;
+    vision->parallel_tracking(imageView);
+    vision->robot_creation_uni_duni_tag();
+
+
+  }else{
+  //  cout << "1" << endl;
+    vision->camshift_parallel_tracking(imageView);
+  //  cout << "2" << endl;
+    vision->camshift_robot_creation_uni_duni_tag(0);
+  //  cout << "3" << endl;
+    vision->camshift_robot_creation_uni_duni_tag(1);
+  //  cout << "4" << endl;
+    vision->camshift_robot_creation_uni_duni_tag(2);
+  //  cout << "5" << endl;
+
+  }
+  updateAllPositions();
 
   if (!interface.draw_info_flag)
   {
@@ -312,8 +325,13 @@ if(!interface.HSV_calib_event_flag) {
     for(int i=0; i<vision->Adv_Main.size(); i++)
     circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
   }
+
   //std::cout << 8 << std::endl;
 
+}
+else
+{
+  vision->parallel_tracking(imageView);
 }
 
 //std::cout << 9 << std::endl;
@@ -403,21 +421,7 @@ send_vel_to_robots();
 
 
 
-timer.stop();
-if (timerCounter == 30)
-{
-  for (int i = 0; i < fps.size(); i++)
-  {
-    fps_average += fps[i];
-  }
-  fps_average = fps_average / fps.size();
-  cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
-  timerCounter = 0;
-  fps.clear();
-}
-timerCounter++;
-fps.push_back(1/timer.getCPUTotalSecs());
-timer.reset();
+
 
 
 //std::cout << 14 << std::endl;
