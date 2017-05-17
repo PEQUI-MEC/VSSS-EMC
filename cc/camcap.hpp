@@ -247,9 +247,23 @@ vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
 vision->set_ROI(Ball_kf_est, robot_kf_est);
 //std::cout << 4 << std::endl;
 
+if(!interface.HSV_calib_event_flag) {
+  if(vision->isBallLost() || vision->isAnyRobotLost()){
+    //std::cout << 4.1 << std::endl;
+    //std::cout << "Old Parallel Tracking" << endl;
+    vision->parallel_tracking(imageView);
+    vision->robot_creation_uni_duni_tag();
 
 
+  }else{
+  //  cout << "1" << endl;
+    vision->camshift_parallel_tracking(imageView);
+    vision->camshift_robot_creation_uni_duni_tag(0);
+    vision->camshift_robot_creation_uni_duni_tag(1);
+    vision->camshift_robot_creation_uni_duni_tag(2);
+  //  cout << "5" << endl;
 
+  }
 
   // timer.stop();
   // if (timerCounter == 30)
@@ -267,26 +281,6 @@ vision->set_ROI(Ball_kf_est, robot_kf_est);
   // fps.push_back(1/timer.getCPUTotalSecs());
   // timer.reset();
 
-if(!interface.HSV_calib_event_flag) {
-  if(vision->isBallLost() || vision->isAnyRobotLost()){
-    //std::cout << 4.1 << std::endl;
-    //std::cout << "Old Parallel Tracking" << endl;
-    vision->parallel_tracking(imageView);
-    vision->robot_creation_uni_duni_tag();
-
-
-  }else{
-  //  cout << "1" << endl;
-    vision->camshift_parallel_tracking(imageView);
-  //  cout << "2" << endl;
-    vision->camshift_robot_creation_uni_duni_tag(0);
-  //  cout << "3" << endl;
-    vision->camshift_robot_creation_uni_duni_tag(1);
-  //  cout << "4" << endl;
-    vision->camshift_robot_creation_uni_duni_tag(2);
-  //  cout << "5" << endl;
-
-  }
   updateAllPositions();
 
   if (!interface.draw_info_flag)
@@ -317,10 +311,6 @@ if(!interface.HSV_calib_event_flag) {
     //line(imageView,interface.robot_list[2].position,interface.robot_list[2].ternary,cv::Scalar(100,255,0), 2);
     putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
     circle(imageView,vision->get_ball_position(), 7, cv::Scalar(255,255,255), 2);
-
-    //std::cout << "Robot 0 position: (" << interface.robot_list[0].position.x << "," << interface.robot_list[0].position.y << ")" << std::endl;
-    //std::cout << "Robot 1 position: (" << interface.robot_list[1].position.x << "," << interface.robot_list[1].position.y << ")" << std::endl;
-    //std::cout << "Robot 2 position: (" << interface.robot_list[2].position.x << "," << interface.robot_list[2].position.y << ")" << std::endl;
 
     for(int i=0; i<vision->Adv_Main.size(); i++)
     circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);

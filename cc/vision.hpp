@@ -75,7 +75,7 @@ public:
 
   bool isAnyRobotLost()
   {
-    //std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
+    std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
     return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
   }
 
@@ -192,8 +192,7 @@ public:
       setWindowSize(KF_Robot_point[i], true, i);
       if (!checkWindowSize(robot_p1[i], robot_p2[i]))
       {
-        TeamMainNew[i].clear();
-        robot_lost[i] = true;
+        setRobotLost(i);
         return;
       }
 
@@ -213,24 +212,7 @@ public:
       crop[2+3*i] = dummy[2+3*i].clone(); // bug
       //cout << "ROBOT 5" << endl;
     }
-  //  cout << "1.3" << endl;
 
-    //imwrite( "window0-1.png", crop[0] );
-    //imwrite( "window0-2.png", crop[1] );
-    //imwrite( "window0-3.png", crop[2] );
-    //imwrite( "window1-1.png", crop[3] );
-    //imwrite( "window1-2.png", crop[4] );
-    //imwrite( "window1-3.png", crop[5] );
-    //imwrite( "window2-1.png", crop[6] );
-    //imwrite( "window2-2.png", crop[7] );
-    //imwrite( "window2-3.png", crop[8] );
-
-    //cout << "KF_Ball_point.x = " << KF_Ball_point.x << " || KF_Ball_point.y = " << KF_Ball_point.y << endl;
-
-    //cout << "BALL 1" << endl;
-    // ball_p1 = cv::Point(KF_Ball_point.x-BHWS<=0 ? 0 : KF_Ball_point.x-BHWS, KF_Ball_point.y-BHWS<=0 ? 0 : KF_Ball_point.y-BHWS);
-    // ball_p2 = cv::Point(KF_Ball_point.x+BHWS>=width ? width  : KF_Ball_point.x+BHWS, KF_Ball_point.y+BHWS>=height? height: KF_Ball_point.y+BHWS);
-  //  cout << "1.4" << endl;
     setWindowSize(KF_Ball_point, false, 0);
     //cout << KF_Ball_point << endl;
     //cout << ball_p1 << ", " << ball_p2 << endl;
@@ -303,6 +285,17 @@ public:
 
 
   }
+
+  void setRobotLost(int index)
+  {
+    TeamMainNew[index].clear();
+    TeamSecNew[index][0].clear();
+    TeamSecNew[index][1].clear();
+    TeamSecNewArea[index][0].clear();
+    TeamSecNewArea[index][1].clear();
+    robot_lost[index] = true;
+  }
+
 
 
   void camshift_img_tracking(cv::Mat image,int color_id, int window_id, cv::Point p1,cv::Point p2) {
@@ -380,6 +373,10 @@ public:
           if(area >= areaMin[color_id]/100) {
             TeamMainNew[window_id].push_back(cv::Point(moment.m10/area,moment.m01/area));
 
+          }
+          else
+          {
+            setRobotLost(window_id);
           }
           index = hierarchy[index][0];
         }
@@ -758,8 +755,7 @@ void camshift_robot_creation_uni_duni_tag(int window_id) {
   // Verificar quais das tags amarelas está mais próxima do centro da janela
   if (TeamMainNew[window_id].size() <= 0)
   {
-    robot_lost[window_id] = true;
-    TeamMainNew[window_id].clear();
+    setRobotLost(window_id);
     return;
   }
   else if (TeamMainNew[window_id].size() == 1)
@@ -770,6 +766,12 @@ void camshift_robot_creation_uni_duni_tag(int window_id) {
   //std::cout << "5.1.2" << std::endl;
   distanceRef1 = 999999999.0;
   distanceRef2 = 999999999.0;
+
+  if (TeamSecNew[window_id][0].size() == 0 && TeamSecNew[window_id][1].size() == 0)
+  {
+    setRobotLost(window_id);
+    return;
+  }
 
   //  std::cout << "5.1.3" << std::endl;
   for(int i = 0; i < 2; i++) {
@@ -825,8 +827,7 @@ void camshift_robot_creation_uni_duni_tag(int window_id) {
   else
   {
     // ainda não foi calibrado, não precisa achar os robôs.
-    robot_lost[window_id] = true;
-    TeamMainNew[window_id].clear();
+    setRobotLost(window_id);
     return;
   }
   //cout<<"6"<<endl;
@@ -854,42 +855,50 @@ void camshift_robot_creation_uni_duni_tag(int window_id) {
 
   //cout<<"7"<<endl;
   if(robot.pink){
-    robot_list[2].position = robot.position; // colocar em um vetor
-    robot_list[2].secundary = robot.secundary; // colocar em um vetor
-    robot_list[2].orientation =  robot.orientation;
-    robot_lost[window_id] = false;
     if (window_id != 2)
-    robot_lost[window_id] = true;
+    {
+      setRobotLost(window_id);
+    }
     else
-    robot_lost[window_id] = false;
+    {
+      robot_list[2].position = robot.position; // colocar em um vetor
+      robot_list[2].secundary = robot.secundary; // colocar em um vetor
+      robot_list[2].orientation =  robot.orientation;
+      robot_lost[window_id] = false;
+    }
     return;
 
   }else  if(o>0) {
-
-    robot_list[0].position = robot.position; // colocar em um vetor
-    robot_list[0].secundary = robot.secundary; // colocar em um vetor
-    robot_list[0].orientation =  robot.orientation;
     if (window_id != 0)
-    robot_lost[window_id] = true;
+    {
+      setRobotLost(window_id);
+    }
     else
-    robot_lost[window_id] = false;
+    {
+      robot_list[0].position = robot.position; // colocar em um vetor
+      robot_list[0].secundary = robot.secundary; // colocar em um vetor
+      robot_list[0].orientation =  robot.orientation;
+      robot_lost[window_id] = false;
+    }
     return;
 
   }else {
-
-    robot_list[1].position = robot.position; // colocar em um vetor
-    robot_list[1].secundary = robot.secundary; // colocar em um vetor
-    robot_list[1].orientation =  robot.orientation;
     if (window_id != 1)
-    robot_lost[window_id] = true;
+    {
+      setRobotLost(window_id);
+    }
     else
-    robot_lost[window_id] = false;
+    {
+      robot_list[1].position = robot.position; // colocar em um vetor
+      robot_list[1].secundary = robot.secundary; // colocar em um vetor
+      robot_list[1].orientation =  robot.orientation;
+      robot_lost[window_id] = false;
+    }
     return;
 
   }
 
-  robot_lost[window_id] = true;
-  TeamMainNew[window_id].clear();
+  setRobotLost(window_id);
   //cout<<"8"<<endl;
 
 }
