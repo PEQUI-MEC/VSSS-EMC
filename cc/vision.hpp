@@ -328,13 +328,13 @@ public:
         (S>=saturation[color_id][0]&&S<=saturation[color_id][1])&&
         (V>=value[color_id][0]&&V<=value[color_id][1])) {
 
-          threshold[color_id][e3c] = 255;
-          threshold[color_id][e3c+1] = 255;
-          threshold[color_id][e3c+2] = 255;
+          threshold[window_id][e3c] = 255;
+          threshold[window_id][e3c+1] = 255;
+          threshold[window_id][e3c+2] = 255;
         } else {
-          threshold[color_id][e3c] = 0;
-          threshold[color_id][e3c+1] = 0;
-          threshold[color_id][e3c+2] = 0;
+          threshold[window_id][e3c] = 0;
+          threshold[window_id][e3c+1] = 0;
+          threshold[window_id][e3c+2] = 0;
         }
       }
     }
@@ -342,19 +342,11 @@ public:
     cv::Rect  rect(p1,p2);
 
 
-    cv::Mat temp(height,width,CV_8UC3,threshold[color_id]);
+    cv::Mat temp(height,width,CV_8UC3,threshold[window_id]);
     dummy = temp(rect);
     crop = dummy.clone();
     //cv::imwrite("image.png",image);
     cv::cvtColor(crop,crop,cv::COLOR_RGB2GRAY);
-    //cv::imwrite("threshold.png",crop);
-  //  cout << window_id << " - 1.6.4" << endl;
-    //if (window_id == 0)
-    //imwrite( "window0-bw.png", crop );
-    //if (window_id == 1)
-    //imwrite( "window1-bw.png", crop );
-    //if (window_id == 2)
-    //imwrite( "window2-bw.png", crop );
 
     cv::findContours(crop,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
   //  cout << window_id << " - 1.6.5" << endl;
@@ -1185,7 +1177,7 @@ Vision(int w, int h)
   KF_Robot.push_back(kf);
   KF_Robot.push_back(kf);
 
-  threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));
+  threshold = (unsigned char**) malloc(10 * sizeof(unsigned char *));
   for(int i = 0; i < 6; i++)
   {
     threshold[i] =  (unsigned char*) malloc((3*(width*height + width) +3) * sizeof(unsigned char));
@@ -1201,8 +1193,8 @@ Vision(int w, int h)
 {
   if (threshold != NULL)
   {
-    for(int i = 0; i < 6; i++)
-    free(threshold[i]);
+    for(int i = 0; i < 10; i++)
+      free(threshold[i]);
     free(threshold);
   }
 }
