@@ -264,7 +264,7 @@ if(!interface.HSV_calib_event_flag) {
   //  cout << "5" << endl;
 
   }
-updateAllPositions();
+
   // timer.stop();
   // if (timerCounter == 30)
   // {
@@ -281,7 +281,7 @@ updateAllPositions();
   // fps.push_back(1/timer.getCPUTotalSecs());
   // timer.reset();
 
-
+  updateAllPositions();
 
   if (!interface.draw_info_flag)
   {
