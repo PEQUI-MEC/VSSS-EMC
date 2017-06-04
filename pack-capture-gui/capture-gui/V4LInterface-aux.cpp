@@ -113,16 +113,21 @@ namespace capture
 
     hbox = new Gtk::HBox();
     frm_quick_actions.add(*hbox);
-    frm_quick_actions.set_label("Quick Actions");
+    frm_quick_actions.set_label("Action Menu");
 
     hbox->set_halign(Gtk::ALIGN_CENTER);
     hbox->set_margin_top(7);
     hbox->set_margin_bottom(7);
 
     bt_quick_save.set_label("Quick SAVE");
-    hbox->pack_start(bt_quick_save, false, true, 40);
+    hbox->pack_start(bt_quick_save, false, true, 5);
     bt_quick_load.set_label("Quick LOAD");
-    hbox->pack_end(bt_quick_load, false, true, 40);
+    hbox->pack_start(bt_quick_load, false, true, 5);
+    
+    bt_save.set_label("SAVE");
+    hbox->pack_start(bt_save, false, true, 5);
+    bt_load.set_label("LOAD");
+    hbox->pack_end(bt_load, false, true, 5);
 
   }
 
@@ -199,17 +204,12 @@ namespace capture
     vbox = new Gtk::VBox();
 
 
-    // Primeira Hbox com oos botões Warp, Reset, Save, Load, Adjust
+    // Primeira Hbox com oos botões Warp, Reset, Adjust
     hbox = new Gtk::HBox();
     hbox->set_border_width(5);
     hbox->set_halign(Gtk::ALIGN_CENTER);
-
-
-
-    bt_save_cam_prop.set_label("Save");
-    hbox->pack_start(bt_save_cam_prop, false, true, 5);
-    bt_load_cam_prop.set_label("Load");
-    hbox->pack_start(bt_load_cam_prop, false, true, 5);
+    
+    
     vbox->pack_start(*hbox, false, true, 0);
     frm_device_prop.add(*vbox);
     vbox->pack_start(notebook, false, true, 5);
@@ -268,7 +268,7 @@ namespace capture
     frm_warp.add(*vbox);
     frm_warp.set_label("Warp");
 
-    // Primeira Hbox com oos botões Warp, Reset, Save, Load, Adjust
+    // Primeira Hbox com oos botões Warp, Reset, Adjust
     hbox = new Gtk::HBox();
     hbox->set_border_width(5);
     hbox->set_halign(Gtk::ALIGN_CENTER);
@@ -277,10 +277,6 @@ namespace capture
     hbox->pack_start(bt_warp, false, true, 5);
     bt_reset_warp.set_label("Reset");
     hbox->pack_start(bt_reset_warp, false, true, 5);
-    bt_save_warp.set_label("Save");
-    hbox->pack_start(bt_save_warp, false, true, 5);
-    bt_load_warp.set_label("Load");
-    hbox->pack_start(bt_load_warp, false, true, 5);
     bt_adjust.set_label("Adjust");
     hbox->pack_start(bt_adjust, false, true, 5);
     bt_invert_image.set_label("Invert Image");
@@ -346,10 +342,6 @@ namespace capture
       bt_HSV_calib.set_label("HSV Calib.");
 
 
-      hbox2->pack_start(bt_save_HSV_calib, false, true, 2);
-      bt_save_HSV_calib.set_label("Save");
-      hbox2->pack_start(bt_load_HSV_calib, false, true, 2);
-      bt_load_HSV_calib.set_label("Load");
       bt_auto_calib.set_label("AUTO Calib.");
       hbox2->pack_start(bt_auto_calib, false, true, 10);
 
@@ -1154,15 +1146,11 @@ namespace capture
                 robots_pos_buttons_vbox.pack_start(robots_buttons_fm, false, true, 5);
                 robots_buttons_fm.add(robots_buttons_hbox);
 
-                robots_save_bt.set_label("Save");
-                robots_load_bt.set_label("Load");
-                robots_save_bt.set_state(Gtk::STATE_INSENSITIVE);
-                robots_load_bt.set_state(Gtk::STATE_INSENSITIVE);
+				/*
                 robots_buttons_hbox.set_margin_top(7);
                 robots_buttons_hbox.set_margin_bottom(7);
                 robots_buttons_hbox.set_halign(Gtk::ALIGN_CENTER);
-                robots_buttons_hbox.pack_start(robots_save_bt, false, true, 5);
-                robots_buttons_hbox.pack_start(robots_load_bt, false, true, 5);
+				*/
 
                 robots_pos_buttons_vbox.pack_start(robots_checkbox_fm, false, true, 5);
                 robots_checkbox_fm.add(draw_info_hbox);
@@ -1211,15 +1199,11 @@ namespace capture
                 cb_frame_interval.set_sensitive(true);
                 bt_HSV_calib.set_sensitive(false);
                 bt_warp.set_sensitive(false);
-                bt_save_cam_prop.set_sensitive(false);
-                bt_load_cam_prop.set_sensitive(false);
                 bt_reset_warp.set_sensitive(false);
-                bt_load_warp.set_sensitive(false);
-                bt_save_warp.set_sensitive(false);
                 bt_quick_save.set_sensitive(false);
                 bt_quick_load.set_sensitive(false);
-                bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-                bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+                bt_save.set_sensitive(false);
+                bt_load.set_sensitive(false);
                 bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
                 bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
 
@@ -1299,22 +1283,18 @@ namespace capture
 
                 start_game_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_start_game_bt_signal_clicked));
 
-                bt_save_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_cam_prop_clicked));
-                bt_load_cam_prop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_cam_prop_clicked));
                 bt_quick_save.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_quick_save_clicked));
                 bt_quick_load.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_quick_load_clicked));
+                bt_save.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_clicked));
+                bt_load.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_clicked));
 
                 bt_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_start_clicked));
                 bt_warp.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_clicked));
                 bt_reset_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_reset_warp_clicked));
                 bt_adjust.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_adjust_pressed));
-                bt_load_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_warp_clicked));
-                bt_save_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_warp_clicked));
 
                 bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_HSV_calib_pressed));
                 bt_auto_calib.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_auto_calib_pressed));
-                bt_load_HSV_calib.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_HSV_calib_clicked));
-                bt_save_HSV_calib.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_save_HSV_calib_clicked));
                 bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_right_HSV_calib_clicked));
                 bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_left_HSV_calib_clicked));
 
@@ -1326,8 +1306,6 @@ namespace capture
                 cb_frame_interval_signal = cb_frame_interval.signal_changed().connect(sigc::mem_fun(*this, &V4LInterface::__event_cb_frame_interval_changed));
 
                 draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_draw_info_checkbox_signal_clicked));
-                robots_save_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::__event_bt_save_robots_info_clicked));
-                robots_load_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::__event_bt_load_robots_info_clicked));
 
               }
             }

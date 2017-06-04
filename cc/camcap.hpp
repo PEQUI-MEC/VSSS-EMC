@@ -123,8 +123,6 @@ class CamCap:
                 interface.robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
                 interface.robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
                 interface.robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
-                interface.robots_save_bt.set_state(Gtk::STATE_NORMAL);
-                interface.robots_load_bt.set_state(Gtk::STATE_NORMAL);
 
                 vision = new Vision(width, height);
 
@@ -142,8 +140,6 @@ class CamCap:
                 interface.robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
                 interface.robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
                 interface.robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-                interface.robots_save_bt.set_state(Gtk::STATE_INSENSITIVE);
-                interface.robots_load_bt.set_state(Gtk::STATE_INSENSITIVE);
 
             }
 

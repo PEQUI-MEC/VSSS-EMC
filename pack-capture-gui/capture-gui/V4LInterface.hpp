@@ -53,8 +53,6 @@ class V4LInterface: public Gtk::VBox {
           Gtk::Frame robots_buttons_fm;
           Gtk::Frame robots_checkbox_fm;
           Gtk::VBox robots_pos_buttons_vbox;
-          Gtk::Button robots_save_bt;
-          Gtk::Button robots_load_bt;
           Gtk::HBox robots_buttons_hbox;
           Gtk::CheckButton draw_info_checkbox;
           Gtk::HBox draw_info_hbox;
@@ -104,8 +102,6 @@ class V4LInterface: public Gtk::VBox {
 
         bool HSV_calib_event_flag;
         bool auto_calib_flag = false;
-        bool quick_save_flag = false;
-        bool quick_load_flag = false;
 
         Gtk::ToggleButton bt_warp;
         Gtk::ToggleButton bt_adjust;
@@ -114,7 +110,6 @@ class V4LInterface: public Gtk::VBox {
         Gtk::CheckButton bt_invert_image;
         Gtk::Button bt_HSV_left;
         Gtk::Button bt_HSV_right;
-        Gtk::Button bt_save_HSV_calib;
 
 
 
@@ -159,26 +154,21 @@ class V4LInterface: public Gtk::VBox {
         sigc::connection cb_frame_size_signal;
         sigc::connection cb_frame_interval_signal;
 
-
-        void __event_bt_save_cam_prop_clicked();
-        void __event_bt_load_cam_prop_clicked();
         void __event_bt_quick_save_clicked();
         void __event_bt_quick_load_clicked();
-
+        void __event_bt_save_clicked();
+        void __event_bt_load_clicked();
+	
+		bool __core_save(const char *);
+        bool __core_load(const char *);
 
         void __event_bt_start_clicked();
         void __event_bt_warp_clicked();
         void __event_bt_adjust_pressed();
-        void __event_bt_save_warp_clicked();
-        void __event_bt_load_warp_clicked();
         void __event_bt_reset_warp_clicked();
-        void __event_bt_save_robots_info_clicked();
-        void __event_bt_load_robots_info_clicked();
 
         void __event_bt_HSV_calib_pressed();
         void __event_bt_auto_calib_pressed();
-        void __event_bt_save_HSV_calib_clicked();
-        void __event_bt_load_HSV_calib_clicked();
         void __event_bt_right_HSV_calib_clicked();
         void __event_bt_left_HSV_calib_clicked();
 
@@ -238,17 +228,14 @@ class V4LInterface: public Gtk::VBox {
         Gtk::Frame frm_device_info;
         Gtk::ComboBoxText cb_device;
         Gtk::Button bt_start;
-        Gtk::Button bt_save_warp;
-        Gtk::Button bt_load_warp;
         Gtk::Button bt_reset_warp;
-        Gtk::Button bt_load_HSV_calib;
-        Gtk::Button bt_save_cam_prop;
-        Gtk::Button bt_load_cam_prop;
         //-------------------------------
 
         Gtk::Frame frm_quick_actions;
         Gtk::Button bt_quick_save;
         Gtk::Button bt_quick_load;
+        Gtk::Button bt_save;
+        Gtk::Button bt_load;
 
 
         //-------------------------------
