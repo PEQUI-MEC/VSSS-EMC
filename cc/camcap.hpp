@@ -105,6 +105,7 @@ public:
 
 
     if(KF_FIRST) {
+
       //KALMAN FILTER INIT
       vision->KF_Ball.KF_init(ballPosition);
       for(int i=0; i<3; i++) {
@@ -198,7 +199,8 @@ bool capture_and_show() {
   return -1;
 }*/
 
-  //timer.start();
+  timer.reset();
+  timer.start();
 
 interface.vcap.grab_rgb(data);
 interface.imageView.set_data(data, width, height);
@@ -239,7 +241,7 @@ if(interface.warped) {
 
 }
 
-
+updateAllPositions();
 //std::cout << 3 << std::endl;
 vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
 //TRACKING CAMERA
@@ -253,6 +255,8 @@ if(!interface.HSV_calib_event_flag) {
     //std::cout << "Old Parallel Tracking" << endl;
     vision->parallel_tracking(imageView);
     vision->robot_creation_uni_duni_tag();
+    KF_FIRST = true;
+    vision->resetKF();
 
 
   }else{
@@ -265,23 +269,9 @@ if(!interface.HSV_calib_event_flag) {
 
   }
 
-  // timer.stop();
-  // if (timerCounter == 30)
-  // {
-  //   for (int i = 0; i < fps.size(); i++)
-  //   {
-  //     fps_average += fps[i];
-  //   }
-  //   fps_average = fps_average / fps.size();
-  //   cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
-  //   timerCounter = 0;
-  //   fps.clear();
-  // }
-  // timerCounter++;
-  // fps.push_back(1/timer.getCPUTotalSecs());
-  // timer.reset();
 
-  updateAllPositions();
+
+
 
   if (!interface.draw_info_flag)
   {
@@ -421,6 +411,22 @@ if(interface.HSV_calib_event_flag) {
 }
 //  std::cout << 15 << std::endl;
 //outputVideo << imageView;
+
+timer.stop();
+if (timerCounter == 30)
+{
+  for (int i = 0; i < fps.size(); i++)
+  {
+    fps_average += fps[i];
+  }
+  fps_average = fps_average / fps.size();
+  cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
+  timerCounter = 0;
+  fps.clear();
+}
+timerCounter++;
+fps.push_back(1/timer.getCPUTotalSecs());
+
 
 
 return true;

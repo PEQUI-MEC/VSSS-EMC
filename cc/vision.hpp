@@ -64,6 +64,17 @@ public:
 
   unsigned char **threshold = NULL;
 
+  void resetKF()
+  {
+    KalmanFilter kf;
+
+    KF_Ball = KalmanFilter();
+    KF_Robot.clear();
+    KF_Robot.push_back(kf);
+    KF_Robot.push_back(kf);
+    KF_Robot.push_back(kf);
+  }
+
   void set_ROI(cv::Point kf_ball_point, vector <cv::Point> kf_robot_point){
     KF_Robot_point.clear();
     KF_Ball_point = kf_ball_point;
@@ -75,7 +86,7 @@ public:
 
   bool isAnyRobotLost()
   {
-    std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
+    //std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
     return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
   }
 

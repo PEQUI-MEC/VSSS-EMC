@@ -16,7 +16,7 @@ class KalmanFilter
 
 public:
   void KF_init(cv::Point pos) {
-
+    ticks = 0;
     int stateSize = 6;
     int measSize = 4;
     int contrSize = 0;
@@ -124,7 +124,6 @@ public:
 
   KalmanFilter()
   {
-  ticks = 0;
 
   }
 
