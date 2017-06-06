@@ -107,25 +107,23 @@ public:
     if(KF_FIRST) {
 
       //KALMAN FILTER INIT
-      vision->KF_Ball.KF_init(ballPosition);
-      for(int i=0; i<3; i++) {
-        vision->KF_Robot[i].KF_init(vision->robot_list[i].position);
+      for(int i=0; i<4; i++) {
+        vision->KF_RobotBall[i].KF_init(vision->robot_list[i].position);
       }
       std::cout<<"KALMAN FILTER INITIALIZED"<<std::endl;
       KF_FIRST = false;
 
-      Ball_kf_est = vision->KF_Ball.KF_Prediction(ballPosition);
-
-      robot_kf_est[0] = vision->KF_Robot[0].KF_Prediction(vision->robot_list[0].position);
-      robot_kf_est[1] = vision->KF_Robot[1].KF_Prediction(vision->robot_list[1].position);
-      robot_kf_est[2] = vision->KF_Robot[2].KF_Prediction(vision->robot_list[2].position);
+      Ball_kf_est = vision->KF_RobotBall[3].KF_Prediction(ballPosition);
+      robot_kf_est[0] = vision->KF_RobotBall[0].KF_Prediction(vision->robot_list[0].position);
+      robot_kf_est[1] = vision->KF_RobotBall[1].KF_Prediction(vision->robot_list[1].position);
+      robot_kf_est[2] = vision->KF_RobotBall[2].KF_Prediction(vision->robot_list[2].position);
 
     }
 
-    Ball_kf_est = vision->KF_Ball.KF_Prediction(ballPosition);
-    robot_kf_est[0] = vision->KF_Robot[0].KF_Prediction(vision->robot_list[0].position);
-    robot_kf_est[1] = vision->KF_Robot[1].KF_Prediction(vision->robot_list[1].position);
-    robot_kf_est[2] = vision->KF_Robot[2].KF_Prediction(vision->robot_list[2].position);
+    Ball_kf_est = vision->KF_RobotBall[3].KF_Prediction(ballPosition);
+    robot_kf_est[0] = vision->KF_RobotBall[0].KF_Prediction(vision->robot_list[0].position);
+    robot_kf_est[1] = vision->KF_RobotBall[1].KF_Prediction(vision->robot_list[1].position);
+    robot_kf_est[2] = vision->KF_RobotBall[2].KF_Prediction(vision->robot_list[2].position);
   }
 
   bool start_signal(bool b) {
@@ -250,7 +248,7 @@ vision->set_ROI(Ball_kf_est, robot_kf_est);
 //std::cout << 4 << std::endl;
 
 if(!interface.HSV_calib_event_flag) {
-  if(vision->isBallLost() || vision->isAnyRobotLost()){
+  if(vision->isAnyRobotLost() || vision->isBallLost()){
     //std::cout << 4.1 << std::endl;
     //std::cout << "Old Parallel Tracking" << endl;
     vision->parallel_tracking(imageView);

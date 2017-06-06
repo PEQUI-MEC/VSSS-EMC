@@ -30,8 +30,7 @@ public:
   cv::Point  Ballorigin;
   cv::Point robotOrigin[3];
 
-  vector< KalmanFilter > KF_Robot;
-  KalmanFilter KF_Ball;
+  vector< KalmanFilter > KF_RobotBall;
   // Team_Main[INDEX] - Vector de cv::Point
   //   GUARDA A POSIÇÃO DAS TAGS PRIMÁRIAS DO TIME(.x e .y acessam a posição)
   vector< cv::Point > Team_Main;
@@ -67,12 +66,11 @@ public:
   void resetKF()
   {
     KalmanFilter kf;
-
-    KF_Ball = KalmanFilter();
-    KF_Robot.clear();
-    KF_Robot.push_back(kf);
-    KF_Robot.push_back(kf);
-    KF_Robot.push_back(kf);
+    KF_RobotBall.clear();
+    KF_RobotBall.push_back(kf);
+    KF_RobotBall.push_back(kf);
+    KF_RobotBall.push_back(kf);
+    KF_RobotBall.push_back(kf);
   }
 
   void set_ROI(cv::Point kf_ball_point, vector <cv::Point> kf_robot_point){
@@ -86,7 +84,7 @@ public:
 
   bool isAnyRobotLost()
   {
-    //std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
+    std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
     return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
   }
 
@@ -215,12 +213,12 @@ public:
       cv::Rect  rect(robot_p1[i],robot_p2[i]);
       //cout << "ROBOT 4" << endl;
       //cout << "Robot[" << i << "] p1(" << robot_p1[i].x << ", " << robot_p1[i].y << ")" << " - Robot[" << i << "] p2(" << robot_p2[i].x << ", " << robot_p2[i].y << ")" << endl;
-      dummy[3*i] = image_copy(rect); // bug
-      crop[3*i] = dummy[3*i].clone(); // bug
-      dummy[1+3*i] = image_copy(rect); // bug
-      crop[1+3*i] = dummy[1+3*i].clone(); // bug
-      dummy[2+3*i] = image_copy(rect); // bug
-      crop[2+3*i] = dummy[2+3*i].clone(); // bug
+      dummy[3*i] = image_copy(rect);
+      crop[3*i] = dummy[3*i].clone();
+      dummy[1+3*i] = image_copy(rect);
+      crop[1+3*i] = dummy[1+3*i].clone();
+      dummy[2+3*i] = image_copy(rect);
+      crop[2+3*i] = dummy[2+3*i].clone();
       //cout << "ROBOT 5" << endl;
     }
 
@@ -450,6 +448,8 @@ public:
           Ball = cv::Point(moment.m10/area,moment.m01/area)+Ballorigin;
           Ball_lost = false;
 
+        }else{
+          Ball_lost = true;
         }
       }else{
         Ball_lost = true;
@@ -1192,9 +1192,10 @@ Vision(int w, int h)
 
 
   KalmanFilter kf;
-  KF_Robot.push_back(kf);
-  KF_Robot.push_back(kf);
-  KF_Robot.push_back(kf);
+  KF_RobotBall.push_back(kf);
+  KF_RobotBall.push_back(kf);
+  KF_RobotBall.push_back(kf);
+  KF_RobotBall.push_back(kf);
 
   threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));
   for(int i = 0; i < 6; i++)
