@@ -302,7 +302,6 @@ namespace capture {
       bt_load_cam_prop.set_sensitive(true);
       bt_quick_save.set_sensitive(true);
       bt_quick_load.set_sensitive(true);
-      bt_auto_calib.set_sensitive(true);
       m_signal_start.emit(true);
 
     } else {
@@ -332,7 +331,6 @@ namespace capture {
       bt_load_cam_prop.set_sensitive(false);
       bt_quick_save.set_sensitive(false);
       bt_quick_load.set_sensitive(false);
-      bt_auto_calib.set_sensitive(false);
       m_signal_start.emit(false);
 
     }
@@ -537,12 +535,6 @@ namespace capture {
       bt_save_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
       bt_load_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 
-      //Auto calib
-      //bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
-      //bt_auto_calib.set_active(false);
-      //auto_calib_flag = false;
-      //__event_bt_auto_calib_pressed();
-
     } else {
       HSV_calib_event_flag=true;
       HScale_Hmin.set_state(Gtk::STATE_ACTIVE);
@@ -555,7 +547,6 @@ namespace capture {
       //bt_HSV_left.set_state(Gtk::STATE_NORMAL);
       //bt_HSV_right.set_state(Gtk::STATE_NORMAL);
       bt_save_HSV_calib.set_state(Gtk::STATE_NORMAL);
-      //bt_auto_calib.set_state(Gtk::STATE_NORMAL);
       bt_load_HSV_calib.set_state(Gtk::STATE_NORMAL);
     }
 
@@ -662,24 +653,6 @@ namespace capture {
     else
     {
       std::cout<<"Error: could not load HSV file. Maybe it does not exist."<<std::endl;
-    }
-  }
-
-  void V4LInterface::__event_bt_auto_calib_pressed()
-  {
-    if (!auto_calib_flag)
-    {
-      std::cout << "AUTO CALIB ENGAGED" << std::endl;
-      //bt_HSV_left.set_state(Gtk::STATE_NORMAL);
-      //bt_HSV_right.set_state(Gtk::STATE_NORMAL);
-      auto_calib_flag = true;
-    }
-    else
-    {
-      std::cout << "auto calib deactivated" << std::endl;
-      //bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-      //bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
-      auto_calib_flag = false;
     }
   }
 
