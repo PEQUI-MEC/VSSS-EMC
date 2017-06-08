@@ -52,10 +52,10 @@ public:
   std::vector<Robot> robot_list;
   bool Ball_lost;
   bool robot_lost[3];
-  int hue[6][2];
-  int saturation[6][2];
-  int value[6][2];
-  int areaMin[6];
+  int hue[5][2];
+  int saturation[5][2];
+  int value[5][2];
+  int areaMin[5];
 
   int width;
   int height;
@@ -83,7 +83,7 @@ public:
 
   bool isAnyRobotLost()
   {
-    std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
+    //std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
     return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
   }
 
@@ -172,9 +172,9 @@ public:
     return Ball;
   }
 
-  void setHSV(int H[6][2], int S[6][2], int V[6][2], int Amin[6])
+  void setHSV(int H[5][2], int S[5][2], int V[5][2], int Amin[5])
   {
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 5; i++)
     {
       areaMin[i] = Amin[i];
       for (int j = 0; j < 2; j++)
@@ -238,7 +238,7 @@ public:
       threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[2+3*i]), 2, i, robot_p1[i], robot_p2[i]));
     }
 
-    windowed_img_tracking(crop[9], 4, 3, ball_p1, ball_p2);
+    windowed_img_tracking(crop[9], 3, 3, ball_p1, ball_p2);
 
     //Tracking Adversário
     //threshold_threadsWindow.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), 5));
@@ -260,7 +260,7 @@ public:
     cv::medianBlur(image_copy, image_copy, 5);
     Ballorigin = cv::Point(0,0);
 
-    for(int i =0; i<6; i++) {
+    for(int i =0; i<5; i++) {
 
       threshold_threads.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), (i)));
     }
@@ -395,11 +395,10 @@ public:
           index = hierarchy[index][0];
         }
       }
-      break;
-      case 3:// TEAM THIRD SECUNDARY COLOR
+
       break;
 
-      case 4:// BALL
+      case 3:// BALL
       if (hierarchy.size() > 0) {
         cv::Moments moment = moments((cv::Mat)contours[0]);
         double area = contourArea(contours[0]);
@@ -420,7 +419,7 @@ public:
       }
       break;
 
-      case 5:// ADVERSARY MAIN COLOR
+      case 4:// ADVERSARY MAIN COLOR
       /*
       if (hierarchy.size() > 0) {
       Adv_Main.clear();
@@ -537,11 +536,9 @@ void img_tracking(cv::Mat image,int color_id) {
         index = hierarchy[index][0];
       }
     }
-    break;
-    case 3:// TEAM THIRD SECUNDARY COLOR
-    break;
 
-    case 5:// ADVERSARY MAIN COLOR
+
+    case 4:// ADVERSARY MAIN COLOR
 
     if (hierarchy.size() > 0) {
       Adv_Main.clear();
@@ -561,7 +558,7 @@ void img_tracking(cv::Mat image,int color_id) {
 
     break;
 
-    case 4:// BALL
+    case 3:// BALL
     if (hierarchy.size() > 0) {
       cv::Moments moment = moments((cv::Mat)contours[0]);
       double area = contourArea(contours[0]);
@@ -572,6 +569,9 @@ void img_tracking(cv::Mat image,int color_id) {
         Ball = cv::Point(moment.m10/area,moment.m01/area);
         Ball_lost = false;
 
+      }
+      else {
+        Ball_lost = true;
       }
     }else{
       Ball_lost = true;
@@ -963,8 +963,8 @@ Vision(int w, int h)
   KF_RobotBall.push_back(kf);
   KF_RobotBall.push_back(kf);
 
-  threshold = (unsigned char**) malloc(6 * sizeof(unsigned char *));
-  for(int i = 0; i < 6; i++)
+  threshold = (unsigned char**) malloc(5 * sizeof(unsigned char *));
+  for(int i = 0; i < 5; i++)
   {
     threshold[i] =  (unsigned char*) malloc((3*(width*height + width) +3) * sizeof(unsigned char));
     if(threshold[i] == NULL)
@@ -979,7 +979,7 @@ Vision(int w, int h)
 {
   if (threshold != NULL)
   {
-    for(int i = 0; i < 6; i++)
+    for(int i = 0; i < 5; i++)
     free(threshold[i]);
     free(threshold);
   }

@@ -110,7 +110,7 @@ public:
       for(int i=0; i<4; i++) {
         vision->KF_RobotBall[i].KF_init(vision->robot_list[i].position);
       }
-      std::cout<<"KALMAN FILTER INITIALIZED"<<std::endl;
+      //std::cout<<"KALMAN FILTER INITIALIZED"<<std::endl;
       KF_FIRST = false;
 
       Ball_kf_est = vision->KF_RobotBall[3].KF_Prediction(ballPosition);
@@ -300,8 +300,8 @@ if(!interface.HSV_calib_event_flag) {
     putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
     circle(imageView,vision->get_ball_position(), 7, cv::Scalar(255,255,255), 2);
 
-    for(int i=0; i<vision->Adv_Main.size(); i++)
-    circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);
+    /*for(int i=0; i<vision->Adv_Main.size(); i++)
+    circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);*/
   }
 
   //std::cout << 8 << std::endl;

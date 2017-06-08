@@ -1159,7 +1159,7 @@ namespace capture
 
               void V4LInterface::init_HSV()
               {
-                for(int i =0; i<6; i++) {
+                for(int i =0; i<5; i++) {
                   HScale_Hmin.set_value(-1);
                   HScale_Hmax.set_value(256);
                   HScale_Smin.set_value(-1);

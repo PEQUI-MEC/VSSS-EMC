@@ -577,7 +577,7 @@ namespace capture {
 
     if (txtFile.is_open())
     {
-      for(int i=0; i<6; i++) {
+      for(int i=0; i<5; i++) {
         txtFile <<H[i][0]<<std::endl<<H[i][1]<<std::endl;
         txtFile <<S[i][0]<<std::endl<<S[i][1]<<std::endl;
         txtFile <<V[i][0]<<std::endl<<V[i][1]<<std::endl;
@@ -618,7 +618,7 @@ namespace capture {
 
     if (txtFile.is_open())
     {
-      for(int i=0; i<6; i++) {
+      for(int i=0; i<5; i++) {
         getline(txtFile, linha);
         H[i][0]=atoi(linha.c_str());
         getline(txtFile, linha);
@@ -660,7 +660,7 @@ namespace capture {
 
     Img_id=Img_id+1;
 
-    if(Img_id>5) Img_id = 0;
+    if(Img_id>4) Img_id = 0;
     HScale_Amin.set_value(Amin[Img_id]);
     switch(Img_id) {
       case 0:
@@ -675,7 +675,7 @@ namespace capture {
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
       case 1:
-      HSV_label.set_text("Secondary 1");
+      HSV_label.set_text("Green");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -686,7 +686,7 @@ namespace capture {
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
       case 2:
-      HSV_label.set_text("Secondary 2");
+      HSV_label.set_text("Pink");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -697,17 +697,6 @@ namespace capture {
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
       case 3:
-      HSV_label.set_text("Secondary 3");
-      HScale_Hmin.set_value(H[Img_id][0]);
-      HScale_Hmax.set_value(H[Img_id][1]);
-
-      HScale_Smin.set_value(S[Img_id][0]);
-      HScale_Smax.set_value(S[Img_id][1]);
-
-      HScale_Vmin.set_value(V[Img_id][0]);
-      HScale_Vmax.set_value(V[Img_id][1]);
-      break;
-      case 4:
       HSV_label.set_text("Ball");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);
@@ -718,7 +707,7 @@ namespace capture {
       HScale_Vmin.set_value(V[Img_id][0]);
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
-      case 5:
+      case 4:
       HSV_label.set_text("Opponent");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);
@@ -735,7 +724,7 @@ namespace capture {
   void V4LInterface::__event_bt_left_HSV_calib_clicked() {
 
     Img_id=Img_id-1;
-    if(Img_id<0) Img_id = 5;
+    if(Img_id<0) Img_id = 4;
     HScale_Amin.set_value(Amin[Img_id]);
     switch(Img_id) {
       case 0:
@@ -750,7 +739,7 @@ namespace capture {
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
       case 1:
-      HSV_label.set_text("Secondary 1");
+      HSV_label.set_text("Green");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -761,7 +750,7 @@ namespace capture {
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
       case 2:
-      HSV_label.set_text("Secondary 2");
+      HSV_label.set_text("Pink");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);
 
@@ -772,17 +761,6 @@ namespace capture {
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
       case 3:
-      HSV_label.set_text("Secondary 3");
-      HScale_Hmin.set_value(H[Img_id][0]);
-      HScale_Hmax.set_value(H[Img_id][1]);
-
-      HScale_Smin.set_value(S[Img_id][0]);
-      HScale_Smax.set_value(S[Img_id][1]);
-
-      HScale_Vmin.set_value(V[Img_id][0]);
-      HScale_Vmax.set_value(V[Img_id][1]);
-      break;
-      case 4:
       HSV_label.set_text("Ball");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);
@@ -793,7 +771,7 @@ namespace capture {
       HScale_Vmin.set_value(V[Img_id][0]);
       HScale_Vmax.set_value(V[Img_id][1]);
       break;
-      case 5:
+      case 4:
       HSV_label.set_text("Opponent");
       HScale_Hmin.set_value(H[Img_id][0]);
       HScale_Hmax.set_value(H[Img_id][1]);

@@ -91,12 +91,13 @@ namespace capture {
     V4LInterface();
     int offsetL;
     int offsetR;
-    int Amin[6];
+
     Gtk::Scale HScale_offsetL;
     Gtk::Scale HScale_offsetR;
-    int H[6][2];
-    int S[6][2];
-    int V[6][2];
+    int H[5][2];
+    int S[5][2];
+    int V[5][2];
+    int Amin[5];
     int Img_id = 0;
     bool adjust_event_flag;
     bool invert_image_flag = false;
