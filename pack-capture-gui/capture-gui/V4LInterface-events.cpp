@@ -20,7 +20,7 @@ namespace capture {
 	void V4LInterface::__event_bt_quick_save_clicked()
 	{
 		std::cout << "QUICK SAVE" << std::endl;
-		
+
 		if(!V4LInterface::__core_save("quicksave.txt"))
 		{
 			std::cout<<"Error: could not quick save."<<std::endl;
@@ -55,7 +55,7 @@ namespace capture {
 	void V4LInterface::__event_bt_load_clicked()
 	{
 		std::cout << "LOAD" << std::endl;
-		
+
 		FileChooser loadWindow;
 
 		if (loadWindow.result == Gtk::RESPONSE_OK)
@@ -237,11 +237,7 @@ namespace capture {
 		    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
 		    //bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
 		    //bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
-		    bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
-		    bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
-			bt_save.set_state(Gtk::STATE_INSENSITIVE);
-		    bt_load.set_state(Gtk::STATE_INSENSITIVE);
-		    
+
 		    //Auto calib
 		    //bt_auto_calib.set_state(Gtk::STATE_INSENSITIVE);
 		    //bt_auto_calib.set_active(false);
@@ -259,16 +255,11 @@ namespace capture {
 		    HScale_Amin.set_state(Gtk::STATE_ACTIVE);
 		    //bt_HSV_left.set_state(Gtk::STATE_NORMAL);
 		    //bt_HSV_right.set_state(Gtk::STATE_NORMAL);
-		    bt_quick_save.set_state(Gtk::STATE_NORMAL);
-		    //bt_auto_calib.set_state(Gtk::STATE_NORMAL);
-		    bt_quick_load.set_state(Gtk::STATE_NORMAL);
-		    bt_save.set_state(Gtk::STATE_NORMAL);
-		    bt_load.set_state(Gtk::STATE_NORMAL);
-		}
 
 
 
 	}
+}
 
 	void V4LInterface::__event_bt_auto_calib_pressed()
 	{
@@ -820,19 +811,19 @@ namespace capture {
         robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
 
     }
-    
-    
+
+
     bool V4LInterface::__core_save(const char * txtFileName)
 	{
 		std::ofstream txtFile;
 		txtFile.open(txtFileName);
-		
+
 
 		if (txtFile.is_open())
 		{
 			// !BEGIN_INFO
 			std::cout<<"Saving robots info..."<<std::endl;
-			
+
 			// sempre é salvo 9 linhas
 			for (int i = 0; i < 3; i++) {
 				txtFile << robots_id_box[i].get_text() <<std::endl;
@@ -840,7 +831,7 @@ namespace capture {
 				txtFile << robots_speed_hscale[i].get_value() <<std::endl;
 			}
 			// !END_INFO
-		
+
 			// !BEGIN_HSV
 			std::cout<<"Saving HSV calibs..."<<std::endl;
 			// salva sempre 42 linhas linhas
@@ -851,7 +842,7 @@ namespace capture {
 			  txtFile <<Amin[i]<<std::endl;
 			}
 			// !END_HSV
-		
+
 			// !BEGIN_WARP
 			std::cout<<"Saving warp matrix..."<<std::endl;
 			// salva sempre 18 linhas
@@ -865,14 +856,14 @@ namespace capture {
 			txtFile << imageView.adjust_mat[2][0] <<std::endl<<imageView.adjust_mat[2][1] <<std::endl;
 			txtFile << imageView.adjust_mat[3][0] <<std::endl<<imageView.adjust_mat[3][1] <<std::endl;
 			// !END_WARP
-			
+
 			// !BEGIN_CAM
 			std::cout<<"Saving cam prop..."<<std::endl;
-		
+
 			struct v4l2_queryctrl qctrl;
 			struct v4l2_control control;
 			std::list<ControlHolder>::iterator iter;
-			
+
 			// sempre salva um id e seu valor
 			// como o número de linhas é o único que pode ser variável, coloquei por último no arquivo
 			for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
@@ -881,9 +872,9 @@ namespace capture {
 			  txtFile <<qctrl.id<<std::endl<<control.value<<std::endl;
 			}
 			// !END_CAM
-		
+
 			txtFile.close();
-			
+
 			return true;
 		}
 		else
@@ -891,18 +882,18 @@ namespace capture {
 			return false;
 		}
 	}
-	
+
 	bool V4LInterface::__core_load(const char * txtFileName)
 	{
 		std::ifstream txtFile;
 		txtFile.open(txtFileName);
 		std::string line;
-		
+
 		if (txtFile.is_open())
 		{
 			// !BEGIN_INFO
 			std::cout<<"Loading robots info..."<<std::endl;
-			
+
 			// lê os três valores para cada robô -- sempre 9 linhas
 			for (int i = 0; i < 3; i++) {
 			  getline(txtFile, line);
@@ -935,7 +926,7 @@ namespace capture {
 			  {
 				  std::cout << "Error: not possible to set robot " << i+1 << " function." << std::endl;
 			  }
-			  
+
 			  getline(txtFile, line);
 			  double value = atof(line.c_str());
 			  std::cout << "ATOF " << atof(line.c_str()) << std::endl;
@@ -949,7 +940,7 @@ namespace capture {
 			  robots_speed_progressBar[i].set_text(str.substr(0,4));
 			}
 			// !END_INFO
-			
+
 			// !BEGIN_HSV
 			std::cout<<"Loading HSV calibs..."<<std::endl;
 			for(int i=0; i<6; i++) {
@@ -979,12 +970,12 @@ namespace capture {
 			HScale_Vmax.set_value(V[Img_id][1]);
 			HScale_Amin.set_value(Amin[Img_id]);
 			// !END_HSV
-			
+
 			// !BEGIN_WARP
 			// não precisa ser modificado, não usa o mesmo stream
 			__event_bt_warp_clicked();
 			// !END_WARP
-			
+
 			// !BEGIN_LOADWARP
 			std::cout<<"Loading warp matrix..."<<std::endl;
 
@@ -1048,14 +1039,14 @@ namespace capture {
 			HScale_offsetR.set_value(offsetR);
 			imageView.warp_event_flag =false;
 			// !END_LOADWARP
-			
+
 			// !BEGIN_CAM
 			std::cout<<"Loading cam prop..."<<std::endl;
 
 			struct v4l2_queryctrl qctrl;
 			struct v4l2_control control;
 			std::list<ControlHolder>::iterator iter;
-			
+
 			for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end() && !txtFile.eof(); ++iter) {
 			  getline(txtFile, line);
 			  qctrl.id = atoi(line.c_str());
@@ -1068,7 +1059,7 @@ namespace capture {
 
 			__update_control_widgets(ctrl_list_default);
 			// !END_CAM
-			
+
 			txtFile.close();
 			return true;
 		}
