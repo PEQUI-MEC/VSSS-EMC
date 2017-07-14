@@ -65,6 +65,7 @@ public:
 	int MAX_TARGET_LOCK_COUNT;
 	// Parametros do Defensor na defesa
 	int DESLOCAMENTO_ZAGA_ATAQUE	;
+	int BALL_RADIUS;
 
 	Strategy()									// TUDO EM METROS
 	{
@@ -101,9 +102,94 @@ public:
 		MAX_TARGET_LOCK_COUNT = 10;
 		// Parametros do Defensor na defesa
 		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
-
+		BALL_RADIUS = 100;
 	}
 
+	void set_ball_radius(int ballRadius)
+	{
+			BALL_RADIUS = ballRadius;
+	}
+
+	int get_ball_radius()
+	{
+		return BALL_RADIUS;
+	}
+
+	void set_area_limit_x(int areaLimitX)
+	{
+			LIMITE_AREA_X = areaLimitX;
+	}
+
+	int get_area_limit_x()
+	{
+		return LIMITE_AREA_X;
+	}
+
+	void set_areas_division(int areasDivision)
+	{
+			DIVISAO_AREAS = areasDivision;
+	}
+
+	int get_areas_division()
+	{
+		return DIVISAO_AREAS;
+	}
+
+	void set_goal_max(int goalMax)
+	{
+			MAX_GOL_Y = goalMax;
+	}
+
+	int get_goal_max()
+	{
+		return MAX_GOL_Y;
+	}
+
+	void set_goal_min(int goalMin)
+	{
+			MIN_GOL_Y = goalMin;
+	}
+
+	int get_goal_min()
+	{
+		return MIN_GOL_Y;
+	}
+
+	void set_defense_line(int defenseLine)
+	{
+			LINHA_ZAGA = defenseLine;
+	}
+
+	int get_defense_line()
+	{
+		return LINHA_ZAGA;
+	}
+
+	void set_banheira(int banheira)
+	{
+			BANHEIRA = banheira;
+	}
+
+	int get_banheira()
+	{
+		return BANHEIRA;
+	}
+
+	void set_goal_center(int x, int y)
+	{
+			MEIO_GOL_Y = y;
+			MEIO_GOL_X = x;
+	}
+
+	int get_goal_center_x()
+	{
+		return MEIO_GOL_X;
+	}
+
+	int get_goal_center_y()
+	{
+		return MEIO_GOL_Y;
+	}
 
 	cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
 
@@ -260,7 +346,7 @@ public:
 					if(robot.x < COMPRIMENTO_CAMPO_TOTAL - LIMITE_AREA_X) {
 						//					cout<<"Fora da area - ";
 
-						if (distBall < 100 ) {
+						if (distBall < BALL_RADIUS ) {
 							Attack.status = 1;
 							//					cout<<"Status - "<<Attack.status<<endl;
 						}
