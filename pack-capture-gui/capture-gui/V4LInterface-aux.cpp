@@ -881,6 +881,13 @@ namespace capture
                 ball_pos_lb->set_text(aux4.str());
               }
 
+              void V4LInterface::updateFPS(int fps)
+              {
+                std::stringstream aux;
+                aux << "FPS: " << fps;
+                fps_label->set_text(aux.str());
+              }
+
               void V4LInterface::createIDsFrame(){
                 Gtk::Label *label;
                 info_hbox.pack_start(robots_id_fm, false, true, 5);
@@ -1127,13 +1134,13 @@ namespace capture
                 robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
 
                 robots_pos_buttons_vbox.pack_start(robots_buttons_fm, false, true, 5);
-                robots_buttons_fm.add(robots_buttons_hbox);
+                robots_buttons_fm.add(fps_hbox);
 
-				/*
-                robots_buttons_hbox.set_margin_top(7);
-                robots_buttons_hbox.set_margin_bottom(7);
-                robots_buttons_hbox.set_halign(Gtk::ALIGN_CENTER);
-				*/
+                fps_hbox.set_margin_top(7);
+                fps_hbox.set_margin_bottom(7);
+                fps_hbox.set_halign(Gtk::ALIGN_CENTER);
+                fps_label = new Gtk::Label("FPS: -");
+                fps_hbox.pack_start(*fps_label, false, true, 5);
 
                 robots_pos_buttons_vbox.pack_start(robots_checkbox_fm, false, true, 5);
                 robots_checkbox_fm.add(draw_info_hbox);

@@ -101,6 +101,7 @@ public:
     interface.robot_list[2].feedHist(interface.robot_list[2].position);
     //std::cout << 5.4 << std::endl;
     interface.updateRobotLabels();
+    interface.updateFPS(fps_average);
     //std::cout << 5.5 << std::endl;
 
 
