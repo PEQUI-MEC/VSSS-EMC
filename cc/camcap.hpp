@@ -252,7 +252,7 @@ vision->set_ROI(Ball_kf_est, robot_kf_est);
  if(!interface.HSV_calib_event_flag) {
   if(vision->isAnyRobotLost() || vision->isBallLost()){
     //std::cout << 4.1 << std::endl;
-    std::cout << "-" << endl;
+    // std::cout << "-" << endl;
     vision->parallel_tracking(imageView);
     vision->robot_creation_uni_duni_tag();
     KF_FIRST = true;
@@ -260,7 +260,7 @@ vision->set_ROI(Ball_kf_est, robot_kf_est);
 
 
   }else{
-  std::cout << "Windowed Parallel Tracking" << endl;
+  // std::cout << "Windowed Parallel Tracking" << endl;
     vision->windowed_parallel_tracking(imageView);
     vision->windowed_robot_creation_uni_duni_tag(0);
     vision->windowed_robot_creation_uni_duni_tag(1);
@@ -268,6 +268,10 @@ vision->set_ROI(Ball_kf_est, robot_kf_est);
   //  cout << "5" << endl;
 
   }
+
+  // std::cout << "Adv 1: " << vision->robot_list[3].position.x << ", " << vision->robot_list[3].position.y << std::endl;
+  // std::cout << "Adv 2: " << vision->robot_list[4].position.x << ", " << vision->robot_list[4].position.y << std::endl;
+  // std::cout << "Adv 3: " << vision->robot_list[5].position.x << ", " << vision->robot_list[5].position.y << std::endl;
 
 
   if (!interface.draw_info_flag)
