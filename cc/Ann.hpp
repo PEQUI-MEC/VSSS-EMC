@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <fstream>
 
 using namespace std;
 
@@ -12,7 +13,7 @@ public:
   bool activated;
   double weight;
 
-  Gene(int nid, int nfrom, int nto, bool state, double nweight) {
+  Synapse(int nid, int nfrom, int nto, bool state, double nweight) {
     id = nid;
     from = nfrom;
     to = nto;
@@ -25,6 +26,9 @@ class Neuron {
 public:
   double output;
   bool calculated;
+
+  Neuron() {
+  }
 };
 
 class Ann {
@@ -39,49 +43,49 @@ public:
   Ann (const char * txtFileName) {
 		std::ifstream txtFile;
 		txtFile.open(txtFileName);
-		std::string line, line1, line2, line3, line4;
+		string line, line1, line2, line3, line4;
 
 		if (txtFile.is_open()) {
       // verifica a versão
 			getline(txtFile, line); // line.c_str() - string, atof - float, atoi = int
-      if(line.c_str() != "v1.0") {
+      if(line != "v1.0") {
         cout << "Ann version not suported!\n";
         return;
       }
 
       // le o número de entradas atribui às variaveis e aloca vetores
       getline(txtFile, line);
-      ninputs = atoi(line);
+      ninputs = atoi(line.c_str());
       // le o número de saídas atribui às variaveis e aloca vetores
       getline(txtFile, line);
-      noutputs = atoi(line);
+      noutputs = atoi(line.c_str());
       outputs = (double *) malloc(noutputs * sizeof(double));
 
       // !TODO talvez tenha que inicializar o vector, não sei
-      synapses = new vector<Synapse>;
-      hidden_nodes = new vector<int>;
+      //synapses = vector<Synapse>;
+      //hidden_nodes = vector<int>;
 
       // lê o número de synapses e aloca vetores
-      getline(line);
-      int n = atoi(line);
+      getline(txtFile, line);
+      int n = atoi(line.c_str());
       // pra cada proxima linha, le os valores das synapses, atribui e adiciona ao vetor
       for(int i = 0; i < n; i++) {
-        getline(line);
-        getline(line1);
-        getline(line2);
-        getline(line3);
-        getline(line4);
+        getline(txtFile, line);
+        getline(txtFile, line1);
+        getline(txtFile, line2);
+        getline(txtFile, line3);
+        getline(txtFile, line4);
 
-        synapses.push_back(Synapse(atoi(line), atoi(line1), atoi(line2), (bool)atoi(line3), stod(line4)));
+        synapses.push_back(Synapse(atoi(line.c_str()), atoi(line1.c_str()), atoi(line2.c_str()), (bool)atoi(line3.c_str()), stod(line4.c_str())));
       }
 
       // lê o número de hidden_nodes
-      getline(line);
-      n = atoi(line);
+      getline(txtFile, line);
+      n = atoi(line.c_str());
       // para cada hidden_node, adiciona um int ao vetor
       for(int i = 0; i < n; i++) {
-        getline(line);
-        int t = atoi(line);
+        getline(txtFile, line);
+        int t = atoi(line.c_str());
         hidden_nodes.push_back(t);
       }
 
@@ -96,9 +100,9 @@ public:
   // a saída fica disponível no vetor outputs
   void Execute(double * inputs) {
     bool flag1 = false, flag2;
-    int numNodes = hidden_nodes.size() + ninputs + noututs;
+    int numNodes = hidden_nodes.size() + ninputs + noutputs;
     Neuron * net = new Neuron[numNodes + 1];
-    vector<int> pending = new vector<int>;
+    vector<int> pending;// = vector<int>;
 
     // cria os neurônios que estarão nas extremidades das synapses
     for(int i = 1; i <= numNodes; i++) {
@@ -107,8 +111,8 @@ public:
     // inicializa os "neurônios" de entrada
     // ("neurônios" pois não é calculado só são realmente entrada dos próximos neurônios)
     for(int i = 0; i < ninputs; i++) {
-      rede[i + 1].output = (float) inputs[i];
-      rede[i + 1].calculated = true;
+      net[i + 1].output = (float) inputs[i];
+      net[i + 1].calculated = true;
     }
     // adiciona todos os outros neurônios como pendentes
     for(int i = ninputs + 1; i <= numNodes; i++) {
@@ -128,13 +132,13 @@ public:
             flag2 = true;
             break;
           }
-          soma += parents[l].weight * net[parents[l].from].output;
+          sum += parents[l].weight * net[parents[l].from].output;
         } // for l
-        soma += bias;
+        sum += bias;
         if(!flag2) { // se o neurônio i tem todas as entradas calculadas
-          net[i].output = 1 /(1 + exp(-soma));
+          net[i].output = 1 /(1 + exp(-sum));
           net[i].calculated = true;
-          pending.pop_back(k); // faz o pop pra não ser calculado de novo pelo while externo
+          pending.erase(pending.begin() + k); // faz o erase pra não ser calculado de novo pelo while externo
           flag1 = false; // garante que os não verificados serão verificados novamente devido a mudança
         }
       } // for k
@@ -148,10 +152,10 @@ public:
 
   // encontra todas as conexões que chegam em i
   vector<Synapse> FindAllParents(int node) {
-    vector<Synapse> parents = new vector<Synapse>;
+    vector<Synapse> parents;// = vector<Synapse>;
     for(int i = 0; i < synapses.size(); i++) {
-      if(synapse[i].to == node) {
-        parents.push_back(synapse[i]);
+      if(synapses[i].to == node) {
+        parents.push_back(synapses[i]);
       }
     }
     return parents;
