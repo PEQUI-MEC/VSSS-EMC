@@ -8,7 +8,7 @@
 class Robot
 {
     public:
-        cv::Point position, secundary, target, ternary;
+        cv::Point position, secundary, target, transTarget, ternary;
         char ID;
         bool pink = false;
         double orientation=0;
@@ -114,6 +114,7 @@ class Robot
 
 
         }
+
         void goTo(cv::Point targetPos,cv::Point Ball) {
 
             double currentTheta = orientation;

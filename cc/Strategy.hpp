@@ -31,7 +31,7 @@ class Strategy
 public:
 	Ann * ann;
 	bool useAnn_flag = false;
-	
+
 	Robot Goalkeeper;
 	Robot Attack;
 	Robot Defense;
@@ -841,7 +841,7 @@ void set_Ball(cv::Point b) {
 }
 
 
-cv::Point get_gk_target(vector< cv::Point > Adv_Main) {
+cv::Point get_gk_target() {
 	Goalkeeper.fixedPos=true;
 	Goalkeeper.target.x = 60;
 	if (Ball.x < DIVISAO_AREAS)
@@ -902,7 +902,7 @@ else
 	Goalkeeper.target.y = MIN_GOL_Y;
 
 }
-//cout<<"GK TARGET "<<Goalkeeper.target.x<<" - "<<Goalkeeper.target.y<<endl;
+//std::cout<<"GK TARGET "<<Goalkeeper.target.x<<" - "<<Goalkeeper.target.y<<std::endl;
 return Goalkeeper.target;
 
 }
