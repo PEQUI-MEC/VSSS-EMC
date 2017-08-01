@@ -6,6 +6,8 @@
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
 #include "SerialW.hpp"
 #include <math.h>
+#include "Ann.hpp"
+
 #define PREDICAO_NUM_SAMPLES 15
 // Parametros para atacante sem bola
 
@@ -27,6 +29,9 @@
 class Strategy
 {
 public:
+	Ann * ann;
+	bool useAnn_flag = false;
+	
 	Robot Goalkeeper;
 	Robot Attack;
 	Robot Defense;
@@ -103,6 +108,12 @@ public:
 		// Parametros do Defensor na defesa
 		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
 		BALL_RADIUS = 100;
+	}
+
+	bool set_ann(const char * annName) {
+		// bool pra fazer alguma verificação se deu certo (no futuro)
+		ann = new Ann(annName);
+		return true;
 	}
 
 	void set_ball_radius(int ballRadius)
