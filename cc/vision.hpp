@@ -22,12 +22,12 @@ public:
   int const HWS = 25; // Half Window Size
   cv::Point ball_p1;
   cv::Point ball_p2;
-  cv::Point robot_p1[3];
-  cv::Point robot_p2[3];
+  cv::Point robot_p1[6];
+  cv::Point robot_p2[6];
   boost::thread_group threshold_threads;
   boost::thread_group threshold_threadsWindow;
   cv::Point  Ballorigin;
-  cv::Point robotOrigin[3];
+  cv::Point robotOrigin[6];
 
   vector< KalmanFilter > KF_RobotBall;
   // Team_Main[INDEX] - Vector de cv::Point
@@ -43,7 +43,7 @@ public:
 
   // ADV_Main[INDEX] - Vector de cv::Point
   //   GUARDA A POSIÇÃO DAS TAGS PRIMÁRIAS DO ADVERSÁRIO(.x e .y acessam a posição)
-  vector< cv::Point > Adv_Main;
+  vector<vector< cv::Point >> Adv_Main;
   // Ball - cv::Point
   //   GUARDA A POSIÇÃO DA BOLA
   cv::Point Ball;
@@ -51,7 +51,7 @@ public:
   std::vector<cv::Point> KF_Robot_point;
   std::vector<Robot> robot_list;
   bool Ball_lost;
-  bool robot_lost[3];
+  bool robot_lost[6];
   int hue[5][2];
   int saturation[5][2];
   int value[5][2];
@@ -70,6 +70,9 @@ public:
     KF_RobotBall.push_back(kf);
     KF_RobotBall.push_back(kf);
     KF_RobotBall.push_back(kf);
+    KF_RobotBall.push_back(kf);
+    KF_RobotBall.push_back(kf);
+    KF_RobotBall.push_back(kf);
   }
 
   void set_ROI(cv::Point kf_ball_point, vector <cv::Point> kf_robot_point){
@@ -84,7 +87,7 @@ public:
   bool isAnyRobotLost()
   {
     //std::cout << Ball_lost << ", "  << robot_lost[0] << ", " << robot_lost[1] << ", " << robot_lost[2] << std::endl;
-    return (robot_lost[0] || robot_lost[1] || robot_lost[2]);
+    return (robot_lost[0] || robot_lost[1] || robot_lost[2] || robot_lost[3] || robot_lost[4] || robot_lost[5]);
   }
 
   bool isBallLost(){
@@ -195,9 +198,9 @@ public:
 
     cv::Mat image_copy = im.clone();
 
+    // robos do nosso time
     for (int i = 0; i < 3; i++)
     {
-
       setWindowSize(KF_Robot_point[i], true, i);
       if (!checkWindowSize(robot_p1[i], robot_p2[i]))
       {
@@ -206,18 +209,33 @@ public:
       }
 
       robotOrigin[i] = robot_p1[i];
-
       cv::Rect  rect(robot_p1[i],robot_p2[i]);
 
-      dummy[3*i] = image_copy(rect);
-      crop[3*i] = dummy[3*i].clone();
-      dummy[1+3*i] = image_copy(rect);
-      crop[1+3*i] = dummy[1+3*i].clone();
-      dummy[2+3*i] = image_copy(rect);
-      crop[2+3*i] = dummy[2+3*i].clone();
+      dummy[2*i] = image_copy(rect);
+      crop[2*i] = dummy[2*i].clone();
+      dummy[1+2*i] = image_copy(rect);
+      crop[1+2*i] = dummy[1+2*i].clone();
 
     }
 
+    // robos adversarios
+    for (int i = 3; i < 6; i++)
+    {
+      setWindowSize(KF_Robot_point[i], true, i);
+      if (!checkWindowSize(robot_p1[i], robot_p2[i]))
+      {
+        robot_lost[i] = true;
+        return;
+      }
+
+      robotOrigin[i] = robot_p1[i];
+      cv::Rect  rect(robot_p1[i],robot_p2[i]);
+
+      dummy[i+3] = image_copy(rect);
+      crop[i+3] = dummy[i+3].clone();
+    }
+
+    // bola
     setWindowSize(KF_Ball_point, false, 0);
 
     if (!checkWindowSize(ball_p1, ball_p2))
@@ -232,13 +250,30 @@ public:
     dummy[9] = image_copy(rect);
     crop[9] = dummy[9].clone();
 
-    for(int i = 0; i < 3; i++) {
-      threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[3*i]), 0, i, robot_p1[i], robot_p2[i]));
-      threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[1+3*i]), 1, i, robot_p1[i], robot_p2[i]));
-      threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[2+3*i]), 2, i, robot_p1[i], robot_p2[i]));
-    }
 
-    windowed_img_tracking(crop[9], 3, 3, ball_p1, ball_p2);
+    // thresholds
+    // Robo 1 - amarelo e verde
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[0]), 0, 0, robot_p1[0], robot_p2[0]));
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[1]), 1, 0, robot_p1[0], robot_p2[0]));
+
+    // Robo 2 - amarelo e verde
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[2]), 0, 1, robot_p1[1], robot_p2[1]));
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[3]), 1, 1, robot_p1[1], robot_p2[1]));
+
+    // Robo 3 - amarelo e rosa
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[4]), 0, 2, robot_p1[2], robot_p2[2]));
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[5]), 2, 2, robot_p1[2], robot_p2[2]));
+
+    // Adversario 1 - azul
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[6]), 4, 3, robot_p1[3], robot_p2[3]));
+
+    // Adversario 2 - azul
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[7]), 4, 4, robot_p1[4], robot_p2[4]));
+
+    // Adversario 3 - azul
+    threshold_threadsWindow.add_thread(new boost::thread(&Vision::windowed_img_tracking,this, boost::ref(crop[8]), 4, 5, robot_p1[5], robot_p2[5]));
+
+    windowed_img_tracking(crop[9], 3, 6, ball_p1, ball_p2);
 
     //Tracking Adversário
     //threshold_threadsWindow.add_thread(new boost::thread(&Vision::img_tracking,this, boost::ref(image_copy), 5));
@@ -420,22 +455,30 @@ public:
       break;
 
       case 4:// ADVERSARY MAIN COLOR
-      /*
+
       if (hierarchy.size() > 0) {
-      Adv_Main.clear();
-      int j =0;
+      Adv_Main[window_id-3].clear();
       int index = 0;
       while(index >= 0) {
       cv::Moments moment = moments((cv::Mat)contours[index]);
       double area = contourArea(contours[index]);
       //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
       if(area >= areaMin[color_id]/100) {
-      Adv_Main.push_back(cv::Point(moment.m10/area,moment.m01/area));
-    }
+      Adv_Main[window_id-3].push_back(cv::Point(moment.m10/area,moment.m01/area));
+
+      }
     index = hierarchy[index][0];
   }
+  robot_list[window_id].position = getCorrectAdversary(window_id)+robotOrigin[window_id];
+  //std::cout << "Window Adv " << window_id-3 << ": " << robot_list[window_id-3].position.x << ", " << robot_list[window_id-3].position.y << std::endl;
 
-}*/
+
+
+} else {
+  robot_lost[3] = true;
+  robot_lost[4] = true;
+  robot_lost[5] = true;
+}
 
 break;
 
@@ -537,23 +580,35 @@ void img_tracking(cv::Mat image,int color_id) {
       }
     }
 
+    break;
+
 
     case 4:// ADVERSARY MAIN COLOR
 
     if (hierarchy.size() > 0) {
-      Adv_Main.clear();
-      int j =0;
+      Adv_Main[0].clear();
+      Adv_Main[1].clear();
+      Adv_Main[2].clear();
+      int advCounter = 0;
       int index = 0;
-      while(index >= 0) {
+      while(index >= 0 && advCounter < 3) {
         cv::Moments moment = moments((cv::Mat)contours[index]);
         double area = contourArea(contours[index]);
         //Se a área do objeto for muito pequena então provavelmente deve ser apenas ruído.
         if(area >= areaMin[color_id]/100) {
-          Adv_Main.push_back(cv::Point(moment.m10/area,moment.m01/area));
+          Adv_Main[advCounter].push_back(cv::Point(moment.m10/area,moment.m01/area));
+          robot_list[advCounter+3].position = cv::Point(moment.m10/area,moment.m01/area);
+          robot_lost[advCounter+3] = false;
+          //std::cout << "Old Adv " <<  advCounter << ": " << robot_list[advCounter+3].position.x << ", " << robot_list[advCounter+3].position.y << std::endl;
+          advCounter++;
         }
         index = hierarchy[index][0];
       }
 
+    } else {
+      robot_lost[3] = true;
+      robot_lost[4] = true;
+      robot_lost[5] = true;
     }
 
     break;
@@ -760,6 +815,26 @@ int getCorrectMainTag(int window_id)
   return correctTag;
 }
 
+// Verifica qual adversario pertence a janela
+// Pela menor distância da tag certa em relação ao frame anterior
+cv::Point getCorrectAdversary(int window_id)
+{
+  float minDistance = 99999.0;
+  float distance;
+  int correctTag;
+
+  for (int i = 0; i < Adv_Main[window_id-3].size(); i++)
+  {
+    // Compara a distancia entre a tag do frame atual com a tag do frame anterior
+    distance = calcDistance(Adv_Main[window_id-3][i]+robotOrigin[window_id],robot_list[window_id].position);
+    if (distance <= minDistance)
+    {
+      minDistance = distance;
+      correctTag = i;
+    }
+  }
+  return Adv_Main[window_id-3][correctTag];
+}
 
 void robot_creation_uni_duni_tag() {
   vector <Robot> robot;
@@ -901,6 +976,9 @@ Vision(int w, int h)
   robot_lost[0] = true;
   robot_lost[1] = true;
   robot_lost[2] = true;
+  robot_lost[3] = true;
+  robot_lost[4] = true;
+  robot_lost[5] = true;
 
   Ballorigin = cv::Point(0,0);
   Team_Sec_area.push_back(a);
@@ -915,13 +993,18 @@ Vision(int w, int h)
   vector<vector < double >> d;
   vector< double > f;
   Robot r;
-  robot_list.push_back(r);
-  robot_list.push_back(r);
-  robot_list.push_back(r);
-
-
-
   p.push_back(cv::Point(0,0));
+  robot_list.push_back(r);
+  robot_list.push_back(r);
+  robot_list.push_back(r);
+  robot_list.push_back(r);
+  robot_list.push_back(r);
+  robot_list.push_back(r);
+
+  Adv_Main.push_back(p);
+  Adv_Main.push_back(p);
+  Adv_Main.push_back(p);
+
   Team_Sec.push_back(p);
   Team_Sec.push_back(p);
   Team_Sec.push_back(p);
@@ -958,6 +1041,9 @@ Vision(int w, int h)
 
 
   KalmanFilter kf;
+  KF_RobotBall.push_back(kf);
+  KF_RobotBall.push_back(kf);
+  KF_RobotBall.push_back(kf);
   KF_RobotBall.push_back(kf);
   KF_RobotBall.push_back(kf);
   KF_RobotBall.push_back(kf);

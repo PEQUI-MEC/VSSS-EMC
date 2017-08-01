@@ -53,7 +53,8 @@ class V4LInterface: public Gtk::VBox {
           Gtk::Frame robots_buttons_fm;
           Gtk::Frame robots_checkbox_fm;
           Gtk::VBox robots_pos_buttons_vbox;
-          Gtk::HBox robots_buttons_hbox;
+          Gtk::HBox fps_hbox;
+          Gtk::Label *fps_label;
           Gtk::CheckButton draw_info_checkbox;
           Gtk::HBox draw_info_hbox;
           bool draw_info_flag = false;
@@ -205,6 +206,7 @@ class V4LInterface: public Gtk::VBox {
         void event_robots_id_edit_bt_signal_pressed();
 
         void updateRobotLabels();
+        void updateFPS(int fps);
         void init_HSV();
         bool get_start_game_flag();
 
