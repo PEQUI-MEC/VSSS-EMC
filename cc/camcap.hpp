@@ -101,29 +101,35 @@ public:
     interface.robot_list[2].feedHist(interface.robot_list[2].position);
     //std::cout << 5.4 << std::endl;
     interface.updateRobotLabels();
+    interface.updateFPS(fps_average);
     //std::cout << 5.5 << std::endl;
 
 
     if(KF_FIRST) {
 
       //KALMAN FILTER INIT
-      for(int i=0; i<4; i++) {
+      for(int i=0; i<7; i++) {
         vision->KF_RobotBall[i].KF_init(vision->robot_list[i].position);
       }
       //std::cout<<"KALMAN FILTER INITIALIZED"<<std::endl;
       KF_FIRST = false;
 
-      Ball_kf_est = vision->KF_RobotBall[3].KF_Prediction(ballPosition);
       robot_kf_est[0] = vision->KF_RobotBall[0].KF_Prediction(vision->robot_list[0].position);
       robot_kf_est[1] = vision->KF_RobotBall[1].KF_Prediction(vision->robot_list[1].position);
       robot_kf_est[2] = vision->KF_RobotBall[2].KF_Prediction(vision->robot_list[2].position);
-
+      robot_kf_est[3] = vision->KF_RobotBall[3].KF_Prediction(vision->robot_list[3].position);
+      robot_kf_est[4] = vision->KF_RobotBall[4].KF_Prediction(vision->robot_list[4].position);
+      robot_kf_est[5] = vision->KF_RobotBall[5].KF_Prediction(vision->robot_list[5].position);
+      Ball_kf_est = vision->KF_RobotBall[6].KF_Prediction(ballPosition);
     }
 
-    Ball_kf_est = vision->KF_RobotBall[3].KF_Prediction(ballPosition);
     robot_kf_est[0] = vision->KF_RobotBall[0].KF_Prediction(vision->robot_list[0].position);
     robot_kf_est[1] = vision->KF_RobotBall[1].KF_Prediction(vision->robot_list[1].position);
     robot_kf_est[2] = vision->KF_RobotBall[2].KF_Prediction(vision->robot_list[2].position);
+    robot_kf_est[3] = vision->KF_RobotBall[3].KF_Prediction(vision->robot_list[3].position);
+    robot_kf_est[4] = vision->KF_RobotBall[4].KF_Prediction(vision->robot_list[4].position);
+    robot_kf_est[5] = vision->KF_RobotBall[5].KF_Prediction(vision->robot_list[5].position);
+    Ball_kf_est = vision->KF_RobotBall[6].KF_Prediction(ballPosition);
   }
 
   bool start_signal(bool b) {
@@ -243,10 +249,10 @@ vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
 vision->set_ROI(Ball_kf_est, robot_kf_est);
 //std::cout << 4 << std::endl;
 
-if(!interface.HSV_calib_event_flag) {
+ if(!interface.HSV_calib_event_flag) {
   if(vision->isAnyRobotLost() || vision->isBallLost()){
     //std::cout << 4.1 << std::endl;
-    //std::cout << "Old Parallel Tracking" << endl;
+    // std::cout << "-" << endl;
     vision->parallel_tracking(imageView);
     vision->robot_creation_uni_duni_tag();
     KF_FIRST = true;
@@ -254,7 +260,7 @@ if(!interface.HSV_calib_event_flag) {
 
 
   }else{
-  //  cout << "1" << endl;
+  // std::cout << "Windowed Parallel Tracking" << endl;
     vision->windowed_parallel_tracking(imageView);
     vision->windowed_robot_creation_uni_duni_tag(0);
     vision->windowed_robot_creation_uni_duni_tag(1);
@@ -263,8 +269,9 @@ if(!interface.HSV_calib_event_flag) {
 
   }
 
-
-
+  // std::cout << "Adv 1: " << vision->robot_list[3].position.x << ", " << vision->robot_list[3].position.y << std::endl;
+  // std::cout << "Adv 2: " << vision->robot_list[4].position.x << ", " << vision->robot_list[4].position.y << std::endl;
+  // std::cout << "Adv 3: " << vision->robot_list[5].position.x << ", " << vision->robot_list[5].position.y << std::endl;
 
 
   if (!interface.draw_info_flag)
@@ -272,15 +279,21 @@ if(!interface.HSV_calib_event_flag) {
     drawStrategyConstants(imageView, w, h);
 
     rectangle(imageView,cv::Point(Ball_kf_est.x-vision->HWS,Ball_kf_est.y-vision->HWS),
-    cv::Point(Ball_kf_est.x+vision->HWS,Ball_kf_est.y+vision->HWS),CV_RGB(0,127,255),2,8);
+      cv::Point(Ball_kf_est.x+vision->HWS,Ball_kf_est.y+vision->HWS),CV_RGB(0,127,255),2,8);
 
     rectangle(imageView,cv::Point(robot_kf_est[0].x-vision->HWS,robot_kf_est[0].y-vision->HWS),
-    cv::Point(robot_kf_est[0].x+vision->HWS,robot_kf_est[0].y+vision->HWS),CV_RGB(0,255,255),2,8);
+      cv::Point(robot_kf_est[0].x+vision->HWS,robot_kf_est[0].y+vision->HWS),CV_RGB(0,255,255),2,8);
     rectangle(imageView,cv::Point(robot_kf_est[1].x-vision->HWS,robot_kf_est[1].y-vision->HWS),
-    cv::Point(robot_kf_est[1].x+vision->HWS,robot_kf_est[1].y+vision->HWS),CV_RGB(0,255,255),2,8);
+      cv::Point(robot_kf_est[1].x+vision->HWS,robot_kf_est[1].y+vision->HWS),CV_RGB(0,255,255),2,8);
     rectangle(imageView,cv::Point(robot_kf_est[2].x-vision->HWS,robot_kf_est[2].y-vision->HWS),
-    cv::Point(robot_kf_est[2].x+vision->HWS,robot_kf_est[2].y+vision->HWS),CV_RGB(0,255,255),2,8);
+      cv::Point(robot_kf_est[2].x+vision->HWS,robot_kf_est[2].y+vision->HWS),CV_RGB(0,255,255),2,8);
 
+    rectangle(imageView,cv::Point(robot_kf_est[3].x-vision->HWS,robot_kf_est[3].y-vision->HWS),
+      cv::Point(robot_kf_est[3].x+vision->HWS,robot_kf_est[3].y+vision->HWS),CV_RGB(255,0,0),2,8);
+    rectangle(imageView,cv::Point(robot_kf_est[4].x-vision->HWS,robot_kf_est[4].y-vision->HWS),
+      cv::Point(robot_kf_est[4].x+vision->HWS,robot_kf_est[4].y+vision->HWS),CV_RGB(255,0,0),2,8);
+    rectangle(imageView,cv::Point(robot_kf_est[5].x-vision->HWS,robot_kf_est[5].y-vision->HWS),
+      cv::Point(robot_kf_est[5].x+vision->HWS,robot_kf_est[5].y+vision->HWS),CV_RGB(255,0,0),2,8);
 
     circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
     line(imageView,interface.robot_list[0].position,interface.robot_list[0].secundary,cv::Scalar(255,255,0), 2);
@@ -296,8 +309,8 @@ if(!interface.HSV_calib_event_flag) {
     putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
     circle(imageView,vision->get_ball_position(), 7, cv::Scalar(255,255,255), 2);
 
-    /*for(int i=0; i<vision->Adv_Main.size(); i++)
-    circle(imageView,vision->Adv_Main[i], 15, cv::Scalar(0,0,255), 2);*/
+    for(int i=3; i<vision->robot_list.size(); i++)
+      circle(imageView,vision->robot_list[i].position, 15, cv::Scalar(0,0,255), 2);
   }
 
   //std::cout << 8 << std::endl;
@@ -347,7 +360,7 @@ if(interface.start_game_flag) {
   for(int i =0; i<3; i++) {
     switch (interface.robot_list[i].role)	{
       case 0:
-      interface.robot_list[i].target = strategyGUI.strategy.get_gk_target(vision->Adv_Main);
+      //interface.robot_list[i].target = strategyGUI.strategy.get_gk_target(vision->Adv_Main);
       interface.robot_list[i].fixedPos = strategyGUI.strategy.Goalkeeper.fixedPos;
       if(strategyGUI.strategy.GOAL_DANGER_ZONE) {
         interface.robot_list[i].histWipe();
@@ -414,7 +427,7 @@ if (timerCounter == 30)
     fps_average += fps[i];
   }
   fps_average = fps_average / fps.size();
-  cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
+  //cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
   timerCounter = 0;
   fps.clear();
 }
@@ -602,6 +615,9 @@ CamCap() : data(0), width(0), height(0){
   notebook.append_page(control, "Control");
   notebook.append_page(strategyGUI, "Strategy");
 
+  robot_kf_est.push_back(Ball_Est);
+  robot_kf_est.push_back(Ball_Est);
+  robot_kf_est.push_back(Ball_Est);
   robot_kf_est.push_back(Ball_Est);
   robot_kf_est.push_back(Ball_Est);
   robot_kf_est.push_back(Ball_Est);
