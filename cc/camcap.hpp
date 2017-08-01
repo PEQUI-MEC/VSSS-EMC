@@ -311,11 +311,11 @@ vision->set_ROI(Ball_kf_est, robot_kf_est);
 
     for(int i=3; i<vision->robot_list.size(); i++)
       circle(imageView,vision->robot_list[i].position, 15, cv::Scalar(0,0,255), 2);
-  }
+  } // if !interface.draw_info_flag
 
   //std::cout << 8 << std::endl;
 
-}
+} // if !draw_info_flag
 else
 {
   vision->parallel_tracking(imageView);
@@ -336,7 +336,7 @@ else {
 }
 //std::cout << 10 << std::endl;
 if (interface.imageView.PID_test_flag && interface.get_start_game_flag())
-control.button_PID_Test.set_active(false);
+  control.button_PID_Test.set_active(false);
 
 //std::cout << 11 << std::endl;
 if(Selec_index!=-1) {
@@ -345,7 +345,7 @@ if(Selec_index!=-1) {
 //std::cout << 12 << std::endl;
 for(int i=0; i<interface.robot_list.size(); i++) {
   if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
-  line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
+    line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
   circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
 }
 //  std::cout << 13 << std::endl;
@@ -356,59 +356,19 @@ if(interface.start_game_flag) {
   Ball_Est=strategyGUI.strategy.get_Ball_Est();
   line(imageView,vision->get_ball_position(),Ball_Est,cv::Scalar(255,140,0), 2);
   circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
-  char buffer[3];
+  //char buffer[3]; -> não é utilizado
+  strategyGUI.strategy.get_targets(interface.robot_list);
   for(int i =0; i<3; i++) {
-    switch (interface.robot_list[i].role)	{
-      case 0:
-      //interface.robot_list[i].target = strategyGUI.strategy.get_gk_target(vision->Adv_Main);
-      interface.robot_list[i].fixedPos = strategyGUI.strategy.Goalkeeper.fixedPos;
-      if(strategyGUI.strategy.GOAL_DANGER_ZONE) {
-        interface.robot_list[i].histWipe();
-      }
-      break;
-      case 2:
-      interface.robot_list[i].target = strategyGUI.strategy.get_atk_target(interface.robot_list[i].position, interface.robot_list[i].orientation);
-      interface.robot_list[i].fixedPos = strategyGUI.strategy.Attack.fixedPos;
-      interface.robot_list[i].status = strategyGUI.strategy.Attack.status;
-      /*	for(int j=0;j<vision->Adv_Main.size();j++){
-      if ( sqrt(pow(vision->Adv_Main[j].x - interface.robot_list[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
-      interface.robot_list[i].histWipe();
-    }
-  }*/
-  break;
-  case 1:
-  interface.robot_list[i].target = strategyGUI.strategy.get_def_target(interface.robot_list[i].position);
-  interface.robot_list[i].fixedPos = strategyGUI.strategy.Defense.fixedPos;
-  interface.robot_list[i].status = strategyGUI.strategy.Defense.status;
-  /*	for(int j=0;j<vision->Adv_Main.size();j++){
-  if ( sqrt(pow(vision->Adv_Main[j].x - interface.robot_list[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
-  interface.robot_list[i].spin = true;
-}
-}*/
-break;
-case 3:
-interface.robot_list[i].target = strategyGUI.strategy.get_opp_target(interface.robot_list[i].position, interface.robot_list[i].orientation);
-interface.robot_list[i].fixedPos = strategyGUI.strategy.Opponent.fixedPos;
-interface.robot_list[i].status = strategyGUI.strategy.Opponent.status;
+    circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
 
-break;
-}
-//cout<<interface.robot_list[0].target.x<<" - "<<interface.robot_list[0].target.y<<endl;
-circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
-
-putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
-}
-}
+    putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
+  } // for
+} // if start_game_flag
 //cout<<interface.robot_list[2].status<<" | "<<interface.robot_list[2].interface<<endl;
 
 interface.update_speed_progressBars();
 send_vel_to_robots();
 // ----------------------------------------//
-
-
-
-
-
 
 
 //std::cout << 14 << std::endl;
@@ -433,7 +393,6 @@ if (timerCounter == 30)
 }
 timerCounter++;
 fps.push_back(1/timer.getCPUTotalSecs());
-
 
 
 return true;
