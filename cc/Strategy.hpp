@@ -6,6 +6,8 @@
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
 #include "SerialW.hpp"
 #include <math.h>
+#include "Ann.hpp"
+
 #define PREDICAO_NUM_SAMPLES 15
 // Parametros para atacante sem bola
 
@@ -27,6 +29,9 @@
 class Strategy
 {
 public:
+	Ann * ann;
+	bool useAnn_flag = false;
+
 	Robot Goalkeeper;
 	Robot Attack;
 	Robot Defense;
@@ -103,6 +108,12 @@ public:
 		// Parametros do Defensor na defesa
 		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
 		BALL_RADIUS = 100;
+	}
+
+	bool set_ann(const char * annName) {
+		// bool pra fazer alguma verificação se deu certo (no futuro)
+		ann = new Ann(annName);
+		return true;
 	}
 
 	void set_ball_radius(int ballRadius)
@@ -190,6 +201,70 @@ public:
 	{
 		return MEIO_GOL_Y;
 	}
+
+	void get_targets(vector<Robot> * pRobots) {
+		vector<Robot> robots = *pRobots;
+		if(useAnn_flag) {
+			double * inputs = (double *) calloc(ann->ninputs, sizeof(double)); // inicializa com zero para o caso de não identificar todos os robôs
+			// preenche entradas da rede
+			inputs[0] = Ball.x;
+			inputs[1] = Ball.y;
+			for(int i = 0, j = 0; i < robots.size() && i < 6; i++, j+=2) {
+				inputs[j] = robots[i].position.x;
+				inputs[j+1] = robots[i].position.y;
+			}
+			// executa a rede com as entradas. a saída está em ann.outputs
+			ann->Execute(inputs);
+			// atualiza o target nos robôs
+			for(int i = 0, j = 0; i < 3 && j+1 < ann->noutputs; i++, j+=2) {
+				robots[i].target.x = ann->outputs[j];
+				robots[i].target.y = ann->outputs[j+1];
+			}
+		}
+		else {
+			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
+			for(int i =0; i<3; i++) {
+		    switch (robots[i].role)	{
+		      case 0:
+		      robots[i].target = get_gk_target();
+		      robots[i].fixedPos = Goalkeeper.fixedPos;
+		      if(GOAL_DANGER_ZONE) {
+		        robots[i].histWipe();
+		      }
+		      break;
+		      case 2:
+		      robots[i].target = get_atk_target(robots[i].position, robots[i].orientation);
+		      robots[i].fixedPos = Attack.fixedPos;
+		      robots[i].status = Attack.status;
+		      /*for(int j=0;j<vision->Adv_Main.size();j++){
+		        if ( sqrt(pow(vision->Adv_Main[j].x - robots[i].position.x, 2) + pow(vision->Adv_Main[j].y - robots[i].position.y, 2)) < 50) {
+		          robots[i].histWipe();
+		        }
+		      }*/
+		      break;
+		      case 1:
+		      robots[i].target = get_def_target(robots[i].position);
+		      robots[i].fixedPos = Defense.fixedPos;
+		      robots[i].status = Defense.status;
+		      /*for(int j=0;j<vision->Adv_Main.size();j++){
+		          if ( sqrt(pow(vision->Adv_Main[j].x - robots[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
+		          interface.robot_list[i].spin = true;
+		        }
+		      }*/
+		      break;
+		      case 3:
+		      robots[i].target = get_opp_target(robots[i].position, robots[i].orientation);
+		      robots[i].fixedPos = Opponent.fixedPos;
+		      robots[i].status = Opponent.status;
+		      break;
+		    } // switch
+		    //cout<<robots[0].target.x<<" - "<<robots[0].target.y<<endl;
+			}
+		}
+
+		// devolve o vetor de robots com as alterações
+		*pRobots = robots;
+	} // get_targets
 
 	cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
 
@@ -830,7 +905,7 @@ void set_Ball(cv::Point b) {
 }
 
 
-cv::Point get_gk_target(vector< cv::Point > Adv_Main) {
+cv::Point get_gk_target() {
 	Goalkeeper.fixedPos=true;
 	Goalkeeper.target.x = 60;
 	if (Ball.x < DIVISAO_AREAS)
