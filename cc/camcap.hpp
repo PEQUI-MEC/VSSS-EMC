@@ -357,7 +357,7 @@ if(interface.start_game_flag) {
   line(imageView,vision->get_ball_position(),Ball_Est,cv::Scalar(255,140,0), 2);
   circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
   //char buffer[3]; -> não é utilizado
-  strategyGUI.strategy.get_targets(interface.robot_list);
+  strategyGUI.strategy.get_targets(&(interface.robot_list));
   for(int i =0; i<3; i++) {
     circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
 

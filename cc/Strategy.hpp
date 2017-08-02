@@ -202,7 +202,8 @@ public:
 		return MEIO_GOL_Y;
 	}
 
-	void get_targets(vector<Robot> robots) {
+	void get_targets(vector<Robot> * pRobots) {
+		vector<Robot> robots = *pRobots;
 		if(useAnn_flag) {
 			double * inputs = (double *) calloc(ann->ninputs, sizeof(double)); // inicializa com zero para o caso de não identificar todos os robôs
 			// preenche entradas da rede
@@ -225,7 +226,7 @@ public:
 			for(int i =0; i<3; i++) {
 		    switch (robots[i].role)	{
 		      case 0:
-		      //robots[i].target = get_gk_target(vision->Adv_Main);
+		      robots[i].target = get_gk_target();
 		      robots[i].fixedPos = Goalkeeper.fixedPos;
 		      if(GOAL_DANGER_ZONE) {
 		        robots[i].histWipe();
@@ -260,6 +261,9 @@ public:
 		    //cout<<robots[0].target.x<<" - "<<robots[0].target.y<<endl;
 			}
 		}
+
+		// devolve o vetor de robots com as alterações
+		*pRobots = robots;
 	} // get_targets
 
 	cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
@@ -901,7 +905,7 @@ void set_Ball(cv::Point b) {
 }
 
 
-cv::Point get_gk_target(vector< cv::Point > Adv_Main) {
+cv::Point get_gk_target() {
 	Goalkeeper.fixedPos=true;
 	Goalkeeper.target.x = 60;
 	if (Ball.x < DIVISAO_AREAS)
