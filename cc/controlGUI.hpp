@@ -53,14 +53,23 @@ public:
 	Gtk::Entry Tbox_V1;
 	Gtk::Entry Tbox_V2;
 
+	Gtk::Grid status_grid;
+	Gtk::Frame status_fm;
+	Gtk::Image status_img[4];
+	Gtk::Label number_lb[4];
+	Gtk::Label robots_lb[4];
+	Gtk::Label status_lb[4];
+	Gtk::ProgressBar battery_bar[4];
+
 	Gtk::Frame pid_fm;
 	Gtk::VBox pid_vbox;
 	Gtk::HBox pid_hbox[2];
 	Gtk::Button pid_edit_bt;
-	Gtk::Button pid_done_bt;
+	Gtk::Button pid_send_bt;
 	Gtk::Entry pid_box[3];
 	Glib::ustring pid_tmp[4];
-	Gtk::ComboBoxText cb_pid;
+	Gtk::ComboBoxText cb_pid_robot;
+	Gtk::ComboBoxText cb_pid_type;
 	bool pid_edit_flag = false;
 
 	bool get_PID_test_flag()
@@ -129,7 +138,8 @@ public:
 
 		bt_Serial_test.set_label("Send");
 
-		//_create_pid_frame();
+		_create_pid_frame();
+		_create_status_frame();
 
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
@@ -142,17 +152,14 @@ public:
 void _PID_Test(){
 	if (PID_test_flag)
 	{
-
 		PID_test_flag = false;
-		std::cout<<PID_test_flag<<endl;
-
+		//std::cout<<PID_test_flag<<endl;
 	}
 	else
 	{
 		PID_test_flag = true;
-		std::cout<<PID_test_flag<<endl;
+		//std::cout<<PID_test_flag<<endl;
 	}
-
 }
 
 void _start_serial(){
@@ -178,9 +185,7 @@ void _start_serial(){
 		bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 		bt_Serial_test.set_state(Gtk::STATE_NORMAL);
 		cb_test.set_state(Gtk::STATE_NORMAL);
-
-
-
+		pid_edit_bt.set_state(Gtk::STATE_NORMAL);
 	}
 
 void _send_test(){
@@ -291,55 +296,129 @@ for(int i = 0; i < 256; ++i)
 
 void _create_pid_frame(){
 
-		pack_start(pid_fm, false, true, 5);
-		pid_fm.set_label("PID");
-		pid_fm.add(pid_vbox);
-		pid_vbox.pack_start(pid_hbox[0], false, true, 5);
-		pid_vbox.pack_start(pid_hbox[1], false, true, 5);
+	pack_start(pid_fm, false, true, 5);
+	pid_fm.set_label("PID");
+	pid_fm.add(pid_vbox);
+	pid_vbox.pack_start(pid_hbox[0], false, true, 5);
+	pid_vbox.pack_start(pid_hbox[1], false, true, 5);
 
-		pid_hbox[0].pack_start(pid_edit_bt, false, true, 5);
-		pid_hbox[0].pack_end(pid_done_bt, false, true, 5);
-		pid_edit_bt.set_label("Edit");
-		pid_done_bt.set_label("Done");
+	pid_hbox[0].pack_start(pid_edit_bt, false, true, 5);
+	pid_hbox[0].pack_start(cb_pid_type, false, true, 5);
+	pid_hbox[0].pack_end(pid_send_bt, false, true, 5);
+	pid_edit_bt.set_label("Edit");
+	pid_send_bt.set_label("Send");
 
-		cb_pid.append("All Robots");
-		cb_pid.append("Robot A");
-		cb_pid.append("Robot B");
-		cb_pid.append("Robot C");
-		cb_pid.append("Robot D");
-		cb_pid.set_active(0);
+	cb_pid_robot.append("All robots_lb");
+	cb_pid_robot.append("Robot A");
+	cb_pid_robot.append("Robot B");
+	cb_pid_robot.append("Robot C");
+	cb_pid_robot.append("Robot D");
+	cb_pid_robot.set_active(0);
 
-		pid_hbox[1].pack_start(cb_pid, false, true, 5);
-		label = new Gtk::Label("P: ");
-		pid_hbox[1].pack_start(*label, false, true, 5);
-		pid_hbox[1].pack_start(pid_box[0], false, true, 5);
-		pid_box[0].set_max_length(5);
-		pid_box[0].set_width_chars(6);
-		pid_box[0].set_text(Glib::ustring::format("0"));
+	cb_pid_type.append("Position PID");
+	cb_pid_type.append("Speed PID");
+	cb_pid_type.set_active(0);
 
-		label = new Gtk::Label("I: ");
-		pid_hbox[1].pack_start(*label, false, true, 5);
-		pid_hbox[1].pack_start(pid_box[1], false, true, 5);
-		pid_box[1].set_max_length(5);
-		pid_box[1].set_width_chars(6);
-		pid_box[1].set_text(Glib::ustring::format("0"));
+	pid_hbox[1].pack_start(cb_pid_robot, false, true, 5);
+	label = new Gtk::Label("P: ");
+	pid_hbox[1].pack_start(*label, false, true, 5);
+	pid_hbox[1].pack_start(pid_box[0], false, true, 5);
+	pid_box[0].set_max_length(4);
+	pid_box[0].set_width_chars(6);
+	pid_box[0].set_text(Glib::ustring::format("0"));
 
-		label = new Gtk::Label("D: ");
-		pid_hbox[1].pack_start(*label, false, true, 5);
-		pid_hbox[1].pack_start(pid_box[2], false, true, 5);
-		pid_box[2].set_max_length(5);
-		pid_box[2].set_width_chars(6);
-		pid_box[2].set_text(Glib::ustring::format("0"));
+	label = new Gtk::Label("I: ");
+	pid_hbox[1].pack_start(*label, false, true, 5);
+	pid_hbox[1].pack_start(pid_box[1], false, true, 5);
+	pid_box[1].set_max_length(4);
+	pid_box[1].set_width_chars(6);
+	pid_box[1].set_text(Glib::ustring::format("0"));
 
-		/*pid_box[0].set_state(Gtk::STATE_INSENSITIVE);
-		pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
-		pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
-		pid_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-		pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-		cb_pid.set_state(Gtk::STATE_INSENSITIVE);*/
+	label = new Gtk::Label("D: ");
+	pid_hbox[1].pack_start(*label, false, true, 5);
+	pid_hbox[1].pack_start(pid_box[2], false, true, 5);
+	pid_box[2].set_max_length(4);
+	pid_box[2].set_width_chars(6);
+	pid_box[2].set_text(Glib::ustring::format("0"));
 
-		pid_edit_bt.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_event_pid_edit_bt_clicked));
-		pid_done_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_event_pid_done_bt_clicked));
+	pid_box[0].set_state(Gtk::STATE_INSENSITIVE);
+	pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
+	pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
+	pid_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+	//pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	cb_pid_robot.set_state(Gtk::STATE_INSENSITIVE);
+	cb_pid_type.set_state(Gtk::STATE_INSENSITIVE);
+
+	pid_edit_bt.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_event_pid_edit_bt_clicked));
+	pid_send_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_event_pid_send_bt_clicked));
+}
+
+void _create_status_frame(){
+
+	pack_start(status_fm, false, true, 5);
+	status_fm.set_label("Robot Status");
+	status_fm.add(status_grid);
+
+	status_grid.set_border_width(10);
+	status_grid.set_column_spacing(5);
+	status_grid.set_halign(Gtk::ALIGN_CENTER);
+
+	status_img[0].set("img/offline.png");
+	status_grid.attach(status_img[0], 0, 0, 1, 1);
+	status_img[1].set("img/offline.png");
+	status_grid.attach(status_img[1], 0, 1, 1, 1);
+	status_img[2].set("img/offline.png");
+	status_grid.attach(status_img[2], 0, 2, 1, 1);
+	status_img[3].set("img/offline.png");
+	status_grid.attach(status_img[3], 0, 3, 1, 1);
+
+	robots_lb[0].set_text("Robot A: ");
+	status_grid.attach(robots_lb[0], 1, 0, 1, 1);
+	robots_lb[1].set_text("Robot B: ");
+	status_grid.attach(robots_lb[1], 1, 1, 1, 1);
+	robots_lb[2].set_text("Robot C: ");
+	status_grid.attach(robots_lb[2], 1, 2, 1, 1);
+	robots_lb[3].set_text("Robot D: ");
+	status_grid.attach(robots_lb[3], 1, 3, 1, 1);
+
+	status_grid.attach(battery_bar[0], 2, 0, 1, 1);
+	status_grid.attach(battery_bar[1], 2, 1, 1, 1);
+	status_grid.attach(battery_bar[2], 2, 2, 1, 1);
+	status_grid.attach(battery_bar[3], 2, 3, 1, 1);
+
+	status_lb[0].set_text("Offline");
+	status_grid.attach(status_lb[0], 3, 0, 1, 1);
+	status_lb[1].set_text("Offline");
+	status_grid.attach(status_lb[1], 3, 1, 1, 1);
+	status_lb[2].set_text("Offline");
+	status_grid.attach(status_lb[2], 3, 2, 1, 1);
+	status_lb[3].set_text("Offline");
+	status_grid.attach(status_lb[3], 3, 3, 1, 1);
+
+
+}
+
+	// Função para verificar se os valores digitados nos campos
+	// de PID são válidos: apenas números e um único ponto
+	bool checkPIDvalues(){
+		std::string value;
+		int counter;
+
+		for (int i = 0; i < 3; i++) {
+			counter = 0;
+			value.clear();
+			value.append(pid_box[i].get_text());
+			std::cout << i << ": " << value << std::endl;
+
+			if (value.front() == '.' || value.back() == '.')
+				return false;
+			for (int j = 0; j < value.size(); j++) {
+				if (value[j] == '.') counter++;
+				if (!isdigit(value[j]) && value[j] != '.') return false;
+			}
+			if (counter > 1) return false;
+		}
+		return true;
 	}
 
 	void _event_pid_edit_bt_clicked(){
@@ -350,12 +429,12 @@ void _create_pid_frame(){
 			pid_box[0].set_state(Gtk::STATE_NORMAL);
 			pid_box[1].set_state(Gtk::STATE_NORMAL);
 			pid_box[2].set_state(Gtk::STATE_NORMAL);
-			pid_done_bt.set_state(Gtk::STATE_NORMAL);
-			cb_pid.set_state(Gtk::STATE_NORMAL);
+			pid_send_bt.set_state(Gtk::STATE_NORMAL);
+			cb_pid_robot.set_state(Gtk::STATE_NORMAL);
+			cb_pid_type.set_state(Gtk::STATE_NORMAL);
 			pid_tmp[0] = pid_box[0].get_text();
 			pid_tmp[1] = pid_box[1].get_text();
 			pid_tmp[2] = pid_box[2].get_text();
-
 		}
 		else
 		{
@@ -364,21 +443,28 @@ void _create_pid_frame(){
 			pid_box[0].set_state(Gtk::STATE_INSENSITIVE);
 			pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
 			pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
-			pid_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-			cb_pid.set_state(Gtk::STATE_INSENSITIVE);
+			pid_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+			cb_pid_robot.set_state(Gtk::STATE_INSENSITIVE);
+			cb_pid_type.set_state(Gtk::STATE_NORMAL);
 			pid_box[0].set_text(pid_tmp[0]);
 			pid_box[1].set_text(pid_tmp[1]);
 			pid_box[2].set_text(pid_tmp[2]);
 		}
 	}
 
-	void _event_pid_done_bt_clicked()
+	void _event_pid_send_bt_clicked()
 	{
+		if (!checkPIDvalues()) {
+			std::cout << "Control: PID values are invalid." << std::endl;
+			return;
+		}
 		std::string cmd;
-		switch (cb_pid.get_active_row_number())
+		switch (cb_pid_robot.get_active_row_number())
 		{
 			case 0:
 			cmd.append("AK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -387,6 +473,8 @@ void _create_pid_frame(){
 			cmd.append("#");
 
 			cmd.append("BK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -395,6 +483,8 @@ void _create_pid_frame(){
 			cmd.append("#");
 
 			cmd.append("CK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -403,6 +493,8 @@ void _create_pid_frame(){
 			cmd.append("#");
 
 			cmd.append("DK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -414,6 +506,8 @@ void _create_pid_frame(){
 
 			case 1:
 			cmd.append("AK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -425,6 +519,8 @@ void _create_pid_frame(){
 
 			case 2:
 			cmd.append("BK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -436,6 +532,8 @@ void _create_pid_frame(){
 
 			case 3:
 			cmd.append("CK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -447,6 +545,8 @@ void _create_pid_frame(){
 
 			case 4:
 			cmd.append("DK");
+			if (cb_pid_type.get_active_row_number() == 0) // position PID
+				cmd.append("P");
 			cmd.append(pid_box[0].get_text());
 			cmd.append(";");
 			cmd.append(pid_box[1].get_text());
@@ -465,11 +565,12 @@ void _create_pid_frame(){
 
 		pid_edit_flag = false;
 		pid_edit_bt.set_label("Edit");
-		pid_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+		pid_send_bt.set_state(Gtk::STATE_INSENSITIVE);
 		pid_box[0].set_state(Gtk::STATE_INSENSITIVE);
 		pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
 		pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
-		cb_pid.set_state(Gtk::STATE_INSENSITIVE);
+		cb_pid_robot.set_state(Gtk::STATE_INSENSITIVE);
+		cb_pid_type.set_state(Gtk::STATE_NORMAL);
 
 	}
 

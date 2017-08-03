@@ -46,7 +46,7 @@ if ( tcgetattr ( USB, &tty ) != 0 ) {
 tty_old = tty;
 
 /* Set Baud Rate */
-cfsetospeed (&tty, (speed_t)B57600);
+cfsetospeed (&tty, (speed_t)B115200);
 
 
 tty.c_oflag = 0;
@@ -126,7 +126,7 @@ void sendVelToThree(Robot r1,Robot r2,Robot r3){
 		cmd<<r3.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
 		//}
 		sendSerial(cmd.str());
-		std::cout<<cmd.str()<<std::endl;
+		//std::cout<<cmd.str()<<std::endl;
 		}
 void sendSerial(std::string cmd){
 
