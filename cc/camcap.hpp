@@ -42,6 +42,8 @@ public:
   cv::Mat image_copy;
   cv::Point Ball_Est;
 
+  boost::thread_group threshold_threads;
+
   StrategyGUI strategyGUI;
   ControlGUI control;
   capture::V4LInterface interface;
@@ -403,7 +405,7 @@ putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x
 
 interface.update_speed_progressBars();
 //send_vel_to_robots();
-send_tar_to_robots();
+//send_tar_to_robots();
 // ----------------------------------------//
 
 
@@ -440,21 +442,26 @@ fps.push_back(1/timer.getCPUTotalSecs());
 return true;
 }
 
-void send_tar_to_robots() {
+void send_tar_to_robots(std::vector<Robot>&robot_list) {
   double tmp[2];
 
-  for (int i = 0; i < 3; i++) {
-  if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
-    tmp[0] = interface.robot_list[i].target.x - interface.robot_list[i].position.x;
-    tmp[1] = interface.robot_list[i].target.y - interface.robot_list[i].position.y;
-    interface.robot_list[i].transTarget.x = cos(interface.robot_list[i].orientation)*tmp[0] + sin(interface.robot_list[i].orientation)*tmp[1];
-    interface.robot_list[i].transTarget.y = -(-sin(interface.robot_list[i].orientation)*tmp[0] + cos(interface.robot_list[i].orientation)*tmp[1]);
-  }else{
-    interface.robot_list[i].transTarget.x = 0;
-    interface.robot_list[i].transTarget.y = 0;
+  while (1)
+  {
+      for (int i = 0; i < 3; i++) {
+          if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
+            tmp[0] = robot_list[i].target.x - robot_list[i].position.x;
+            tmp[1] = robot_list[i].target.y - robot_list[i].position.y;
+            robot_list[i].transTarget.x = cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1];
+            robot_list[i].transTarget.y = -(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]);
+          }else{
+            robot_list[i].transTarget.x = 0;
+            robot_list[i].transTarget.y = 0;
+          }
+      }
+      control.s.sendPosToThree(robot_list[0],robot_list[1],robot_list[2]);
+      boost::this_thread::sleep(boost::posix_time::milliseconds(100));
   }
-  }
-  control.s.sendPosToThree(interface.robot_list[0],interface.robot_list[1],interface.robot_list[2]);
+
 }
 
 void send_vel_to_robots() {
@@ -652,6 +659,10 @@ CamCap() : data(0), width(0), height(0){
 
   pack_start(camera_vbox, true, true, 10);
   pack_start(notebook, false, false, 10);
+
+  // Thread que envia comandos para o robo
+  threshold_threads.add_thread(new boost::thread(&CamCap::send_tar_to_robots,this, boost::ref(interface.robot_list)));
+
 
   interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
 }
