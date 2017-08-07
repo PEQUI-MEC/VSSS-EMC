@@ -17,7 +17,7 @@ class Robot
         double thetaError = 0;
         double thetaErrorSum = 0;
         double thetaErrorPrevious = 0;
-        double vmax = 6; // m/s
+        double vmax = 1.4; // m/s
         cv::Point hist[MAX_SAMPLES_HIST];
         int hist_index =0;
         bool stuck = false;

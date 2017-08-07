@@ -120,8 +120,8 @@ public:
 		cb_test.append("All");
 
 		cb_test.set_active(4); // ALL
-		Tbox_V1.set_text("3");
-		Tbox_V2.set_text("3");
+		Tbox_V1.set_text("0.8");
+		Tbox_V2.set_text("0.8");
 
 
 		bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
@@ -138,7 +138,8 @@ public:
 
 		bt_Serial_test.set_label("Send");
 
-		_create_pid_frame();
+		// Descomentar a linha de baixo para poder regular o PID dos robos
+		//_create_pid_frame();
 		_create_status_frame();
 
 		_update_cb_serial();
@@ -173,7 +174,6 @@ void _start_serial(){
     {
        	 std::cout<<serial<<" - Connected"<<std::endl;
     }else{
-
 		std::cout<<serial<<" - Error"<<std::endl;
 		}
 
@@ -182,6 +182,7 @@ void _start_serial(){
 
 		Tbox_V1.set_state(Gtk::STATE_NORMAL);
 		Tbox_V2.set_state(Gtk::STATE_NORMAL);
+		pid_edit_bt.set_state(Gtk::STATE_NORMAL);
 		bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 		bt_Serial_test.set_state(Gtk::STATE_NORMAL);
 		cb_test.set_state(Gtk::STATE_NORMAL);
@@ -201,7 +202,6 @@ void _send_test(){
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	s.sendSerial(cmd);
 	break;
 
 	case 1:
@@ -210,7 +210,6 @@ void _send_test(){
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	s.sendSerial(cmd);
 	break;
 
 	case 2:
@@ -219,7 +218,6 @@ void _send_test(){
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	s.sendSerial(cmd);
 	break;
 
 	case 3:
@@ -228,7 +226,6 @@ void _send_test(){
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	s.sendSerial(cmd);
 	break;
 
 	case 4:
@@ -237,32 +234,27 @@ void _send_test(){
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	//s.sendSerial(cmd);
 	cmd.append("B");
 	cmd.append(Tbox_V1.get_text());
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	//s.sendSerial(cmd);
+
 	cmd.append("C");
 	cmd.append(Tbox_V1.get_text());
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	//s.sendSerial(cmd);
+
 	cmd.append("D");
 	cmd.append(Tbox_V1.get_text());
 	cmd.append(";");
 	cmd.append(Tbox_V2.get_text());
 	cmd.append("#");
-	s.sendSerial(cmd);
+
 	break;
-
-
 		}
-
-
-
+	s.sendSerial(cmd);
 	}
 
 void _update_cb_serial(){
@@ -287,10 +279,12 @@ for(int i = 0; i < 256; ++i)
 		cb_serial.set_state(Gtk::STATE_NORMAL);
 		bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 
+		pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 		Tbox_V1.set_state(Gtk::STATE_INSENSITIVE);
 		Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
 		bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
 		cb_test.set_state(Gtk::STATE_INSENSITIVE);
+		s.Serial_Enabled = false;
 
 }
 
@@ -345,7 +339,7 @@ void _create_pid_frame(){
 	pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
 	pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
 	pid_send_bt.set_state(Gtk::STATE_INSENSITIVE);
-	//pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 	cb_pid_robot.set_state(Gtk::STATE_INSENSITIVE);
 	cb_pid_type.set_state(Gtk::STATE_INSENSITIVE);
 
@@ -570,7 +564,7 @@ void _create_status_frame(){
 		pid_box[1].set_state(Gtk::STATE_INSENSITIVE);
 		pid_box[2].set_state(Gtk::STATE_INSENSITIVE);
 		cb_pid_robot.set_state(Gtk::STATE_INSENSITIVE);
-		cb_pid_type.set_state(Gtk::STATE_NORMAL);
+		cb_pid_type.set_state(Gtk::STATE_INSENSITIVE);
 
 	}
 

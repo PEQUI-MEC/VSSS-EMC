@@ -442,23 +442,25 @@ fps.push_back(1/timer.getCPUTotalSecs());
 return true;
 }
 
-void send_tar_to_robots(std::vector<Robot>&robot_list) {
+void send_tar_to_robots(std::vector<Robot>&robot_list, bool &xbeeIsConnected) {
   double tmp[2];
 
   while (1)
   {
-      for (int i = 0; i < 3; i++) {
-          if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
-            tmp[0] = robot_list[i].target.x - robot_list[i].position.x;
-            tmp[1] = robot_list[i].target.y - robot_list[i].position.y;
-            robot_list[i].transTarget.x = cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1];
-            robot_list[i].transTarget.y = -(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]);
-          }else{
-            robot_list[i].transTarget.x = 0;
-            robot_list[i].transTarget.y = 0;
+      if (xbeeIsConnected) {
+          for (int i = 0; i < 3; i++) {
+              if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
+                tmp[0] = robot_list[i].target.x - robot_list[i].position.x;
+                tmp[1] = robot_list[i].target.y - robot_list[i].position.y;
+                robot_list[i].transTarget.x = cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1];
+                robot_list[i].transTarget.y = -(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]);
+              }else{
+                robot_list[i].transTarget.x = 0;
+                robot_list[i].transTarget.y = 0;
+              }
           }
+          control.s.sendPosToThree(robot_list[0],robot_list[1],robot_list[2]);
       }
-      control.s.sendPosToThree(robot_list[0],robot_list[1],robot_list[2]);
       boost::this_thread::sleep(boost::posix_time::milliseconds(100));
   }
 
@@ -661,7 +663,8 @@ CamCap() : data(0), width(0), height(0){
   pack_start(notebook, false, false, 10);
 
   // Thread que envia comandos para o robo
-  threshold_threads.add_thread(new boost::thread(&CamCap::send_tar_to_robots,this, boost::ref(interface.robot_list)));
+  threshold_threads.add_thread(new boost::thread(&CamCap::send_tar_to_robots,this,
+      boost::ref(interface.robot_list), boost::ref(control.s.Serial_Enabled)));
 
 
   interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
