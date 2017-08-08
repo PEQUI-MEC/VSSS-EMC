@@ -950,10 +950,10 @@ namespace capture
                 //label->set_yalign(1.0);
                 robots_speed_hscale[0].set_digits(1);
                 robots_speed_hscale[0].set_increments(0.1,1);
-                robots_speed_hscale[0].set_range(0,6);
+                robots_speed_hscale[0].set_range(0,1.4);
                 robots_speed_hscale[0].set_size_request(100,-1);
                 //robots_speed_hscale[0].set_inverted(true);
-                robots_speed_hscale[0].set_value(6);
+                robots_speed_hscale[0].set_value(0.8);
                 robots_speed_hbox[1].pack_start(*label, false, true, 0);
                 robots_speed_hbox[1].pack_start(robots_speed_vbox[1], false, true, 0);
                 robots_speed_vbox[1].pack_start(robots_speed_hscale[0], false, true, 0);
@@ -961,21 +961,21 @@ namespace capture
                 robots_speed_progressBar[0].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[0].set_valign(Gtk::ALIGN_CENTER);
                 std::ostringstream strs0;
-                strs0 << robot_list[0].V;
+                strs0 << robot_list[0].vmax;
                 std::string str0 = strs0.str();
                 robots_speed_progressBar[0].set_text(str0.substr(0,3));
                 robots_speed_progressBar[0].set_show_text(true);
-                robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V);
+                robots_speed_progressBar[0].set_fraction( (double) robot_list[0].vmax);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
                 label = new Gtk::Label("Robot 2:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[1].set_digits(1);
                 robots_speed_hscale[1].set_increments(0.1,1);
-                robots_speed_hscale[1].set_range(0,6);
+                robots_speed_hscale[1].set_range(0,1.4);
                 robots_speed_hscale[1].set_size_request(100,-1);
                 //robots_speed_hscale[1].set_inverted(true);
-                robots_speed_hscale[1].set_value(6);
+                robots_speed_hscale[1].set_value(0.8);
                 robots_speed_hbox[2].pack_start(*label, false, true, 0);
                 robots_speed_hbox[2].pack_start(robots_speed_vbox[2], false, true, 0);
                 robots_speed_vbox[2].pack_start(robots_speed_hscale[1], false, true, 0);
@@ -983,21 +983,21 @@ namespace capture
                 robots_speed_progressBar[1].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[1].set_valign(Gtk::ALIGN_CENTER);
                 std::ostringstream strs1;
-                strs1 << robot_list[1].V;
+                strs1 << robot_list[1].vmax;
                 std::string str1 = strs1.str();
                 robots_speed_progressBar[1].set_text(str1.substr(0,3));
                 robots_speed_progressBar[1].set_show_text(true);
-                robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V);
+                robots_speed_progressBar[1].set_fraction( (double) robot_list[1].vmax);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
 
                 label = new Gtk::Label("Robot 3:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[2].set_digits(1);
                 robots_speed_hscale[2].set_increments(0.1,1);
-                robots_speed_hscale[2].set_range(0,6);
+                robots_speed_hscale[2].set_range(0,1.4);
                 robots_speed_hscale[2].set_size_request(100,-1);
                 //robots_speed_hscale[2].set_inverted(true);
-                robots_speed_hscale[2].set_value(6);
+                robots_speed_hscale[2].set_value(0.8);
                 robots_speed_hbox[3].pack_start(*label, false, true, 0);
                 robots_speed_hbox[3].pack_start(robots_speed_vbox[3], false, true, 0);
                 robots_speed_vbox[3].pack_start(robots_speed_hscale[2], false, true, 0);
@@ -1005,11 +1005,11 @@ namespace capture
                 robots_speed_progressBar[2].set_halign(Gtk::ALIGN_CENTER);
                 robots_speed_progressBar[2].set_valign(Gtk::ALIGN_CENTER);
                 std::ostringstream strs2;
-                strs2 << robot_list[2].V;
+                strs2 << robot_list[2].vmax;
                 std::string str2 = strs2.str();
                 robots_speed_progressBar[2].set_text(str2.substr(0,3));
                 robots_speed_progressBar[2].set_show_text(true);
-                robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V);
+                robots_speed_progressBar[2].set_fraction( (double) robot_list[2].vmax);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
 
                 robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
@@ -1026,18 +1026,18 @@ namespace capture
                 std::ostringstream strs0, strs1, strs2;
                 std::string str0, str1, str2;
 
-                robots_speed_progressBar[0].set_fraction( (double) robot_list[0].V/6);
-                strs0 << (double) robot_list[0].V;
+                robots_speed_progressBar[0].set_fraction( (double) robot_list[0].vmax/1.4);
+                strs0 << (double) robot_list[0].vmax;
                 str0 = strs0.str();
                 robots_speed_progressBar[0].set_text(str0.substr(0,4));
 
-                robots_speed_progressBar[1].set_fraction( (double) robot_list[1].V/6);
-                strs1 << (double) robot_list[1].V;
+                robots_speed_progressBar[1].set_fraction( (double) robot_list[1].vmax/1.4);
+                strs1 << (double) robot_list[1].vmax;
                 str1 = strs1.str();
                 robots_speed_progressBar[1].set_text(str1.substr(0,4));
 
-                robots_speed_progressBar[2].set_fraction( (double) robot_list[2].V/6);
-                strs2 << (double) robot_list[2].V;
+                robots_speed_progressBar[2].set_fraction( (double) robot_list[2].vmax/1.4);
+                strs2 << (double) robot_list[2].vmax;
                 str2 = strs2.str();
                 robots_speed_progressBar[2].set_text(str2.substr(0,4));
               }

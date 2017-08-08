@@ -8,7 +8,7 @@
 class Robot
 {
     public:
-        cv::Point position, secundary, target, ternary;
+        cv::Point position, secundary, target, transTarget, ternary;
         char ID;
         bool pink = false;
         double orientation=0;
@@ -17,7 +17,7 @@ class Robot
         double thetaError = 0;
         double thetaErrorSum = 0;
         double thetaErrorPrevious = 0;
-        double vmax = 6; // m/s
+        double vmax = 1.4; // m/s
         cv::Point hist[MAX_SAMPLES_HIST];
         int hist_index =0;
         bool stuck = false;
@@ -114,6 +114,7 @@ class Robot
 
 
         }
+
         void goTo(cv::Point targetPos,cv::Point Ball) {
 
             double currentTheta = orientation;
