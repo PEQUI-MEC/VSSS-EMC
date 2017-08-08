@@ -46,7 +46,7 @@ if ( tcgetattr ( USB, &tty ) != 0 ) {
 tty_old = tty;
 
 /* Set Baud Rate */
-cfsetospeed (&tty, (speed_t)B57600);
+cfsetospeed (&tty, (speed_t)B115200);
 
 
 tty.c_oflag = 0;
@@ -87,7 +87,7 @@ void sendToRobot(Robot r){
 	sendSerial(cmd.str());
 	//std::cout<<cmd.str()<<std::endl;
 	}
-void sendToThree(Robot r1,Robot r2,Robot r3){
+void sendVelToThree(Robot r1,Robot r2,Robot r3){
 	stringstream cmd;
 	double temp0, temp1;
 	//if(r1.Vr!=0||r1.Vl!=0){
@@ -106,8 +106,28 @@ void sendToThree(Robot r1,Robot r2,Robot r3){
 	sendSerial(cmd.str());
 	//std::cout<<cmd.str()<<std::endl;
 	}
-
-
+	void sendPosToThree(Robot r1,Robot r2,Robot r3){
+		stringstream cmd;
+		double temp0, temp1, temp2;
+		//if(r1.Vr!=0||r1.Vl!=0){
+		temp0= round(double(r1.transTarget.x)*(150.0/640.0)*100)/100;
+		temp1= round(double(r1.transTarget.y)*(130.0/480.0)*100)/100;
+		temp2= round(double(r1.vmax)*100)/100;
+		cmd<<r1.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+	//	}if(r2.Vr!=0||r2.Vl!=0){
+	temp0= round(double(r2.transTarget.x)*(150.0/640.0)*100)/100;
+	temp1= round(double(r2.transTarget.y)*(130.0/480.0)*100)/100;
+	temp2= round(double(r2.vmax)*100)/100;
+	cmd<<r2.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+		//}if(r3.Vr!=0||r3.Vl!=0){
+		temp0= round(double(r3.transTarget.x)*(150.0/640.0)*100)/100;
+		temp1= round(double(r3.transTarget.y)*(130.0/480.0)*100)/100;
+		temp2= round(double(r2.vmax)*100)/100;
+		cmd<<r3.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+		//}
+		sendSerial(cmd.str());
+		//std::cout<<cmd.str()<<std::endl;
+		}
 void sendSerial(std::string cmd){
 
 int n_written = write( USB, cmd.c_str(),cmd.size());

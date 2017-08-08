@@ -1,7 +1,7 @@
-g++ -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
+g++ -std=c++11 -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
 ar -r "pack-capture/libpack-capture.a" "pack-capture/capture/v4lcap.o"
-g++ -w -I"pack-capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
-g++ -w -I"pack-capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
+g++ -std=c++11 -w -I"pack-capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
+g++ -std=c++11 -w -I"pack-capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
 ar -r  "pack-capture-gui/libpack-capture-gui.a"  "pack-capture-gui/capture-gui/V4LInterface-aux.o" "pack-capture-gui/capture-gui/V4LInterface-events.o"
 
 g++ -std=c++11 -w -I"pack-capture-gui" -I"pack-capture" -O0 -g3 -Wall -c "cc/main.cpp" -o "cc/main.o" `pkg-config gtkmm-3.0 --cflags`

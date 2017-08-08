@@ -966,7 +966,7 @@ else
 	Goalkeeper.target.y = MIN_GOL_Y;
 
 }
-//cout<<"GK TARGET "<<Goalkeeper.target.x<<" - "<<Goalkeeper.target.y<<endl;
+//std::cout<<"GK TARGET "<<Goalkeeper.target.x<<" - "<<Goalkeeper.target.y<<std::endl;
 return Goalkeeper.target;
 
 }

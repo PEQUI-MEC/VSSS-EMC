@@ -42,6 +42,8 @@ public:
   cv::Mat image_copy;
   cv::Point Ball_Est;
 
+  boost::thread_group threshold_threads;
+
   StrategyGUI strategyGUI;
   ControlGUI control;
   capture::V4LInterface interface;
@@ -360,14 +362,14 @@ if(interface.start_game_flag) {
   strategyGUI.strategy.get_targets(&(interface.robot_list));
   for(int i =0; i<3; i++) {
     circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
-
     putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
   } // for
 } // if start_game_flag
 //cout<<interface.robot_list[2].status<<" | "<<interface.robot_list[2].interface<<endl;
 
 interface.update_speed_progressBars();
-send_vel_to_robots();
+//send_vel_to_robots();
+//send_tar_to_robots();
 // ----------------------------------------//
 
 
@@ -398,6 +400,30 @@ fps.push_back(1/timer.getCPUTotalSecs());
 return true;
 }
 
+void send_tar_to_robots(std::vector<Robot>&robot_list, bool &xbeeIsConnected) {
+  double tmp[2];
+
+  while (1)
+  {
+      if (xbeeIsConnected) {
+          for (int i = 0; i < 3; i++) {
+              if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
+                tmp[0] = robot_list[i].target.x - robot_list[i].position.x;
+                tmp[1] = robot_list[i].target.y - robot_list[i].position.y;
+                robot_list[i].transTarget.x = cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1];
+                robot_list[i].transTarget.y = -(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]);
+              }else{
+                robot_list[i].transTarget.x = 0;
+                robot_list[i].transTarget.y = 0;
+              }
+          }
+          control.s.sendPosToThree(robot_list[0],robot_list[1],robot_list[2]);
+      }
+      boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+  }
+
+}
+
 void send_vel_to_robots() {
   for(int i=0; i<interface.robot_list.size(); i++) {
     if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
@@ -407,7 +433,7 @@ void send_vel_to_robots() {
       interface.robot_list[i].Vl = 0 ;
     }
   }
-  control.s.sendToThree(interface.robot_list[0],interface.robot_list[1],interface.robot_list[2]);
+  control.s.sendVelToThree(interface.robot_list[0],interface.robot_list[1],interface.robot_list[2]);
 }
 
 void PID_test() {
@@ -453,7 +479,7 @@ void PID_test() {
         interface.robot_list[i].Vl = 0 ;
       }
       if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
-        interface.robot_list[i].goTo(interface.robot_list[i].target,vision->get_ball_position());
+    //    interface.robot_list[i].goTo(interface.robot_list[i].target,vision->get_ball_position());
       } else {
         interface.robot_list[i].Vr = 0 ;
         interface.robot_list[i].Vl = 0 ;
@@ -593,6 +619,11 @@ CamCap() : data(0), width(0), height(0){
 
   pack_start(camera_vbox, true, true, 10);
   pack_start(notebook, false, false, 10);
+
+  // Thread que envia comandos para o robo
+  threshold_threads.add_thread(new boost::thread(&CamCap::send_tar_to_robots,this,
+      boost::ref(interface.robot_list), boost::ref(control.s.Serial_Enabled)));
+
 
   interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
 }
