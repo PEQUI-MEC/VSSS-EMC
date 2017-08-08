@@ -191,71 +191,88 @@ void _start_serial(){
 
 void _send_test(){
 	std::string cmd;
-	switch(cb_test.get_active_row_number()){
-	case -1:
-	return;
-	break;
 
-	case 0:
-	cmd.append("A");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-	break;
-
-	case 1:
-	cmd.append("B");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-	break;
-
-	case 2:
-	cmd.append("C");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-	break;
-
-	case 3:
-	cmd.append("D");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-	break;
-
-	case 4:
-	cmd.append("A");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-	cmd.append("B");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-
-	cmd.append("C");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-
-	cmd.append("D");
-	cmd.append(Tbox_V1.get_text());
-	cmd.append(";");
-	cmd.append(Tbox_V2.get_text());
-	cmd.append("#");
-
-	break;
-		}
-	s.sendSerial(cmd);
+	// verifica se os valores inseridos nos campos são válidos (entre -1.4 e 1.4)
+	float v1 = stof(Tbox_V1.get_text()), v2 = stof(Tbox_V2.get_text());
+	if(abs(v1) > 1.4) {
+		if(v1 < 0)
+			Tbox_V1.set_text("-1.4");
+		else
+			Tbox_V1.set_text("1.4");
 	}
+	if(abs(v2) > 1.4) {
+		if(v2 < 0)
+			Tbox_V2.set_text("-1.4");
+		else
+			Tbox_V2.set_text("1.4");
+	}
+
+	switch(cb_test.get_active_row_number()){
+		case -1:
+		return;
+		break;
+
+		case 0:
+		cmd.append("A");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+		break;
+
+		case 1:
+		cmd.append("B");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+		break;
+
+		case 2:
+		cmd.append("C");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+		break;
+
+		case 3:
+		cmd.append("D");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+		break;
+
+		case 4:
+		cmd.append("A");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+
+		cmd.append("B");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+
+		cmd.append("C");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+
+		cmd.append("D");
+		cmd.append(Tbox_V1.get_text());
+		cmd.append(";");
+		cmd.append(Tbox_V2.get_text());
+		cmd.append("#");
+
+		break;
+	}
+	s.sendSerial(cmd);
+}
 
 void _update_cb_serial(){
 
@@ -397,7 +414,6 @@ void _create_status_frame(){
 	bool checkPIDvalues(){
 		std::string value;
 		int counter;
-
 		for (int i = 0; i < 3; i++) {
 			counter = 0;
 			value.clear();
