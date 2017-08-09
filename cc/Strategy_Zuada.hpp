@@ -29,6 +29,8 @@
 class Strategy
 {
 public:
+	Ann * ann;
+	bool useAnn_flag = false;
 
 	Robot Goalkeeper;
 	Robot Attack;
@@ -70,7 +72,7 @@ public:
 	int DESLOCAMENTO_ZAGA_ATAQUE	;
 	int BALL_RADIUS;
 
-	Strategy()
+	Strategy()									// TUDO EM METROS
 	{
 		LS_ball_x.init(PREDICAO_NUM_SAMPLES,1);
 		LS_ball_y.init(PREDICAO_NUM_SAMPLES,1);
@@ -79,27 +81,13 @@ public:
 	void set_constants(int w, int h) {
 		width = w;
 		height = h;
+		COMPRIMENTO_PISTA = 	round(1.50*float(width)/1.70); // ATENÇÃO !!!!! Valor sem referência, medida absoluto
+		COMPRIMENTO_CAMPO_TOTAL = 	width; // Do fund de um gol ao fundo do outro gol
 
-		ABS_PLAYING_FIELD_WIDTH = round(1.50*float(width)/1.70);
-		ABS_GOAL_TO_GOAL_WIDTH = width;
-		COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH/2;
-
-		ABS_FIELD_HEIGHT = height;
-		ABS_GOAL_SIZE_Y = round(0.40*float(height)/1.30);
-		ABS_GOAL_SIZE_X = round(0.10*float(width)/1.70);
-		COORD_GOAL_DEF_FRONT_X = ABS_GOAL_SIZE_X;
-		COORD_GOAL_ATK_FRONT_X = ABS_PLAYING_FIELD_WIDTH - ABS_GOAL_SIZE_X;
-		COORD_GOAL_MID_Y = ABS_FIELD_HEIGHT/2;
-		COORD_GOAL_UP_Y = ABS_FIELD_HEIGHT - (ABS_GOAL_SIZE_Y/2);
-		COORD_GOAL_DWN_Y = ABS_FIELD_HEIGHT + (ABS_GOAL_SIZE_Y/2);
-
-		ABS_BOX_SIZE_Y = round(0.70*float(height)/1.30);
-		ABS_BOX_SIZE_X = round(0.15*float(width)/1.70);
-		COORD_BOX_DEF_X = ABS_GOAL_SIZE_X + ABS_BOX_SIZE_X;
-		COORD_BOX_ATK_X = ABS_GOAL_TO_GOAL_WIDTH - (ABS_GOAL_SIZE_X + ABS_BOX_SIZE_X);
-		COORD_BOX_UP_Y = round((ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
-		COORD_BOX_DWN_Y = round(ABS_BOX_SIZE_Y + (ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
-
+		LARGURA_CAMPO 	= 		height;
+		TAMANHO_GOL 	= 		round(0.35*float(height)/1.30);
+		TAMANHO_AREA 	= 		247;
+		LIMITE_AREA_X	=		113;
 
 		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
 		DIVISAO_AREAS	=	round((0.50*COMPRIMENTO_CAMPO_TOTAL) - 10); // O valor negativo é um offset para não ficar exatamente no meio.
@@ -122,8 +110,118 @@ public:
 		BALL_RADIUS = 100;
 	}
 
+	bool set_ann(const char * annName) {
+		// bool pra fazer alguma verificação se deu certo (no futuro)
+		ann = new Ann(annName);
+		return true;
+	}
+
+	void set_ball_radius(int ballRadius)
+	{
+			BALL_RADIUS = ballRadius;
+	}
+
+	int get_ball_radius()
+	{
+		return BALL_RADIUS;
+	}
+
+	void set_area_limit_x(int areaLimitX)
+	{
+			LIMITE_AREA_X = areaLimitX;
+	}
+
+	int get_area_limit_x()
+	{
+		return LIMITE_AREA_X;
+	}
+
+	void set_areas_division(int areasDivision)
+	{
+			DIVISAO_AREAS = areasDivision;
+	}
+
+	int get_areas_division()
+	{
+		return DIVISAO_AREAS;
+	}
+
+	void set_goal_max(int goalMax)
+	{
+			MAX_GOL_Y = goalMax;
+	}
+
+	int get_goal_max()
+	{
+		return MAX_GOL_Y;
+	}
+
+	void set_goal_min(int goalMin)
+	{
+			MIN_GOL_Y = goalMin;
+	}
+
+	int get_goal_min()
+	{
+		return MIN_GOL_Y;
+	}
+
+	void set_defense_line(int defenseLine)
+	{
+			LINHA_ZAGA = defenseLine;
+	}
+
+	int get_defense_line()
+	{
+		return LINHA_ZAGA;
+	}
+
+	void set_banheira(int banheira)
+	{
+			BANHEIRA = banheira;
+	}
+
+	int get_banheira()
+	{
+		return BANHEIRA;
+	}
+
+	void set_goal_center(int x, int y)
+	{
+			MEIO_GOL_Y = y;
+			MEIO_GOL_X = x;
+	}
+
+	int get_goal_center_x()
+	{
+		return MEIO_GOL_X;
+	}
+
+	int get_goal_center_y()
+	{
+		return MEIO_GOL_Y;
+	}
+
 	void get_targets(vector<Robot> * pRobots) {
 		vector<Robot> robots = *pRobots;
+		if(useAnn_flag) {
+			double * inputs = (double *) calloc(ann->ninputs, sizeof(double)); // inicializa com zero para o caso de não identificar todos os robôs
+			// preenche entradas da rede
+			inputs[0] = Ball.x;
+			inputs[1] = Ball.y;
+			for(int i = 0, j = 0; i < robots.size() && i < 6; i++, j+=2) {
+				inputs[j] = robots[i].position.x;
+				inputs[j+1] = robots[i].position.y;
+			}
+			// executa a rede com as entradas. a saída está em ann.outputs
+			ann->Execute(inputs);
+			// atualiza o target nos robôs
+			for(int i = 0, j = 0; i < 3 && j+1 < ann->noutputs; i++, j+=2) {
+				robots[i].target.x = ann->outputs[j];
+				robots[i].target.y = ann->outputs[j+1];
+			}
+		}
+		else {
 			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
 			for(int i =0; i<3; i++) {
 		    switch (robots[i].role)	{
@@ -138,13 +236,21 @@ public:
 		      robots[i].target = get_atk_target(robots[i].position, robots[i].orientation);
 		      robots[i].fixedPos = Attack.fixedPos;
 		      robots[i].status = Attack.status;
-
+		      /*for(int j=0;j<vision->Adv_Main.size();j++){
+		        if ( sqrt(pow(vision->Adv_Main[j].x - robots[i].position.x, 2) + pow(vision->Adv_Main[j].y - robots[i].position.y, 2)) < 50) {
+		          robots[i].histWipe();
+		        }
+		      }*/
 		      break;
 		      case 1:
 		      robots[i].target = get_def_target(robots[i].position);
 		      robots[i].fixedPos = Defense.fixedPos;
 		      robots[i].status = Defense.status;
-
+		      /*for(int j=0;j<vision->Adv_Main.size();j++){
+		          if ( sqrt(pow(vision->Adv_Main[j].x - robots[i].position.x, 2) + pow(vision->Adv_Main[j].y - interface.robot_list[i].position.y, 2)) < 50) {
+		          interface.robot_list[i].spin = true;
+		        }
+		      }*/
 		      break;
 		      case 3:
 		      robots[i].target = get_opp_target(robots[i].position, robots[i].orientation);
@@ -154,73 +260,11 @@ public:
 		    } // switch
 		    //cout<<robots[0].target.x<<" - "<<robots[0].target.y<<endl;
 			}
-
+		}
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
 	} // get_targets
-
-	cv::Point go_to_the_ball (cv::Point agent) {
-
-		dist_ball_goal = sqrt(pow(COORD_GOAL_MID_Y - Ball.y, 2) + pow(COORD_GOAL_ATK_FRONT_X - Ball.x, 2));
-		dist_agent_goal = sqrt(pow(COORD_GOAL_MID_Y - agent.y, 2) + pow(COORD_GOAL_ATK_FRONT_X - agent.x, 2));
-		dist_agent_ball = sqrt(pow(agent.y - Ball.y, 2) + pow(agent.x - Ball.x, 2));
-
-		angle = acos(( pow(dist_agent_goal, 2) + pow(dist_ball_goal, 2) - pow(dist_agent_ball, 2))/
-																			(2 * dist_agent_goal * dist_ball_goal));
-		// lei dos cossenos para encontrar o ângulo entre as seguintes retas: - do meio do gol à bola
-		// 																																	  - do meio do gol ao robô
-
-		approach = MAX_APPROACH * angle/(PI/2); // O alvo muda de acordo com o ângulo, quanto menor, mais próximo da bola
-
-		target.x = Ball.x - approach * cos(atan(abs(COORD_GOAL_MID_Y - Ball.y)/abs(COORD_GOAL_ATK_FRONT_X - Ball.x)));
-
-		if(Ball.y > COORD_GOAL_MID_Y) {
-			target.y = Ball.y - approach * sin(atan(abs(COORD_GOAL_MID_Y - Ball.y)/abs(COORD_GOAL_ATK_FRONT_X - Ball.x)));
-		} else {
-			target.y = Ball.y + approach * sin(atan(abs(COORD_GOAL_MID_Y - Ball.y)/abs(COORD_GOAL_ATK_FRONT_X - Ball.x)));
-		}
-		// o alvo é posicionado na mesma reta, do meio do gol à bola
-		// por isso a utilização de seno e cosseno para encontrar as componentes X e Y
-		// os sinais em Y mudam de acordo com a metade do campo em que a bola se encontra
-		// uma vez que a reta alvo estará para cima ou para baixo
-
-		if(target.y < 0) target.y = 0;
-		if(target.y > ABS_FIELD_HEIGHT) targey.y = ABS_FIELD_HEIGHT;
-
-	}
-
-	cv::Point around_the_ball (cv::Point agent) {
-		// serve como um estado anterior ao go_to_the_ball, para quando o robô se encontra a frente da bola
-		target.x = Ball.x;
-
-		 if (agent.y > Ball.y) {
-			 target.y = Ball.y + MAX_APPROACH;
-		 } else {
-			 target.y = Ball.y - MAX_APPROACH;
-		 }
-	}
-
-	void get_ready_and_defend(cv::Point agent) {
-
-		target_angle = atan((Ball.x - agent.x)/(agent.y - Ball.y));
-
-	}
-
-
-	cv::Point get_atk_reborn(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
-
-		if(Ball.x > atk_action_x) {
-			if(Ball.x > robot.x) {
-				go_to_the_ball(robot);
-			} else {
-				around_the_ball(robot);
-			}
-		} else {
-
-		}
-
-	}
 
 	cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
 
@@ -922,7 +966,7 @@ else
 	Goalkeeper.target.y = MIN_GOL_Y;
 
 }
-//cout<<"GK TARGET "<<Goalkeeper.target.x<<" - "<<Goalkeeper.target.y<<endl;
+//std::cout<<"GK TARGET "<<Goalkeeper.target.x<<" - "<<Goalkeeper.target.y<<std::endl;
 return Goalkeeper.target;
 
 }
