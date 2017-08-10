@@ -9,6 +9,12 @@
 #include <errno.h>      // Error number definitions
 #include <termios.h>    // POSIX terminal control definitions
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
+
+#define POSITION 0
+#define SPEED 1
+#define ORIENTATION 2
+#define PI 3.14159265453
+
 class SerialW
 {
 public:
@@ -87,47 +93,38 @@ void sendToRobot(Robot r){
 	sendSerial(cmd.str());
 	//std::cout<<cmd.str()<<std::endl;
 	}
-void sendVelToThree(Robot r1,Robot r2,Robot r3){
+
+void sendCmdToRobots(std::vector<Robot> robot_list){
 	stringstream cmd;
-	double temp0, temp1;
-	//if(r1.Vr!=0||r1.Vl!=0){
-	temp0= round(r1.Vr*100)/100;
-	temp1= round(r1.Vl*100)/100;
-	cmd<<r1.ID<< temp0<<";"<<temp1<<"#";
-//	}if(r2.Vr!=0||r2.Vl!=0){
-	 temp0= round(r2.Vr*100)/100;
-	 temp1= round(r2.Vl*100)/100;
-	cmd<<r2.ID<< temp0<<";"<<temp1<<"#";
-	//}if(r3.Vr!=0||r3.Vl!=0){
-	 temp0= round(r3.Vr*100)/100;
-	 temp1= round(r3.Vl*100)/100;
-	cmd<<r3.ID<< temp0<<";"<<temp1<<"#";
-	//}
+	double temp0, temp1, temp2;
+	for (int i = 0; i < 3; i++){
+		switch (robot_list[i].cmdType){
+			case POSITION:
+			temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
+			temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
+			temp2= round(double(robot_list[i].vmax)*100)/100;
+			cmd<<robot_list[i].ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+			break;
+			case SPEED:
+			temp0= round(robot_list[i].Vr*100)/100;
+			temp1= round(robot_list[i].Vl*100)/100;
+			cmd<<robot_list[i].ID<< temp0<<";"<<temp1<<"#";
+			break;
+			case ORIENTATION:
+			temp0= robot_list[i].transOrientation*180/PI;
+			temp1= round(double(robot_list[i].vmax)*100)/100;
+			cmd << robot_list[i].ID << "O" << temp0 << ";" << temp1 << "#";
+			break;
+			default:
+			temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
+			temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
+			temp2= round(double(robot_list[i].vmax)*100)/100;
+			cmd<<robot_list[i].ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+		}
+	}
 	sendSerial(cmd.str());
 	//std::cout<<cmd.str()<<std::endl;
-	}
-	void sendPosToThree(Robot r1,Robot r2,Robot r3){
-		stringstream cmd;
-		double temp0, temp1, temp2;
-		//if(r1.Vr!=0||r1.Vl!=0){
-		temp0= round(double(r1.transTarget.x)*(150.0/640.0)*100)/100;
-		temp1= round(double(r1.transTarget.y)*(130.0/480.0)*100)/100;
-		temp2= round(double(r1.vmax)*100)/100;
-		cmd<<r1.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
-	//	}if(r2.Vr!=0||r2.Vl!=0){
-	temp0= round(double(r2.transTarget.x)*(150.0/640.0)*100)/100;
-	temp1= round(double(r2.transTarget.y)*(130.0/480.0)*100)/100;
-	temp2= round(double(r2.vmax)*100)/100;
-	cmd<<r2.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
-		//}if(r3.Vr!=0||r3.Vl!=0){
-		temp0= round(double(r3.transTarget.x)*(150.0/640.0)*100)/100;
-		temp1= round(double(r3.transTarget.y)*(130.0/480.0)*100)/100;
-		temp2= round(double(r2.vmax)*100)/100;
-		cmd<<r3.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
-		//}
-		sendSerial(cmd.str());
-		//std::cout<<cmd.str()<<std::endl;
-		}
+}
 void sendSerial(std::string cmd){
 
 int n_written = write( USB, cmd.c_str(),cmd.size());

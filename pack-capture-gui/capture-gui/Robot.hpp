@@ -11,8 +11,9 @@ class Robot
         cv::Point position, secundary, target, transTarget, ternary;
         char ID;
         bool pink = false;
-        double orientation=0;
+        double orientation=0, transOrientation;
         double orientation2=0;
+        int cmdType = 0;
         bool backward = false;
         double thetaError = 0;
         double thetaErrorSum = 0;
@@ -45,7 +46,6 @@ class Robot
                 hist_index=0;
             }
         }
-
 
         void histWipe() {
             for (int i=0; i<MAX_SAMPLES_HIST; i++) {
