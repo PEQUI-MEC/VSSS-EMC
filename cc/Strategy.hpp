@@ -36,10 +36,10 @@ public:
 	Ann * ann;
 	bool useAnn_flag = false;
 
-	Robot Goalkeeper;
-	Robot Attack;
-	Robot Defense;
-	Robot Opponent;
+	// Robot Goalkeeper;
+	// Robot Attack;
+	// Robot Defense;
+	// Robot Opponent;
 	cv::Point Ball;
 	cv::Point FutureBall;
 	int distBall;
@@ -77,7 +77,7 @@ public:
 	int BALL_RADIUS;
 
 
-
+	vector<Robot> robots;
 
 	int ABS_PLAYING_FIELD_WIDTH,
 		ABS_GOAL_TO_GOAL_WIDTH,
@@ -99,7 +99,7 @@ public:
 		MAX_APPROACH;
 
 	int atk_def_action_x,
-		corner_atk;
+		corner_atk_limit;
 
 
 
@@ -134,7 +134,7 @@ public:
 		COORD_BOX_UP_Y = round((ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
 		COORD_BOX_DWN_Y = round(ABS_BOX_SIZE_Y + (ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
 
-		MAX_APPROACH = round(0.15*float(width)/1.70);
+		MAX_APPROACH = round(0.30*float(width)/1.70);
 
 
 		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
@@ -163,7 +163,7 @@ public:
 	}
 
 	void get_targets(vector<Robot> * pRobots) {
-		vector<Robot> robots = *pRobots;
+			robots = *pRobots;
 			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
 			for(int i =0; i<3; i++) {
 			robots[i].cmdType = POSITION;
@@ -177,10 +177,7 @@ public:
 		      }
 		      break;
 		      case 2:
-		      robots[i].target = get_atk_target(robots[i].position, robots[i].orientation);
-		      robots[i].fixedPos = Attack.fixedPos;
-		      robots[i].status = Attack.status;
-
+		      atk_drill(i);
 		      break;
 		      case 1:
 		      robots[i].target = get_def_target(robots[i].position);
@@ -210,7 +207,7 @@ public:
 		return true;
 	}
 
-	void go_to_the_ball (cv::Point agent) {
+	cv::Point go_to_the_ball (cv::Point agent) {
 
 		double dist_ball_goal = sqrt(pow(double(COORD_GOAL_MID_Y - Ball.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - Ball.x), 2));
 		double dist_agent_goal = sqrt(pow(double(COORD_GOAL_MID_Y - agent.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - agent.x), 2));
@@ -238,44 +235,58 @@ public:
 		if(target.y < 0) target.y = 0;
 		if(target.y > ABS_FIELD_HEIGHT) target.y = ABS_FIELD_HEIGHT;
 
+		return target;
 	}
 
-	void around_the_ball (cv::Point agent) {
+	cv::Point around_the_ball (cv::Point agent) {
 		// serve como um estado anterior ao go_to_the_ball, para quando o robô se encontra a frente da bola
 		target.x = Ball.x;
 
-		 if (agent.y > Ball.y) {
-			 target.y = Ball.y + MAX_APPROACH;
-		 } else {
-			 target.y = Ball.y - MAX_APPROACH;
-		 }
+		if (agent.y > Ball.y) target.y = Ball.y + MAX_APPROACH;
+		else target.y = Ball.y - MAX_APPROACH;
+
+		return target;
 	}
 
-	double get_ready(cv::Point agent, double agent_orientation) {
+	double look_at_ball(cv::Point agent, double agent_orientation) {
 
 		double target_angle = atan((Ball.x - agent.x)/(agent.y - Ball.y)); // ângulo da bola em relação ao robô
 		double turn_angle = transformOrientation(agent_orientation,target_angle); // deslocamento angular necessário
 		return turn_angle;
 	}
 
-	void corner_atk_routine(cv::Point agent){
+	cv::Point corner_atk_routine(cv::Point agent){
 
 	}
 
-	cv::Point get_atk_reborn(cv::Point robot, double orientation) {
+	cv::Point atk_trans_def(){
+
+	}
+
+	cv::Point atk_wait(){
+		target.x = atk_wait_line;
+		if(Ball.y > COORD_GOAL_MID_Y) target.y = Ball_Est.y - atk_wait_offset;
+		else target.y = Ball_Est.y + atk_wait_offset;
+
+		return target;
+	}
+
+	cv::Point atk_drill(int i) {
 
 		if(Ball.x > atk_def_action_x) {
-			if(Ball.x > corner_atk) {
-				corner_atk_routine(robot);
+			if(Ball.x > corner_atk_limit) {
+				robots[i].target = corner_atk_routine(robots[i].position);
 			} else {
-				if(Ball.x > robot.x) {
-					go_to_the_ball(robot);
-				} else {
-					around_the_ball(robot);
-				}
+				if(Ball.x > robots[i].position.x)
+				robots[i].target = go_to_the_ball(robots[i].position);
+				 else
+				 robots[i].target = around_the_ball(robots[i].position);
 			}
+		} else if(Ball.x < corner_def_limit) {
+			robots[i].status = TRANS_STATE;
+			robots[i].target = atk_trans_def();
 		} else {
-
+			robots[i].target = atk_wait();
 		}
 
 	}
