@@ -167,7 +167,7 @@ public:
 		dist_agent_ball = sqrt(pow(agent.y - Ball.y, 2) + pow(agent.x - Ball.x, 2));
 
 		angle = acos(( pow(dist_agent_goal, 2) + pow(dist_ball_goal, 2) - pow(dist_agent_ball, 2))/
-																			(2 * dist_agent_goal * dist_ball_goal));
+											(2 * dist_agent_goal * dist_ball_goal));
 		// lei dos cossenos para encontrar o ângulo entre as seguintes retas: - do meio do gol à bola
 		// 																																	  - do meio do gol ao robô
 
@@ -201,10 +201,11 @@ public:
 		 }
 	}
 
-	void get_ready_and_defend(cv::Point agent) {
+	double get_ready_and_defend(cv::Point agent, double agent_orientation) {
 
-		target_angle = atan((Ball.x - agent.x)/(agent.y - Ball.y));
-
+		target_angle = atan((Ball.x - agent.x)/(agent.y - Ball.y)); // ângulo da bola em relação ao robô
+		turn_angle = - (agent_orientation - target_angle);			// deslocamento angular necessário
+		return turn_angle;
 	}
 
 
