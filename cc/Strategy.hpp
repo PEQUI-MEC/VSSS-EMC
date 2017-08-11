@@ -26,6 +26,9 @@
 #define SPEED 1
 #define ORIENTATION 2
 
+#define NORMAL_STATE = 0;
+#define	TRANS_STATE = 1;
+
 
 
 
@@ -116,6 +119,7 @@ public:
 
 		ABS_PLAYING_FIELD_WIDTH = round(1.50*float(width)/1.70);
 		ABS_GOAL_TO_GOAL_WIDTH = width;
+		ABS_ROBOT_SIZE = round(0.08*float(width)/1.70)
 		COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH/2;
 
 		ABS_FIELD_HEIGHT = height;
@@ -177,7 +181,7 @@ public:
 		      }
 		      break;
 		      case 2:
-		      atk_drill(i);
+		      atk_routine(i);
 		      break;
 		      case 1:
 		      robots[i].target = get_def_target(robots[i].position);
@@ -248,18 +252,18 @@ public:
 		return target;
 	}
 
-	double look_at_ball(cv::Point agent, double agent_orientation) {
-
-		double target_angle = atan((Ball.x - agent.x)/(agent.y - Ball.y)); // ângulo da bola em relação ao robô
+	double look_at_ball(int i) {
+		robots[i].cmdType = ORIENTATION;
+		double target_angle = atan((Ball.x - robots[i].position.x)/(robots[i].position.y - Ball.y)); // ângulo da bola em relação ao robô
 		double turn_angle = transformOrientation(agent_orientation,target_angle); // deslocamento angular necessário
 		return turn_angle;
 	}
 
-	cv::Point corner_atk_routine(cv::Point agent){
-
+	void spin(int i, ){
+		robots[i].vmax
 	}
 
-	cv::Point atk_trans_def(){
+	cv::Point corner_atk_routine(cv::Point agent){
 
 	}
 
@@ -271,26 +275,36 @@ public:
 		return target;
 	}
 
-	cv::Point atk_drill(int i) {
+	cv::Point atk_routine(int i) {
+		switch (robot[i].status) {
+			case NORMAL_STATE:
+				if(Ball.x > atk_def_action_x) {
+					if(Ball.x > corner_atk_limit) {
+						robots[i].target = corner_atk_routine(robots[i].position);
+					} else {
+						if(Ball.x > robots[i].position.x)
+						robots[i].target = go_to_the_ball(robots[i].position);
+					 	else
+					 	robots[i].target = around_the_ball(robots[i].position);
+					}
+				} else if(Ball.x < corner_def_limit) {
+					robots[i].status = TRANS_STATE;
+				} else {
+					robots[i].target = atk_wait();
+				}
+			break;
 
-		if(Ball.x > atk_def_action_x) {
-			if(Ball.x > corner_atk_limit) {
-				robots[i].target = corner_atk_routine(robots[i].position);
-			} else {
-				if(Ball.x > robots[i].position.x)
-				robots[i].target = go_to_the_ball(robots[i].position);
-				 else
-				 robots[i].target = around_the_ball(robots[i].position);
-			}
-		} else if(Ball.x < corner_def_limit) {
-			robots[i].status = TRANS_STATE;
-			robots[i].target = atk_trans_def();
-		} else {
-			robots[i].target = atk_wait();
+			case TRANS_STATE:
+				if(Ball.x < corner_def_limit){
+					robot[i].target.x = corner_def_limit + ABS_ROBOT_SIZE;
+					robot[i].target.y = COORD_GOAL_MID_Y;
+				}
+			break;
 		}
 
+
 	}
-	cv::Point def_drill(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
+	cv::Point def_routine(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
 
 		if(Ball.x < atk_def_action_x) {
 			if(Ball.x > robot.x) {
