@@ -290,7 +290,7 @@ public:
 		}
 
 	}
-	cv::Point get_def_reborn(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
+	cv::Point def_drill(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
 
 		if(Ball.x < atk_def_action_x) {
 			if(Ball.x > robot.x) {
