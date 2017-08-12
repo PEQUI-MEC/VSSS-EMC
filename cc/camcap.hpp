@@ -228,7 +228,7 @@ public:
 
         updateAllPositions();
         //std::cout << 3 << std::endl;
-        vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
+        vision->setCalibParams(interface.H,interface.S,interface.V,interface.Amin, interface.E, interface.D, interface.B);
         //TRACKING CAMERA
 
         vision->set_ROI(Ball_kf_est, robot_kf_est);

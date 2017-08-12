@@ -84,6 +84,45 @@ namespace capture
     V[Img_id][1]=HScale_Vmax.get_value();
 
   }
+
+   void V4LInterface::HScale_Delation_value_changed() {
+
+    if(HScale_Delation.get_value()<0){
+      D[Img_id]=0;
+    }else{
+      D[Img_id]=HScale_Delation.get_value();
+    }
+     //std::cout<<"=================================================="<<D[Img_id]<<std::endl;
+
+  }
+
+  void V4LInterface::HScale_Erosion_value_changed() {
+
+
+    if(HScale_Erosion.get_value()<0){
+      E[Img_id]=0;
+    }else{
+      E[Img_id]=HScale_Erosion.get_value();
+    }
+     //std::cout<<"=================================================="<<E[Img_id]<<std::endl;
+
+  }
+
+  void V4LInterface::HScale_Blur_value_changed() {
+
+    if(HScale_Blur.get_value()<3){
+      B[Img_id]=3;
+    }
+    else if((int) HScale_Blur.get_value() % 2 == 0){
+      B[Img_id]=(int) HScale_Blur.get_value()+1;
+    }
+    else{
+      B[Img_id]=(int)HScale_Blur.get_value();
+    }
+     //std::cout<<"====Blur: "<<B[Img_id]<<" id color: "<<Img_id<<std::endl;
+
+  }
+
   void V4LInterface::__init_combo_boxes() {
 
     ls_input = Gtk::ListStore::create(model_input);
@@ -327,6 +366,8 @@ namespace capture
       Gtk::HBox * hboxS;
       Gtk::HBox * hboxV;
       Gtk::HBox * hboxA;
+      Gtk::HBox * hboxMorph;
+      Gtk::HBox * hboxBlur;
       Gtk::Label * label;
 
       vbox = new Gtk::VBox();
@@ -407,6 +448,27 @@ namespace capture
       HScale_Vmax.set_draw_value();
       HScale_Vmax.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Vmax_value_changed));
 
+      HScale_Delation.set_digits(0);
+      HScale_Delation.set_increments(1,1);
+      HScale_Delation.set_range(-1,50);
+      HScale_Delation.set_value_pos(Gtk::POS_TOP);
+      HScale_Delation.set_draw_value();
+      HScale_Delation.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Delation_value_changed));
+
+      HScale_Erosion.set_digits(0);
+      HScale_Erosion.set_increments(1,1);
+      HScale_Erosion.set_range(-1,50);
+      HScale_Erosion.set_value_pos(Gtk::POS_TOP);
+      HScale_Erosion.set_draw_value();
+      HScale_Erosion.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Erosion_value_changed));
+
+      HScale_Blur.set_digits(0);
+      HScale_Blur.set_increments(2,2);
+      HScale_Blur.set_range(-1,9);
+      HScale_Blur.set_value_pos(Gtk::POS_TOP);
+      HScale_Blur.set_draw_value();
+      HScale_Blur.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Blur_value_changed));
+
       hboxH = new Gtk::HBox();
       hboxH->set_halign(Gtk::ALIGN_CENTER);
       vbox->pack_start(*hboxH);
@@ -437,11 +499,31 @@ namespace capture
       label = new Gtk::Label("Vmin:");
       label->set_alignment(1.0, 1.0);
       hboxV->pack_start(*label, false, true, 5);
-      hboxV->pack_start(HScale_Vmin, true, true, 5);
+      hboxV->pack_start(HScale_Vmin, false, true, 5);
       label = new Gtk::Label("Vmax:");
       label->set_alignment(1.0, 1.0);
       hboxV->pack_start(*label, false, true, 5);
       hboxV->pack_start(HScale_Vmax, false, true, 5);
+
+      hboxMorph = new Gtk::HBox();
+      hboxMorph->set_halign(Gtk::ALIGN_CENTER);
+      vbox->pack_start(*hboxMorph);
+      label = new Gtk::Label("Erosion:");
+      label->set_alignment(1.0, 1.0);
+      hboxMorph->pack_start(*label, false, true, 5);
+      hboxMorph->pack_start(HScale_Erosion, false, true, 5);
+      label = new Gtk::Label("Delation:");
+      label->set_alignment(1.0, 1.0);
+      hboxMorph->pack_start(*label, false, true, 5);
+      hboxMorph->pack_start(HScale_Delation, false, true, 5);
+
+      hboxBlur = new Gtk::HBox();
+      hboxBlur->set_halign(Gtk::ALIGN_CENTER);
+      vbox->pack_start(*hboxBlur);
+      label = new Gtk::Label("Blur:");
+      label->set_alignment(1.0, 1.0);
+      hboxBlur->pack_start(*label, false, true, 5);
+      hboxBlur->pack_start(HScale_Blur, true, true, 5);
 
       hboxA = new Gtk::HBox();
       hboxA->set_halign(Gtk::ALIGN_CENTER);
@@ -458,6 +540,9 @@ namespace capture
       HScale_Smin.set_size_request(130,-1);
       HScale_Vmax.set_size_request(130,-1);
       HScale_Vmin.set_size_request(130,-1);
+      HScale_Delation.set_size_request(130, -1);
+      HScale_Erosion.set_size_request(130, -1);
+      HScale_Blur.set_size_request(260,-1);
       HScale_Amin.set_size_request(260,-1);
     }
 
@@ -1159,6 +1244,9 @@ namespace capture
                   HScale_Smax.set_value(256);
                   HScale_Vmin.set_value(-1);
                   HScale_Vmax.set_value(256);
+                  HScale_Delation.set_value(-1);
+                  HScale_Erosion.set_value(-1);
+                  HScale_Blur.set_value(3);
                   HScale_Amin.set_value(500);
 
                   __event_bt_left_HSV_calib_clicked();
@@ -1207,6 +1295,9 @@ namespace capture
                 HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+                HScale_Delation.set_state(Gtk::STATE_INSENSITIVE);
+                HScale_Erosion.set_state(Gtk::STATE_INSENSITIVE);
+                HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
 
 

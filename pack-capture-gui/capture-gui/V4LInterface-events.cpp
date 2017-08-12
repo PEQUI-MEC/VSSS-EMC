@@ -231,6 +231,9 @@ namespace capture {
 		    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Delation.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Erosion.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
 
 
@@ -242,9 +245,10 @@ namespace capture {
 		    HScale_Hmax.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Smax.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
+			HScale_Delation.set_state(Gtk::STATE_ACTIVE);
+			HScale_Erosion.set_state(Gtk::STATE_ACTIVE);
+			HScale_Blur.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Amin.set_state(Gtk::STATE_ACTIVE);
-
-
 
 	}
 }
@@ -267,6 +271,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 1:
 		    HSV_label.set_text("Green");
@@ -278,6 +287,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 2:
 		    HSV_label.set_text("Pink");
@@ -289,6 +303,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 3:
 		    HSV_label.set_text("Ball");
@@ -300,6 +319,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 4:
 		    HSV_label.set_text("Opponent");
@@ -311,6 +335,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		}
 	}
@@ -331,6 +360,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 1:
 		    HSV_label.set_text("Green");
@@ -342,6 +376,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 2:
 		    HSV_label.set_text("Pink");
@@ -353,6 +392,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 3:
 		    HSV_label.set_text("Ball");
@@ -364,6 +408,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		case 4:
 		    HSV_label.set_text("Opponent");
@@ -375,6 +424,11 @@ namespace capture {
 
 		    HScale_Vmin.set_value(V[Img_id][0]);
 		    HScale_Vmax.set_value(V[Img_id][1]);
+
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+
+			HScale_Blur.set_value(B[Img_id]);
 		    break;
 		}
 	}
@@ -796,6 +850,9 @@ namespace capture {
 			  txtFile <<H[i][0]<<std::endl<<H[i][1]<<std::endl;
 			  txtFile <<S[i][0]<<std::endl<<S[i][1]<<std::endl;
 			  txtFile <<V[i][0]<<std::endl<<V[i][1]<<std::endl;
+			  txtFile <<D[i]<<std::endl;
+			  txtFile <<E[i]<<std::endl;
+			  txtFile <<B[i]<<std::endl;
 			  txtFile <<Amin[i]<<std::endl;
 			}
 			// !END_HSV
@@ -914,6 +971,12 @@ namespace capture {
 			  getline(txtFile, line);
 			  V[i][1]=atoi(line.c_str());
 			  getline(txtFile, line);
+			  D[i]=atoi(line.c_str());
+			  getline(txtFile, line);
+			  E[i]=atoi(line.c_str());
+			  getline(txtFile, line);
+			  B[i]=atoi(line.c_str());
+			  getline(txtFile, line);
 			  Amin[i]=atoi(line.c_str());
 			}
 
@@ -925,6 +988,9 @@ namespace capture {
 
 			HScale_Vmin.set_value(V[Img_id][0]);
 			HScale_Vmax.set_value(V[Img_id][1]);
+			HScale_Delation.set_value(D[Img_id]);
+			HScale_Erosion.set_value(E[Img_id]);
+			HScale_Blur.set_value(B[Img_id]);
 			HScale_Amin.set_value(Amin[Img_id]);
 			// !END_HSV
 
