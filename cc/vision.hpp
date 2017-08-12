@@ -19,7 +19,7 @@
 class Vision
 {
 public:
-  int const HWS = 25; // Half Window Size
+  int const HWS = 50; // Half Window Size
   cv::Point ball_p1;
   cv::Point ball_p2;
   cv::Point robot_p1[6];

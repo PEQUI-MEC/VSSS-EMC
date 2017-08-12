@@ -123,7 +123,7 @@ void sendVelToThree(Robot r1,Robot r2,Robot r3){
 		temp0= round(double(r3.transTarget.x)*(150.0/640.0)*100)/100;
 		temp1= round(double(r3.transTarget.y)*(130.0/480.0)*100)/100;
 		temp2= round(double(r2.vmax)*100)/100;
-		cmd<<r3.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+		cmd<<r3.ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#"<<endl;
 		//}
 		sendSerial(cmd.str());
 		//std::cout<<cmd.str()<<std::endl;
