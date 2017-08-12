@@ -388,7 +388,7 @@ namespace capture
 
       HScale_Hmax.set_digits(0);
       HScale_Hmax.set_increments(1,1);
-      HScale_Hmax.set_range(-1,256);
+      HScale_Hmax.set_range(-1,181);
       HScale_Hmax.set_value_pos(Gtk::POS_TOP);
       HScale_Hmax.set_draw_value();
       HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Hmax_value_changed));
@@ -1154,7 +1154,7 @@ namespace capture
               {
                 for(int i =0; i<5; i++) {
                   HScale_Hmin.set_value(-1);
-                  HScale_Hmax.set_value(256);
+                  HScale_Hmax.set_value(181);
                   HScale_Smin.set_value(-1);
                   HScale_Smax.set_value(256);
                   HScale_Vmin.set_value(-1);

@@ -292,7 +292,6 @@ public:
   void parallel_tracking(cv::Mat im) {
     cv::Mat image_copy = im.clone();
     cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-    cv::medianBlur(image_copy, image_copy, 5);
     Ballorigin = cv::Point(0,0);
 
     for(int i =0; i<5; i++) {
@@ -322,7 +321,6 @@ public:
     vector<cv::Vec4i> hierarchy;
 
     cv::cvtColor(image,image,cv::COLOR_RGB2HSV);
-    cv::medianBlur(image, image, 5);
 
     cv::Mat dummy;
     cv::Mat crop;
@@ -359,9 +357,8 @@ public:
     cv::Mat temp(height,width,CV_8UC3,threshold[color_id]);
     dummy = temp(rect);
     crop = dummy.clone();
-
+    cv::medianBlur(crop, crop, 5);
     cv::cvtColor(crop,crop,cv::COLOR_RGB2GRAY);
-
     cv::findContours(crop,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
 
     switch(color_id) {
@@ -516,6 +513,7 @@ void img_tracking(cv::Mat image,int color_id) {
     }
   }
   cv::Mat temp(height,width,CV_8UC3,threshold[color_id]);
+  cv::medianBlur(temp, temp, 5);
   cv::cvtColor(temp,temp,cv::COLOR_RGB2GRAY);
   cv::findContours(temp,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
 

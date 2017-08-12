@@ -394,7 +394,7 @@ public:
                 }
                 control.s.sendPosToThree(robot_list[0],robot_list[1],robot_list[2]);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(300));
         }
     } // send_tar_to_robots
 
