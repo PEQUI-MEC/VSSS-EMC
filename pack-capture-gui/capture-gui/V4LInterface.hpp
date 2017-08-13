@@ -123,7 +123,7 @@ class V4LInterface: public Gtk::VBox {
         Gtk::Scale HScale_Smax;
         Gtk::Scale HScale_Vmax;
 
-        Gtk::Scale HScale_Delation;
+        Gtk::Scale HScale_Dilation;
         Gtk::Scale HScale_Erosion;
 
         Gtk::Scale HScale_Blur;
@@ -189,7 +189,7 @@ class V4LInterface: public Gtk::VBox {
         void HScale_Hmax_value_changed();
         void HScale_Smax_value_changed();
         void HScale_Vmax_value_changed();
-        void HScale_Delation_value_changed();
+        void HScale_Dilation_value_changed();
         void HScale_Erosion_value_changed();
         void HScale_Blur_value_changed();
         void HScale_Amin_value_changed();
@@ -218,7 +218,7 @@ class V4LInterface: public Gtk::VBox {
 
         void updateRobotLabels();
         void updateFPS(int fps);
-        void init_HSV();
+        void init_calib_params();
         bool get_start_game_flag();
 
     public:

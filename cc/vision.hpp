@@ -55,7 +55,7 @@ public:
   int hue[5][2];
   int saturation[5][2];
   int value[5][2];
-  int delation[5];
+  int dilation[5];
   int erosion[5];
   int blur[5];
   int areaMin[5];
@@ -184,7 +184,7 @@ public:
     {
       areaMin[i] = Amin[i];
       erosion[i] = E[i];
-      delation[i] = D[i];
+      dilation[i] = D[i];
       blur[i] = B[i];
       for (int j = 0; j < 2; j++)
       {
@@ -367,7 +367,7 @@ public:
     dummy = temp(rect);
     crop = dummy.clone();
     cv::erode(crop,crop,erodeElement,cv::Point(-1,-1),erosion[color_id]);
-    cv::dilate(crop,crop,dilateElement,cv::Point(-1,-1),delation[color_id]);
+    cv::dilate(crop,crop,dilateElement,cv::Point(-1,-1),dilation[color_id]);
     //std::cout<<"====Windoz vision Blur: "<<blur[color_id]<<" id color: "<<color_id<<std::endl;
     cv::medianBlur(crop, crop, blur[color_id]);
     //cv::medianBlur(crop, crop, 5);
@@ -532,7 +532,7 @@ void img_tracking(cv::Mat image,int color_id) {
 
   cv::Mat temp(height,width,CV_8UC3,threshold[color_id]);
   cv::erode(temp,temp,erodeElement,cv::Point(-1,-1),erosion[color_id]);
-  cv::dilate(temp,temp,dilateElement,cv::Point(-1,-1),delation[color_id]);
+  cv::dilate(temp,temp,dilateElement,cv::Point(-1,-1),dilation[color_id]);
   //std::cout<<"====Vision Blur: "<<blur[color_id]<<" id color: "<<color_id<<std::endl;
   cv::medianBlur(temp, temp, blur[color_id]);
   cv::cvtColor(temp,temp,cv::COLOR_RGB2GRAY);
