@@ -26,8 +26,9 @@
 #define SPEED 1
 #define ORIENTATION 2
 
-#define NORMAL_STATE = 0;
-#define	TRANS_STATE = 1;
+#define NORMAL_STATE 0
+#define CORNER_STATE 1
+#define	TRANS_STATE 2
 
 
 
@@ -259,12 +260,16 @@ public:
 		return turn_angle;
 	}
 
-	void spin(int i, ){
-		robots[i].vmax
+	void spin_left(int i){
+		robots[i].cmdType = SPEED;
+		robots[i].Vr = robots[i].vmax;
+		robots[i].Vl = - robots[i].vmax;
 	}
 
-	cv::Point corner_atk_routine(cv::Point agent){
-
+	void spin_right(int i){
+		robots[i].cmdType = SPEED;
+		robots[i].Vr = - robots[i].vmax;
+		robots[i].Vl = robots[i].vmax;
 	}
 
 	cv::Point atk_wait(){
@@ -275,12 +280,12 @@ public:
 		return target;
 	}
 
-	cv::Point atk_routine(int i) {
+	void atk_routine(int i) {
 		switch (robot[i].status) {
 			case NORMAL_STATE:
 				if(Ball.x > atk_def_action_x) {
-					if(Ball.x > corner_atk_limit) {
-						robots[i].target = corner_atk_routine(robots[i].position);
+					if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
+						robots[i].status = CORNER_STATE;
 					} else {
 						if(Ball.x > robots[i].position.x)
 						robots[i].target = go_to_the_ball(robots[i].position);
@@ -291,6 +296,28 @@ public:
 					robots[i].status = TRANS_STATE;
 				} else {
 					robots[i].target = atk_wait();
+				}
+			break;
+
+			case CORNER_STATE:
+				if(Ball.x > corner_atk_limit) {
+					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
+						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
+							if(Ball.x > robots[i].position.x + (ABS_ROBOT_SIZE/2)) spin_left(i); // giro que leva a bola ao gol
+							else robots[i].target = Ball;
+						} else {
+							spin_right(i); // giro para faze-la entrar
+						}
+					} else {
+						if(Ball.y > COORD_GOAL_DWN_Y) {
+							if(Ball.x > robots[i].position.x + (ABS_ROBOT_SIZE/2)) spin_right(i);
+							else robots[i].target = Ball;
+						} else {
+							spin_left(i);
+						}
+					}
+				} else {
+					robots[i].status = NORMAL_STATE; // voltar ao estado normal
 				}
 			break;
 
