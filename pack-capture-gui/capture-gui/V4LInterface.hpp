@@ -123,8 +123,8 @@ class V4LInterface: public Gtk::VBox {
         Gtk::Scale HScale_Smax;
         Gtk::Scale HScale_Vmax;
 
-        Gtk::Scale HScale_Dilation;
-        Gtk::Scale HScale_Erosion;
+        Gtk::Scale HScale_Dilate;
+        Gtk::Scale HScale_Erode;
 
         Gtk::Scale HScale_Blur;
 
@@ -189,8 +189,8 @@ class V4LInterface: public Gtk::VBox {
         void HScale_Hmax_value_changed();
         void HScale_Smax_value_changed();
         void HScale_Vmax_value_changed();
-        void HScale_Dilation_value_changed();
-        void HScale_Erosion_value_changed();
+        void HScale_Dilate_value_changed();
+        void HScale_Erode_value_changed();
         void HScale_Blur_value_changed();
         void HScale_Amin_value_changed();
 

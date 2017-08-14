@@ -356,29 +356,29 @@ namespace capture
       HScale_Vmax.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Vmax_value_changed));
       grid->attach(HScale_Vmax, 4, 3, 2, 1);
 
-      label = new Gtk::Label("Erosion:");
+      label = new Gtk::Label("Erode:");
       label->set_alignment(1.0, 1.0);
       grid->attach(*label, 0,4, 1, 1);
 
-      HScale_Erosion.set_digits(0);
-      HScale_Erosion.set_increments(1,1);
-      HScale_Erosion.set_range(0,50);
-      HScale_Erosion.set_value_pos(Gtk::POS_TOP);
-      HScale_Erosion.set_draw_value();
-      HScale_Erosion.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Erosion_value_changed));
-      grid->attach(HScale_Erosion, 1, 4, 2, 1);
+      HScale_Erode.set_digits(0);
+      HScale_Erode.set_increments(1,1);
+      HScale_Erode.set_range(0,50);
+      HScale_Erode.set_value_pos(Gtk::POS_TOP);
+      HScale_Erode.set_draw_value();
+      HScale_Erode.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Erode_value_changed));
+      grid->attach(HScale_Erode, 1, 4, 2, 1);
 
-      label = new Gtk::Label("Dilation:");
+      label = new Gtk::Label("Dilate:");
       label->set_alignment(1.0, 1.0);
       grid->attach(*label, 3, 4, 1, 1);
 
-      HScale_Dilation.set_digits(0);
-      HScale_Dilation.set_increments(1,1);
-      HScale_Dilation.set_range(0,50);
-      HScale_Dilation.set_value_pos(Gtk::POS_TOP);
-      HScale_Dilation.set_draw_value();
-      HScale_Dilation.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Dilation_value_changed));
-      grid->attach(HScale_Dilation, 4, 4, 2, 1);
+      HScale_Dilate.set_digits(0);
+      HScale_Dilate.set_increments(1,1);
+      HScale_Dilate.set_range(0,50);
+      HScale_Dilate.set_value_pos(Gtk::POS_TOP);
+      HScale_Dilate.set_draw_value();
+      HScale_Dilate.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Dilate_value_changed));
+      grid->attach(HScale_Dilate, 4, 4, 2, 1);
 
       label = new Gtk::Label("Blur:");
       label->set_alignment(1.0, 1.0);
@@ -403,17 +403,6 @@ namespace capture
       HScale_Amin.set_draw_value();
       HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Amin_value_changed));
       grid->attach(HScale_Amin, 4, 5, 2, 1);
-
-      // HScale_Hmax.set_size_request(130,-1);
-      // HScale_Hmin.set_size_request(130,-1);
-      // HScale_Smax.set_size_request(130,-1);
-      // HScale_Smin.set_size_request(130,-1);
-      // HScale_Vmax.set_size_request(130,-1);
-      // HScale_Vmin.set_size_request(130,-1);
-      // HScale_Dilation.set_size_request(130, -1);
-      // HScale_Erosion.set_size_request(130, -1);
-      // HScale_Blur.set_size_request(130,-1);
-      // HScale_Amin.set_size_request(130,-1);
     }
 
     void V4LInterface::__update_cb_device() {
@@ -1170,8 +1159,8 @@ namespace capture
                 HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Dilation.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Erosion.set_state(Gtk::STATE_INSENSITIVE);
+                HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
+                HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
 

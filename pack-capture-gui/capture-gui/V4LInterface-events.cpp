@@ -79,24 +79,24 @@ namespace capture {
 
 	}
 
-	 void V4LInterface::HScale_Dilation_value_changed() {
+	 void V4LInterface::HScale_Dilate_value_changed() {
 
-		if(HScale_Dilation.get_value()<0){
+		if(HScale_Dilate.get_value()<0){
 			D[Img_id]=0;
 		}else{
-			D[Img_id]=HScale_Dilation.get_value();
+			D[Img_id]=HScale_Dilate.get_value();
 		}
 		 //std::cout<<"=================================================="<<D[Img_id]<<std::endl;
 
 	}
 
-	void V4LInterface::HScale_Erosion_value_changed() {
+	void V4LInterface::HScale_Erode_value_changed() {
 
 
-		if(HScale_Erosion.get_value()<0){
+		if(HScale_Erode.get_value()<0){
 			E[Img_id]=0;
 		}else{
-			E[Img_id]=HScale_Erosion.get_value();
+			E[Img_id]=HScale_Erode.get_value();
 		}
 		 //std::cout<<"=================================================="<<E[Img_id]<<std::endl;
 
@@ -336,8 +336,8 @@ namespace capture {
 		    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
-			HScale_Dilation.set_state(Gtk::STATE_INSENSITIVE);
-			HScale_Erosion.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
 			HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
 
@@ -350,8 +350,8 @@ namespace capture {
 		    HScale_Hmax.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Smax.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
-			HScale_Dilation.set_state(Gtk::STATE_ACTIVE);
-			HScale_Erosion.set_state(Gtk::STATE_ACTIVE);
+			HScale_Dilate.set_state(Gtk::STATE_ACTIVE);
+			HScale_Erode.set_state(Gtk::STATE_ACTIVE);
 			HScale_Blur.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Amin.set_state(Gtk::STATE_ACTIVE);
 
@@ -373,8 +373,8 @@ namespace capture {
 		HScale_Vmin.set_value(V[Img_id][0]);
 		HScale_Vmax.set_value(V[Img_id][1]);
 
-		HScale_Dilation.set_value(D[Img_id]);
-		HScale_Erosion.set_value(E[Img_id]);
+		HScale_Dilate.set_value(D[Img_id]);
+		HScale_Erode.set_value(E[Img_id]);
 
 		HScale_Blur.set_value(B[Img_id]);
 		HScale_Amin.set_value(Amin[Img_id]);
@@ -410,8 +410,8 @@ namespace capture {
 		HScale_Vmin.set_value(V[Img_id][0]);
 		HScale_Vmax.set_value(V[Img_id][1]);
 
-		HScale_Dilation.set_value(D[Img_id]);
-		HScale_Erosion.set_value(E[Img_id]);
+		HScale_Dilate.set_value(D[Img_id]);
+		HScale_Erode.set_value(E[Img_id]);
 
 		HScale_Blur.set_value(B[Img_id]);
 		HScale_Amin.set_value(Amin[Img_id]);
@@ -989,8 +989,8 @@ namespace capture {
 
 			HScale_Vmin.set_value(V[Img_id][0]);
 			HScale_Vmax.set_value(V[Img_id][1]);
-			HScale_Dilation.set_value(D[Img_id]);
-			HScale_Erosion.set_value(E[Img_id]);
+			HScale_Dilate.set_value(D[Img_id]);
+			HScale_Erode.set_value(E[Img_id]);
 			HScale_Blur.set_value(B[Img_id]);
 			HScale_Amin.set_value(Amin[Img_id]);
 			// !END_HSV
