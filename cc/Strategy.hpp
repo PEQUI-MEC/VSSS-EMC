@@ -22,13 +22,20 @@
 // Parametros do Defensor na defesa
 #define ZAGA_CENTRALIZADA			1
 
+#define GOALKEEPER 0
+#define DEFENDER 1
+#define ATTACKER 2
+#define OPPONENT 3
+
 #define POSITION 0
 #define SPEED 1
 #define ORIENTATION 2
 
 #define NORMAL_STATE 0
 #define CORNER_STATE 1
-#define	TRANS_STATE 2
+#define	FULL_TRANS_STATE 2
+#define	HALF_TRANS_STATE 3
+#define	POST_FULL_TRANS_STATE 4
 
 
 
@@ -82,6 +89,10 @@ public:
 
 
 	vector<Robot> robots;
+
+	bool half_transition = false;
+	bool full_transition = false;
+	bool danger_zone = false;
 
 	int ABS_PLAYING_FIELD_WIDTH,
 		ABS_GOAL_TO_GOAL_WIDTH,
@@ -172,8 +183,9 @@ public:
 			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
 			for(int i =0; i<3; i++) {
 			robots[i].cmdType = POSITION;
+			robots[i].fixedPos = false;
 		    switch (robots[i].role)	{
-		      case 0:
+		      case GOALKEEPER:
 		      robots[i].target = get_gk_target();
 
 		      robots[i].fixedPos = Goalkeeper.fixedPos;
@@ -181,24 +193,42 @@ public:
 		        robots[i].histWipe();
 		      }
 		      break;
-		      case 2:
-		      atk_routine(i);
-		      break;
-		      case 1:
+
+					case DEFENDER:
 		      robots[i].target = get_def_target(robots[i].position);
 		      robots[i].fixedPos = Defense.fixedPos;
 		      robots[i].status = Defense.status;
-
 		      break;
-		      case 3:
+
+		      case ATTACKER:
+		      atk_routine(i);
+		      break;
+
+		      case OPPONENT:
 		      robots[i].target = get_opp_target(robots[i].position, robots[i].orientation);
 		      robots[i].fixedPos = Opponent.fixedPos;
 		      robots[i].status = Opponent.status;
 		      break;
+
 		    } // switch
 		    //cout<<robots[0].target.x<<" - "<<robots[0].target.y<<endl;
 			}
-
+			if(half_transition) {
+				half_transition = false;
+				for(int i =0; i<3; i++) {
+					robots[i].status = NORMAL_STATE;
+					switch (robots[i].role) {
+						case GOALKEEPER:
+						break;
+						case DEFENDER:
+						robots[i].role = ATTACKER;
+						break;
+						case ATTACKER:
+						robots[i].role = DEFENDER;
+						break;
+					}
+				}
+			}
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -256,7 +286,7 @@ public:
 	double look_at_ball(int i) {
 		robots[i].cmdType = ORIENTATION;
 		double target_angle = atan((Ball.x - robots[i].position.x)/(robots[i].position.y - Ball.y)); // ângulo da bola em relação ao robô
-		double turn_angle = transformOrientation(agent_orientation,target_angle); // deslocamento angular necessário
+		double turn_angle = transformOrientation(robots[i].orientation, target_angle); // deslocamento angular necessário
 		return turn_angle;
 	}
 
@@ -280,23 +310,35 @@ public:
 		return target;
 	}
 
+	void def_wait(int i) {
+		robots[i].fixedPos = true;
+		if (robots[i].porition.y <= Ball.y + ABS_ROBOT_SIZE && robots[i].porition.y >= Ball.y - ABS_ROBOT_SIZE
+				&& robots[i].porition.x <= def_line + ABS_ROBOT_SIZE && robots[i].porition.x >= def_line - ABS_ROBOT_SIZE) {
+			robots[i].target.x = def_line;
+			robots[i].target.y = Ball.y;
+		} else {
+			robots[i].transOrientation = look_at_ball(i);
+		}
+	}
+
 	void atk_routine(int i) {
+
 		switch (robot[i].status) {
+
 			case NORMAL_STATE:
-				if(Ball.x > atk_def_action_x) {
+				if(Ball.x > atk_def_action_x) { // bola no campo de ataque
 					if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
-						robots[i].status = CORNER_STATE;
+						robots[i].status = CORNER_STATE; // bola no canto
 					} else {
 						if(Ball.x > robots[i].position.x)
 						robots[i].target = go_to_the_ball(robots[i].position);
 					 	else
 					 	robots[i].target = around_the_ball(robots[i].position);
 					}
-				} else if(Ball.x < corner_def_limit) {
-					robots[i].status = TRANS_STATE;
-				} else {
+				} else
+					robots[i].fixedPos = true;
 					robots[i].target = atk_wait();
-				}
+
 			break;
 
 			case CORNER_STATE:
@@ -321,28 +363,67 @@ public:
 				}
 			break;
 
-			case TRANS_STATE:
-				if(Ball.x < corner_def_limit){
-					robot[i].target.x = corner_def_limit + ABS_ROBOT_SIZE;
-					robot[i].target.y = COORD_GOAL_MID_Y;
-				}
+			case FULL_TRANS_STATE:
+				// if(Ball.x < corner_def_limit){
+				// 	robot[i].target.x = corner_def_limit + ABS_ROBOT_SIZE;
+				// 	robot[i].target.y = COORD_GOAL_MID_Y;
+				// }
+			break;
+
+			case POST_FULL_TRANS_STATE:
+				danger_zone = false; //lock danger_zone
+				robots[i].target = go_to_the_ball(robots[i].position);
+				if(Ball.x > atk_def_action_x) robots[i].status = NORMAL_STATE;
 			break;
 		}
 
 
 	}
-	cv::Point def_routine(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
+	cv::Point def_routine(int i) { // Estratégia de ataque clássico (Antigo Ojuara)
 
-		if(Ball.x < atk_def_action_x) {
-			if(Ball.x > robot.x) {
-				go_to_the_ball(robot);
-			} else {
-				around_the_ball(robot);
-			}
-		} else {
+		switch (robots[i].status) {
 
+			case NORMAL_STATE:
+				if(Ball.x < atk_def_action_x) {
+					if(Ball.x > robot.x) robots[i].status = HALF_TRANS_STATE;
+					else {
+						danger_zone = true;
+						robots[i].status = FULL_TRANS_STATE;
+					}
+				} else {
+					def_wait(i);
+				}
+			break;
+
+			case FULL_TRANS_STATE:
+			break;
+
+			case HALF_TRANS_STATE;
+			robots[i].target = go_to_the_ball(robots[i].position);
+			if(robots[i].position.x > atk_def_action_x) half_transition = true;
+			else if(Ball.x < robots[i].position.x) robots[i].status = NORMAL_STATE;
+			break;
 		}
+	}
 
+	void gk_routine(int i) {
+
+		switch (robots[i].status) {
+
+			case: NORMAL_STATE:
+			robots[i].target.y = Ball.y;
+			if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
+			else if (Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
+			if(danger_zone)robots[i].status = FULL_TRANS_STATE;
+			break;
+
+			case FULL_TRANS_STATE:
+			robots[i].target = Ball;
+			if(robots[i].position.x > COORD_BOX_DEF_X || robots[i].position.y < COORD_BOX_UP_Y || robots[i].position.y > COORD_BOX_DWN_Y) {
+				full_transition = true;
+			}
+			break;
+		}
 	}
 
 	cv::Point get_atk_target(cv::Point robot, double orientation) { // Estratégia de ataque clássico (Antigo Ojuara)
