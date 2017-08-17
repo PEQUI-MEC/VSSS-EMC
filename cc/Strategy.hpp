@@ -21,16 +21,18 @@
 
 // Parametros do Defensor na defesa
 #define ZAGA_CENTRALIZADA			1
-
+//role
 #define GOALKEEPER 0
 #define DEFENDER 1
 #define ATTACKER 2
 #define OPPONENT 3
 
+//cmdType
 #define POSITION 0
 #define SPEED 1
 #define ORIENTATION 2
 
+//state
 #define NORMAL_STATE 0
 #define CORNER_STATE 1
 #define	FULL_TRANS_STATE 2
@@ -89,9 +91,17 @@ public:
 
 
 	vector<Robot> robots;
+	cv::Point Goalkeeper;
+	cv::Point Defender;
+	cv::Point Attacker;
+	int atk, def, gk, opp;
+
 
 	bool half_transition = false;
 	bool full_transition = false;
+	bool danger_zone_1 = false;
+	bool danger_zone_2 = false;
+	// bool transition_enabled = true;
 	bool danger_zone = false;
 
 	int ABS_PLAYING_FIELD_WIDTH,
@@ -185,23 +195,23 @@ public:
 			robots[i].cmdType = POSITION;
 			robots[i].fixedPos = false;
 		    switch (robots[i].role)	{
-		      case GOALKEEPER:
-		      robots[i].target = get_gk_target();
 
-		      robots[i].fixedPos = Goalkeeper.fixedPos;
-		      if(GOAL_DANGER_ZONE) {
-		        robots[i].histWipe();
-		      }
+		      case GOALKEEPER:
+		     	gk_routine(i);
+					robots[i].position = Goalkeeper;
+					gk = i;
 		      break;
 
 					case DEFENDER:
-		      robots[i].target = get_def_target(robots[i].position);
-		      robots[i].fixedPos = Defense.fixedPos;
-		      robots[i].status = Defense.status;
+					def_routine(i);
+					robots[i].position = Defender;
+					def = i;
 		      break;
 
 		      case ATTACKER:
 		      atk_routine(i);
+					robots[i].position = Attacker;
+					atk = i;
 		      break;
 
 		      case OPPONENT:
@@ -213,8 +223,12 @@ public:
 		    } // switch
 		    //cout<<robots[0].target.x<<" - "<<robots[0].target.y<<endl;
 			}
-			if(half_transition) {
+
+			overmind();
+
+			if(half_transition && transition_enabled) {
 				half_transition = false;
+				transition_enabled = false;
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
 					switch (robots[i].role) {
@@ -230,11 +244,47 @@ public:
 				}
 			}
 
+			if(full_transition && transition_enabled) {
+				full_transition = false;
+				transition_enabled = false;
+				for(int i =0; i<3; i++) {
+					switch (robots[i].role) {
+						case GOALKEEPER:
+						robots[i].role = ATTACKER;
+						robots[i].status = ADVANCING_STATE;
+						break;
+						case DEFENDER:
+						robots[i].role = GOALKEEPER;
+						robots[i].status = NORMAL_STATE;
+						break;
+						case ATTACKER:
+						robots[i].role = DEFENDER;
+						robots[i].status = NORMAL_STATE;
+						break;
+					}
+				}
+			}
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
 
 
 	} // get_targets
+
+	void overmind () {
+		danger_zone_1 = false;
+		danger_zone_2 = false;
+		if(Ball.x > Attacker.x) {
+			danger_zone_1 = true;
+			danger_zone_2 = false;
+			if(Ball.x > Defender.x) {
+				danger_zone_1 = false;
+				danger_zone_2 = true;
+			}
+		}
+		if(Ball.x > atk_def_action_x) {
+			transition_enabled = true;
+		}
+	}
 
 	bool set_ann(const char * annName) {
 		// bool pra fazer alguma verificação se deu certo (no futuro)
@@ -332,13 +382,14 @@ public:
 					} else {
 						if(Ball.x > robots[i].position.x)
 						robots[i].target = go_to_the_ball(robots[i].position);
-					 	else
-					 	robots[i].target = around_the_ball(robots[i].position);
+					 	else {
+					 		robots[i].status = LET_IT_GO_STATE;
+						}
 					}
-				} else
-					robots[i].fixedPos = true;
-					robots[i].target = atk_wait();
-
+				} else {
+						robots[i].fixedPos = true;
+						robots[i].target = atk_wait();
+					}
 			break;
 
 			case CORNER_STATE:
@@ -363,15 +414,14 @@ public:
 				}
 			break;
 
-			case FULL_TRANS_STATE:
-				// if(Ball.x < corner_def_limit){
-				// 	robot[i].target.x = corner_def_limit + ABS_ROBOT_SIZE;
-				// 	robot[i].target.y = COORD_GOAL_MID_Y;
-				// }
+			case LET_IT_GO_STATE:
+				if(Ball.x < corner_def_limit){
+					robot[i].target.x = def_line;
+					robot[i].target.y = Ball.y;
+				}
 			break;
 
-			case POST_FULL_TRANS_STATE:
-				danger_zone = false; //lock danger_zone
+			case ADVANCING_STATE:
 				robots[i].target = go_to_the_ball(robots[i].position);
 				if(Ball.x > atk_def_action_x) robots[i].status = NORMAL_STATE;
 			break;
@@ -379,15 +429,15 @@ public:
 
 
 	}
-	cv::Point def_routine(int i) { // Estratégia de ataque clássico (Antigo Ojuara)
+	void def_routine(int i) {
 
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
+				if(danger_zone_1) robots[i].status = ADVANCING_STATE;
 				if(Ball.x < atk_def_action_x) {
-					if(Ball.x > robot.x) robots[i].status = HALF_TRANS_STATE;
+					if(Ball.x > robot.x) robots[i].target = go_to_the_ball(robots[i].position);
 					else {
-						danger_zone = true;
 						robots[i].status = FULL_TRANS_STATE;
 					}
 				} else {
@@ -398,10 +448,10 @@ public:
 			case FULL_TRANS_STATE:
 			break;
 
-			case HALF_TRANS_STATE;
-			robots[i].target = go_to_the_ball(robots[i].position);
-			if(robots[i].position.x > atk_def_action_x) half_transition = true;
-			else if(Ball.x < robots[i].position.x) robots[i].status = NORMAL_STATE;
+			case ADVANCING_STATE;
+				robots[i].target = go_to_the_ball(robots[i].position);
+				if(robots[i].position.x > atk_def_action_x) half_transition = true;
+				else if(Ball.x < robots[i].position.x) robots[i].status = NORMAL_STATE;
 			break;
 		}
 	}
@@ -414,10 +464,10 @@ public:
 			robots[i].target.y = Ball.y;
 			if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
 			else if (Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
-			if(danger_zone)robots[i].status = FULL_TRANS_STATE;
+			if(danger_zone_2 && transition_enabled) robots[i].status = ADVANCING_STATE;
 			break;
 
-			case FULL_TRANS_STATE:
+			case ADVANCING_STATE:
 			robots[i].target = Ball;
 			if(robots[i].position.x > COORD_BOX_DEF_X || robots[i].position.y < COORD_BOX_UP_Y || robots[i].position.y > COORD_BOX_DWN_Y) {
 				full_transition = true;
