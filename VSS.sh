@@ -8,4 +8,3 @@ g++ -std=c++11 -w -I"pack-capture-gui" -I"pack-capture" -O0 -g3 -Wall -c "cc/mai
 g++ -std=c++11 -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "cc/CamCal"  "cc/main.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
 
 echo pqvs2013 | sudo -S ./cc/CamCal
-

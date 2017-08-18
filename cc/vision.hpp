@@ -19,7 +19,7 @@
 class Vision
 {
 public:
-  int const HWS = 25; // Half Window Size
+  int const HWS = 50; // Half Window Size
   cv::Point ball_p1;
   cv::Point ball_p2;
   cv::Point robot_p1[6];
@@ -55,6 +55,9 @@ public:
   int hue[5][2];
   int saturation[5][2];
   int value[5][2];
+  int dilate[5];
+  int erode[5];
+  int blur[5];
   int areaMin[5];
 
   int width;
@@ -175,11 +178,14 @@ public:
     return Ball;
   }
 
-  void setHSV(int H[5][2], int S[5][2], int V[5][2], int Amin[5])
+  void setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5])
   {
     for (int i = 0; i < 5; i++)
     {
       areaMin[i] = Amin[i];
+      erode[i] = E[i];
+      dilate[i] = D[i];
+      blur[i] = B[i];
       for (int j = 0; j < 2; j++)
       {
         hue[i][j] = H[i][j];
@@ -292,7 +298,6 @@ public:
   void parallel_tracking(cv::Mat im) {
     cv::Mat image_copy = im.clone();
     cv::cvtColor(image_copy,image_copy,cv::COLOR_RGB2HSV);
-    cv::medianBlur(image_copy, image_copy, 5);
     Ballorigin = cv::Point(0,0);
 
     for(int i =0; i<5; i++) {
@@ -322,7 +327,6 @@ public:
     vector<cv::Vec4i> hierarchy;
 
     cv::cvtColor(image,image,cv::COLOR_RGB2HSV);
-    cv::medianBlur(image, image, 5);
 
     cv::Mat dummy;
     cv::Mat crop;
@@ -355,13 +359,19 @@ public:
   //  cout << window_id << " - 1.6.3" << endl;
     cv::Rect  rect(p1,p2);
 
+    //kernel
+    cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
+    cv::Mat dilateElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
 
     cv::Mat temp(height,width,CV_8UC3,threshold[color_id]);
     dummy = temp(rect);
     crop = dummy.clone();
-
+    cv::erode(crop,crop,erodeElement,cv::Point(-1,-1),erode[color_id]);
+    cv::dilate(crop,crop,dilateElement,cv::Point(-1,-1),dilate[color_id]);
+    //std::cout<<"====Windoz vision Blur: "<<blur[color_id]<<" id color: "<<color_id<<std::endl;
+    cv::medianBlur(crop, crop, blur[color_id]);
+    //cv::medianBlur(crop, crop, 5);
     cv::cvtColor(crop,crop,cv::COLOR_RGB2GRAY);
-
     cv::findContours(crop,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
 
     switch(color_id) {
@@ -515,7 +525,16 @@ void img_tracking(cv::Mat image,int color_id) {
       }
     }
   }
+
+  //kernel
+  cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
+  cv::Mat dilateElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
+
   cv::Mat temp(height,width,CV_8UC3,threshold[color_id]);
+  cv::erode(temp,temp,erodeElement,cv::Point(-1,-1),erode[color_id]);
+  cv::dilate(temp,temp,dilateElement,cv::Point(-1,-1),dilate[color_id]);
+  //std::cout<<"====Vision Blur: "<<blur[color_id]<<" id color: "<<color_id<<std::endl;
+  cv::medianBlur(temp, temp, blur[color_id]);
   cv::cvtColor(temp,temp,cv::COLOR_RGB2GRAY);
   cv::findContours(temp,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
 

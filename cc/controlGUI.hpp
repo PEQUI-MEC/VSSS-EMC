@@ -40,8 +40,10 @@ public:
 	Gtk::HBox Top_hbox;
 	Gtk::VBox Serial_vbox;
 	Gtk::VBox Test_vbox;
-	Gtk::HBox Serial_hbox[2];
+	Gtk::HBox Serial_hbox[3];
 	Gtk::Label *label;
+	Gtk::Button bt_send_cmd;
+	Gtk::Entry send_cmd_box;
 
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
@@ -109,6 +111,12 @@ public:
 		Serial_hbox[1].pack_start(bt_Serial_test, false, true, 5);
 		Serial_vbox.pack_start(Serial_hbox[1], false, true, 5);
 
+		Serial_hbox[2].pack_start(send_cmd_box, false, true, 5);
+		Serial_hbox[2].pack_start(bt_send_cmd, false, true, 5);
+		send_cmd_box.set_width_chars(25);
+		bt_send_cmd.set_label("Send Command");
+		Serial_vbox.pack_start(Serial_hbox[2], false, true, 5);
+
 		Tbox_V1.set_max_length(6);
 		Tbox_V2.set_max_length(6);
 		Tbox_V1.set_width_chars(6);
@@ -148,6 +156,13 @@ public:
 		bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
 		bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
 		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
+		bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
+	}
+
+	void _send_command(){
+		std::string cmd;
+		cmd.append(send_cmd_box.get_text());
+		s.sendSerial(cmd);
 	}
 
 	void _PID_Test(){

@@ -228,7 +228,7 @@ public:
 
         updateAllPositions();
         //std::cout << 3 << std::endl;
-        vision->setHSV(interface.H,interface.S,interface.V,interface.Amin);
+        vision->setCalibParams(interface.H,interface.S,interface.V,interface.Amin, interface.E, interface.D, interface.B);
         //TRACKING CAMERA
 
         vision->set_ROI(Ball_kf_est, robot_kf_est);
@@ -394,7 +394,7 @@ public:
                 }
                 control.s.sendPosToThree(robot_list[0],robot_list[1],robot_list[2]);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(300));
         }
     } // send_tar_to_robots
 
