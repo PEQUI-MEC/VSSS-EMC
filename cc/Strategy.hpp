@@ -122,7 +122,8 @@ public:
 		COORD_BOX_DWN_Y,
 		MAX_APPROACH;
 
-	int corner_atk_limit;
+	int corner_atk_limit,
+		def_line;
 
 
 
@@ -159,6 +160,9 @@ public:
 		COORD_BOX_DWN_Y = round(ABS_BOX_SIZE_Y + (ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
 
 		MAX_APPROACH = round(0.30*float(width)/1.70);
+
+		corner_atk_limit = COORD_BOX_ATK_X;
+		def_line = COORD_MID_FIELD_X;
 
 
 		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
@@ -217,6 +221,8 @@ public:
 	  	gk_routine(gk);
 			def_routine(def);
    		atk_routine(atk);
+
+
 		      // case OPPONENT:
 		      // robots[i].target = get_opp_target(robots[i].position, robots[i].orientation);
 		      // robots[i].fixedPos = Opponent.fixedPos;
@@ -347,14 +353,6 @@ public:
 		robots[i].cmdType = SPEED;
 		robots[i].Vr = - robots[i].vmax;
 		robots[i].Vl = robots[i].vmax;
-	}
-
-	cv::Point atk_wait(){
-		target.x = atk_wait_line;
-		if(Ball.y > COORD_GOAL_MID_Y) target.y = Ball_Est.y - atk_wait_offset;
-		else target.y = Ball_Est.y + atk_wait_offset;
-
-		return target;
 	}
 
 	void def_wait(int i) {
