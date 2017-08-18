@@ -683,6 +683,9 @@ namespace capture {
         {
             start_game_flag = true;
             start_game_bt.set_image(red_button_pressed);
+						robot_list[0].status = 0;
+						robot_list[1].status = 0;
+						robot_list[2].status = 0;
         }
         else
         {

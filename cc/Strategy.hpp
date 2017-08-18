@@ -100,7 +100,7 @@ public:
 	bool full_transition = false;
 	bool danger_zone_1 = false;
 	bool danger_zone_2 = false;
-	// bool transition_enabled = true;
+	bool transition_enabled = true;
 	bool danger_zone = false;
 
 	int ABS_PLAYING_FIELD_WIDTH,
@@ -120,7 +120,8 @@ public:
 		COORD_BOX_ATK_X,
 		COORD_BOX_UP_Y,
 		COORD_BOX_DWN_Y,
-		MAX_APPROACH;
+		MAX_APPROACH,
+		ABS_ROBOT_SIZE;
 
 	int corner_atk_limit,
 		def_line;
@@ -140,7 +141,7 @@ public:
 
 		ABS_PLAYING_FIELD_WIDTH = round(1.50*float(width)/1.70);
 		ABS_GOAL_TO_GOAL_WIDTH = width;
-		ABS_ROBOT_SIZE = round(0.08*float(width)/1.70)
+		ABS_ROBOT_SIZE = round(0.08*float(width)/1.70);
 		COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH/2;
 
 		ABS_FIELD_HEIGHT = height;
@@ -196,17 +197,17 @@ public:
 			for(int i =0; i<3; i++) {					//pegar posições e índices
 				switch (robots[i].role)	{
 					case GOALKEEPER:
-					robots[i].position = Goalkeeper;
+					Goalkeeper = robots[i].position;
 					gk = i;
 		      break;
 
 					case DEFENDER:
-					robots[i].position = Defender;
+					Defender = robots[i].position;
 					def = i;
 		      break;
 
 		      case ATTACKER:
-					robots[i].position = Attacker;
+					Attacker = robots[i].position;
 					atk = i;
 		      break;
 				}
@@ -218,10 +219,13 @@ public:
 				robots[i].cmdType = POSITION;
 				robots[i].fixedPos = false;
 			}
+			transition_enabled = false;
+			danger_zone_1 = false;
+			danger_zone_2 = false;
 	  	gk_routine(gk);
 			def_routine(def);
-   		atk_routine(atk);
-
+   	// 	atk_routine(atk);
+			test_run(atk);
 
 		      // case OPPONENT:
 		      // robots[i].target = get_opp_target(robots[i].position, robots[i].orientation);
@@ -287,6 +291,10 @@ public:
 			danger_zone_2 = true;
 		}
 
+	}
+
+	void test_run (int i) {
+		def_wait(i);
 	}
 
 	bool set_ann(const char * annName) {
@@ -375,7 +383,7 @@ public:
 
 	void atk_routine(int i) {
 
-		switch (robot[i].status) {
+		switch (robots[i].status) {
 
 			case NORMAL_STATE:
 					if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
@@ -411,8 +419,8 @@ public:
 			break;
 
 			case STEP_BACK:
-				robot[i].target.x = def_line;
-				robot[i].target.y = Ball.y;
+				robots[i].target.x = def_line;
+				robots[i].target.y = Ball.y;
 			break;
 
 		}
@@ -445,7 +453,7 @@ public:
 
 		switch (robots[i].status) {
 
-			case: NORMAL_STATE:
+			case NORMAL_STATE:
 			robots[i].target.x = COORD_GOAL_DEF_FRONT_X;
 			robots[i].target.y = Ball.y;
 			if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
