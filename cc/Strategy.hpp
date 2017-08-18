@@ -189,7 +189,7 @@ public:
 	void get_targets(vector<Robot> * pRobots) {
 			robots = *pRobots;
 			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
-			for(int i =0; i<3; i++) {
+			for(int i =0; i<3; i++) {					//pegar posições e índices
 				switch (robots[i].role)	{
 					case GOALKEEPER:
 					robots[i].position = Goalkeeper;
@@ -211,37 +211,20 @@ public:
 			the_eye(); // analisar situação atual e setar flags
 
 			for(int i =0; i<3; i++) {
-			robots[i].cmdType = POSITION;
-			robots[i].fixedPos = false;
-		    switch (robots[i].role)	{
-
-		      case GOALKEEPER:
-		     	gk_routine(i);
-					robots[i].position = Goalkeeper;
-					gk = i;
-		      break;
-
-					case DEFENDER:
-					def_routine(i);
-					robots[i].position = Defender;
-					def = i;
-		      break;
-
-		      case ATTACKER:
-		      atk_routine(i);
-					robots[i].position = Attacker;
-					atk = i;
-		      break;
-
+				robots[i].cmdType = POSITION;
+				robots[i].fixedPos = false;
+			}
+	  	gk_routine(gk);
+			def_routine(def);
+   		atk_routine(atk);
 		      // case OPPONENT:
 		      // robots[i].target = get_opp_target(robots[i].position, robots[i].orientation);
 		      // robots[i].fixedPos = Opponent.fixedPos;
 		      // robots[i].status = Opponent.status;
 		      // break;
 
-		    } // switch
 		    //cout<<robots[0].target.x<<" - "<<robots[0].target.y<<endl;
-			}
+
 
 			if(half_transition && transition_enabled) {
 				half_transition = false;
@@ -281,8 +264,6 @@ public:
 			}
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
-
-
 	} // get_targets
 
 	void the_eye () {
@@ -414,7 +395,7 @@ public:
 					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
 							if(Ball.x > robots[i].position.x + (ABS_ROBOT_SIZE/2)) spin_left(i); // giro que leva a bola ao gol
-							else robots[i].target = Ball;
+							else robots[i].target = Ball; //!!! testar pode dar ruim com a troca
 						} else {
 							spin_right(i); // giro para faze-la entrar
 						}
@@ -445,14 +426,19 @@ public:
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
-				def_wait(i);
-				if(danger_zone_2) {
-					robots[i].status = STEP_BACK;
-				}
+				if(danger_zone_1) half_transition = true;
+				else if(danger_zone_2) robots[i].status = STEP_BACK;
+				else def_wait(i);
 			break;
 
 			case STEP_BACK:
-
+				if(Ball.y > COORD_GOAL_MID_Y) {
+					robots[i].target.y = COORD_BOX_UP_Y;
+					robots[i].target.x = COORD_BOX_DEF_X;
+				} else {
+					robots[i].target.y = COORD_BOX_DWN_Y;
+					robots[i].target.x = COORD_BOX_DEF_X;
+				}
 			break;
 		}
 	}
