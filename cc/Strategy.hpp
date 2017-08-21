@@ -165,7 +165,7 @@ public:
 		corner_atk_limit = COORD_BOX_ATK_X;
 		def_line = COORD_MID_FIELD_X;
 
-
+		//não usando
 		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
 		DIVISAO_AREAS	=	round((0.50*COMPRIMENTO_CAMPO_TOTAL) - 10); // O valor negativo é um offset para não ficar exatamente no meio.
 		OFFSET_BANHEIRA	=	round(0.20*float(width)/1.70);
@@ -185,16 +185,25 @@ public:
 		// Parametros do Defensor na defesa
 		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
 		BALL_RADIUS = 100;
+		//não usando
 	}
 
 	double transformOrientation(double robotOrientation, double targetOrientation) {
-		return -(robotOrientation - targetOrientation);
+		return (robotOrientation - targetOrientation);
+	}
+
+	int distance(cv::Point A, cv::Point B) {
+		int dist = sqrt(pow(double(A.y - B.y), 2) + pow(double(A.x - B.x), 2));
+		return dist;
 	}
 
 	void get_targets(vector<Robot> * pRobots) {
 			robots = *pRobots;
 			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
 			for(int i =0; i<3; i++) {					//pegar posições e índices
+				robots[i].cmdType = POSITION;
+				robots[i].fixedPos = false;
+
 				switch (robots[i].role)	{
 					case GOALKEEPER:
 					Goalkeeper = robots[i].position;
@@ -215,25 +224,15 @@ public:
 
 			the_eye(); // analisar situação atual e setar flags
 
-			for(int i =0; i<3; i++) {
-				robots[i].cmdType = POSITION;
-				robots[i].fixedPos = false;
-			}
-			transition_enabled = false;
-			danger_zone_1 = false;
-			danger_zone_2 = false;
+			// transition_enabled = false;
+			// danger_zone_1 = false;
+			// danger_zone_2 = false;
+
 	  	gk_routine(gk);
 			def_routine(def);
-   	// 	atk_routine(atk);
-			test_run(atk);
+   	 	atk_routine(atk);
+			// test_run(atk);
 
-		      // case OPPONENT:
-		      // robots[i].target = get_opp_target(robots[i].position, robots[i].orientation);
-		      // robots[i].fixedPos = Opponent.fixedPos;
-		      // robots[i].status = Opponent.status;
-		      // break;
-
-		    //cout<<robots[0].target.x<<" - "<<robots[0].target.y<<endl;
 
 
 			if(half_transition && transition_enabled) {
@@ -277,24 +276,24 @@ public:
 	} // get_targets
 
 	void the_eye () {
+		danger_zone_1 = false;
+		danger_zone_2 = false;
+		atk_ball_possession = false;
 		if(Ball.x > COORD_MID_FIELD_X) {
 			transition_enabled = true;
 		}
-		if(Ball.x > Attacker.x) { // a frente do ataque
-			danger_zone_1 = false;
-			danger_zone_2 = false;
-		} else if(Ball.x > Defender.x) { // entre defensor e atacante
+		if(Ball.x < Attacker.x && Ball.x > Defender.x) { // entre defensor e atacante
 			danger_zone_1 = true;
-			danger_zone_2 = false;
-		} else { // entre defensor e goleiro
-			danger_zone_1 = false;
+		} else if(Ball.x < Defender.x) { // entre defensor e goleiro
 			danger_zone_2 = true;
 		}
+		double ball_angle = atan((Ball.y - robots[i].position.y)/(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
+		double diff_angle = transformOrientation(robots[i].orientation, ball_angle); // deslocamento angular necessário
+		if(Ball.x > Attacker.x && distance(Ball, Attacker) <= possession_distance &&
+		((turn_angle < PI/4 && turn_angle > -PI/4) || (turn_angle > 5*PI/4 && turn_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
+			atk_ball_possession = true;
+		}
 
-	}
-
-	void test_run (int i) {
-		def_wait(i);
 	}
 
 	bool set_ann(const char * annName) {
@@ -346,7 +345,7 @@ public:
 
 	double look_at_ball(int i) {
 		robots[i].cmdType = ORIENTATION;
-		double target_angle = atan((Ball.x - robots[i].position.x)/(robots[i].position.y - Ball.y)); // ângulo da bola em relação ao robô
+		double target_angle = atan((Ball.y - robots[i].position.y)/(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
 		double turn_angle = transformOrientation(robots[i].orientation, target_angle); // deslocamento angular necessário
 		return turn_angle;
 	}
@@ -381,6 +380,10 @@ public:
 		}
 	}
 
+	void test_run (int i) {
+		def_wait(i);
+	}
+
 	void atk_routine(int i) {
 
 		switch (robots[i].status) {
@@ -391,6 +394,8 @@ public:
 					}
 					if(danger_zone_1 || danger_zone_2) {
 						robots[i].status = STEP_BACK;
+					} else if(atk_ball_possession){
+						robots[i].status = ADVANCING_STATE;
 					} else {
 						robots[i].target = go_to_the_ball(robots[i].position);
 					}
@@ -423,6 +428,11 @@ public:
 				robots[i].target.y = Ball.y;
 			break;
 
+			case ADVANCING_STATE:
+				robots[i].target.x = ABS_GOAL_TO_GOAL_WIDTH;
+				robots[i].target.y = COORD_GOAL_MID_Y;
+				if(!atk_ball_possession) robots[i].status = NORMAL_STATE;
+			break;
 		}
 
 
@@ -483,8 +493,8 @@ void set_Ball(cv::Point b) {
 	LS_ball_x.addValue(Ball.x);
 	LS_ball_y.addValue(Ball.y);
 
-	Ball_Est.x =  LS_ball_x.estimate(5);
-	Ball_Est.y =  LS_ball_y.estimate(5);
+	Ball_Est.x =  LS_ball_x.estimate(8);
+	Ball_Est.y =  LS_ball_y.estimate(8);
 
 }
 
