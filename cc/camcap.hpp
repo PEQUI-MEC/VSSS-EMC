@@ -407,7 +407,7 @@ public:
         old_Selec_index = Selec_index;
 
         for(int i=0; i<interface.robot_list.size() && i<3; i++) {
-            interface.robot_list[i].cmdType = 0; // position cmd
+            // interface.robot_list[i].cmdType = 0; // position cmd
             dist = sqrt(pow((interface.imageView.robot_pos[0]-interface.robot_list[i].position.x),2)+pow((interface.imageView.robot_pos[1]-interface.robot_list[i].position.y),2));
             if(dist<=17) {
                 Selec_index=i;

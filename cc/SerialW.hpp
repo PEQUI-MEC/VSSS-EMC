@@ -103,23 +103,24 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 			temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
 			temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
 			temp2= round(double(robot_list[i].vmax)*100)/100;
-			cmd<<robot_list[i].ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+			cmd<<robot_list[i].ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
 			break;
 			case SPEED:
 			temp0= round(robot_list[i].Vr*100)/100;
 			temp1= round(robot_list[i].Vl*100)/100;
-			cmd<<robot_list[i].ID<< temp0<<";"<<temp1<<"#";
+			cmd<<robot_list[i].ID<< temp0<<";"<<temp1<<"#" << endl;
 			break;
 			case ORIENTATION:
 			temp0= robot_list[i].transOrientation*180/PI;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
-			cmd << robot_list[i].ID << "O" << temp0 << ";" << temp1 << "#";
+			cmd << robot_list[i].ID << "O" << temp0 << ";" << temp1 << "#" << endl;
+			cout << temp0 << endl;
 			break;
 			default:
 			temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
 			temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
 			temp2= round(double(robot_list[i].vmax)*100)/100;
-			cmd<<robot_list[i].ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#";
+			cmd<<robot_list[i].ID<<"P"<< temp0<<";"<<temp1<<";"<<temp2<<"#" << endl;
 		}
 	}
 	sendSerial(cmd.str());

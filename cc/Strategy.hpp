@@ -101,7 +101,7 @@ public:
 	bool danger_zone_1 = false;
 	bool danger_zone_2 = false;
 	bool transition_enabled = true;
-	bool danger_zone = false;
+	bool atk_ball_possession = false;
 
 	int ABS_PLAYING_FIELD_WIDTH,
 		ABS_GOAL_TO_GOAL_WIDTH,
@@ -200,7 +200,7 @@ public:
 	}
 
 	void get_targets(vector<Robot> * pRobots) {
-			robots = *pRobots;
+			robots = * pRobots;
 			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
 			for(int i =0; i<3; i++) {					//pegar posições e índices
 				robots[i].cmdType = POSITION;
@@ -226,14 +226,14 @@ public:
 
 			the_eye(); // analisar situação atual e setar flags
 
-			// transition_enabled = false;
-			// danger_zone_1 = false;
-			// danger_zone_2 = false;
+			 transition_enabled = false;
+			 danger_zone_1 = false;
+			 danger_zone_2 = false;
 
 	  	gk_routine(gk);
 			def_routine(def);
-   	 	atk_routine(atk);
-			// test_run(atk);
+		// atk_routine(atk);
+			 test_run(atk);
 
 
 
@@ -289,8 +289,8 @@ public:
 		} else if(Ball.x < Defender.x) { // entre defensor e goleiro
 			danger_zone_2 = true;
 		}
-		double ball_angle = atan((Ball.y - robots[i].position.y)/(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
-		double diff_angle = transformOrientation(robots[i].orientation, ball_angle); // deslocamento angular necessário
+		double ball_angle = atan((Ball.y - Attacker.y)/(Ball.x - Attacker.x)); // ângulo da bola em relação ao robô
+		double diff_angle = transformOrientation(robots[atk].orientation, ball_angle); // deslocamento angular necessário
 		if(Ball.x > Attacker.x && distance(Ball, Attacker) <= possession_distance &&
 		((diff_angle < PI/4 && diff_angle > -PI/4) || (diff_angle > 5*PI/4 && diff_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
 			atk_ball_possession = true;
@@ -347,8 +347,9 @@ public:
 
 	double look_at_ball(int i) {
 		robots[i].cmdType = ORIENTATION;
-		double target_angle = atan((Ball.y - robots[i].position.y)/(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
-		double turn_angle = transformOrientation(robots[i].orientation, target_angle); // deslocamento angular necessário
+		double target_angle = atan(double(Ball.y - robots[i].position.y)/double(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
+		double turn_angle = transformOrientation(double(robots[i].orientation), target_angle); // deslocamento angular necessário
+		// cout << "alvo " << target_angle << " orientação " << robots[i].orientation << " turn_angle "<< turn_angle << endl;
 		return turn_angle;
 	}
 
@@ -383,7 +384,7 @@ public:
 	}
 
 	void test_run (int i) {
-		def_wait(i);
+		robots[i].transOrientation = look_at_ball(i);
 	}
 
 	void atk_routine(int i) {
