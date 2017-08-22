@@ -124,7 +124,8 @@ public:
 		ABS_ROBOT_SIZE;
 
 	int corner_atk_limit,
-		def_line;
+		def_line,
+		possession_distance;
 
 
 
@@ -164,6 +165,7 @@ public:
 
 		corner_atk_limit = COORD_BOX_ATK_X;
 		def_line = COORD_MID_FIELD_X;
+		possession_distance = ABS_ROBOT_SIZE/2;
 
 		//não usando
 		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
@@ -290,7 +292,7 @@ public:
 		double ball_angle = atan((Ball.y - robots[i].position.y)/(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
 		double diff_angle = transformOrientation(robots[i].orientation, ball_angle); // deslocamento angular necessário
 		if(Ball.x > Attacker.x && distance(Ball, Attacker) <= possession_distance &&
-		((turn_angle < PI/4 && turn_angle > -PI/4) || (turn_angle > 5*PI/4 && turn_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
+		((diff_angle < PI/4 && diff_angle > -PI/4) || (diff_angle > 5*PI/4 && diff_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
 			atk_ball_possession = true;
 		}
 
