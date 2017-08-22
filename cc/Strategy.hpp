@@ -151,8 +151,8 @@ public:
 		COORD_GOAL_DEF_FRONT_X = ABS_GOAL_SIZE_X;
 		COORD_GOAL_ATK_FRONT_X = ABS_GOAL_TO_GOAL_WIDTH - ABS_GOAL_SIZE_X;
 		COORD_GOAL_MID_Y = ABS_FIELD_HEIGHT/2;
-		COORD_GOAL_UP_Y = ABS_FIELD_HEIGHT - (ABS_GOAL_SIZE_Y/2);
-		COORD_GOAL_DWN_Y = ABS_FIELD_HEIGHT + (ABS_GOAL_SIZE_Y/2);
+		COORD_GOAL_UP_Y = ABS_FIELD_HEIGHT/2 - ABS_GOAL_SIZE_Y/2;
+		COORD_GOAL_DWN_Y = ABS_FIELD_HEIGHT/2 + ABS_GOAL_SIZE_Y/2;
 
 		ABS_BOX_SIZE_Y = round(0.70*float(height)/1.30);
 		ABS_BOX_SIZE_X = round(0.15*float(width)/1.70);
@@ -381,10 +381,11 @@ public:
 				robots[i].target.y = COORD_GOAL_UP_Y;
 			}
 		}
+		cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
 	}
 
 	void test_run (int i) {
-		robots[i].transOrientation = look_at_ball(i);
+		def_wait(i);
 	}
 
 	void atk_routine(int i) {
