@@ -2,14 +2,9 @@
 
 void Vision::run(cv::Mat raw_frame) {
   in_frame = raw_frame.clone();
-  //std::cout << "vision 1" << std::endl;
   preProcessing();
-  //std::cout << "vision 2" << std::endl;
   findTags();
-  //std::cout << "vision 3" << std::endl;
   findElements();
-  //std::cout << "vision 4" << std::endl;
-
 }
 
 void Vision::preProcessing() {
@@ -100,9 +95,8 @@ void Vision::findElements() {
 
     // Posição do robô
     robot.position = tags.at(MAIN).at(i);
-    //std::cout << "find elements 10" << std::endl;
-    // Secundárias do robô
 
+    // Secundárias do robô
     try {
       if (tagsArea.at(minDistIndex1[0]).at(minDistIndex1[1]) < tagsArea.at(minDistIndex2[0]).at(minDistIndex2[1])) {
         robot.secundary = tags.at(minDistIndex2[0]).at(minDistIndex2[1]);
@@ -116,7 +110,6 @@ void Vision::findElements() {
       continue; // Não calibrado
     }
 
-    //std::cout << "find elements 11" << std::endl;
     // Cálculo da orientação das tags secundária e ternária em relação a tag principal
     robot.orientation = atan2((robot.secundary.y-robot.position.y)*1.3/480,(robot.secundary.x-robot.position.x)*1.5/640);
     robot.orientation2 = atan2((robot.ternary.y-robot.position.y)*1.3/480,(robot.ternary.x-robot.position.x)*1.5/640);
@@ -130,31 +123,25 @@ void Vision::findElements() {
       robot_list.at(2).position = robot.position; // colocar em um vetor
       robot_list.at(2).secundary = robot.secundary; // colocar em um vetor
       robot_list.at(2).orientation =  robot.orientation;
-      //std::cout << "robot 2" << std::endl;
     }else  if(idAngle>0) {
       robot_list.at(0).position = robot.position; // colocar em um vetor
       robot_list.at(0).secundary = robot.secundary; // colocar em um vetor
       robot_list.at(0).orientation =  robot.orientation;
-      //std::cout << "robot 0" << std::endl;
     }else {
       robot_list.at(1).position = robot.position; // colocar em um vetor
       robot_list.at(1).secundary = robot.secundary; // colocar em um vetor
       robot_list.at(1).orientation =  robot.orientation;
-      //std::cout << "robot 1 " << idAngle << std::endl;
     }
   }
-  //std::cout << "--------------" << std::endl;
-  //std::cout << "find elements 12" << std::endl;
+
   // ADV ROBOTS
   for (int i = 0; i < tags.at(ADV).size() && i < MAX_ADV; i++) {
     advRobots[i] = tags.at(ADV).at(i);
   }
-  //std::cout << "find elements 13" << std::endl;
+
   // BALL POSITION
   if (!tags[BALL].empty())
-    ball = tags[BALL][0];
-  //std::cout << "find elements 14" << std::endl;
-
+    ball = tags.at(BALL).at(0);
 }
 
 double Vision::calcDistance(cv::Point p1, cv::Point p2) {
@@ -233,7 +220,6 @@ Vision::Vision(int w, int h)
   width = w;
   height = h;
 }
-
 
 Vision::~Vision()
 {
