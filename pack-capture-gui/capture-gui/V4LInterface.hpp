@@ -96,6 +96,9 @@ class V4LInterface: public Gtk::VBox {
         int H[5][2];
         int S[5][2];
         int V[5][2];
+        int D[5];
+        int E[5];
+        int B[5];
         int Img_id = 0;
         bool adjust_event_flag;
         bool invert_image_flag = false;
@@ -119,6 +122,11 @@ class V4LInterface: public Gtk::VBox {
         Gtk::Scale HScale_Hmax;
         Gtk::Scale HScale_Smax;
         Gtk::Scale HScale_Vmax;
+
+        Gtk::Scale HScale_Dilate;
+        Gtk::Scale HScale_Erode;
+
+        Gtk::Scale HScale_Blur;
 
         Gtk::Scale HScale_Amin;
 
@@ -181,6 +189,9 @@ class V4LInterface: public Gtk::VBox {
         void HScale_Hmax_value_changed();
         void HScale_Smax_value_changed();
         void HScale_Vmax_value_changed();
+        void HScale_Dilate_value_changed();
+        void HScale_Erode_value_changed();
+        void HScale_Blur_value_changed();
         void HScale_Amin_value_changed();
 
         void __event_cb_device_changed();
@@ -207,7 +218,7 @@ class V4LInterface: public Gtk::VBox {
 
         void updateRobotLabels();
         void updateFPS(int fps);
-        void init_HSV();
+        void init_calib_params();
         bool get_start_game_flag();
 
     public:

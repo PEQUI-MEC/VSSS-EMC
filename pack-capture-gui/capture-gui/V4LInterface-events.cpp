@@ -15,6 +15,109 @@
 
 namespace capture {
 
+	bool V4LInterface::on_button_press_event(GdkEventButton *event)
+	{
+
+		// Check if the event is a left(1) button click.
+		if( (event->type == GDK_BUTTON_PRESS) )
+		{
+			//  std::cout<<"click"<<std::endl;
+
+			return true;
+		} else
+		return false;
+
+	}
+
+	void V4LInterface::HScale_Amin_value_changed() {
+
+		Amin[Img_id]=HScale_Amin.get_value();
+
+	}
+	void V4LInterface::HScale_offsetR_value_changed() {
+
+		offsetR=HScale_offsetR.get_value();
+
+	}
+	void V4LInterface::HScale_offsetL_value_changed() {
+
+		offsetL=HScale_offsetL.get_value();
+
+	}
+	void V4LInterface::HScale_Hmin_value_changed() {
+
+		H[Img_id][0]=HScale_Hmin.get_value();
+		// std::cout<<H[Img_id][0]<<std::endl;
+
+	}
+	void V4LInterface::HScale_Smin_value_changed() {
+
+		S[Img_id][0]=HScale_Smin.get_value();
+		//  std::cout<<S[Img_id][0]<<std::endl;
+
+	}
+	void V4LInterface::HScale_Vmin_value_changed() {
+
+		V[Img_id][0]=HScale_Vmin.get_value();
+		//std::cout<<V[Img_id][0]<<std::endl;
+
+	}
+	void V4LInterface::HScale_Hmax_value_changed() {
+
+		H[Img_id][1]=HScale_Hmax.get_value();
+
+
+	}
+	void V4LInterface::HScale_Smax_value_changed() {
+
+		S[Img_id][1]=HScale_Smax.get_value();
+
+	}
+	void V4LInterface::HScale_Vmax_value_changed() {
+
+		V[Img_id][1]=HScale_Vmax.get_value();
+
+	}
+
+	 void V4LInterface::HScale_Dilate_value_changed() {
+
+		if(HScale_Dilate.get_value()<0){
+			D[Img_id]=0;
+		}else{
+			D[Img_id]=HScale_Dilate.get_value();
+		}
+		 //std::cout<<"=================================================="<<D[Img_id]<<std::endl;
+
+	}
+
+	void V4LInterface::HScale_Erode_value_changed() {
+
+
+		if(HScale_Erode.get_value()<0){
+			E[Img_id]=0;
+		}else{
+			E[Img_id]=HScale_Erode.get_value();
+		}
+		 //std::cout<<"=================================================="<<E[Img_id]<<std::endl;
+
+	}
+
+	void V4LInterface::HScale_Blur_value_changed() {
+
+		if(HScale_Blur.get_value()<3){
+			B[Img_id]=3;
+		}
+		else if((int) HScale_Blur.get_value() % 2 == 0){
+			B[Img_id]=(int) HScale_Blur.get_value()+1;
+		}
+		else{
+			B[Img_id]=(int)HScale_Blur.get_value();
+		}
+		 //std::cout<<"====Blur: "<<B[Img_id]<<" id color: "<<Img_id<<std::endl;
+
+	}
+
+
   // signals
 	void V4LInterface::__event_bt_quick_save_clicked()
 	{
@@ -108,21 +211,23 @@ namespace capture {
 
 		    bt_start.set_label("stop");
 		    // Botão Stop desabilitado até que arrume o bug do malloc do threshold
-		    bt_start.set_sensitive(false);
-		    cb_device.set_sensitive(false);
-		    cb_input.set_sensitive(false);
-		    cb_standard.set_sensitive(false);
-		    cb_frame_size.set_sensitive(false);
-		    cb_format_desc.set_sensitive(false);
-		    sp_width.set_sensitive(false);
-		    sp_height.set_sensitive(false);
-		    cb_frame_interval.set_sensitive(false);
-		    bt_HSV_calib.set_sensitive(true);
-		    bt_warp.set_sensitive(true);
-		    bt_quick_save.set_sensitive(true);
-		    bt_quick_load.set_sensitive(true);
-		    bt_save.set_sensitive(true);
-		    bt_load.set_sensitive(true);
+		    bt_start.set_state(Gtk::STATE_INSENSITIVE);
+		    cb_device.set_state(Gtk::STATE_INSENSITIVE);
+		    cb_input.set_state(Gtk::STATE_INSENSITIVE);
+		    cb_standard.set_state(Gtk::STATE_INSENSITIVE);
+		    cb_frame_size.set_state(Gtk::STATE_INSENSITIVE);
+		    cb_format_desc.set_state(Gtk::STATE_INSENSITIVE);
+		    sp_width.set_state(Gtk::STATE_INSENSITIVE);
+		    sp_height.set_state(Gtk::STATE_INSENSITIVE);
+		    cb_frame_interval.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
+		    bt_warp.set_state(Gtk::STATE_NORMAL);
+		    bt_quick_save.set_state(Gtk::STATE_NORMAL);
+		    bt_quick_load.set_state(Gtk::STATE_NORMAL);
+		    bt_save.set_state(Gtk::STATE_NORMAL);
+		    bt_load.set_state(Gtk::STATE_NORMAL);
+				HScale_offsetR.set_state(Gtk::STATE_NORMAL);
+				HScale_offsetL.set_state(Gtk::STATE_NORMAL);
 		    m_signal_start.emit(true);
 
 		} else {
@@ -138,20 +243,20 @@ namespace capture {
 		    }
 
 		    bt_start.set_label("start");
-		    cb_device.set_sensitive(true);
-		    cb_input.set_sensitive(true);
-		    cb_standard.set_sensitive(true);
-		    cb_frame_size.set_sensitive(true);
-		    cb_format_desc.set_sensitive(true);
-		    sp_width.set_sensitive(true);
-		    sp_height.set_sensitive(true);
-		    cb_frame_interval.set_sensitive(true);
-		    bt_HSV_calib.set_sensitive(false);
-		    bt_warp.set_sensitive(false);
-		    bt_quick_save.set_sensitive(false);
-		    bt_quick_load.set_sensitive(false);
-		    bt_save.set_sensitive(false);
-		    bt_load.set_sensitive(false);
+		    cb_device.set_state(Gtk::STATE_NORMAL);
+		    cb_input.set_state(Gtk::STATE_NORMAL);
+		    cb_standard.set_state(Gtk::STATE_NORMAL);
+		    cb_frame_size.set_state(Gtk::STATE_NORMAL);
+		    cb_format_desc.set_state(Gtk::STATE_NORMAL);
+		    sp_width.set_state(Gtk::STATE_NORMAL);
+		    sp_height.set_state(Gtk::STATE_NORMAL);
+		    cb_frame_interval.set_state(Gtk::STATE_NORMAL);
+		    bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_warp.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_save.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_load.set_state(Gtk::STATE_INSENSITIVE);
 		    m_signal_start.emit(false);
 
 		}
@@ -164,20 +269,20 @@ namespace capture {
 		std::cout<<"Warp drive engaged"<<std::endl;
 		if (!imageView.warp_event_flag) {
 		    imageView.warp_event_flag=true;
-		    bt_reset_warp.set_sensitive(true);
-		    bt_quick_load.set_sensitive(true);
-		    bt_quick_save.set_sensitive(true);
-		    bt_load.set_sensitive(true);
-		    bt_save.set_sensitive(true);
-		    //bt_invert_image.set_sensitive(true);
+		    bt_reset_warp.set_state(Gtk::STATE_NORMAL);
+		    bt_quick_load.set_state(Gtk::STATE_NORMAL);
+		    bt_quick_save.set_state(Gtk::STATE_NORMAL);
+		    bt_load.set_state(Gtk::STATE_NORMAL);
+		    bt_save.set_state(Gtk::STATE_NORMAL);
+		    //bt_invert_image.set_state(Gtk::STATE_NORMAL);
 		} else {
 		    imageView.warp_event_flag=false;
-		    bt_reset_warp.set_sensitive(false);
-		    bt_quick_load.set_sensitive(false);
-		    bt_quick_save.set_sensitive(false);
-		    bt_load.set_sensitive(false);
-		    bt_save.set_sensitive(false);
-		    //bt_invert_image.set_sensitive(false);
+		    bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_load.set_state(Gtk::STATE_INSENSITIVE);
+		    bt_save.set_state(Gtk::STATE_INSENSITIVE);
+		    //bt_invert_image.set_state(Gtk::STATE_INSENSITIVE);
 		}
 	}
 
@@ -231,6 +336,9 @@ namespace capture {
 		    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
+			HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
 
 
@@ -242,9 +350,10 @@ namespace capture {
 		    HScale_Hmax.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Smax.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
+			HScale_Dilate.set_state(Gtk::STATE_ACTIVE);
+			HScale_Erode.set_state(Gtk::STATE_ACTIVE);
+			HScale_Blur.set_state(Gtk::STATE_ACTIVE);
 		    HScale_Amin.set_state(Gtk::STATE_ACTIVE);
-
-
 
 	}
 }
@@ -255,62 +364,35 @@ namespace capture {
 		Img_id=Img_id+1;
 
 		if(Img_id>4) Img_id = 0;
+		HScale_Hmin.set_value(H[Img_id][0]);
+		HScale_Hmax.set_value(H[Img_id][1]);
+
+		HScale_Smin.set_value(S[Img_id][0]);
+		HScale_Smax.set_value(S[Img_id][1]);
+
+		HScale_Vmin.set_value(V[Img_id][0]);
+		HScale_Vmax.set_value(V[Img_id][1]);
+
+		HScale_Dilate.set_value(D[Img_id]);
+		HScale_Erode.set_value(E[Img_id]);
+
+		HScale_Blur.set_value(B[Img_id]);
 		HScale_Amin.set_value(Amin[Img_id]);
 		switch(Img_id) {
 		case 0:
 		    HSV_label.set_text("Main");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 1:
 		    HSV_label.set_text("Green");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 2:
 		    HSV_label.set_text("Pink");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 3:
 		    HSV_label.set_text("Ball");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 4:
-		    HSV_label.set_text("Opponent");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
+		    HSV_label.set_text("Opp.");
 		    break;
 		}
 	}
@@ -319,62 +401,35 @@ namespace capture {
 
 		Img_id=Img_id-1;
 		if(Img_id<0) Img_id = 4;
+		HScale_Hmin.set_value(H[Img_id][0]);
+		HScale_Hmax.set_value(H[Img_id][1]);
+
+		HScale_Smin.set_value(S[Img_id][0]);
+		HScale_Smax.set_value(S[Img_id][1]);
+
+		HScale_Vmin.set_value(V[Img_id][0]);
+		HScale_Vmax.set_value(V[Img_id][1]);
+
+		HScale_Dilate.set_value(D[Img_id]);
+		HScale_Erode.set_value(E[Img_id]);
+
+		HScale_Blur.set_value(B[Img_id]);
 		HScale_Amin.set_value(Amin[Img_id]);
 		switch(Img_id) {
 		case 0:
 		    HSV_label.set_text("Main");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 1:
 		    HSV_label.set_text("Green");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 2:
 		    HSV_label.set_text("Pink");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 3:
 		    HSV_label.set_text("Ball");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
 		    break;
 		case 4:
-		    HSV_label.set_text("Opponent");
-		    HScale_Hmin.set_value(H[Img_id][0]);
-		    HScale_Hmax.set_value(H[Img_id][1]);
-
-		    HScale_Smin.set_value(S[Img_id][0]);
-		    HScale_Smax.set_value(S[Img_id][1]);
-
-		    HScale_Vmin.set_value(V[Img_id][0]);
-		    HScale_Vmax.set_value(V[Img_id][1]);
+		    HSV_label.set_text("Opp.");
 		    break;
 		}
 	}
@@ -799,6 +854,9 @@ namespace capture {
 			  txtFile <<H[i][0]<<std::endl<<H[i][1]<<std::endl;
 			  txtFile <<S[i][0]<<std::endl<<S[i][1]<<std::endl;
 			  txtFile <<V[i][0]<<std::endl<<V[i][1]<<std::endl;
+			  txtFile <<D[i]<<std::endl;
+			  txtFile <<E[i]<<std::endl;
+			  txtFile <<B[i]<<std::endl;
 			  txtFile <<Amin[i]<<std::endl;
 			}
 			// !END_HSV
@@ -917,6 +975,12 @@ namespace capture {
 			  getline(txtFile, line);
 			  V[i][1]=atoi(line.c_str());
 			  getline(txtFile, line);
+			  D[i]=atoi(line.c_str());
+			  getline(txtFile, line);
+			  E[i]=atoi(line.c_str());
+			  getline(txtFile, line);
+			  B[i]=atoi(line.c_str());
+			  getline(txtFile, line);
 			  Amin[i]=atoi(line.c_str());
 			}
 
@@ -928,6 +992,9 @@ namespace capture {
 
 			HScale_Vmin.set_value(V[Img_id][0]);
 			HScale_Vmax.set_value(V[Img_id][1]);
+			HScale_Dilate.set_value(D[Img_id]);
+			HScale_Erode.set_value(E[Img_id]);
+			HScale_Blur.set_value(B[Img_id]);
 			HScale_Amin.set_value(Amin[Img_id]);
 			// !END_HSV
 

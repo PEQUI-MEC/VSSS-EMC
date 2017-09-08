@@ -18,7 +18,6 @@
 
 #include <iostream>
 using namespace std;
-#include "vision.hpp"
 #include <gtkmm.h>
 #include "camcap.hpp"
 #include "opencv2/opencv.hpp"
@@ -35,7 +34,7 @@ int main(int argc, char ** argv) {
 	//window.set_border_width(10);
 	window.maximize();
 	window.set_title("VS - Pequi");
-	
+
 	window.add(camcap);
 
 	window.show_all();
@@ -44,4 +43,3 @@ int main(int argc, char ** argv) {
 
 	return EXIT_SUCCESS;
 }
-
