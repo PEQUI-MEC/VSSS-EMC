@@ -296,39 +296,30 @@ public:
         return true;
     } // capture_and_show
 
-    void send_tar_to_robots(std::vector<Robot>&robot_list, bool &xbeeIsConnected) {
-        double tmp[2];
-
+    void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){
         while (1) {
             if (xbeeIsConnected) {
-                for (int i = 0; i < 3; i++) {
-                    if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
-                        tmp[0] = robot_list[i].target.x - robot_list[i].position.x;
-                        tmp[1] = robot_list[i].target.y - robot_list[i].position.y;
-                        robot_list[i].transTarget.x = cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1];
-                        robot_list[i].transTarget.y = -(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]);
-                    }else{
-                        robot_list[i].transTarget.x = 0;
-                        robot_list[i].transTarget.y = 0;
-                    }
-                }
-                control.s.sendPosToThree(robot_list[0],robot_list[1],robot_list[2]);
+                transformTargets(robot_list);
+                control.s.sendCmdToRobots(robot_list);
             }
             boost::this_thread::sleep(boost::posix_time::milliseconds(300));
         }
-    } // send_tar_to_robots
+    }
 
-    void send_vel_to_robots() {
-        for(int i=0; i<interface.robot_list.size(); i++) {
-            if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
-                interface.robot_list[i].goTo(interface.robot_list[i].target,vision->getBall());
-            } else {
-                interface.robot_list[i].Vr = 0 ;
-                interface.robot_list[i].Vl = 0 ;
+    void transformTargets (std::vector<Robot>&robot_list){
+        double tmp[2];
+        for (int i = 0; i < 3; i++) {
+            if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
+                tmp[0] = robot_list[i].target.x - robot_kf_est[i].x;
+                tmp[1] = robot_list[i].target.y - robot_kf_est[i].y;
+                robot_list[i].transTarget.x = cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1];
+                robot_list[i].transTarget.y = -(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]);
+            }else{
+                robot_list[i].transTarget.x = 0;
+                robot_list[i].transTarget.y = 0;
             }
         }
-        control.s.sendVelToThree(interface.robot_list[0],interface.robot_list[1],interface.robot_list[2]);
-    } // send_vel_to_robots
+    }
 
     void PID_test() {
         if (interface.get_start_game_flag()) return;
@@ -337,7 +328,8 @@ public:
         int old_Selec_index;
         old_Selec_index = Selec_index;
 
-        for(int i=0; i<interface.robot_list.size(); i++) {
+        for(int i=0; i<interface.robot_list.size() && i<3; i++) {
+            // interface.robot_list[i].cmdType = 0; // position cmd
             dist = sqrt(pow((interface.imageView.robot_pos[0]-interface.robot_list[i].position.x),2)+pow((interface.imageView.robot_pos[1]-interface.robot_list[i].position.y),2));
             if(dist<=17) {
                 Selec_index=i;
@@ -359,7 +351,7 @@ public:
         }
 
 
-        for(int i=0; i<interface.robot_list.size(); i++) {
+        for(int i=0; i<interface.robot_list.size() && i<3; i++) {
             if(fixed_ball[i])
                 interface.robot_list[i].target=vision->getBall();
             else {
@@ -417,7 +409,7 @@ public:
             putText(imageView, "X", cv::Point(width-strategyGUI.strategy.COMPRIMENTO_PISTA, strategyGUI.strategy.MEIO_GOL_Y-strategyGUI.strategy.TAMANHO_GOL/2),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
 
         if (strategyGUI.get_goalCenter_flag())
-            putText(imageView, "X", cv::Point(strategyGUI.strategy.MEIO_GOL_X, strategyGUI.strategy.MEIO_GOL_Y),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
+            putText(imageView, "X", cv::Point(strategyGUI.strategy.COORD_GOAL_ATK_FRONT_X, strategyGUI.strategy.COORD_GOAL_MID_Y),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
 
         if (strategyGUI.get_banheira_flag())
             line(imageView,cv::Point(strategyGUI.strategy.BANHEIRA, 0),cv::Point(strategyGUI.strategy.BANHEIRA, height),cv::Scalar(255,255,0), 2);
@@ -513,7 +505,7 @@ public:
         pack_start(notebook, false, false, 10);
 
         // Thread que envia comandos para o robo
-        threshold_threads.add_thread(new boost::thread(&CamCap::send_tar_to_robots,this,
+        threshold_threads.add_thread(new boost::thread(&CamCap::sendCmdToRobots,this,
         boost::ref(interface.robot_list), boost::ref(control.s.Serial_Enabled)));
 
 
