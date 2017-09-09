@@ -32,9 +32,9 @@ void Vision::posProcessing(int color) {
   cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
   cv::Mat dilateElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
 
+  cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
   cv::erode(threshold_frame.at(color),threshold_frame.at(color),erodeElement,cv::Point(-1,-1),erode[color]);
   cv::dilate(threshold_frame.at(color),threshold_frame.at(color),dilateElement,cv::Point(-1,-1),dilate[color]);
-  cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
 }
 
 void Vision::searchTags(int color) {
@@ -62,7 +62,7 @@ void Vision::findElements() {
 
 
   // OUR ROBOTS
-  for (int i = 0; i < tags[MAIN].size() && i<3; i++) {
+  for (int i = 0; i < tags.at(MAIN).size() && i<3; i++) {
     Robot robot;
     int minDistRef[2] = {9999,9999};
     int minDistIndex1[2] = {-1,-1};
@@ -111,8 +111,8 @@ void Vision::findElements() {
     }
 
     // Cálculo da orientação das tags secundária e ternária em relação a tag principal
-    robot.orientation = atan2((robot.secundary.y-robot.position.y)*1.3/480,(robot.secundary.x-robot.position.x)*1.5/640);
-    robot.orientation2 = atan2((robot.ternary.y-robot.position.y)*1.3/480,(robot.ternary.x-robot.position.x)*1.5/640);
+    robot.orientation = atan2((robot.secundary.y-robot.position.y)*1.3/height,(robot.secundary.x-robot.position.x)*1.5/width);
+    robot.orientation2 = atan2((robot.ternary.y-robot.position.y)*1.3/height,(robot.ternary.x-robot.position.x)*1.5/width);
 
     // Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
     idAngle = atan2(sin(robot.orientation2-robot.orientation+3.1415),
