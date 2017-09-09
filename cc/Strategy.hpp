@@ -125,7 +125,8 @@ public:
 
 	int corner_atk_limit,
 		def_line,
-		possession_distance;
+		possession_distance,
+		fixed_pos_distance;
 
 
 
@@ -163,9 +164,12 @@ public:
 
 		MAX_APPROACH = round(0.30*float(width)/1.70);
 
+		//variáveis ajustáveis
 		corner_atk_limit = COORD_BOX_ATK_X;
 		def_line = COORD_MID_FIELD_X;
 		possession_distance = ABS_ROBOT_SIZE/2;
+		fixed_pos_distance = ABS_ROBOT_SIZE/2;
+
 
 		//não usando
 		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
@@ -194,8 +198,8 @@ public:
 		return (robotOrientation - targetOrientation);
 	}
 
-	int distance(cv::Point A, cv::Point B) {
-		int dist = sqrt(pow(double(A.y - B.y), 2) + pow(double(A.x - B.x), 2));
+	double distance(cv::Point A, cv::Point B) {
+		double dist = sqrt(pow(double(A.y - B.y), 2) + pow(double(A.x - B.x), 2));
 		return dist;
 	}
 
@@ -224,18 +228,16 @@ public:
 				}
 			}
 
-			the_eye(); // analisar situação atual e setar flags
+			set_flags(); // analisar situação atual e setar flags
 
-			 transition_enabled = false;
-			 danger_zone_1 = false;
-			 danger_zone_2 = false;
+			transition_enabled = false; //só para testes com um robô
+			danger_zone_1 = false; //só para testes com um robô
+			danger_zone_2 = false; //só para testes com um robô
 
-	  	gk_routine(gk);
+	  		gk_routine(gk);
 			def_routine(def);
-		// atk_routine(atk);
-			 test_run(atk);
-
-
+		//	atk_routine(atk);
+			test_run(atk);
 
 			if(half_transition && transition_enabled) {
 				half_transition = false;
@@ -254,7 +256,6 @@ public:
 					}
 				}
 			}
-
 			if(full_transition && transition_enabled) {
 				full_transition = false;
 				transition_enabled = false;
@@ -273,11 +274,14 @@ public:
 					}
 				}
 			}
+
+			fixed_position_check();
+
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
 	} // get_targets
 
-	void the_eye () {
+	void set_flags () {
 		danger_zone_1 = false;
 		danger_zone_2 = false;
 		atk_ball_possession = false;
@@ -296,6 +300,16 @@ public:
 			atk_ball_possession = true;
 		}
 
+	}
+
+	void fixed_position_check() { // Para posição fixa
+		for(int i =0; i<3; i++) {
+			if(robots[i].fixedPos) {
+				if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
+					robots[i].target = robots[i].position;
+				}
+			}
+		}
 	}
 
 	bool set_ann(const char * annName) {
@@ -381,32 +395,35 @@ public:
 				robots[i].target.y = COORD_GOAL_UP_Y;
 			}
 		}
-		cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
+		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
 	}
 
 	void test_run (int i) {
-		def_wait(i);
+		robots[i].fixedPos = true;
+		robots[i].target.x = COORD_MID_FIELD_X;
+		robots[i].target.y = COORD_GOAL_MID_Y;
 	}
 
 	void atk_routine(int i) {
+		int dist_ball = sqrt(pow(double(robots[i].position.y - Ball.y), 2) + pow(double(robots[i].position.x - Ball.x), 2));
 
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
-					if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
-						robots[i].status = CORNER_STATE; // bola no canto
-					}
-					if(danger_zone_1 || danger_zone_2) {
-						robots[i].status = STEP_BACK;
-					} else if(atk_ball_possession) {
-						robots[i].status = ADVANCING_STATE; // ir para o gol
-					} else {
-						robots[i].target = go_to_the_ball(robots[i].position);
-					}
+				if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
+					robots[i].status = CORNER_STATE; // bola no canto
+				}
+				if(danger_zone_1 || danger_zone_2) {
+					robots[i].status = STEP_BACK;
+				} else if(atk_ball_possession) {
+					robots[i].status = ADVANCING_STATE; // ir para o gol
+				} else {
+					robots[i].target = go_to_the_ball(robots[i].position);
+				}
+			break;
 
 
 			case CORNER_STATE:
-				int dist_ball = sqrt(pow(double(robots[i].position.y - Ball.y), 2) + pow(double(robots[i].position.x - Ball.x), 2))
 				if(Ball.x > corner_atk_limit) {
 					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
