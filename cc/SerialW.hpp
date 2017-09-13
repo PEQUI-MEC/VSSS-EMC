@@ -114,7 +114,7 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 			temp0= robot_list[i].transOrientation*180/PI;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
 			cmd << robot_list[i].ID << "O" << temp0 << ";" << temp1 << "#" << endl;
-			cout << temp0 << endl;
+			// cout << temp0 << endl;
 			break;
 			default:
 			temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;

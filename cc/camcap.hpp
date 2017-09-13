@@ -310,10 +310,10 @@ public:
         double tmp[2];
         for (int i = 0; i < 3; i++) {
             if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
-                tmp[0] = robot_list[i].target.x - robot_kf_est[i].x;
-                tmp[1] = robot_list[i].target.y - robot_kf_est[i].y;
-                robot_list[i].transTarget.x = cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1];
-                robot_list[i].transTarget.y = -(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]);
+                tmp[0] = double(robot_list[i].target.x - robot_kf_est[i].x);
+                tmp[1] = double(robot_list[i].target.y - robot_kf_est[i].y);
+                robot_list[i].transTarget.x = round(cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1]);
+                robot_list[i].transTarget.y = round(-(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]));
             }else{
                 robot_list[i].transTarget.x = 0;
                 robot_list[i].transTarget.y = 0;
@@ -415,10 +415,10 @@ public:
             line(imageView,cv::Point(strategyGUI.strategy.BANHEIRA, 0),cv::Point(strategyGUI.strategy.BANHEIRA, height),cv::Scalar(255,255,0), 2);
 
         if (strategyGUI.get_areasDivision_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.DIVISAO_AREAS, 0),cv::Point(strategyGUI.strategy.DIVISAO_AREAS, height),cv::Scalar(255,255,0), 2);
+            line(imageView,cv::Point(strategyGUI.strategy.corner_atk_limit, 0),cv::Point(strategyGUI.strategy.corner_atk_limit, height),cv::Scalar(255,255,0), 2);
 
         if (strategyGUI.get_areaLimitX_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.LIMITE_AREA_X, 0),cv::Point(strategyGUI.strategy.LIMITE_AREA_X, height),cv::Scalar(255,255,0), 2);
+            line(imageView,cv::Point(strategyGUI.strategy.COORD_GOAL_DEF_FRONT_X, 0),cv::Point(strategyGUI.strategy.COORD_GOAL_DEF_FRONT_X, height),cv::Scalar(255,255,0), 2);
     } // drawStrategyConstants
 
     void warp_transform(cv::Mat imageView){

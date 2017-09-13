@@ -120,12 +120,12 @@ public:
 		COORD_BOX_ATK_X,
 		COORD_BOX_UP_Y,
 		COORD_BOX_DWN_Y,
-		MAX_APPROACH,
 		ABS_ROBOT_SIZE;
 
 	int corner_atk_limit,
 		def_line,
 		possession_distance,
+		max_approach,
 		fixed_pos_distance;
 
 
@@ -162,13 +162,12 @@ public:
 		COORD_BOX_UP_Y = round((ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
 		COORD_BOX_DWN_Y = round(ABS_BOX_SIZE_Y + (ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
 
-		MAX_APPROACH = round(0.30*float(width)/1.70);
-
 		//variáveis ajustáveis
-		corner_atk_limit = COORD_BOX_ATK_X;
+		corner_atk_limit = COORD_BOX_ATK_X - ABS_ROBOT_SIZE;
 		def_line = COORD_MID_FIELD_X;
-		possession_distance = ABS_ROBOT_SIZE/2;
+		possession_distance = ABS_ROBOT_SIZE;
 		fixed_pos_distance = ABS_ROBOT_SIZE/2;
+		max_approach = ABS_ROBOT_SIZE*5;
 
 
 		//não usando
@@ -205,6 +204,7 @@ public:
 
 	void get_targets(vector<Robot> * pRobots) {
 			robots = * pRobots;
+			// cout << "vector copied" << endl;
 			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
 			for(int i =0; i<3; i++) {					//pegar posições e índices
 				robots[i].cmdType = POSITION;
@@ -227,17 +227,21 @@ public:
 		      break;
 				}
 			}
+			// cout << "indexes set" << endl;
 
 			set_flags(); // analisar situação atual e setar flags
+			// cout << "flags set" << endl;
 
-			transition_enabled = false; //só para testes com um robô
-			danger_zone_1 = false; //só para testes com um robô
-			danger_zone_2 = false; //só para testes com um robô
+			// danger_zone_1 = false; //só para testes com um robô
+			// danger_zone_2 = false; //só para testes com um robô
 
-	  		gk_routine(gk);
+			gk_routine(gk);
 			def_routine(def);
-		//	atk_routine(atk);
-			test_run(atk);
+			atk_routine(atk);
+		//	test_run(atk);
+
+			// transition_enabled = false; //só para testes com um robô
+			// cout << "routines end" << endl;
 
 			if(half_transition && transition_enabled) {
 				half_transition = false;
@@ -274,11 +278,14 @@ public:
 					}
 				}
 			}
+			// cout << "transitions" << endl;
 
 			fixed_position_check();
+			// cout << "fixed position checked" << endl;
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
+		// cout << "passou ponteiro" << endl;
 	} // get_targets
 
 	void set_flags () {
@@ -288,17 +295,27 @@ public:
 		if(Ball.x > COORD_MID_FIELD_X) {
 			transition_enabled = true;
 		}
+		// cout << "transition check" << endl;
+
 		if(Ball.x < Attacker.x && Ball.x > Defender.x) { // entre defensor e atacante
 			danger_zone_1 = true;
-		} else if(Ball.x < Defender.x) { // entre defensor e goleiro
+		} else if(Ball.x < Attacker.x && Ball.x < Defender.x) { // entre defensor e goleiro
 			danger_zone_2 = true;
 		}
-		double ball_angle = atan((Ball.y - Attacker.y)/(Ball.x - Attacker.x)); // ângulo da bola em relação ao robô
-		double diff_angle = transformOrientation(robots[atk].orientation, ball_angle); // deslocamento angular necessário
+		// cout << "danger zones check" << endl;
+
+		double ball_angle = double(atan(double(Ball.y - Attacker.y)/double(Ball.x - Attacker.x))); // ângulo da bola em relação ao robô
+		// cout << "calculo ball angle" << endl;
+
+		double diff_angle = double(transformOrientation(robots[atk].orientation, ball_angle)); // deslocamento angular necessário
+		// cout << "calculo diff angle " << endl;
+
 		if(Ball.x > Attacker.x && distance(Ball, Attacker) <= possession_distance &&
 		((diff_angle < PI/4 && diff_angle > -PI/4) || (diff_angle > 5*PI/4 && diff_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
 			atk_ball_possession = true;
 		}
+		// cout << "ball possession check" << endl;
+
 
 	}
 
@@ -328,15 +345,19 @@ public:
 											double((2 * dist_agent_goal * dist_ball_goal)) );
 		// lei dos cossenos para encontrar o ângulo entre as seguintes retas: - do meio do gol à bola
 		// 																																	  - do meio do gol ao robô
+		// cout << "calculos de distancia e angulos" << endl;
 
-		double approach = double(MAX_APPROACH) * angle/(PI/2); // O alvo muda de acordo com o ângulo, quanto menor, mais próximo da bola
+		double approach = double(max_approach) * angle/(PI/2); // O alvo muda de acordo com o ângulo, quanto menor, mais próximo da bola
+		// cout << "angle "<< angle << " approach "<< approach << endl;
 
-		target.x = Ball.x - approach * cos(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x))));
+		target.x = round(Ball.x - approach * cos(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
+
+		// cout << "calculos aproximação e alvo" << endl;
 
 		if(Ball.y > COORD_GOAL_MID_Y) {
-			target.y = Ball.y + approach * sin(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x))));
+			target.y = round(Ball.y + approach * sin(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
 		} else {
-			target.y = Ball.y - approach * sin(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x))));
+			target.y = round(Ball.y - approach * sin(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
 		}
 		// o alvo é posicionado na mesma reta, do meio do gol à bola
 		// por isso a utilização de seno e cosseno para encontrar as componentes X e Y
@@ -346,6 +367,8 @@ public:
 		if(target.y < 0) target.y = 0;
 		if(target.y > ABS_FIELD_HEIGHT) target.y = ABS_FIELD_HEIGHT;
 
+		//  cout << "Tx "<< target.x << " Ty "<< target.y << endl;
+
 		return target;
 	}
 
@@ -353,8 +376,8 @@ public:
 		// serve como um estado anterior ao go_to_the_ball, para quando o robô se encontra a frente da bola
 		target.x = Ball.x;
 
-		if (agent.y > Ball.y) target.y = Ball.y + MAX_APPROACH;
-		else target.y = Ball.y - MAX_APPROACH;
+		if (agent.y > Ball.y) target.y = Ball.y + max_approach;
+		else target.y = Ball.y - max_approach;
 
 		return target;
 	}
@@ -405,20 +428,25 @@ public:
 	}
 
 	void atk_routine(int i) {
-		int dist_ball = sqrt(pow(double(robots[i].position.y - Ball.y), 2) + pow(double(robots[i].position.x - Ball.x), 2));
 
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
 				if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
 					robots[i].status = CORNER_STATE; // bola no canto
+					// cout << "CORNER_STATE " << endl;
+
 				}
 				if(danger_zone_1 || danger_zone_2) {
 					robots[i].status = STEP_BACK;
+					// cout << "STEP_BACK " << endl;
+
 				} else if(atk_ball_possession) {
 					robots[i].status = ADVANCING_STATE; // ir para o gol
+					// cout << "ADVANCING_STATE " << endl;
 				} else {
 					robots[i].target = go_to_the_ball(robots[i].position);
+					// cout << "go_to_the_ball " << endl;
 				}
 			break;
 
@@ -427,14 +455,14 @@ public:
 				if(Ball.x > corner_atk_limit) {
 					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
-							if(Ball.x > robots[i].position.x && dist_ball < ABS_ROBOT_SIZE) spin_left(i); // giro que leva a bola ao gol
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_left(i); // giro que leva a bola ao gol
 							else robots[i].target = Ball; //!!! testar pode dar ruim com a troca
 						} else {
 							spin_right(i); // giro para faze-la entrar
 						}
 					} else {
 						if(Ball.y > COORD_GOAL_DWN_Y) {
-							if(Ball.x > robots[i].position.x && dist_ball < ABS_ROBOT_SIZE) spin_right(i);
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_right(i);
 							else robots[i].target = Ball;
 						} else {
 							spin_left(i);
@@ -486,7 +514,8 @@ public:
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
-			robots[i].target.x = COORD_GOAL_DEF_FRONT_X;
+			robots[i].fixedPos = true;
+			robots[i].target.x = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE;
 			robots[i].target.y = Ball.y;
 			if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
 			else if (Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
