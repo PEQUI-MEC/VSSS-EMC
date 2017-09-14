@@ -294,7 +294,7 @@ public:
 				collision_check(i);
 			}
 
-			overmimnd();
+			overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -563,22 +563,11 @@ public:
 			break;
 
 			case STEP_BACK:
-				if(distance(robots[i].position, (COORD_MID_FIELD_X, COORD_GOAL_MID_Y)) >= ABS_ROBOT_SIZE/2) {
+				if(distance(robots[i].position, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y)) >= ABS_ROBOT_SIZE/2) {
 					robots[i].target.x = COORD_MID_FIELD_X;
 					robots[i].target.y = COORD_GOAL_MID_Y;
 				} else {
 					robots[i].transOrientation = look_at_ball(i);
-				}
-			break;
-
-			case STEP_BACK:
-			robots[i].fixedPos = true;
-				if(Ball.y > COORD_GOAL_MID_Y) {
-					robots[i].target.y = COORD_BOX_UP_Y;
-					robots[i].target.x = COORD_BOX_DEF_X;
-				} else {
-					robots[i].target.y = COORD_BOX_DWN_Y;
-					robots[i].target.x = COORD_BOX_DEF_X;
 				}
 			break;
 
