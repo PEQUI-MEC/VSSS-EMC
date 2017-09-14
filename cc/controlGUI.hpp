@@ -183,15 +183,15 @@ public:
 
 	void _robot_status(){
 		string cmd;
-	/*	cmd = "ABAT#";
+		cmd = "A@BAT#";
 		s.sendSerial(cmd);
 		cout<<s.readSerial()<<endl;
 
-		cmd = "BBAT#";
+		cmd = "B@BAT#";
 		s.sendSerial(cmd);
 		cout<<s.readSerial()<<endl;
-*/
-		cmd = "ABAT#";
+
+		cmd = "C@BAT#";
 		s.sendSerial(cmd);
 		cout<<s.readSerial()<<endl;
 /*

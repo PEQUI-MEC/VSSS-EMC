@@ -310,8 +310,10 @@ public:
         double tmp[2];
         for (int i = 0; i < 3; i++) {
             if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
-                tmp[0] = double(robot_list[i].target.x - robot_kf_est[i].x);
-                tmp[1] = double(robot_list[i].target.y - robot_kf_est[i].y);
+                // tmp[0] = double(robot_list[i].target.x - robot_kf_est[i].x);
+                // tmp[1] = double(robot_list[i].target.y - robot_kf_est[i].y);
+                tmp[0] = double(robot_list[i].target.x - robot_list[i].position.x);
+                tmp[1] = double(robot_list[i].target.y - robot_list[i].position.y);
                 robot_list[i].transTarget.x = round(cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1]);
                 robot_list[i].transTarget.y = round(-(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]));
             }else{
