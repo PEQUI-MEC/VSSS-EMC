@@ -47,6 +47,7 @@ public:
 
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
+	Gtk::Button bt_Robot_Status;
 	Gtk::Button bt_Serial_Refresh;
 	Gtk::ComboBoxText cb_serial;
 	Gtk::ToggleButton button_PID_Test;
@@ -156,6 +157,7 @@ public:
 		bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
 		bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
 		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
+		bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
 		bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
 	}
 
@@ -176,6 +178,27 @@ public:
 			PID_test_flag = true;
 			//std::cout<<PID_test_flag<<endl;
 		}
+	}
+
+
+	void _robot_status(){
+		string cmd;
+	/*	cmd = "ABAT#";
+		s.sendSerial(cmd);
+		cout<<s.readSerial()<<endl;
+
+		cmd = "BBAT#";
+		s.sendSerial(cmd);
+		cout<<s.readSerial()<<endl;
+*/
+		cmd = "ABAT#";
+		s.sendSerial(cmd);
+		cout<<s.readSerial()<<endl;
+/*
+		cmd = "DBAT#";
+		s.sendSerial(cmd);
+		cout<<s.readSerial()<<endl;
+		*/
 	}
 
 	void _start_serial(){
@@ -449,7 +472,9 @@ void _create_status_frame(){
 	status_lb[3].set_text("Offline");
 	status_grid.attach(status_lb[3], 3, 3, 1, 1);
 
-
+	bt_Robot_Status.set_label("Request Info");
+	bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
+	pack_start(bt_Robot_Status, false, true, 5);
 }
 
 	// Função para verificar se os valores digitados nos campos

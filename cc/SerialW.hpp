@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/select.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>      // Error number definitions
@@ -31,7 +32,7 @@ int start(std::string serial){
 	struct termios tty_old;
 	memset (&tty, 0, sizeof tty);
 
-	USB = open(serial.c_str(), O_WRONLY| O_NOCTTY);
+	USB = open(serial.c_str(), O_RDWR| O_NOCTTY);
     if(USB != -1)
     {
         Serial_Enabled=true;
@@ -55,21 +56,20 @@ tty_old = tty;
 cfsetospeed (&tty, (speed_t)B115200);
 
 
-tty.c_oflag = 0;
+tty.c_oflag = 0;    // no remapping, no delays
 tty.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
 tty.c_cflag &= ~(CSIZE | PARENB);
 tty.c_cflag |= CS8;
-
 /* Setting other Port Stuff */
 //tty.c_cflag     &=  ~PARENB;            // Make 8n1
 //tty.c_cflag     &=  ~CSTOPB;
 //tty.c_cflag     &=  ~CSIZE;
 //tty.c_cflag     |=  CS8;
 
-//tty.c_cflag     &=  ~CRTSCTS;           // no flow control
-//tty.c_cc[VMIN]   =  1;                  // read doesn't block
-//tty.c_cc[VTIME]  =  5;                  // 0.5 seconds read timeout
-//tty.c_cflag     |=  CREAD | CLOCAL;     // turn on READ & ignore ctrl lines
+tty.c_cflag     &=  ~CRTSCTS;           // no flow control
+tty.c_cc[VMIN]   =  1;                  // read doesn't block
+tty.c_cc[VTIME]  = 5;                  // 0.5 seconds read timeout
+tty.c_cflag     |=  CREAD | CLOCAL;     // turn on READ & ignore ctrl lines
 
 /* Make raw */
 cfmakeraw(&tty);
@@ -132,34 +132,46 @@ int n_written = write( USB, cmd.c_str(),cmd.size());
 
 	}
 
-std::string readSerial(){
 
-	int n = 0,
-    spot = 0;
-	char buf = '\0';
+char* readSerial(){
+// 	char buf [256];
+// memset (&buf, '\0', sizeof buf);
+//
+// /* *** READ *** */
+// cout << "Reading"<< endl;
+// int n = read( USB, &buf , sizeof buf );
+// cout << "Not Reading"<< endl;
+// /* Error Handling */
+// if (n < 0)
+// {
+//      cout << "Error reading: " << strerror(errno) << endl;
+// }
+//
+// /* Print what I read... */
+// cout << "Read: " << buf << endl;
+// return buf;
+// 	}
 
-	/* Whole response*/
-	char response[1024];
-	memset(response, '\0', sizeof response);
+  fd_set set;
+  struct timeval timeout;
+  int rv;
+  char buf [256];
 
-do {
-    n = read( USB, &buf, 1 );
-    sprintf( &response[spot], "%c", buf );
-    spot += n;
-} while( buf != '\r' && n > 0);
+  FD_ZERO(&set); /* clear the set */
+  FD_SET(USB, &set); /* add our file descriptor to the set */
 
-if (n < 0) {
-    std::cout << "Error reading: " << strerror(errno) << std::endl;
-}
-else if (n == 0) {
-    std::cout << "Read nothing!" << std::endl;
-}
-else {
-    std::cout << "Response: " << response << std::endl;
-}
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 500000;
 
-	return std::string(response);
-
+  rv = select(USB + 1, &set, NULL, NULL, &timeout);
+  if(rv == -1)
+    perror("select"); /* an error accured */
+  else if(rv == 0)
+    printf("timeout \n"); /* a timeout occured */
+  else{
+    read( USB, &buf , sizeof buf ); /* there was data to read */
 	}
+	return buf;
+}
 };
 #endif /* CONTROLGUI_HPP_ */

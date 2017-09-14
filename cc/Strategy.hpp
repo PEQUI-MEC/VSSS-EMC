@@ -37,6 +37,7 @@
 #define CORNER_STATE 1
 #define	STEP_BACK 2
 #define	ADVANCING_STATE 3
+#define	TRANSITION_STATE 4
 
 
 
@@ -90,6 +91,8 @@ public:
 
 
 	vector<Robot> robots;
+	int collision_count[3];
+	cv::Point past_position[3];
 	cv::Point Goalkeeper;
 	cv::Point Defender;
 	cv::Point Attacker;
@@ -126,7 +129,9 @@ public:
 		def_line,
 		possession_distance,
 		max_approach,
-		fixed_pos_distance;
+		fixed_pos_distance,
+		collision_radius,
+		max_collision_count;
 
 
 
@@ -164,10 +169,12 @@ public:
 
 		//variáveis ajustáveis
 		corner_atk_limit = COORD_BOX_ATK_X - ABS_ROBOT_SIZE;
-		def_line = COORD_MID_FIELD_X;
+		def_line = ABS_GOAL_TO_GOAL_WIDTH/3;
 		possession_distance = ABS_ROBOT_SIZE;
+		collision_radius = ABS_ROBOT_SIZE/2;
 		fixed_pos_distance = ABS_ROBOT_SIZE/2;
 		max_approach = ABS_ROBOT_SIZE*5;
+		max_collision_count = 15;
 
 
 		//não usando
@@ -203,10 +210,11 @@ public:
 	}
 
 	void get_targets(vector<Robot> * pRobots) {
+
 			robots = * pRobots;
 			// cout << "vector copied" << endl;
-			// peguei esse código do camcap.hpp, é possível que algumas partes comentadas não funcionem por chamar funções da visão
-			for(int i =0; i<3; i++) {					//pegar posições e índices
+
+			for(int i =0; i<3; i++) { //pegar posições e índices
 				robots[i].cmdType = POSITION;
 				robots[i].fixedPos = false;
 
@@ -232,15 +240,15 @@ public:
 			set_flags(); // analisar situação atual e setar flags
 			// cout << "flags set" << endl;
 
-			// danger_zone_1 = false; //só para testes com um robô
-			// danger_zone_2 = false; //só para testes com um robô
+			danger_zone_1 = false; //só para testes com um robô
+			danger_zone_2 = false; //só para testes com um robô
+			transition_enabled = false; //só para testes com um robô
 
 			gk_routine(gk);
 			def_routine(def);
 			atk_routine(atk);
-		//	test_run(atk);
+			// test_run(atk);
 
-			// transition_enabled = false; //só para testes com um robô
 			// cout << "routines end" << endl;
 
 			if(half_transition && transition_enabled) {
@@ -256,6 +264,7 @@ public:
 						break;
 						case ATTACKER:
 						robots[i].role = DEFENDER;
+						robots[i].status = TRANSITION_STATE;
 						break;
 					}
 				}
@@ -279,10 +288,11 @@ public:
 				}
 			}
 			// cout << "transitions" << endl;
-
-			fixed_position_check();
-			// cout << "fixed position checked" << endl;
-
+			for(int i =0; i<3; i++) {
+				fixed_position_check(i);
+				// cout << "fixed position checked" << endl;
+				collision_check(i);
+			}
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
 		// cout << "passou ponteiro" << endl;
@@ -315,18 +325,32 @@ public:
 			atk_ball_possession = true;
 		}
 		// cout << "ball possession check" << endl;
-
-
 	}
 
-	void fixed_position_check() { // Para posição fixa
-		for(int i =0; i<3; i++) {
-			if(robots[i].fixedPos) {
-				if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
-					robots[i].target = robots[i].position;
-				}
+	void fixed_position_check(int i) { // Para posição fixa
+		if(robots[i].fixedPos) {
+			if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
+				robots[i].target = robots[i].position;
 			}
 		}
+	}
+
+	void collision_check(int i) {
+		if(!robots[i].fixedPos) {
+			if(distance(robots[i].position, past_position[i]) <= collision_radius) {
+				collision_count[i]++;
+			} else {
+				past_position[i] = robots[i].position;
+				collision_count[i] = 0;
+			}
+			if(collision_count[i] >= max_collision_count) {
+				robots[i].target.x = COORD_MID_FIELD_X;
+				robots[i].target.y = COORD_GOAL_MID_Y;
+			}
+		} else {
+			collision_count[i] = 0;
+		}
+		// cout << " past " << past_position[i] << " count "<< collision_count[i] << endl;
 	}
 
 	bool set_ann(const char * annName) {
@@ -390,6 +414,12 @@ public:
 		return turn_angle;
 	}
 
+	// void reach_point(int i, cv::Point target_point) {
+	// 	if(distance(target_point, robots[i].position) > ABS_ROBOT_SIZE) {
+	// 		robots[i].target = target_point;
+	// 	}
+	// }
+
 	void spin_left(int i){
 		robots[i].cmdType = SPEED;
 		robots[i].Vr = robots[i].vmax;
@@ -421,10 +451,8 @@ public:
 		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
 	}
 
-	void test_run (int i) {
-		robots[i].fixedPos = true;
-		robots[i].target.x = COORD_MID_FIELD_X;
-		robots[i].target.y = COORD_GOAL_MID_Y;
+	void test_run(int i) {
+		robots[i].target = Ball;
 	}
 
 	void atk_routine(int i) {
@@ -435,13 +463,8 @@ public:
 				if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
 					robots[i].status = CORNER_STATE; // bola no canto
 					// cout << "CORNER_STATE " << endl;
-
 				}
-				if(danger_zone_1 || danger_zone_2) {
-					robots[i].status = STEP_BACK;
-					// cout << "STEP_BACK " << endl;
-
-				} else if(atk_ball_possession) {
+ 				if(atk_ball_possession) {
 					robots[i].status = ADVANCING_STATE; // ir para o gol
 					// cout << "ADVANCING_STATE " << endl;
 				} else {
@@ -450,32 +473,28 @@ public:
 				}
 			break;
 
-
 			case CORNER_STATE:
 				if(Ball.x > corner_atk_limit) {
 					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
-							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_left(i); // giro que leva a bola ao gol
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_right(i); // giro que leva a bola ao gol
 							else robots[i].target = Ball; //!!! testar pode dar ruim com a troca
 						} else {
-							spin_right(i); // giro para faze-la entrar
+							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_left(i); // giro para faze-la entrar
+							else robots[i].target = Ball;
 						}
 					} else {
 						if(Ball.y > COORD_GOAL_DWN_Y) {
-							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_right(i);
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_left(i);
 							else robots[i].target = Ball;
 						} else {
-							spin_left(i);
+							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_right(i); // giro para faze-la entrar
+							else robots[i].target = Ball;
 						}
 					}
 				} else {
 					robots[i].status = NORMAL_STATE; // voltar ao estado normal
 				}
-			break;
-
-			case STEP_BACK:
-				robots[i].target.x = def_line;
-				robots[i].target.y = Ball.y;
 			break;
 
 			case ADVANCING_STATE:
@@ -485,8 +504,8 @@ public:
 			break;
 		}
 
-
 	}
+
 	void def_routine(int i) {
 
 		switch (robots[i].status) {
@@ -504,6 +523,18 @@ public:
 				} else {
 					robots[i].target.y = COORD_BOX_DWN_Y;
 					robots[i].target.x = COORD_BOX_DEF_X;
+				}
+			break;
+
+			case TRANSITION_STATE:
+				robots[i].target.x = COORD_MID_FIELD_X;
+				if(Ball.y < robots[i].position.y) {
+					robots[i].target.y = ABS_FIELD_HEIGHT;
+				} else {
+					robots[i].target.y = 0;
+				}
+				if(distance(Ball, robots[i].position) > ABS_ROBOT_SIZE*4) {
+					robots[i].status = NORMAL_STATE;
 				}
 			break;
 		}
