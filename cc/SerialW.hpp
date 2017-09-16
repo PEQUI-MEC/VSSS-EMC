@@ -100,10 +100,13 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 	for (int i = 0; i < 3; i++){
 		switch (robot_list[i].cmdType){
 			case POSITION:
-			temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
-			temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
-			temp2= round(double(robot_list[i].vmax)*100)/100;
-			cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+			if (robot_list.at(i).transTarget.x != NULL && robot_list.at(i).transTarget.x != NULL)
+			{
+				temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
+				temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
+				temp2= round(double(robot_list[i].vmax)*100)/100;
+				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+			}
 			break;
 			case SPEED:
 			temp0= round(robot_list[i].Vr*100)/100;
@@ -117,13 +120,16 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 			// cout << temp0 << endl;
 			break;
 			default:
-			temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
-			temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
-			temp2= round(double(robot_list[i].vmax)*100)/100;
-			cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+			if (robot_list.at(i).transTarget.x != NULL && robot_list.at(i).transTarget.x != NULL)
+			{
+				temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
+				temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
+				temp2= round(double(robot_list[i].vmax)*100)/100;
+				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+			}
 		}
 	}
-	sendSerial(cmd.str());
+	if (!cmd.str().empty()) sendSerial(cmd.str());
 	//std::cout<<cmd.str()<<std::endl;
 }
 void sendSerial(std::string cmd){
@@ -133,45 +139,34 @@ int n_written = write( USB, cmd.c_str(),cmd.size());
 	}
 
 
-char* readSerial(){
-// 	char buf [256];
-// memset (&buf, '\0', sizeof buf);
-//
-// /* *** READ *** */
-// cout << "Reading"<< endl;
-// int n = read( USB, &buf , sizeof buf );
-// cout << "Not Reading"<< endl;
-// /* Error Handling */
-// if (n < 0)
-// {
-//      cout << "Error reading: " << strerror(errno) << endl;
-// }
-//
-// /* Print what I read... */
-// cout << "Read: " << buf << endl;
-// return buf;
-// 	}
-
+int readSerial(char* buf, int size){
   fd_set set;
   struct timeval timeout;
   int rv;
-  char buf [256];
 
   FD_ZERO(&set); /* clear the set */
   FD_SET(USB, &set); /* add our file descriptor to the set */
 
   timeout.tv_sec = 0;
-  timeout.tv_usec = 500000;
+  timeout.tv_usec = 50000;
 
   rv = select(USB + 1, &set, NULL, NULL, &timeout);
-  if(rv == -1)
-    perror("select"); /* an error accured */
-  else if(rv == 0)
-    printf("timeout \n"); /* a timeout occured */
-  else{
-    read( USB, &buf , sizeof buf ); /* there was data to read */
+  if(rv == -1) {
+		perror("select"); /* an error accured */
+			return -1;
 	}
-	return buf;
+
+  else if(rv == 0) {
+		//printf("timeout \n"); /* a timeout occured */
+		return 0;
+	}
+  else{
+    read( USB, buf , size ); /* there was data to read */
+		buf[size-1] = '\0';
+		//printf(buf);printf("\n");
+		return 1;
+	}
+
 }
 };
 #endif /* CONTROLGUI_HPP_ */

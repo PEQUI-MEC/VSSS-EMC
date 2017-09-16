@@ -317,8 +317,8 @@ public:
                 robot_list[i].transTarget.x = round(cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1]);
                 robot_list[i].transTarget.y = round(-(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]));
             }else{
-                robot_list[i].transTarget.x = 0;
-                robot_list[i].transTarget.y = 0;
+                robot_list[i].transTarget.x = NULL;
+                robot_list[i].transTarget.y = NULL;
             }
         }
     }
