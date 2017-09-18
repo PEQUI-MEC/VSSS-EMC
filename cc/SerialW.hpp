@@ -148,7 +148,7 @@ int readSerial(char* buf, int size){
   FD_SET(USB, &set); /* add our file descriptor to the set */
 
   timeout.tv_sec = 0;
-  timeout.tv_usec = 50000;
+  timeout.tv_usec = 100000;
 
   rv = select(USB + 1, &set, NULL, NULL, &timeout);
   if(rv == -1) {

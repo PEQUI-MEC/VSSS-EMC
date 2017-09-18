@@ -251,7 +251,7 @@ public:
 		// update robot status
 		for (int i = 0; i < 4; i++) {
 			s.sendSerial(cmd[i]);
-			usleep(50000);
+			usleep(100000);
 			if(s.readSerial(buf[i],sizeof buf[i]) == 1) {
 				handleBatteryMsg(buf[i], i);
 			} else {
