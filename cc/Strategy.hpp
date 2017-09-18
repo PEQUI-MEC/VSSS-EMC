@@ -438,7 +438,7 @@ public:
 
 		}
 
-	} // incompleto!!!
+	} // incompleto!!! //incompleto!!
 
 	cv::Point around_the_ball (cv::Point agent) {
 		// serve como um estado anterior ao go_to_the_ball, para quando o robô se encontra a frente da bola
@@ -463,6 +463,15 @@ public:
 	// 		robots[i].target = target_point;
 	// 	}
 	// }
+
+	double reach_on_time(double dist, double time_limit = 1) {
+		double tmp0 = time_limit + sqrt(pow(time_limit, 2) - 2 * dist/acceleration) * acceleration;
+		double tmp1 = time_limit - sqrt(pow(time_limit, 2) - 2 * dist/acceleration) * acceleration;
+
+		if(tmp0 <= 1.1 && tmp0 >= 0.3) return tmp0;
+		if(tmp1 <= 1.1 && tmp1 >= 0.3) return tmp1;
+		else return 1.0;
+	}
 
 	void spin_left(int i){
 		robots[i].cmdType = SPEED;
