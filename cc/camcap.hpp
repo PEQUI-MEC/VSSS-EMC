@@ -30,6 +30,7 @@
 #include <gtkmm.h>
 #include <math.h>
 #include <fstream>
+#include "CPUTimer.cpp"
 
 
 
@@ -42,6 +43,7 @@ public:
     int Selec_index=-1;
     int fps_average = 0;
     int timerCounter = 0;
+    CPUTimer timer;
 
     bool fixed_ball[3];
     bool KF_FIRST = true;
@@ -167,6 +169,8 @@ public:
     bool capture_and_show() {
         if (!data) return false;
 
+        timer.start();
+
         interface.vcap.grab_rgb(data);
         interface.imageView.set_data(data, width, height);
         interface.imageView.refresh();
@@ -276,23 +280,20 @@ public:
         interface.update_speed_progressBars();
         // ----------------------------------------//
 
-        if (timerCounter == 30)
+        timer.stop();
+        fps.push_back(1/timer.getCronoTotalSecs());
+        timer.reset();
+
+        if (fps.size() == 30)
         {
             for (int i = 0; i < fps.size(); i++)
             {
                 fps_average += fps[i];
             }
             fps_average = fps_average / fps.size();
-            //cout<<"FPS: "<<1/timer.getCPUTotalSecs()<<endl;
-            timerCounter = 0;
             fps.clear();
         }
-        timerCounter++;
-        double prevTick = ticks;
-        ticks = (double) cv::getTickCount();
-        double dT = (ticks - prevTick) / cv::getTickFrequency(); //seconds
-        fps.push_back(1/dT);
-        //std::cout << 16 << std::endl;
+
         return true;
     } // capture_and_show
 
