@@ -142,8 +142,6 @@ class V4LInterface: public Gtk::VBox {
         void __create_frm_quick_actions();
         void __create_frm_warp();
         void __create_frm_calibration();
-
-    private:
         // Combo properties updates
         void __update_cb_device();
         void __update_cb_input();
@@ -163,6 +161,7 @@ class V4LInterface: public Gtk::VBox {
 
         void __event_bt_quick_save_clicked();
         void __event_bt_quick_load_clicked();
+        void __event_auto_save();
         void __event_bt_save_clicked();
         void __event_bt_load_clicked();
 
