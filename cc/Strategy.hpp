@@ -131,7 +131,8 @@ public:
 		max_approach,
 		fixed_pos_distance,
 		collision_radius,
-		max_collision_count;
+		max_collision_count,
+		acceleration;
 
 
 
@@ -175,6 +176,7 @@ public:
 		fixed_pos_distance = ABS_ROBOT_SIZE/2;
 		max_approach = ABS_ROBOT_SIZE*3;
 		max_collision_count = 15;
+		acceleration = 0.8;
 
 
 		//não usando
@@ -240,12 +242,12 @@ public:
 			set_flags(); // analisar situação atual e setar flags
 			// cout << "flags set" << endl;
 
-			// danger_zone_1 = false; //só para testes com um robô
-			// danger_zone_2 = false; //só para testes com um robô
-			// transition_enabled = false; //só para testes com um robô
+			danger_zone_1 = false; //só para testes com um robô
+			danger_zone_2 = false; //só para testes com um robô
+			transition_enabled = false; //só para testes com um robô
 
-			gk_routine(gk);
-			def_routine(def);
+			// gk_routine(gk);
+			// def_routine(def);
 			atk_routine(atk);
 			// test_run(atk);
 
@@ -294,7 +296,7 @@ public:
 				collision_check(i);
 			}
 
-			overmind();
+			// overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -336,11 +338,24 @@ public:
 		double diff_angle = double(transformOrientation(robots[atk].orientation, ball_angle)); // deslocamento angular necessário
 		// cout << "calculo diff angle " << endl;
 
-		if(Ball.x > Attacker.x && distance(Ball, Attacker) <= possession_distance &&
-		((diff_angle < PI/4 && diff_angle > -PI/4) || (diff_angle > 5*PI/4 && diff_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
-			atk_ball_possession = true;
-		}
+		// if(Ball.x > Attacker.x && distance(Ball, Attacker) <= possession_distance &&
+		// ((diff_angle < PI/4 && diff_angle > -PI/4) || (diff_angle > 5*PI/4 && diff_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
+		// 	atk_ball_possession = true;
+		// }
 		// cout << "ball possession check" << endl;
+
+		double dist_ball_goal = sqrt(pow(double(COORD_GOAL_MID_Y - Ball.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - Ball.x), 2));
+		double dist_agent_goal = sqrt(pow(double(COORD_GOAL_MID_Y - robots[atk].position.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - robots[atk].position.x), 2));
+		double dist_agent_ball = sqrt(pow(double(robots[atk].position.y - Ball.y), 2) + pow(double(robots[atk].position.x - Ball.x), 2));
+
+		double angle = acos(( double(pow(dist_agent_goal, 2) + pow(dist_ball_goal, 2) - pow(dist_agent_ball, 2)) )/
+											double((2 * dist_agent_goal * dist_ball_goal)) );
+
+		if(angle*180/PI <= 20 && Ball.x > robots[atk].position.x) {
+			atk_ball_possession = true;
+		} else {
+			atk_ball_possession = false;
+		}
 	}
 
 	void fixed_position_check(int i) { // Para posição fixa
@@ -435,6 +450,8 @@ public:
 		if(target.y > ABS_FIELD_HEIGHT) target.y = ABS_FIELD_HEIGHT;
 
 		if(distance(robots[i].position, target) >= ABS_ROBOT_SIZE){
+			robots[i].target = target;
+		} else {
 
 		}
 
