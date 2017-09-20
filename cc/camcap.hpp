@@ -225,6 +225,32 @@ public:
                 putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
                 circle(imageView,vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
+
+                    cv::Point aux_point;
+
+
+
+
+                        for(int i=0;i<5;i++){
+                            aux_point.x = round(100*cos(strategyGUI.strategy.pot_angle[i]));
+                            aux_point.y = - round(100*sin(strategyGUI.strategy.pot_angle[i]));
+                            aux_point += interface.robot_list[2].position;
+                            arrowedLine(imageView,interface.robot_list[2].position,
+                                aux_point,
+                                cv::Scalar(0,255,0));
+                        }
+                            aux_point.x = round(100*cos(strategyGUI.strategy.pot_goalTheta));
+                            aux_point.y = - round(100*sin(strategyGUI.strategy.pot_goalTheta));
+                            aux_point += interface.robot_list[2].position;
+                            arrowedLine(imageView,interface.robot_list[2].position,
+                                aux_point,
+                                cv::Scalar(0,0,255));
+                                aux_point.x = round(100*cos(interface.robot_list[2].transAngle));
+                                aux_point.y = - round(100*sin(interface.robot_list[2].transAngle));
+                                aux_point += interface.robot_list[2].position;
+                                arrowedLine(imageView,interface.robot_list[2].position,
+                                    aux_point,
+                                    cv::Scalar(255,0,0),2);
                 for(int i=0; i<vision->getAdvListSize(); i++)
                     circle(imageView,vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
@@ -270,7 +296,7 @@ public:
             line(imageView,vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
             circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
             //char buffer[3]; -> não é utilizado
-            strategyGUI.strategy.get_targets(&(interface.robot_list));
+            strategyGUI.strategy.get_targets(&(interface.robot_list), (vision->advRobots));
             for(int i =0; i<3; i++) {
                 circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
                 putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
@@ -297,9 +323,22 @@ public:
         return true;
     } // capture_and_show
 
+    void arrowedLine(cv::Mat img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color,
+        int thickness=1, int line_type=8, int shift=0, double tipLength=0.1){
+       const double tipSize = norm(pt1-pt2)*tipLength;
+       line(img, pt1, pt2, color, thickness, line_type, shift);
+       const double angle = atan2( (double) pt1.y - pt2.y, (double) pt1.x - pt2.x );
+       cv::Point p(cvRound(pt2.x + tipSize * cos(angle + CV_PI / 4)),
+       cvRound(pt2.y + tipSize * sin(angle + CV_PI / 4)));
+       line(img, p, pt2, color, thickness, line_type, shift);
+       p.x = cvRound(pt2.x + tipSize * cos(angle - CV_PI / 4));
+       p.y = cvRound(pt2.y + tipSize * sin(angle - CV_PI / 4));
+       line(img, p, pt2, color, thickness, line_type, shift);
+   }
+
     void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){
         while (1) {
-            if (xbeeIsConnected) {
+            if (xbeeIsConnected && (interface.start_game_flag || interface.imageView.PID_test_flag)) {
                 transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
@@ -315,8 +354,13 @@ public:
                 // tmp[1] = double(robot_list[i].target.y - robot_kf_est[i].y);
                 tmp[0] = double(robot_list[i].target.x - robot_list[i].position.x);
                 tmp[1] = double(robot_list[i].target.y - robot_list[i].position.y);
+                // cout << "tmp[0] " << tmp[0] << " tmp[1] " << tmp[1] << endl;
                 robot_list[i].transTarget.x = round(cos(robot_list[i].orientation)*tmp[0] + sin(robot_list[i].orientation)*tmp[1]);
                 robot_list[i].transTarget.y = round(-(-sin(robot_list[i].orientation)*tmp[0] + cos(robot_list[i].orientation)*tmp[1]));
+                // cout << "robot_list[i].transTarget.x " << robot_list[i].transTarget.x << " robot_list[i].transTarget.y " << robot_list[i].transTarget.y << endl;
+                // robot_list[i].transAngle = atan2(robot_list[i].transTarget.y, robot_list[i].transTarget.x);
+                // cout << "transAngle " << robot_list[i].transAngle << endl;
+
             }else{
                 robot_list[i].transTarget.x = NULL;
                 robot_list[i].transTarget.y = NULL;

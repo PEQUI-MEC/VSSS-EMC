@@ -13,6 +13,7 @@ class Robot
         bool pink = false;
         double orientation=0, transOrientation;
         double orientation2=0;
+        double transAngle;
         int cmdType = 0;
         bool backward = false;
         double thetaError = 0;

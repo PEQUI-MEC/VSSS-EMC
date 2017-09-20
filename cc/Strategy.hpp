@@ -31,6 +31,7 @@
 #define POSITION 0
 #define SPEED 1
 #define ORIENTATION 2
+#define VECTOR 3
 
 //state
 #define NORMAL_STATE 0
@@ -89,8 +90,16 @@ public:
 	int DESLOCAMENTO_ZAGA_ATAQUE	;
 	int BALL_RADIUS;
 
+	double pot_thetaX = 0;
+	double pot_thetaY = 0;
+	double pot_theta = 0;
+	double pot_goalTheta = 0;
+	double pot_goalMag;
+	double pot_magnitude[5];
+	double pot_angle[5];
 
 	vector<Robot> robots;
+	cv::Point* adv;
 	int collision_count[3];
 	cv::Point past_position[3];
 	cv::Point Goalkeeper;
@@ -211,13 +220,14 @@ public:
 		return dist;
 	}
 
-	void get_targets(vector<Robot> * pRobots) {
+	void get_targets(vector<Robot> * pRobots, cv::Point * advRobots) {
 
 			robots = * pRobots;
+			adv = advRobots;
 			// cout << "vector copied" << endl;
 
 			for(int i =0; i<3; i++) { //pegar posições e índices
-				robots[i].cmdType = POSITION;
+				robots[i].cmdType = VECTOR;
 				robots[i].fixedPos = false;
 
 				switch (robots[i].role)	{
@@ -248,8 +258,8 @@ public:
 
 			// gk_routine(gk);
 			// def_routine(def);
-			atk_routine(atk);
-			// test_run(atk);
+			// atk_routine(atk);
+			test_run(atk);
 
 			// cout << "routines end" << endl;
 
@@ -332,30 +342,24 @@ public:
 		}
 		// cout << "danger zones check" << endl;
 
-		double ball_angle = double(atan(double(Ball.y - Attacker.y)/double(Ball.x - Attacker.x))); // ângulo da bola em relação ao robô
-		// cout << "calculo ball angle" << endl;
-
-		double diff_angle = double(transformOrientation(robots[atk].orientation, ball_angle)); // deslocamento angular necessário
-		// cout << "calculo diff angle " << endl;
-
-		// if(Ball.x > Attacker.x && distance(Ball, Attacker) <= possession_distance &&
-		// ((diff_angle < PI/4 && diff_angle > -PI/4) || (diff_angle > 5*PI/4 && diff_angle < -5*PI/4)) ) { // ângulos toleráveis do robô, considerando ir de costas
+		// double ball_angle = double(atan2(double(Ball.y - Attacker.y), double(Ball.x - Attacker.x))); // ângulo da bola em relação ao robô
+		// // cout << "calculo ball angle" << endl;
+		//
+		// double diff_angle = double(transformOrientation(robots[atk].orientation, ball_angle)); // deslocamento angular necessário
+		// // cout << "calculo diff angle " << endl;
+		//
+		// double dist_ball_goal = sqrt(pow(double(COORD_GOAL_MID_Y - Ball.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - Ball.x), 2));
+		// double dist_agent_goal = sqrt(pow(double(COORD_GOAL_MID_Y - robots[atk].position.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - robots[atk].position.x), 2));
+		// double dist_agent_ball = sqrt(pow(double(robots[atk].position.y - Ball.y), 2) + pow(double(robots[atk].position.x - Ball.x), 2));
+		//
+		// double angle = acos(( double(pow(dist_agent_goal, 2) + pow(dist_ball_goal, 2) - pow(dist_agent_ball, 2)) )/
+		// 									double((2 * dist_agent_goal * dist_ball_goal)) );
+		//
+		// if(angle*180/PI <= 10 && Ball.x > robots[atk].position.x) {
 		// 	atk_ball_possession = true;
+		// } else {
+		// 	atk_ball_possession = false;
 		// }
-		// cout << "ball possession check" << endl;
-
-		double dist_ball_goal = sqrt(pow(double(COORD_GOAL_MID_Y - Ball.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - Ball.x), 2));
-		double dist_agent_goal = sqrt(pow(double(COORD_GOAL_MID_Y - robots[atk].position.y), 2) + pow(double(COORD_GOAL_ATK_FRONT_X - robots[atk].position.x), 2));
-		double dist_agent_ball = sqrt(pow(double(robots[atk].position.y - Ball.y), 2) + pow(double(robots[atk].position.x - Ball.x), 2));
-
-		double angle = acos(( double(pow(dist_agent_goal, 2) + pow(dist_ball_goal, 2) - pow(dist_agent_ball, 2)) )/
-											double((2 * dist_agent_goal * dist_ball_goal)) );
-
-		if(angle*180/PI <= 20 && Ball.x > robots[atk].position.x) {
-			atk_ball_possession = true;
-		} else {
-			atk_ball_possession = false;
-		}
 	}
 
 	void fixed_position_check(int i) { // Para posição fixa
@@ -432,14 +436,14 @@ public:
 		double approach = double(max_approach); // O alvo muda de acordo com o ângulo, quanto menor, mais próximo da bola
 		// cout << " approach "<< approach << endl;
 
-		target.x = round(Ball.x - approach * cos(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
+		target.x = round(Ball.x - approach * cos(atan2(abs(double(COORD_GOAL_MID_Y - Ball.y)),abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
 
 		// cout << "calculos aproximação e alvo" << endl;
 
 		if(Ball.y > COORD_GOAL_MID_Y) {
-			target.y = round(Ball.y + approach * sin(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
+			target.y = round(Ball.y + approach * sin(atan2(abs(double(COORD_GOAL_MID_Y - Ball.y)),abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
 		} else {
-			target.y = round(Ball.y - approach * sin(atan(abs(double(COORD_GOAL_MID_Y - Ball.y))/abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
+			target.y = round(Ball.y - approach * sin(atan2(abs(double(COORD_GOAL_MID_Y - Ball.y)),abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
 		}
 		// o alvo é posicionado na mesma reta, do meio do gol à bola
 		// por isso a utilização de seno e cosseno para encontrar as componentes X e Y
@@ -469,7 +473,7 @@ public:
 
 	double look_at_ball(int i) {
 		robots[i].cmdType = ORIENTATION;
-		double target_angle = atan(double(Ball.y - robots[i].position.y)/double(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
+		double target_angle = atan2(double(Ball.y - robots[i].position.y),double(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
 		double turn_angle = transformOrientation(double(robots[i].orientation), target_angle); // deslocamento angular necessário
 		// cout << "alvo " << target_angle << " orientação " << robots[i].orientation << " turn_angle "<< turn_angle << endl;
 		return turn_angle;
@@ -480,6 +484,41 @@ public:
 	// 		robots[i].target = target_point;
 	// 	}
 	// }
+	double potField (int robot_index, cv::Point goal) {
+		pot_thetaX = 0;
+		pot_thetaY = 0;
+		pot_theta = 0;
+		pot_goalTheta = 0;
+		pot_goalMag = 0;
+		for (int i = 0; i < 3; i++) {
+			pot_magnitude[i] = (1/distance(robots[robot_index].position, adv[i]));
+			pot_angle[i] = atan2(double(robots[robot_index].position.y - adv[i].y), double(adv[i].x - robots[robot_index].position.x));
+
+			printf("adv[%d] x %d, y %d| magnitude [%d] %f | angle[%d] %f\n",i,adv[i].x,adv[i].y,i,pot_magnitude[i],i,pot_angle[i]*180/PI);
+		}
+		int j = 3;
+		for (int i = 0; i < 3; i++) {
+			if(i != robot_index) {
+				pot_magnitude[j] = (1/distance(robots[robot_index].position, robots[i].position));
+				pot_angle[j] = atan2(double(robots[robot_index].position.y - robots[i].position.y), double(robots[i].position.x-robots[robot_index].position.x));
+				printf("robots[%d] x %d, y %d|magnitude [%d] %f | angle[%d] %f\n",i,robots[i].position.x,robots[i].position.y,j,pot_magnitude[j],j,pot_angle[j]*180/PI);
+				j++;
+
+			}
+		}
+		pot_goalTheta = atan2(double(robots[robot_index].position.y -goal.y ), double(goal.x - robots[robot_index].position.x ));
+		pot_goalMag = (distance(robots[robot_index].position, goal))/10;
+			printf("goalMag %f | goalTheta %f\n",pot_goalMag,pot_goalTheta*180/PI);
+		for (int i = 0; i < 5; i++) {
+			pot_thetaY += pot_magnitude[i]*sin(pot_angle[i]);
+			pot_thetaX += pot_magnitude[i]*cos(pot_angle[i]);
+		}
+		pot_thetaY += pot_goalMag*sin(pot_goalTheta);
+		pot_thetaX += pot_goalMag*cos(pot_goalTheta);
+		pot_theta = atan2(pot_thetaY, pot_thetaX);
+		printf("THETA %f \n",pot_theta*180/PI);
+		return pot_theta;
+	}
 
 	double reach_on_time(double dist, double time_limit = 1) {
 		double tmp0 = time_limit + sqrt(pow(time_limit, 2) - 2 * dist/acceleration) * acceleration;
@@ -523,7 +562,7 @@ public:
 	}
 
 	void test_run(int i) {
-		robots[i].target = Ball;
+		robots[i].transAngle = potField(i, Ball);
 	}
 
 	void atk_routine(int i) {
