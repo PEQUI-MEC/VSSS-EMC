@@ -220,6 +220,12 @@ public:
 		return dist;
 	}
 
+	double distance_meters(cv::Point A, cv::Point B) {
+		double dist = sqrt(pow(double(A.y - B.y), 2) + pow(double(A.x - B.x), 2));
+		dist = 1.7*dist/ABS_GOAL_TO_GOAL_WIDTH;
+		return dist;
+	}
+
 	void get_targets(vector<Robot> * pRobots, cv::Point * advRobots) {
 
 			robots = * pRobots;
@@ -485,29 +491,37 @@ public:
 	// 	}
 	// }
 	double potField (int robot_index, cv::Point goal) {
+		float gain_rep=1;
+		float gain_att=1300;
 		pot_thetaX = 0;
 		pot_thetaY = 0;
 		pot_theta = 0;
 		pot_goalTheta = 0;
 		pot_goalMag = 0;
 		for (int i = 0; i < 3; i++) {
-			pot_magnitude[i] = (1/distance(robots[robot_index].position, adv[i]));
+			pot_magnitude[i] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, adv[i]) - 0.08), 2)/2;
 			pot_angle[i] = atan2(double(robots[robot_index].position.y - adv[i].y), double(adv[i].x - robots[robot_index].position.x));
-
+			pot_angle[i] = atan2(sin(pot_angle[i]+PI),cos(pot_angle[i]+PI));
 			printf("adv[%d] x %d, y %d| magnitude [%d] %f | angle[%d] %f\n",i,adv[i].x,adv[i].y,i,pot_magnitude[i],i,pot_angle[i]*180/PI);
 		}
 		int j = 3;
 		for (int i = 0; i < 3; i++) {
 			if(i != robot_index) {
-				pot_magnitude[j] = (1/distance(robots[robot_index].position, robots[i].position));
-				pot_angle[j] = atan2(double(robots[robot_index].position.y - robots[i].position.y), double(robots[i].position.x-robots[robot_index].position.x));
+				if(distance_meters(robots[robot_index].position, robots[i].position) > 0) {
+					pot_magnitude[j] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, robots[i].position) - 0.08), 2)/2;
+					pot_angle[j] = atan2(double(robots[robot_index].position.y - robots[i].position.y), double(robots[i].position.x-robots[robot_index].position.x));
+					pot_angle[j] = atan2(sin(pot_angle[j]+PI),cos(pot_angle[j]+PI));
+				}else {
+					pot_magnitude[j] = 0;
+					pot_angle[j] = 0;
+				}
 				printf("robots[%d] x %d, y %d|magnitude [%d] %f | angle[%d] %f\n",i,robots[i].position.x,robots[i].position.y,j,pot_magnitude[j],j,pot_angle[j]*180/PI);
 				j++;
 
 			}
 		}
 		pot_goalTheta = atan2(double(robots[robot_index].position.y -goal.y ), double(goal.x - robots[robot_index].position.x ));
-		pot_goalMag = (distance(robots[robot_index].position, goal))/10;
+		pot_goalMag = gain_att*pow(distance_meters(robots[robot_index].position, goal), 2)/2;
 			printf("goalMag %f | goalTheta %f\n",pot_goalMag,pot_goalTheta*180/PI);
 		for (int i = 0; i < 5; i++) {
 			pot_thetaY += pot_magnitude[i]*sin(pot_angle[i]);
@@ -516,6 +530,8 @@ public:
 		pot_thetaY += pot_goalMag*sin(pot_goalTheta);
 		pot_thetaX += pot_goalMag*cos(pot_goalTheta);
 		pot_theta = atan2(pot_thetaY, pot_thetaX);
+		//pot_theta = robots[robot_index].orientation - pot_theta;
+		// pot_theta = atan2(-sin(robots[robot_index].orientation - pot_theta),cos(robots[robot_index].orientation - pot_theta));
 		printf("THETA %f \n",pot_theta*180/PI);
 		return pot_theta;
 	}

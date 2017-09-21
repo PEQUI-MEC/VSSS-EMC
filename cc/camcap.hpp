@@ -244,7 +244,7 @@ public:
                             aux_point += interface.robot_list[2].position;
                             arrowedLine(imageView,interface.robot_list[2].position,
                                 aux_point,
-                                cv::Scalar(0,0,255));
+                                cv::Scalar(255,255,0));
                                 aux_point.x = round(100*cos(interface.robot_list[2].transAngle));
                                 aux_point.y = - round(100*sin(interface.robot_list[2].transAngle));
                                 aux_point += interface.robot_list[2].position;
@@ -338,11 +338,11 @@ public:
 
     void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){
         while (1) {
-            if (xbeeIsConnected && (interface.start_game_flag || interface.imageView.PID_test_flag)) {
+            if (interface.start_game_flag || interface.imageView.PID_test_flag) {
                 transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(300));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
         }
     }
 
