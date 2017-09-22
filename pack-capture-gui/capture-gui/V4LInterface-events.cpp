@@ -128,6 +128,15 @@ namespace capture {
 			std::cout<<"Error: could not quick save."<<std::endl;
 		}
 	}
+	void V4LInterface::__event_auto_save()
+	{
+		std::cout << "AUTO SAVE" << std::endl;
+
+		if(!V4LInterface::__core_save("autosave.txt"))
+		{
+			std::cout<<"Error: could not auto save."<<std::endl;
+		}
+	}
 
 	void V4LInterface::__event_bt_save_clicked()
 	{
@@ -329,7 +338,8 @@ namespace capture {
 	void V4LInterface::__event_bt_HSV_calib_pressed() {
 
 		if (HSV_calib_event_flag) {
-		    HSV_calib_event_flag=false;
+			HSV_calib_event_flag=false;
+			V4LInterface::__event_auto_save();
 		    HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
 		    HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
