@@ -211,10 +211,6 @@ public:
 		//não usando
 	}
 
-	double transformOrientation(double robotOrientation, double targetOrientation) {
-		return (robotOrientation - targetOrientation);
-	}
-
 	double distance(cv::Point A, cv::Point B) {
 		double dist = sqrt(pow(double(A.y - B.y), 2) + pow(double(A.x - B.x), 2));
 		return dist;
@@ -480,9 +476,7 @@ public:
 	double look_at_ball(int i) {
 		robots[i].cmdType = ORIENTATION;
 		double target_angle = atan2(double(Ball.y - robots[i].position.y),double(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
-		double turn_angle = transformOrientation(double(robots[i].orientation), target_angle); // deslocamento angular necessário
-		// cout << "alvo " << target_angle << " orientação " << robots[i].orientation << " turn_angle "<< turn_angle << endl;
-		return turn_angle;
+		return target_angle;
 	}
 
 	// void reach_point(int i, cv::Point target_point) {
@@ -500,7 +494,7 @@ public:
 		pot_goalMag = 0;
 		for (int i = 0; i < 3; i++) {
 			pot_magnitude[i] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, adv[i]) - 0.08), 2)/2;
-			pot_angle[i] = atan2(double(robots[robot_index].position.y - adv[i].y), double(adv[i].x - robots[robot_index].position.x));
+			pot_angle[i] = atan2(double(robots[robot_index].position.y - adv[i].y),- double(robots[robot_index].position.x - adv[i].x));
 			pot_angle[i] = atan2(sin(pot_angle[i]+PI),cos(pot_angle[i]+PI));
 			printf("adv[%d] x %d, y %d| magnitude [%d] %f | angle[%d] %f\n",i,adv[i].x,adv[i].y,i,pot_magnitude[i],i,pot_angle[i]*180/PI);
 		}
@@ -509,7 +503,7 @@ public:
 			if(i != robot_index) {
 				if(distance_meters(robots[robot_index].position, robots[i].position) > 0) {
 					pot_magnitude[j] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, robots[i].position) - 0.08), 2)/2;
-					pot_angle[j] = atan2(double(robots[robot_index].position.y - robots[i].position.y), double(robots[i].position.x-robots[robot_index].position.x));
+					pot_angle[j] = atan2(double(robots[robot_index].position.y - robots[i].position.y),- double(robots[robot_index].position.x - robots[i].position.x));
 					pot_angle[j] = atan2(sin(pot_angle[j]+PI),cos(pot_angle[j]+PI));
 				}else {
 					pot_magnitude[j] = 0;
@@ -520,7 +514,7 @@ public:
 
 			}
 		}
-		pot_goalTheta = atan2(double(robots[robot_index].position.y -goal.y ), double(goal.x - robots[robot_index].position.x ));
+		pot_goalTheta = atan2(double(robots[robot_index].position.y -goal.y ),- double( robots[robot_index].position.x - goal.x ));
 		pot_goalMag = gain_att*pow(distance_meters(robots[robot_index].position, goal), 2)/2;
 			printf("goalMag %f | goalTheta %f\n",pot_goalMag,pot_goalTheta*180/PI);
 		for (int i = 0; i < 5; i++) {
@@ -529,7 +523,7 @@ public:
 		}
 		pot_thetaY += pot_goalMag*sin(pot_goalTheta);
 		pot_thetaX += pot_goalMag*cos(pot_goalTheta);
-		pot_theta = atan2(pot_thetaY, pot_thetaX);
+		pot_theta = atan2(pot_thetaY, - pot_thetaX);
 		//pot_theta = robots[robot_index].orientation - pot_theta;
 		// pot_theta = atan2(-sin(robots[robot_index].orientation - pot_theta),cos(robots[robot_index].orientation - pot_theta));
 		printf("THETA %f \n",pot_theta*180/PI);
@@ -561,14 +555,14 @@ public:
 		robots[i].fixedPos = true;
 		if (Ball.y > COORD_GOAL_MID_Y) {
 			if (sqrt(pow(double(COORD_GOAL_DWN_Y - robots[i].position.y), 2) + pow(double(def_line - robots[i].position.x), 2)) < ABS_ROBOT_SIZE) {
-				robots[i].transOrientation = look_at_ball(i);
+				robots[i].targetOrientation = look_at_ball(i);
 			} else {
 				robots[i].target.x = def_line;
 				robots[i].target.y = COORD_GOAL_DWN_Y;
 			}
 		} else {
 			if (sqrt(pow(double(COORD_GOAL_UP_Y - robots[i].position.y), 2) + pow(double(def_line - robots[i].position.x), 2)) < ABS_ROBOT_SIZE) {
-				robots[i].transOrientation = look_at_ball(i);
+				robots[i].targetOrientation = look_at_ball(i);
 			} else {
 				robots[i].target.x = def_line;
 				robots[i].target.y = COORD_GOAL_UP_Y;
@@ -648,7 +642,7 @@ public:
 					robots[i].target.x = COORD_MID_FIELD_X;
 					robots[i].target.y = COORD_GOAL_MID_Y;
 				} else {
-					robots[i].transOrientation = look_at_ball(i);
+					robots[i].targetOrientation = look_at_ball(i);
 				}
 			break;
 
