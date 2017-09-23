@@ -164,10 +164,19 @@ void Vision::findElements() {
 void Vision::pick_a_tag() {
     int dist, idAngle;
 
+    std::cout << std::endl;
+
     // OUR ROBOTS
     for (int i = 0; i < tags.at(MAIN).size() && i<3; i++) {
         // cria um robô temporário para armazenar nossas descobertas
         Robot robot;
+
+        // Posição do robô
+        robot.position = tags.at(MAIN).at(i).position;
+
+        std::cout << robot.position << std::endl;
+
+        robot.tags.push_back(tags.at(MAIN).at(i));
 
         // Para cada tag principal, verifica quais são as secundárias correspondentes
         for(int j = 0; j < tags.at(GREEN).size(); j++) {
@@ -175,7 +184,7 @@ void Vision::pick_a_tag() {
             // já faz a atribuição verificando se o valor retornado é 0 (falso)
             if(idAngle = isClose(tags.at(MAIN).at(i).rearPoint, tags.at(GREEN).at(j).position, tags.at(MAIN).at(i).line)) {
                 // identifica se já tem mais de uma tag
-                if(robot.tags.size()) {
+                if(robot.tags.size() > 1) {
                     robot.pink = true;
                 }
                 // só guarda se essa tag tá à esquerda
@@ -198,32 +207,32 @@ void Vision::pick_a_tag() {
             }
         }
 
-        // Posição do robô
-        robot.position = tags.at(MAIN).at(i).position;
-
         // Cálculo da orientação de acordo com os pontos rear e front
+        // Feito aqui pois caso rear e front estivessem trocados, já teriam sido trocados
         robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y-tags.at(MAIN).at(i).rearPoint.y)*1.3/height,(tags.at(MAIN).at(i).frontPoint.x-tags.at(MAIN).at(i).rearPoint.x)*1.5/width);
 
         // Dá nome aos bois (robôs)
         if(robot.pink){ // pink representa que este tem as duas bolas
             robot_list.at(2).position = robot.position; // colocar em um vetor
-            robot_list.at(2).secundary = robot.secundary; // colocar em um vetor
+            robot_list.at(2).secundary = tags.at(MAIN).at(i).frontPoint; // colocar em um vetor
             robot_list.at(2).orientation =  robot.orientation;
 
             robot_list.at(2).tags = robot.tags;
         } else if(idAngle>0) {
             robot_list.at(0).position = robot.position; // colocar em um vetor
-            robot_list.at(0).secundary = robot.secundary; // colocar em um vetor
+            robot_list.at(0).secundary = tags.at(MAIN).at(i).frontPoint; // colocar em um vetor
             robot_list.at(0).orientation = robot.orientation;
 
             robot_list.at(0).tags = robot.tags;
         } else {
             robot_list.at(1).position = robot.position; // colocar em um vetor
-            robot_list.at(1).secundary = robot.secundary; // colocar em um vetor
+            robot_list.at(1).secundary = tags.at(MAIN).at(i).frontPoint; // colocar em um vetor
             robot_list.at(1).orientation =  robot.orientation;
 
             robot_list.at(1).tags = robot.tags;
         }
+
+        robot_list.at(i).position = robot.position; // colocar em um vetor
     } // OUR ROBOTS
 
     // ADV ROBOTS
@@ -251,6 +260,8 @@ float Vision::isClose(cv::Point base, cv::Point secondary, cv::Vec4f originalDir
     float deltaX, deltaY;
     deltaX = base.y + R_WIDTH * originalDirection[1]; // !TODO não tenho certeza se é y mesmo. pode ser x.
     deltaY = R_HEIGHT / 4.0; // como o delta varia para cima e para baixo do Y da base, 2*delta = altura / 2
+
+    //std::cout << base << ";" << secondary << ";" << deltaX << ";" << deltaY << std::endl;
 
     // verifica se secondary está dentro do quadrante da base
     if(secondary.x > base.x - deltaX && secondary.x < base.x + deltaX && secondary.y > base.y - deltaY && secondary.y < base.y + deltaY) {

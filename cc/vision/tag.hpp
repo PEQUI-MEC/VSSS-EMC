@@ -34,10 +34,10 @@ public:
     /// </summary>
     /// <param name="myLine">Linha encontrada pelo fitline</param>
     void setLine(cv::Vec4f myLine) {
-        float vx = line[0];
-        float vy = line[1];
-        float x = line[2];
-        float y = line[3];
+        float vx = myLine[0];
+        float vy = myLine[1];
+        float x = myLine[2];
+        float y = myLine[3];
 
         line = myLine;
 

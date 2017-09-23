@@ -217,10 +217,9 @@ public:
                     // linha da pick-a
                     if(vision->getRobot(i).tags.size() > 0) {
                         line(imageView, vision->getRobot(i).tags.at(0).frontPoint,vision->getRobot(i).tags.at(0).rearPoint,cv::Scalar(0,255,0), 2);
-                        std::cout << "oi" << std::endl;
                     }
                 }
-                
+
                 for(int i=0; i<vision->getAdvListSize(); i++)
                     circle(imageView,vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
