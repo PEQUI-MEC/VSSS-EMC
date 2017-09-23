@@ -4,6 +4,7 @@
 #define MAX_SAMPLES_HIST 25 // REGULA O TEMPO DE DETECÇÃO DA BATIDA
 #define MAX_COLLISIONS 30 // REGULA O TEMPO DE REAÇÃO À BATIDA
 #include "opencv2/opencv.hpp"
+#include "../../cc/vision/tag.hpp"
 
 class Robot
 {
@@ -31,6 +32,9 @@ class Robot
         int role=0;
         int status = 0; // 0 = estado de jogo, 1 = pegando a bola, 2 = acelerando
         int previous_status =0;
+
+        std::vector<Tag> tags;
+
         Robot()
         {
             ternary = cv::Point(-1,-1);

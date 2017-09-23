@@ -207,20 +207,20 @@ public:
             {
                 drawStrategyConstants(imageView, width, height);
 
-                circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
-                line(imageView,interface.robot_list[0].position,interface.robot_list[0].secundary,cv::Scalar(255,255,0), 2);
-                //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
-                putText(imageView,"1",cv::Point(interface.robot_list[0].position.x-5,interface.robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                circle(imageView,interface.robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
-                line(imageView,interface.robot_list[1].position,interface.robot_list[1].secundary,cv::Scalar(255,255,0), 2);
-                //line(imageView,interface.robot_list[1].position,interface.robot_list[1].ternary,cv::Scalar(100,255,0), 2);
-                putText(imageView,"2",cv::Point(interface.robot_list[1].position.x-5,interface.robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                circle(imageView,interface.robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
-                line(imageView,interface.robot_list[2].position,interface.robot_list[2].secundary,cv::Scalar(255,255,0), 2);
-                //line(imageView,interface.robot_list[2].position,interface.robot_list[2].ternary,cv::Scalar(100,255,0), 2);
-                putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                circle(imageView,vision->getBall(), 7, cv::Scalar(255,255,255), 2);
-
+                for (int i = 0; i < vision->getRobotListSize(); i++)
+                {
+                    // robo 1
+                    line(imageView, vision->getRobot(i).position, vision->getRobot(i).secundary,cv::Scalar(255,255,0), 2);
+                    //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
+                    putText(imageView, std::to_string(i+1),cv::Point(vision->getRobot(i).position.x-5,vision->getRobot(i).position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
+                    circle(imageView, vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
+                    // linha da pick-a
+                    if(vision->getRobot(i).tags.size() > 0) {
+                        line(imageView, vision->getRobot(i).tags.at(0).frontPoint,vision->getRobot(i).tags.at(0).rearPoint,cv::Scalar(0,255,0), 2);
+                        std::cout << "oi" << std::endl;
+                    }
+                }
+                
                 for(int i=0; i<vision->getAdvListSize(); i++)
                     circle(imageView,vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
