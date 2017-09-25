@@ -7,8 +7,8 @@ void Vision::run(cv::Mat raw_frame) {
   in_frame = raw_frame.clone();
   preProcessing();
   findTags();
-  findElements();
-  //pick_a_tag();
+  //findElements();
+  pick_a_tag();
 }
 
 void Vision::preProcessing() {
@@ -209,7 +209,7 @@ void Vision::pick_a_tag() {
 
         // Cálculo da orientação de acordo com os pontos rear e front
         // Feito aqui pois caso rear e front estivessem trocados, já teriam sido trocados
-        robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y-tags.at(MAIN).at(i).rearPoint.y)*1.3/height,(tags.at(MAIN).at(i).frontPoint.x-tags.at(MAIN).at(i).rearPoint.x)*1.5/width);
+        robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y-tags.at(MAIN).at(i).position.y)*1.3/height,(tags.at(MAIN).at(i).frontPoint.x-tags.at(MAIN).at(i).position.x)*1.5/width);
 
         // Dá nome aos bois (robôs)
         if(robot.pink){ // pink representa que este tem as duas bolas
@@ -231,7 +231,6 @@ void Vision::pick_a_tag() {
 
             robot_list.at(1).tags = robot.tags;
         }
-
         robot_list.at(i).position = robot.position; // colocar em um vetor
     } // OUR ROBOTS
 

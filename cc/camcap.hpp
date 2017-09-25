@@ -216,7 +216,7 @@ public:
                     circle(imageView, vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
                     // linha da pick-a
                     if(vision->getRobot(i).tags.size() > 0) {
-                        line(imageView, vision->getRobot(i).tags.at(0).frontPoint,vision->getRobot(i).tags.at(0).rearPoint,cv::Scalar(0,255,0), 2);
+                        line(imageView, vision->getRobot(i).tags.at(0).frontPoint,vision->getRobot(i).tags.at(0).rearPoint,cv::Scalar(255,0,0), 2);
                     }
                 }
 
