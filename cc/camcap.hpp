@@ -235,9 +235,11 @@ public:
                             aux_point.x = round(100*cos(strategyGUI.strategy.pot_angle[i]));
                             aux_point.y = - round(100*sin(strategyGUI.strategy.pot_angle[i]));
                             aux_point += interface.robot_list[2].position;
+                            if(strategyGUI.strategy.pot_magnitude[i]!=0){
                             arrowedLine(imageView,interface.robot_list[2].position,
                                 aux_point,
                                 cv::Scalar(0,255,0));
+                                }
                         }
                             aux_point.x = round(100*cos(strategyGUI.strategy.pot_goalTheta));
                             aux_point.y = - round(100*sin(strategyGUI.strategy.pot_goalTheta));
@@ -249,8 +251,7 @@ public:
                                 aux_point.y = - round(100*sin(interface.robot_list[2].transAngle));
                                 aux_point += interface.robot_list[2].position;
                                 arrowedLine(imageView,interface.robot_list[2].position,
-                                    aux_point,
-                                    cv::Scalar(255,0,0),2);
+                                    aux_point,cv::Scalar(255,0,0),2);
                 for(int i=0; i<vision->getAdvListSize(); i++)
                     circle(imageView,vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
