@@ -16,7 +16,7 @@
 class Vision
 {
 
-private:
+public:
 
   // Constants
   static const int MAIN = 0;

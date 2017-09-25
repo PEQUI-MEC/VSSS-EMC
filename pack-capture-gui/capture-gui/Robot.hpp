@@ -11,8 +11,9 @@ class Robot
         cv::Point position, secundary, target, transTarget, ternary;
         char ID;
         bool pink = false;
-        double orientation=0, transOrientation;
+        double orientation=0, targetOrientation;
         double orientation2=0;
+        double transAngle;
         int cmdType = 0;
         bool backward = false;
         double thetaError = 0;
