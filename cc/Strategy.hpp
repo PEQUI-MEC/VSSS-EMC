@@ -306,6 +306,7 @@ public:
 				fixed_position_check(i);
 				// cout << "fixed position checked" << endl;
 				collision_check(i);
+				position_to_vector(i);
 			}
 
 			// overmind();
@@ -388,6 +389,10 @@ public:
 			collision_count[i] = 0;
 		}
 		// cout << " past " << past_position[i] << " count "<< collision_count[i] << endl;
+	}
+
+	void position_to_vector(int i) {
+		robots[i].transAngle = atan2(double(robots[i].position.y - robots[i].target.y), - double(robots[i].position.x - robots[i].target.x));
 	}
 
 	bool set_ann(const char * annName) {
@@ -484,6 +489,7 @@ public:
 	// 		robots[i].target = target_point;
 	// 	}
 	// }
+	
 	double potField (int robot_index, cv::Point goal) {
 		float gain_rep=1;
 		float gain_att=1300;

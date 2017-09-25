@@ -339,14 +339,14 @@ public:
     void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){
         while (1) {
             if (interface.start_game_flag || interface.imageView.PID_test_flag) {
-                transformTargets(robot_list);
+                // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
             boost::this_thread::sleep(boost::posix_time::milliseconds(100));
         }
     }
 
-    void transformTargets (std::vector<Robot>&robot_list){
+/*    void transformTargets (std::vector<Robot>&robot_list){
         double tmp[2];
         for (int i = 0; i < 3; i++) {
             if(robot_list[i].target.x!=-1&&robot_list[i].target.y!=-1) {
@@ -366,7 +366,7 @@ public:
                 robot_list[i].transTarget.y = NULL;
             }
         }
-    }
+    } */
 
     void PID_test() {
         if (interface.get_start_game_flag()) return;
