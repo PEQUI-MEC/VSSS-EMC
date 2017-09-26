@@ -8,12 +8,8 @@
 class Tag {
 public:
     cv::Point position;
-    cv::Vec4f line;
     cv::Point frontPoint;
     cv::Point rearPoint;
-
-    // armazena se esta é uma tag secundária da esquerda
-    bool left;
 
     double area;
 
@@ -38,9 +34,6 @@ public:
         float vy = myLine[1];
         float x = myLine[2];
         float y = myLine[3];
-
-        line = myLine;
-
         frontPoint = cv::Point((int)(x + vx*15), (int)(y + vy*15));
         rearPoint = cv::Point((int)(x - vx*15), (int)(y - vy*15));
     }
