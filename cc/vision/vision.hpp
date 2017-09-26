@@ -68,7 +68,7 @@ private:
   void findElements();
   void pick_a_tag();
   int isClose(cv::Point base, cv::Point secondary, cv::Vec4f originalDirection);
-  int inSphere(Robot robot, cv::Point secondary);
+  int inSphere(Robot * robot, cv::Point secondary);
 
 public:
   Vision(int w, int h);

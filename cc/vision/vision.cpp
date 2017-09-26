@@ -181,7 +181,7 @@ void Vision::pick_a_tag() {
         // Para cada tag principal, verifica quais são as secundárias correspondentes
         for(int j = 0; j < tags.at(GREEN).size(); j++) {
             // já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
-            if(idAngle = inSphere(robot, tags.at(GREEN).at(j).position)) {
+            if(idAngle = inSphere(&robot, tags.at(GREEN).at(j).position)) {
                 // identifica se já tem mais de uma tag
                 if(robot.tags.size() > 1) {
                     robot.pink = true;
@@ -235,19 +235,19 @@ void Vision::pick_a_tag() {
 /// -1, caso a secundária esteja à esquerda;
 /// 1, caso a secundária esteja à direita
 /// </returns>
-int Vision::inSphere(Robot robot, cv::Point secondary) {
+int Vision::inSphere(Robot * robot, cv::Point secondary) {
     // se esta secundária faz parte do robô
-    if(calcDistance(robot.position, secondary) <= ROBOT_RADIUS) {
-        if(calcDistance(robot.tags.at(0).frontPoint, secondary) < calcDistance(robot.tags.at(0).rearPoint, secondary)) {
-            robot.tags.at(0).switchPoints();
+    if(calcDistance(robot->position, secondary) <= ROBOT_RADIUS) {
+        if(calcDistance(robot->tags.at(0).frontPoint, secondary) < calcDistance(robot->tags.at(0).rearPoint, secondary)) {
+            robot->tags.at(0).switchPoints();
             // recalcula a orientação com os novos pontos (isso só é feito uma vez em cada robô, se necessário)
-            robot.orientation = atan2((robot.tags.at(0).frontPoint.y-robot.position.y)*1.3/height,(robot.tags.at(0).frontPoint.x-robot.position.x)*1.5/width);
+            robot->orientation = atan2((robot->tags.at(0).frontPoint.y-robot->position.y)*1.3/height,(robot->tags.at(0).frontPoint.x-robot->position.x)*1.5/width);
         }
 
-        float secSide = atan2((secondary.y-robot.position.y)*1.3/height,(secondary.x-robot.position.x)*1.5/width);
+        float secSide = atan2((secondary.y-robot->position.y)*1.3/height,(secondary.x-robot->position.x)*1.5/width);
 
         // Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
-        return (atan2(sin(secSide-robot.orientation+3.1415), cos(secSide-robot.orientation+3.1415))) > 0 ? 1 : -1;
+        return (atan2(sin(secSide-robot->orientation+3.1415), cos(secSide-robot->orientation+3.1415))) > 0 ? 1 : -1;
     }
     return 0;
 }
