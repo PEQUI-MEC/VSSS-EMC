@@ -491,9 +491,9 @@ public:
 	// }
 
 	double potField (int robot_index, cv::Point goal) {
-		float gain_rep=1;
+		float gain_rep=10;
 		float gain_att=1;
-		float rep_radius=0.5;
+		float rep_radius=0.4;
 		float rot_angle = 0;
 		pot_thetaX = 0;
 		pot_thetaY = 0;
