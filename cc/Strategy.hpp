@@ -1,6 +1,7 @@
 #ifndef STRATEGY_HPP_
 #define STRATEGY_HPP_
 #define PI 3.14159265453
+#include "Fuzzy/FuzzyController.hpp"
 #include "opencv2/opencv.hpp"
 #include "LS.cpp"
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
@@ -597,13 +598,13 @@ public:
 		} else if(angle_Obst_Robot > PI/2 && angle_Obst_Robot <= PI){ // ROBO NO SEGUNDO QUAD
 
 			if(angle_Obst_Goal > 0 && angle_Obst_Goal <= PI/2){ // OBJETIVO NO PRIMEIRO QUAD
-				return HORARIO; // ANTI - HORARIO
+				return HORARIO;
 
 			} else if(angle_Obst_Goal > PI/2 && angle_Obst_Goal <= PI){ // OBJETIVO NO SEGUNDO QUAD
 				return 0;
 
 			} else if(angle_Obst_Goal > -PI && angle_Obst_Goal <= -PI/2){// OBJETIVO NO TERCEIRO QUAD
-				return ANTI_HORARIO; // HORARIO
+				return ANTI_HORARIO;
 
 			} else { // OBJETIVO NO QUARTO QUAD
 				printf("DECIDE" );
@@ -703,10 +704,58 @@ public:
 		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
 	}
 
-	void test_run(int i) {
-		robots[i].transAngle = potField(i, Ball);
-	}
+	void test_run(int index) {
 
+		FuzzyController controller;
+		float DGK, DATK, DDEF;
+		controller.importRules("cc/Fuzzy/RULES_VSS2017.txt");
+		controller.defineVariables("cc/Fuzzy/Membership_VSS2017.txt");
+		for(int i =0; i<3; i++) { //pegar posições e índices
+			switch (robots[i].role)	{
+
+				DGK = distance_meters(robots[i].position,Ball);
+		  break;
+
+
+				DDEF = distance_meters(robots[i].position,Ball);
+		  break;
+
+		  case ATTACKER:
+
+				DATK = distance_meters(robots[i].position,Ball);
+		  break;
+			}
+		}
+		vector<float> input;
+		input.push_back(DGK);
+		input.push_back(DATK);
+		input.push_back(DDEF);
+		vector<float>  out = controller.ControladorFuzzy(input);
+		std::cout << "resultado: " << out[0] << std::endl;
+		if (out.size()>0) {
+			switch(int(out[0])){
+				case 0:
+				std::cout << "NÃO TROCA NADA, PORRA: " << out[0] << std::endl;
+				break;
+				case 1:
+				std::cout << "TROCA A PORRA TODA: " << out[0] << std::endl;
+				break;
+				case 2:
+				std::cout << "TROCA ATK DEF: " << out[0] << std::endl;
+				break;
+
+			}
+
+
+		}
+
+	}
+	double map_range (double actual, double minactual, double maxactual)
+	{
+		double maxtarget = 1;
+		double mintarget = 0;
+		return (actual - minactual) * ((maxtarget-mintarget)/(maxactual-minactual));
+	}
 	void atk_routine(int i) {
 
 		switch (robots[i].status) {
