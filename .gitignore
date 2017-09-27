@@ -1,4 +1,6 @@
 cc/CamCal
 VSSS
+*.avi
+*.png
 *.a
 *.o

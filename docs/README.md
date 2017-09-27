@@ -9,7 +9,7 @@ Com a diversificação nas técnicas de manejo e controle de robôs e técnicas 
 # Contribuidores
 
 Projeto criado e mantido pelo [PEQUI MECÂNICO](https://www.facebook.com/NucleoPMec/) e pela comunidade que se dispõe a colaborar.
-Leia [code-of-conduct](docs/CODE_OF_CONDUCT.md) e então [contributing](docs/CONTRIBUTING.md).
+Leia [code-of-conduct](/CODE_OF_CONDUCT.md) e então [contributing](/CONTRIBUTING.md).
 Contato no facebook do [PEQUI MECÂNICO](https://www.facebook.com/NucleoPMec/) ou via email pqverysmall@gmail.com
 
 
