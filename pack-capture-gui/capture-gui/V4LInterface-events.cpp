@@ -756,6 +756,8 @@ namespace capture {
         {
             start_game_flag = false;
             start_game_bt.set_image(red_button_released);
+			for(int i=0; i<3; i++)
+				robot_list.at(i).cmdType = 0; // Position
         }
 
         for(int i=0; i<3; i++)
