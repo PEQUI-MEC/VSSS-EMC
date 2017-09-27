@@ -1,6 +1,12 @@
 #include "vision.hpp"
 
 void Vision::run(cv::Mat raw_frame) {
+  frameCounter++;
+  if (frameCounter == 100) startNewVideo("teste");
+  if (frameCounter == 201) finishVideo();
+  else if (frameCounter < 201) recordToVideo(raw_frame);
+  else if (frameCounter == 202) savePicture("teste", raw_frame);
+
   in_frame = raw_frame.clone();
   preProcessing();
   findTags();
@@ -165,6 +171,39 @@ void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], 
   }
 }
 
+void Vision::savePicture(std::string in_name, cv::Mat in_frame) {
+  cv::Mat frame = in_frame.clone();
+  std::string picName = "media/pictures/" + in_name + ".png";
+
+  cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
+  cv::imwrite(picName, frame);
+}
+
+void Vision::startNewVideo(std::string in_name) {
+  std::string videoName = "media/videos/" + in_name + ".avi";
+
+  video.open(videoName, CV_FOURCC('M','J','P','G'), 30, cv::Size(width,height));
+  std::cout << "Started a new video recording..." << std::endl;
+}
+
+bool Vision::recordToVideo(cv::Mat in_frame) {
+  if (!video.isOpened()) return false;
+  cv::Mat frame = in_frame.clone();
+  cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
+
+  video.write(frame);
+  std::cout << "Writing frame " << frameCounter << " to video." << std::endl;
+  return true;
+}
+
+bool Vision::finishVideo() {
+  if (!video.isOpened()) return false;
+
+  std::cout << "Finish video recording..." << std::endl;
+  video.release();
+  return true;
+}
+
 cv::Point Vision::getBall() {
   return ball;
 }
@@ -219,6 +258,8 @@ Vision::Vision(int w, int h)
 
   width = w;
   height = h;
+
+  frameCounter = 0;
 }
 
 Vision::~Vision()
