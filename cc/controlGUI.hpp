@@ -196,19 +196,19 @@ public:
 		string cmd(buf);
 		// check if first element is an ID
 		if (cmd[0] != 'A' && cmd[0] != 'B' && cmd[0] != 'C' && cmd[0] != 'D') {
-			std::cout << "ControlGUI::updateBattery: failed to update battery (ID)."<< std::endl;
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG ID)."<< std::endl;
 			return;
 		}
 
 		// check if the message's type is correct
 		if (cmd.find("VBAT;") == std::string::npos) {
-			std::cout << "ControlGUI::updateBattery: failed to update battery of robot (MSG TYPE)."<< std::endl;
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG MSG TYPE)."<< std::endl;
 			return;
 		}
 
 		// get battery
 		battery = atof(cmd.substr(6,4).c_str());
-		battery = ((battery - 6.6)/1.4)*100; // % of battery
+		battery = ((battery - 6.4)/2.0)*100; // % of battery
 
 		// update battery
 		updateInterfaceStatus(battery, id);
@@ -216,12 +216,12 @@ public:
 
 	// Gets battery % and robot id to update a single robot's battery status
 	void updateInterfaceStatus(double battery, int id) {
-		if (battery >= 20) {
+		if (battery > 20) {
 			status_img[id].set("img/online.png");
 			battery_bar[id].set_fraction(battery/100);
 			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
 		}
-		else if (battery >= 0 && battery < 20) {
+		else if (battery >= 0 && battery <= 20) {
 			status_img[id].set("img/critical.png");
 			battery_bar[id].set_fraction(battery/100);
 			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");

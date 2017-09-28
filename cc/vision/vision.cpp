@@ -1,11 +1,11 @@
 #include "vision.hpp"
 
 void Vision::run(cv::Mat raw_frame) {
-  frameCounter++;
-  if (frameCounter == 100) startNewVideo("teste");
-  if (frameCounter == 201) finishVideo();
-  else if (frameCounter < 201) recordToVideo(raw_frame);
-  else if (frameCounter == 202) savePicture("teste", raw_frame);
+  // frameCounter++;
+  // if (frameCounter == 100) startNewVideo("teste");
+  // if (frameCounter == 201) finishVideo();
+  // else if (frameCounter < 201) recordToVideo(raw_frame);
+  // else if (frameCounter == 202) savePicture("teste", raw_frame);
 
   in_frame = raw_frame.clone();
   preProcessing();
