@@ -23,6 +23,7 @@
 #include <string>
 #include "SerialW.hpp"
 #include "filechooser.cpp"
+#include "TestFrame.hpp"
 #include <unistd.h>
 #include <time.h>
 // system_clock::now
@@ -37,6 +38,8 @@ public:
 
 	time_t theTime = time(NULL);
 	struct tm *aTime = localtime(&theTime);
+
+	TestFrame testFrame;
 
 
 	// Flag para saber se o botão PID está pressionado ou não.
@@ -161,6 +164,9 @@ public:
 		//_create_pid_frame();
 		_create_status_frame();
 
+		pack_start(testFrame, false, true, 5);
+		configureTestFrame();
+
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
 		button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
@@ -169,6 +175,20 @@ public:
 		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
 		bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
 		bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
+	}
+
+	void configureTestFrame() {
+		std::string labels[5] = {"Name 1", "Name 2", "Name 3", "Name 4", "Name 5"};
+		double min[5] = {0, 0, 0, 0, 0};
+		double max[5] = {100, 100, 100, 100, 100};
+		double currentValue[5] = {0, 10, 20, 30, 40};
+		double digits[5] = {0, 0, 0, 0, 0};
+		double steps[5] = {1, 1, 1, 1, 1};
+
+		for (int i = 0; i < 5; i++) {
+			testFrame.setLabel(i, labels[i]);
+			testFrame.configureHScale(i, currentValue[i],  min[i], max[i], digits[i], steps[i]);
+		}
 	}
 
 	void _send_command(){
