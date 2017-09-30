@@ -1,13 +1,11 @@
 #include "vision.hpp"
 
-#define ROBOT_RADIUS 20
-
 void Vision::run(cv::Mat raw_frame) {
   in_frame = raw_frame.clone();
   preProcessing();
   findTags();
-  //findElements();
-  pick_a_tag();
+  findElements();
+  //pick_a_tag();
 }
 
 void Vision::preProcessing() {
@@ -161,7 +159,7 @@ void Vision::findElements() {
 /// P.S.: Aqui eu uso a flag 'pink' para representar quando um robô tem as duas bolas laterais.
 /// </description>
 void Vision::pick_a_tag() {
-    int dist, idAngle;
+    int dist, tmpSide;
 
     // OUR ROBOTS
     for (int i = 0; i < tags.at(MAIN).size() && i<3; i++) {
@@ -181,11 +179,12 @@ void Vision::pick_a_tag() {
         // Para cada tag principal, verifica quais são as secundárias correspondentes
         for(int j = 0; j < tags.at(GREEN).size(); j++) {
             // já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
-            if(idAngle = inSphere(&robot, tags.at(GREEN).at(j).position)) {
+            if(tmpSide = inSphere(&robot, tags.at(GREEN).at(j).position)) {
                 // identifica se já tem mais de uma tag
                 if(robot.tags.size() > 1) {
                     robot.pink = true;
                 }
+                tags.at(GREEN).at(j).left = (tmpSide > 0) ? true : false;
                 // calculos feitos, joga tag no vetor
                 robot.tags.push_back(tags.at(GREEN).at(j));
             }
@@ -199,7 +198,7 @@ void Vision::pick_a_tag() {
             robot_list.at(2).orientation =  robot.orientation;
 
             robot_list.at(2).tags = robot.tags;
-        } else if(idAngle>0) {
+        } else if(robot.tags.size() > 1 && robot.tags.at(1).left) {
             robot_list.at(0).position = robot.position; // colocar em um vetor
             robot_list.at(0).secundary = robot.tags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(0).orientation = robot.orientation;

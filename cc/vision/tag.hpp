@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 
+#define ROBOT_RADIUS 14 // valor encontrado empiricamente (quanto menor, mais próximos os robôs podem ficar sem dar errado)
+
 class Tag {
 public:
     cv::Point position;
@@ -13,40 +15,26 @@ public:
 
     double area;
 
+    bool left;
+
     // eu tentei implementar num cpp mas deu muita merda
     /// <summary>
     /// Constroi a tag
     /// </summary>
     /// <param name="pos">Posição da tag</param>
     /// <param name="myarea">Corresponde ao tagArea</param>
-    Tag(cv::Point pos, double myarea) {
-        position.x = pos.x;
-        position.y = pos.y;
-        area = myarea;
-    }
+    Tag(cv::Point pos, double myarea) ;
 
     /// <summary>
     /// Seta os pontos frontPoint e rearPoint aleatoriamente
     /// </summary>
     /// <param name="myLine">Linha encontrada pelo fitline</param>
-    void setLine(cv::Vec4f myLine) {
-        float vx = myLine[0];
-        float vy = myLine[1];
-        float x = myLine[2];
-        float y = myLine[3];
-        frontPoint = cv::Point((int)(x + vx*15), (int)(y + vy*15));
-        rearPoint = cv::Point((int)(x - vx*15), (int)(y - vy*15));
-    }
+    void setLine(cv::Vec4f myLine);
 
     /// <summary>
     /// Inverte os pontos frontPoint e rearPoint depois que a visão determinar a ordem correta
     /// </summary>
-    void switchPoints() {
-        cv::Point temp;
-        temp = rearPoint;
-        rearPoint = frontPoint;
-        frontPoint = temp;
-    }
+    void switchPoints();
 
 };
 
