@@ -23,11 +23,23 @@
 #include <string>
 #include "SerialW.hpp"
 #include "filechooser.cpp"
+#include "TestFrame.hpp"
+#include <unistd.h>
+#include <time.h>
+// system_clock::now
+#include <iostream>
+#include <ctime>
+#include <chrono>
 
 class ControlGUI: public Gtk::VBox
 {
 public:
 	SerialW s;
+
+	time_t theTime = time(NULL);
+	struct tm *aTime = localtime(&theTime);
+
+	TestFrame testFrame;
 
 
 	// Flag para saber se o botão PID está pressionado ou não.
@@ -47,6 +59,7 @@ public:
 
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
+	Gtk::Button bt_Robot_Status;
 	Gtk::Button bt_Serial_Refresh;
 	Gtk::ComboBoxText cb_serial;
 	Gtk::ToggleButton button_PID_Test;
@@ -61,6 +74,7 @@ public:
 	Gtk::Label number_lb[4];
 	Gtk::Label robots_lb[4];
 	Gtk::Label status_lb[4];
+	Gtk::Label lastUpdate_lb;
 	Gtk::ProgressBar battery_bar[4];
 
 	Gtk::Frame pid_fm;
@@ -140,15 +154,18 @@ public:
 		bt_Serial_Refresh.set_state(Gtk::STATE_INSENSITIVE);
 		bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
 		cb_test.set_state(Gtk::STATE_INSENSITIVE);
+		bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
 
 		bt_Serial_Start.set_label("Start");
 		bt_Serial_Refresh.set_label("Refresh");
 
 		bt_Serial_test.set_label("Send");
 
-		// Descomentar a linha de baixo para poder regular o PID dos robos
 		//_create_pid_frame();
 		_create_status_frame();
+
+		pack_start(testFrame, false, true, 5);
+		configureTestFrame();
 
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
@@ -156,7 +173,22 @@ public:
 		bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
 		bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
 		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
+		bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
 		bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
+	}
+
+	void configureTestFrame() {
+		std::string labels[5] = {"Name 1", "Name 2", "Name 3", "Name 4", "Name 5"};
+		double min[5] = {0, 0, 0, 0, 0};
+		double max[5] = {100, 100, 100, 100, 100};
+		double currentValue[5] = {0, 10, 20, 30, 40};
+		double digits[5] = {0, 0, 0, 0, 0};
+		double steps[5] = {1, 1, 1, 1, 1};
+
+		for (int i = 0; i < 5; i++) {
+			testFrame.setLabel(i, labels[i]);
+			testFrame.configureHScale(i, currentValue[i],  min[i], max[i], digits[i], steps[i]);
+		}
 	}
 
 	void _send_command(){
@@ -176,6 +208,77 @@ public:
 			PID_test_flag = true;
 			//std::cout<<PID_test_flag<<endl;
 		}
+	}
+
+	// translate battery message
+	void handleBatteryMsg(char buf[12], int id) {
+		double battery;
+		string cmd(buf);
+		// check if first element is an ID
+		if (cmd[0] != 'A' && cmd[0] != 'B' && cmd[0] != 'C' && cmd[0] != 'D') {
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG ID)."<< std::endl;
+			return;
+		}
+
+		// check if the message's type is correct
+		if (cmd.find("VBAT;") == std::string::npos) {
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG MSG TYPE)."<< std::endl;
+			return;
+		}
+
+		// get battery
+		battery = atof(cmd.substr(6,4).c_str());
+		battery = ((battery - 6.4)/2.0)*100; // % of battery
+
+		// update battery
+		updateInterfaceStatus(battery, id);
+	}
+
+	// Gets battery % and robot id to update a single robot's battery status
+	void updateInterfaceStatus(double battery, int id) {
+		if (battery > 20) {
+			status_img[id].set("img/online.png");
+			battery_bar[id].set_fraction(battery/100);
+			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
+		}
+		else if (battery >= 0 && battery <= 20) {
+			status_img[id].set("img/critical.png");
+			battery_bar[id].set_fraction(battery/100);
+			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
+		}
+		else {
+			status_img[id].set("img/offline.png");
+			battery_bar[id].set_fraction(0.0);
+			battery_bar[id].set_text("0%");
+			status_lb[id].set_text("Offline");
+		}
+	}
+
+	// update the battery status of all robots
+	void _robot_status(){
+		string cmd[4] = {"A@BAT#", "B@BAT#", "C@BAT#", "D@BAT#"};
+		string dateString;
+		time_t tt;
+		char buf[4][12];
+
+		// define last update time
+		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+		tt = std::chrono::system_clock::to_time_t ( now );
+		dateString.append("Last Update: ");
+		dateString.append(std::string(ctime(&tt)).substr(0,24));
+		lastUpdate_lb.set_text(dateString);
+
+		// update robot status
+		for (int i = 0; i < 4; i++) {
+			s.sendSerial(cmd[i]);
+			usleep(100000);
+			if(s.readSerial(buf[i],sizeof buf[i]) == 1) {
+				handleBatteryMsg(buf[i], i);
+			} else {
+				updateInterfaceStatus(-1, i);
+			}
+		}
+
 	}
 
 	void _start_serial(){
@@ -202,6 +305,7 @@ public:
 		bt_Serial_test.set_state(Gtk::STATE_NORMAL);
 		cb_test.set_state(Gtk::STATE_NORMAL);
 		pid_edit_bt.set_state(Gtk::STATE_NORMAL);
+		bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
 	}
 
 	bool isFloat(std::string value){
@@ -344,6 +448,7 @@ for(int i = 0; i < 256; ++i)
 		Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
 		bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
 		cb_test.set_state(Gtk::STATE_INSENSITIVE);
+		bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
 		s.Serial_Enabled = false;
 
 }
@@ -414,40 +519,51 @@ void _create_status_frame(){
 	status_fm.add(status_grid);
 
 	status_grid.set_border_width(10);
-	status_grid.set_column_spacing(5);
+	status_grid.set_column_spacing(10);
 	status_grid.set_halign(Gtk::ALIGN_CENTER);
 
+	bt_Robot_Status.set_label("Update");
+	bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
+	status_grid.attach(bt_Robot_Status, 0, 0, 1, 1);
+	lastUpdate_lb.set_text("Last Update: -");
+	lastUpdate_lb.set_valign(Gtk::ALIGN_BASELINE);
+	status_grid.attach(lastUpdate_lb, 1, 0, 3, 1);
+
 	status_img[0].set("img/offline.png");
-	status_grid.attach(status_img[0], 0, 0, 1, 1);
+	status_grid.attach(status_img[0], 0, 1, 1, 1);
 	status_img[1].set("img/offline.png");
-	status_grid.attach(status_img[1], 0, 1, 1, 1);
+	status_grid.attach(status_img[1], 0, 2, 1, 1);
 	status_img[2].set("img/offline.png");
-	status_grid.attach(status_img[2], 0, 2, 1, 1);
+	status_grid.attach(status_img[2], 0, 3, 1, 1);
 	status_img[3].set("img/offline.png");
-	status_grid.attach(status_img[3], 0, 3, 1, 1);
+	status_grid.attach(status_img[3], 0, 4, 1, 1);
 
 	robots_lb[0].set_text("Robot A: ");
-	status_grid.attach(robots_lb[0], 1, 0, 1, 1);
+	status_grid.attach(robots_lb[0], 1, 1, 1, 1);
 	robots_lb[1].set_text("Robot B: ");
-	status_grid.attach(robots_lb[1], 1, 1, 1, 1);
+	status_grid.attach(robots_lb[1], 1, 2, 1, 1);
 	robots_lb[2].set_text("Robot C: ");
-	status_grid.attach(robots_lb[2], 1, 2, 1, 1);
+	status_grid.attach(robots_lb[2], 1, 3, 1, 1);
 	robots_lb[3].set_text("Robot D: ");
-	status_grid.attach(robots_lb[3], 1, 3, 1, 1);
+	status_grid.attach(robots_lb[3], 1, 4, 1, 1);
 
-	status_grid.attach(battery_bar[0], 2, 0, 1, 1);
-	status_grid.attach(battery_bar[1], 2, 1, 1, 1);
-	status_grid.attach(battery_bar[2], 2, 2, 1, 1);
-	status_grid.attach(battery_bar[3], 2, 3, 1, 1);
+	battery_bar[0].set_valign(Gtk::ALIGN_CENTER);
+	status_grid.attach(battery_bar[0], 2, 1, 1, 1);
+	battery_bar[1].set_valign(Gtk::ALIGN_CENTER);
+	status_grid.attach(battery_bar[1], 2, 2, 1, 1);
+	battery_bar[2].set_valign(Gtk::ALIGN_CENTER);
+	status_grid.attach(battery_bar[2], 2, 3, 1, 1);
+	battery_bar[3].set_valign(Gtk::ALIGN_CENTER);
+	status_grid.attach(battery_bar[3], 2, 4, 1, 1);
 
 	status_lb[0].set_text("Offline");
-	status_grid.attach(status_lb[0], 3, 0, 1, 1);
+	status_grid.attach(status_lb[0], 3, 1, 1, 1);
 	status_lb[1].set_text("Offline");
-	status_grid.attach(status_lb[1], 3, 1, 1, 1);
+	status_grid.attach(status_lb[1], 3, 2, 1, 1);
 	status_lb[2].set_text("Offline");
-	status_grid.attach(status_lb[2], 3, 2, 1, 1);
+	status_grid.attach(status_lb[2], 3, 3, 1, 1);
 	status_lb[3].set_text("Offline");
-	status_grid.attach(status_lb[3], 3, 3, 1, 1);
+	status_grid.attach(status_lb[3], 3, 4, 1, 1);
 
 
 }

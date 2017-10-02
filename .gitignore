@@ -1,3 +1,6 @@
 cc/CamCal
+media/**/*.avi
+media/**/*.png
+VSSS
 *.a
 *.o
