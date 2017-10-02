@@ -50,7 +50,7 @@ public:
 
     unsigned char * data;
 
-    vector<int> fps;
+    int frameCounter;
     double ticks = 0;
     vector<cv::Point> robot_kf_est;
     vector< KalmanFilter > KF_RobotBall;
@@ -169,7 +169,11 @@ public:
     bool capture_and_show() {
         if (!data) return false;
 
-        timer.start();
+        if (frameCounter == 0) {
+          timer.start();
+        }
+        frameCounter++;
+
 
         interface.vcap.grab_rgb(data);
         interface.imageView.set_data(data, width, height);
@@ -306,18 +310,15 @@ public:
         interface.update_speed_progressBars();
         // ----------------------------------------//
 
-        timer.stop();
-        fps.push_back(1/timer.getCronoTotalSecs());
-        timer.reset();
 
-        if (fps.size() == 30)
+        if (frameCounter == 30)
         {
-            for (int i = 0; i < fps.size(); i++)
-            {
-                fps_average += fps[i];
-            }
-            fps_average = fps_average / fps.size();
-            fps.clear();
+            timer.stop();
+            fps_average = 30 / timer.getCronoTotalSecs();
+            // cout<<"CPU Time: "<<timer.getCPUTotalSecs()<<",	\"CPU FPS\": "<<30/timer.getCPUTotalSecs()<<endl;
+            // cout<<"FPS Time: "<<timer.getCronoTotalSecs()<<", FPS: "<<30/timer.getCronoTotalSecs()<<endl;
+            timer.reset();
+            frameCounter = 0;
         }
 
         return true;
@@ -517,7 +518,7 @@ public:
         }
     } // warp_transform
 
-    CamCap() : data(0), width(0), height(0) {
+    CamCap() : data(0), width(0), height(0), frameCounter(0) {
         fixed_ball[0]=false;
         fixed_ball[1]=false;
         fixed_ball[2]=false;
