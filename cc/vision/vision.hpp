@@ -12,6 +12,7 @@
 #include <boost/bind.hpp>
 #include "../../pack-capture-gui/capture-gui/Robot.hpp"
 #include <iostream>     // std::cout
+#include "tag.hpp"
 
 class Vision
 {
@@ -41,8 +42,7 @@ public:
   cv::Point ball;
 
   // TAGS
-  std::vector<std::vector<cv::Point>> tags;
-  std::vector<std::vector<double>> tagsArea;
+  std::vector<std::vector<Tag>> tags;
 
   // HSV Calibration Parameters
   int hue[5][2];
@@ -70,6 +70,8 @@ public:
   void searchTags(int color);
   void findTags();
   void findElements();
+  void pick_a_tag();
+  int inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secondary);
 
 public:
   Vision(int w, int h);
