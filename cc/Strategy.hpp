@@ -510,13 +510,13 @@ public:
 					pot_magnitude[i] = 0;
 				else if(pot_rotation_decision(robot_index,goal,adv[i])>0){
 						pot_angle[i] = atan2(sin(pot_angle[i]+PI/2),cos(pot_angle[i]+PI/2));
-					printf("HORARIO ");
+				//	printf("HORARIO ");
 				}else{
 					pot_angle[i] = atan2(sin(pot_angle[i]+3*PI/2),cos(pot_angle[i]+3*PI/2));
 
-						printf("ANTI-HORARIO ");
+						//printf("ANTI-HORARIO ");
 					}
-				printf("adv[%d] x %d, y %d| magnitude [%d] %f | angle[%d] %f\n",i,adv[i].x,adv[i].y,i,pot_magnitude[i],i,pot_angle[i]*180/PI);
+				//printf("adv[%d] x %d, y %d| magnitude [%d] %f | angle[%d] %f\n",i,adv[i].x,adv[i].y,i,pot_magnitude[i],i,pot_angle[i]*180/PI);
 			} else {
 				pot_magnitude[i] = 0;
 				pot_angle[i] = 0;
@@ -534,13 +534,13 @@ public:
 						pot_magnitude[j] = 0;
 					else if(pot_rotation_decision(robot_index,goal,robots[i].position)>0){
 						pot_angle[j] = atan2(sin(pot_angle[j]+PI/2),cos(pot_angle[j]+PI/2));
-						printf("HORARIO ");
+					//	printf("HORARIO ");
 
 					}else{
 							pot_angle[j] = atan2(sin(pot_angle[j]+3*PI/2),cos(pot_angle[j]+3*PI/2));
-							printf("ANTI-HORARIO ");
+						//	printf("ANTI-HORARIO ");
 						}
-				printf("robots[%d] x %d, y %d|magnitude [%d] %f | angle[%d] %f\n",i,robots[i].position.x,robots[i].position.y,j,pot_magnitude[j],j,pot_angle[j]*180/PI);
+			//	printf("robots[%d] x %d, y %d|magnitude [%d] %f | angle[%d] %f\n",i,robots[i].position.x,robots[i].position.y,j,pot_magnitude[j],j,pot_angle[j]*180/PI);
 				}else {
 					pot_magnitude[j] = 0;
 					pot_angle[j] = 0;
@@ -552,7 +552,7 @@ public:
 		}
 		pot_goalTheta = atan2(double(robots[robot_index].position.y -goal.y ),- double( robots[robot_index].position.x - goal.x ));
 		pot_goalMag = gain_att*pow(distance_meters(robots[robot_index].position, goal), 2)/2;
-			printf("goalMag %f | goalTheta %f\n",pot_goalMag,pot_goalTheta*180/PI);
+		//	printf("goalMag %f | goalTheta %f\n",pot_goalMag,pot_goalTheta*180/PI);
 		for (int i = 0; i < 5; i++) {
 			pot_thetaY += pot_magnitude[i]*sin(pot_angle[i]);
 			pot_thetaX += pot_magnitude[i]*cos(pot_angle[i]);
@@ -562,7 +562,7 @@ public:
 		pot_theta = atan2(pot_thetaY, pot_thetaX);
 		//pot_theta = robots[robot_index].orientation - pot_theta;
 		// pot_theta = atan2(-sin(robots[robot_index].orientation - pot_theta),cos(robots[robot_index].orientation - pot_theta));
-		printf("THETA %f \n",pot_theta*180/PI);
+		//printf("THETA %f \n",pot_theta*180/PI);
 		return pot_theta;
 	}
 
@@ -575,7 +575,7 @@ public:
 					- double(obst.x - robots[robot_index].position.x));
 		float angle_Obst_Goal = atan2(double(obst.y - goal.y),
 					- double(obst.x - goal.x));
-		printf("%f + %f = %f \n",fabs(angle_Obst_Robot)*180/PI,fabs(angle_Obst_Goal)*180/PI,(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal))*180/PI);
+		//printf("%f + %f = %f \n",fabs(angle_Obst_Robot)*180/PI,fabs(angle_Obst_Goal)*180/PI,(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal))*180/PI);
 		if(angle_Obst_Robot > 0 && angle_Obst_Robot <= PI/2){ // ROBO NO PRIMEIRO QUAD
 
 			if(angle_Obst_Goal > 0 && angle_Obst_Goal <= PI/2){ // OBJETIVO NO PRIMEIRO QUAD
@@ -588,7 +588,7 @@ public:
 				return HORARIO;
 
 			} else { // OBJETIVO NO QUARTO QUAD
-				printf("DECIDE" );
+				//printf("DECIDE" );
 				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
 					return HORARIO;
 				else
@@ -607,7 +607,7 @@ public:
 				return ANTI_HORARIO;
 
 			} else { // OBJETIVO NO QUARTO QUAD
-				printf("DECIDE" );
+				//printf("DECIDE" );
 				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
 					return HORARIO;
 				else
@@ -619,7 +619,7 @@ public:
 		} else if(angle_Obst_Robot > -PI && angle_Obst_Robot <= -PI/2){// ROBO NO TERCEIRO QUAD
 
 			if(angle_Obst_Goal > 0 && angle_Obst_Goal <= PI/2){ // OBJETIVO NO PRIMEIRO QUAD
-				printf("DECIDE" );
+			//	printf("DECIDE" );
 				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
 					return ANTI_HORARIO;
 				else
@@ -644,7 +644,7 @@ public:
 				return ANTI_HORARIO;
 
 			} else if(angle_Obst_Goal > PI/2 && angle_Obst_Goal <= PI){ // OBJETIVO NO SEGUNDO QUAD
-				printf("DECIDE" );
+			//	printf("DECIDE" );
 				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
 					return ANTI_HORARIO;
 				else
@@ -703,52 +703,61 @@ public:
 		}
 		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
 	}
+	int Fuzzy_Troca(){
 
+				FuzzyController controller;
+				float DGK, DATK, DDEF;
+				controller.importRules("cc/Fuzzy/RULES_VSS2017.txt");
+				controller.defineVariables("cc/Fuzzy/Membership_VSS2017.txt");
+				for(int i =0; i<3; i++) { //pegar posições e índices
+					switch (robots[i].role)	{
+
+						DGK = distance_meters(robots[i].position,Ball);
+						DGK = DGK > 2 ? 2 : DGK;
+				  break;
+
+
+						DDEF = distance_meters(robots[i].position,Ball);
+						DDEF = DDEF > 2 ? 2 : DDEF;
+				  break;
+
+				  case ATTACKER:
+
+						DATK = distance_meters(robots[i].position,Ball);
+						DATK = DATK > 2 ? 2 : DATK;
+
+				  break;
+					}
+				}
+				vector<float> input;
+
+
+				input.push_back(DGK);
+				input.push_back(DATK);
+				input.push_back(DDEF);
+				vector<float>  out = controller.ControladorFuzzy(input);
+				std::cout << "resultado: " << out[0] << std::endl;
+				if (out.size()>0) {
+					switch(int(out[0])){
+						case 0:
+						std::cout << "NÃO TROCA NADA, PORRA: " << out[0] << std::endl;
+						break;
+						case 1:
+						std::cout << "TROCA A PORRA TODA: " << out[0] << std::endl;
+						break;
+						case 2:
+						std::cout << "TROCA ATK DEF: " << out[0] << std::endl;
+						break;
+
+					}
+
+
+				}
+				return out[0];
+
+	}
 	void test_run(int index) {
-
-		FuzzyController controller;
-		float DGK, DATK, DDEF;
-		controller.importRules("cc/Fuzzy/RULES_VSS2017.txt");
-		controller.defineVariables("cc/Fuzzy/Membership_VSS2017.txt");
-		for(int i =0; i<3; i++) { //pegar posições e índices
-			switch (robots[i].role)	{
-
-				DGK = distance_meters(robots[i].position,Ball);
-		  break;
-
-
-				DDEF = distance_meters(robots[i].position,Ball);
-		  break;
-
-		  case ATTACKER:
-
-				DATK = distance_meters(robots[i].position,Ball);
-		  break;
-			}
-		}
-		vector<float> input;
-		input.push_back(DGK);
-		input.push_back(DATK);
-		input.push_back(DDEF);
-		vector<float>  out = controller.ControladorFuzzy(input);
-		std::cout << "resultado: " << out[0] << std::endl;
-		if (out.size()>0) {
-			switch(int(out[0])){
-				case 0:
-				std::cout << "NÃO TROCA NADA, PORRA: " << out[0] << std::endl;
-				break;
-				case 1:
-				std::cout << "TROCA A PORRA TODA: " << out[0] << std::endl;
-				break;
-				case 2:
-				std::cout << "TROCA ATK DEF: " << out[0] << std::endl;
-				break;
-
-			}
-
-
-		}
-
+		//robots[index].transAngle = potField(index,Ball);
 	}
 	double map_range (double actual, double minactual, double maxactual)
 	{
