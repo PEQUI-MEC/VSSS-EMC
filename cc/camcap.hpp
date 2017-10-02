@@ -215,6 +215,8 @@ public:
             {
                 drawStrategyConstants(imageView, width, height);
 
+                circle(imageView,vision->getBall(), 7, cv::Scalar(255,255,255), 2);
+
                 for (int i = 0; i < vision->getRobotListSize(); i++)
                 {
                     // robo 1
