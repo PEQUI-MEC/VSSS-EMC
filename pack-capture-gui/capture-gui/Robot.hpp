@@ -41,6 +41,7 @@ class Robot
             secundary= cv::Point(-1,-1);
             position= cv::Point(-1,-1);
             target = cv::Point(-1,-1);
+            rearPoint = cv::Point(-1,-1);
         }
 
         void feedHist(cv::Point pos) {

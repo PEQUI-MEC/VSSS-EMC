@@ -223,7 +223,8 @@ public:
                     putText(imageView, std::to_string(i+1),cv::Point(vision->getRobot(i).position.x-5,vision->getRobot(i).position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
                     circle(imageView, vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
                     // linha da pick-a
-                    line(imageView, vision->getRobot(i).secundary,vision->getRobot(i).rearPoint,cv::Scalar(255,0,0), 2);
+                    if(vision->getRobot(i).rearPoint != cv::Point(-1,-1))
+                        line(imageView, vision->getRobot(i).secundary,vision->getRobot(i).rearPoint,cv::Scalar(255,0,0), 2);
                 }
 
 
