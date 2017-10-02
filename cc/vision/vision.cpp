@@ -4,8 +4,8 @@ void Vision::run(cv::Mat raw_frame) {
   in_frame = raw_frame.clone();
   preProcessing();
   findTags();
-  //findElements();
-  pick_a_tag();
+  findElements();
+  //pick_a_tag();
 }
 
 void Vision::preProcessing() {
