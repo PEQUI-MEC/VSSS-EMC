@@ -32,8 +32,7 @@ class Robot
         int role=0;
         int status = 0; // 0 = estado de jogo, 1 = pegando a bola, 2 = acelerando
         int previous_status =0;
-
-        std::vector<Tag> tags;
+        cv::Point rearPoint;
 
         Robot()
         {

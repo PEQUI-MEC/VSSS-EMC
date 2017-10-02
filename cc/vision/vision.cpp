@@ -4,8 +4,8 @@ void Vision::run(cv::Mat raw_frame) {
   in_frame = raw_frame.clone();
   preProcessing();
   findTags();
-  findElements();
-  //pick_a_tag();
+  //findElements();
+  pick_a_tag();
 }
 
 void Vision::preProcessing() {
@@ -165,7 +165,7 @@ void Vision::pick_a_tag() {
     for (int i = 0; i < tags.at(MAIN).size() && i<3; i++) {
         // cria um robô temporário para armazenar nossas descobertas
         Robot robot;
-        robot.tags.clear();
+        std::vector<Tag> tempTags;
 
         // Posição do robô
         robot.position = tags.at(MAIN).at(i).position;
@@ -173,20 +173,20 @@ void Vision::pick_a_tag() {
         // Cálculo da orientação de acordo com os pontos rear e front
         robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y-robot.position.y)*1.3/height,(tags.at(MAIN).at(i).frontPoint.x-robot.position.x)*1.5/width);
 
-        // Já manda a tag pro robô pra ela poder ser exibida na tela
-        robot.tags.push_back(tags.at(MAIN).at(i));
+        // Armazena a tag
+        tempTags.push_back(tags.at(MAIN).at(i));
 
         // Para cada tag principal, verifica quais são as secundárias correspondentes
         for(int j = 0; j < tags.at(GREEN).size(); j++) {
             // já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
-            if(tmpSide = inSphere(&robot, tags.at(GREEN).at(j).position)) {
+            if(tmpSide = inSphere(&robot, &tempTags, tags.at(GREEN).at(j).position)) {
                 // identifica se já tem mais de uma tag
-                if(robot.tags.size() > 1) {
+                if(tempTags.size() > 1) {
                     robot.pink = true;
                 }
                 tags.at(GREEN).at(j).left = (tmpSide > 0) ? true : false;
                 // calculos feitos, joga tag no vetor
-                robot.tags.push_back(tags.at(GREEN).at(j));
+                tempTags.push_back(tags.at(GREEN).at(j));
             }
         }
 
@@ -194,22 +194,19 @@ void Vision::pick_a_tag() {
         // Dá nome aos bois (robôs)
         if(robot.pink){ // pink representa que este tem as duas bolas
             robot_list.at(2).position = robot.position; // colocar em um vetor
-            robot_list.at(2).secundary = robot.tags.at(0).frontPoint; // colocar em um vetor
+            robot_list.at(2).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(2).orientation =  robot.orientation;
-
-            robot_list.at(2).tags = robot.tags;
-        } else if(robot.tags.size() > 1 && robot.tags.at(1).left) {
+            robot_list.at(2).rearPoint = tempTags.at(0).rearPoint;
+        } else if(tempTags.size() > 1 && tempTags.at(1).left) {
             robot_list.at(0).position = robot.position; // colocar em um vetor
-            robot_list.at(0).secundary = robot.tags.at(0).frontPoint; // colocar em um vetor
+            robot_list.at(0).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(0).orientation = robot.orientation;
-
-            robot_list.at(0).tags = robot.tags;
+            robot_list.at(0).rearPoint = tempTags.at(0).rearPoint;
         } else {
             robot_list.at(1).position = robot.position; // colocar em um vetor
-            robot_list.at(1).secundary = robot.tags.at(0).frontPoint; // colocar em um vetor
+            robot_list.at(1).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(1).orientation =  robot.orientation;
-
-            robot_list.at(1).tags = robot.tags;
+            robot_list.at(1).rearPoint = tempTags.at(0).rearPoint;
         }
     } // OUR ROBOTS
 
@@ -234,13 +231,13 @@ void Vision::pick_a_tag() {
 /// -1, caso a secundária esteja à esquerda;
 /// 1, caso a secundária esteja à direita
 /// </returns>
-int Vision::inSphere(Robot * robot, cv::Point secondary) {
+int Vision::inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secondary) {
     // se esta secundária faz parte do robô
     if(calcDistance(robot->position, secondary) <= ROBOT_RADIUS) {
-        if(calcDistance(robot->tags.at(0).frontPoint, secondary) < calcDistance(robot->tags.at(0).rearPoint, secondary)) {
-            robot->tags.at(0).switchPoints();
+        if(calcDistance(tempTags->at(0).frontPoint, secondary) < calcDistance(tempTags->at(0).rearPoint, secondary)) {
+            tempTags->at(0).switchPoints();
             // recalcula a orientação com os novos pontos (isso só é feito uma vez em cada robô, se necessário)
-            robot->orientation = atan2((robot->tags.at(0).frontPoint.y-robot->position.y)*1.3/height,(robot->tags.at(0).frontPoint.x-robot->position.x)*1.5/width);
+            robot->orientation = atan2((tempTags->at(0).frontPoint.y-robot->position.y)*1.3/height,(tempTags->at(0).frontPoint.x-robot->position.x)*1.5/width);
         }
 
         float secSide = atan2((secondary.y-robot->position.y)*1.3/height,(secondary.x-robot->position.x)*1.5/width);

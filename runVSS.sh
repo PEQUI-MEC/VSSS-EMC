@@ -1,2 +1,1 @@
-echo pqvs2013 | sudo -S ./cc/CamCal
-
+sudo -S ./VSSS

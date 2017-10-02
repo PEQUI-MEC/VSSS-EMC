@@ -67,7 +67,7 @@ private:
   void findTags();
   void findElements();
   void pick_a_tag();
-  int inSphere(Robot * robot, cv::Point secondary);
+  int inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secondary);
 
 public:
   Vision(int w, int h);
