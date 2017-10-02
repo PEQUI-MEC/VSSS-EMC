@@ -50,7 +50,7 @@ public:
 
     unsigned char * data;
 
-    vector<int> fps;
+    int frameCounter;
     double ticks = 0;
     vector<cv::Point> robot_kf_est;
     vector< KalmanFilter > KF_RobotBall;
@@ -169,7 +169,11 @@ public:
     bool capture_and_show() {
         if (!data) return false;
 
-        timer.start();
+        if (frameCounter == 0) {
+          timer.start();
+        }
+        frameCounter++;
+
 
         interface.vcap.grab_rgb(data);
         interface.imageView.set_data(data, width, height);
@@ -211,19 +215,19 @@ public:
             {
                 drawStrategyConstants(imageView, width, height);
 
-                circle(imageView,interface.robot_list[0].position, 15, cv::Scalar(255,255,0), 2);
-                line(imageView,interface.robot_list[0].position,interface.robot_list[0].secundary,cv::Scalar(255,255,0), 2);
-                //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
-                putText(imageView,"1",cv::Point(interface.robot_list[0].position.x-5,interface.robot_list[0].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                circle(imageView,interface.robot_list[1].position, 15, cv::Scalar(255,255,0), 2);
-                line(imageView,interface.robot_list[1].position,interface.robot_list[1].secundary,cv::Scalar(255,255,0), 2);
-                //line(imageView,interface.robot_list[1].position,interface.robot_list[1].ternary,cv::Scalar(100,255,0), 2);
-                putText(imageView,"2",cv::Point(interface.robot_list[1].position.x-5,interface.robot_list[1].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                circle(imageView,interface.robot_list[2].position, 15, cv::Scalar(255,255,0), 2);
-                line(imageView,interface.robot_list[2].position,interface.robot_list[2].secundary,cv::Scalar(255,255,0), 2);
-                //line(imageView,interface.robot_list[2].position,interface.robot_list[2].ternary,cv::Scalar(100,255,0), 2);
-                putText(imageView,"3",cv::Point(interface.robot_list[2].position.x-5,interface.robot_list[2].position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
                 circle(imageView,vision->getBall(), 7, cv::Scalar(255,255,255), 2);
+
+                for (int i = 0; i < vision->getRobotListSize(); i++)
+                {
+                    // robo 1
+                    line(imageView, vision->getRobot(i).position, vision->getRobot(i).secundary,cv::Scalar(255,255,0), 2);
+                    //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
+                    putText(imageView, std::to_string(i+1),cv::Point(vision->getRobot(i).position.x-5,vision->getRobot(i).position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
+                    circle(imageView, vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
+                    // linha da pick-a
+                    if(vision->getRobot(i).rearPoint != cv::Point(-1,-1))
+                        line(imageView, vision->getRobot(i).secundary,vision->getRobot(i).rearPoint,cv::Scalar(255,0,0), 2);
+                }
 
 
                     cv::Point aux_point;
@@ -307,18 +311,15 @@ public:
         interface.update_speed_progressBars();
         // ----------------------------------------//
 
-        timer.stop();
-        fps.push_back(1/timer.getCronoTotalSecs());
-        timer.reset();
 
-        if (fps.size() == 30)
+        if (frameCounter == 30)
         {
-            for (int i = 0; i < fps.size(); i++)
-            {
-                fps_average += fps[i];
-            }
-            fps_average = fps_average / fps.size();
-            fps.clear();
+            timer.stop();
+            fps_average = 30 / timer.getCronoTotalSecs();
+            // cout<<"CPU Time: "<<timer.getCPUTotalSecs()<<",	\"CPU FPS\": "<<30/timer.getCPUTotalSecs()<<endl;
+            // cout<<"FPS Time: "<<timer.getCronoTotalSecs()<<", FPS: "<<30/timer.getCronoTotalSecs()<<endl;
+            timer.reset();
+            frameCounter = 0;
         }
 
         return true;
@@ -518,7 +519,7 @@ public:
         }
     } // warp_transform
 
-    CamCap() : data(0), width(0), height(0) {
+    CamCap() : data(0), width(0), height(0), frameCounter(0) {
         fixed_ball[0]=false;
         fixed_ball[1]=false;
         fixed_ball[2]=false;

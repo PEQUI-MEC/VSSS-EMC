@@ -23,6 +23,7 @@
 #include <string>
 #include "SerialW.hpp"
 #include "filechooser.cpp"
+#include "TestFrame.hpp"
 #include <unistd.h>
 #include <time.h>
 // system_clock::now
@@ -37,6 +38,8 @@ public:
 
 	time_t theTime = time(NULL);
 	struct tm *aTime = localtime(&theTime);
+
+	TestFrame testFrame;
 
 
 	// Flag para saber se o botão PID está pressionado ou não.
@@ -161,6 +164,9 @@ public:
 		//_create_pid_frame();
 		_create_status_frame();
 
+		pack_start(testFrame, false, true, 5);
+		configureTestFrame();
+
 		_update_cb_serial();
 		// Conectar os sinais para o acontecimento dos eventos
 		button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
@@ -169,6 +175,20 @@ public:
 		bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
 		bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
 		bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
+	}
+
+	void configureTestFrame() {
+		std::string labels[5] = {"Name 1", "Name 2", "Name 3", "Name 4", "Name 5"};
+		double min[5] = {0, 0, 0, 0, 0};
+		double max[5] = {100, 100, 100, 100, 100};
+		double currentValue[5] = {0, 10, 20, 30, 40};
+		double digits[5] = {0, 0, 0, 0, 0};
+		double steps[5] = {1, 1, 1, 1, 1};
+
+		for (int i = 0; i < 5; i++) {
+			testFrame.setLabel(i, labels[i]);
+			testFrame.configureHScale(i, currentValue[i],  min[i], max[i], digits[i], steps[i]);
+		}
 	}
 
 	void _send_command(){
@@ -196,19 +216,19 @@ public:
 		string cmd(buf);
 		// check if first element is an ID
 		if (cmd[0] != 'A' && cmd[0] != 'B' && cmd[0] != 'C' && cmd[0] != 'D') {
-			std::cout << "ControlGUI::updateBattery: failed to update battery (ID)."<< std::endl;
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG ID)."<< std::endl;
 			return;
 		}
 
 		// check if the message's type is correct
 		if (cmd.find("VBAT;") == std::string::npos) {
-			std::cout << "ControlGUI::updateBattery: failed to update battery of robot (MSG TYPE)."<< std::endl;
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG MSG TYPE)."<< std::endl;
 			return;
 		}
 
 		// get battery
 		battery = atof(cmd.substr(6,4).c_str());
-		battery = ((battery - 6.6)/1.4)*100; // % of battery
+		battery = ((battery - 6.4)/2.0)*100; // % of battery
 
 		// update battery
 		updateInterfaceStatus(battery, id);
@@ -216,12 +236,12 @@ public:
 
 	// Gets battery % and robot id to update a single robot's battery status
 	void updateInterfaceStatus(double battery, int id) {
-		if (battery >= 20) {
+		if (battery > 20) {
 			status_img[id].set("img/online.png");
 			battery_bar[id].set_fraction(battery/100);
 			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
 		}
-		else if (battery >= 0 && battery < 20) {
+		else if (battery >= 0 && battery <= 20) {
 			status_img[id].set("img/critical.png");
 			battery_bar[id].set_fraction(battery/100);
 			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");

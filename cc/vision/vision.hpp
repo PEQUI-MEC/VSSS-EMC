@@ -12,6 +12,7 @@
 #include <boost/bind.hpp>
 #include "../../pack-capture-gui/capture-gui/Robot.hpp"
 #include <iostream>     // std::cout
+#include "tag.hpp"
 
 class Vision
 {
@@ -41,8 +42,7 @@ public:
   cv::Point ball;
 
   // TAGS
-  std::vector<std::vector<cv::Point>> tags;
-  std::vector<std::vector<double>> tagsArea;
+  std::vector<std::vector<Tag>> tags;
 
   // HSV Calibration Parameters
   int hue[5][2];
@@ -57,6 +57,10 @@ public:
   int width;
   int height;
 
+  // video
+  cv::VideoWriter video;
+  int frameCounter;
+
   // threads
   boost::thread_group threshold_threads;
 
@@ -66,6 +70,8 @@ public:
   void searchTags(int color);
   void findTags();
   void findElements();
+  void pick_a_tag();
+  int inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secondary);
 
 public:
   Vision(int w, int h);
@@ -74,6 +80,11 @@ public:
   void run(cv::Mat raw_frame);
   void setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5]);
   double calcDistance(cv::Point p1, cv::Point p2);
+
+  void startNewVideo(std::string videoName);
+  bool recordToVideo(cv::Mat frame);
+  bool finishVideo();
+  void savePicture(std::string in_name, cv::Mat in_frame);
 
   cv::Point getBall();
   Robot getRobot(int index);
