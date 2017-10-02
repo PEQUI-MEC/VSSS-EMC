@@ -17,7 +17,7 @@
 class Vision
 {
 
-private:
+public:
 
   // Constants
   static const int MAIN = 0;
@@ -57,6 +57,10 @@ private:
   int width;
   int height;
 
+  // video
+  cv::VideoWriter video;
+  int frameCounter;
+
   // threads
   boost::thread_group threshold_threads;
 
@@ -76,6 +80,11 @@ public:
   void run(cv::Mat raw_frame);
   void setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5]);
   double calcDistance(cv::Point p1, cv::Point p2);
+
+  void startNewVideo(std::string videoName);
+  bool recordToVideo(cv::Mat frame);
+  bool finishVideo();
+  void savePicture(std::string in_name, cv::Mat in_frame);
 
   cv::Point getBall();
   Robot getRobot(int index);

@@ -11,10 +11,12 @@
 #include <gtkmm.h>
 #include "Strategy.hpp"
 #include "filechooser.hpp"
+#include "TestFrame.hpp"
 
 class StrategyGUI: public Gtk::VBox
 {
 protected:
+	TestFrame testFrame;
 	Gtk::Grid constants_grid;
 	Gtk::CheckButton areaLimitX_bt;
 	Gtk::CheckButton banheira_bt;
@@ -249,9 +251,25 @@ public:
 		createCheckConstantsFrame();
 		createSelectAnnFrame();
 		createSelectionFrame();
+		pack_start(testFrame, false, true, 5);
+		configureTestFrame();
 		//createMenuFrame();
 		//createInfoTextFrame();
 		//createInfoImageFrame();
+	}
+
+	void configureTestFrame() {
+		std::string labels[5] = {"Name 1", "Name 2", "Name 3", "Name 4", "Name 5"};
+		double min[5] = {0, 0, 0, 0, 0};
+		double max[5] = {100, 100, 100, 100, 100};
+		double currentValue[5] = {0, 10, 20, 30, 40};
+		double digits[5] = {0, 0, 0, 0, 0};
+		double steps[5] = {1, 1, 1, 1, 1};
+
+		for (int i = 0; i < 5; i++) {
+			testFrame.setLabel(i, labels[i]);
+			testFrame.configureHScale(i, currentValue[i], min[i], max[i], digits[i], steps[i]);
+		}
 	}
 
 	void createCheckConstantsFrame()
