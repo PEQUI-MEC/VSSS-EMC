@@ -101,9 +101,8 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 	for (int i = 0; i < 3; i++){
 		switch (robot_list[i].cmdType){
 			case POSITION:
-			if (robot_list.at(i).transTarget.x != NULL && robot_list.at(i).transTarget.x != NULL)
+			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.x != -1)
 			{
-
 				temp3 = double(robot_list[i].target.x - robot_list[i].position.x);
 				temp4 = double(robot_list[i].target.y - robot_list[i].position.y);
 
@@ -135,8 +134,14 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 			// cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
 			break;
 			default:
-			if (robot_list.at(i).transTarget.x != NULL && robot_list.at(i).transTarget.x != NULL)
+			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.x != -1)
 			{
+				temp3 = double(robot_list[i].target.x - robot_list[i].position.x);
+				temp4 = double(robot_list[i].target.y - robot_list[i].position.y);
+
+				robot_list[i].transTarget.x = round(cos(robot_list[i].orientation)*temp3 + sin(robot_list[i].orientation)*temp4);
+				robot_list[i].transTarget.y = round(-(-sin(robot_list[i].orientation)*temp3 + cos(robot_list[i].orientation)*temp4));
+
 				temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
 				temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
 				temp2= round(double(robot_list[i].vmax)*100)/100;

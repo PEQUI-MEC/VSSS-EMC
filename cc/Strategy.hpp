@@ -1,6 +1,7 @@
 #ifndef STRATEGY_HPP_
 #define STRATEGY_HPP_
 #define PI 3.14159265453
+#include "Fuzzy/FuzzyController.hpp"
 #include "opencv2/opencv.hpp"
 #include "LS.cpp"
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
@@ -305,8 +306,8 @@ public:
 			for(int i =0; i<3; i++) {
 				fixed_position_check(i);
 				// cout << "fixed position checked" << endl;
-				collision_check(i);
-				position_to_vector(i);
+				// collision_check(i);
+				// position_to_vector(i);
 			}
 
 			// overmind();
@@ -489,33 +490,62 @@ public:
 	// 		robots[i].target = target_point;
 	// 	}
 	// }
-	
+
 	double potField (int robot_index, cv::Point goal) {
-		float gain_rep=1;
-		float gain_att=1300;
+		float gain_rep=10;
+		float gain_att=1;
+		float rep_radius=0.4;
+		float rot_angle = 0;
 		pot_thetaX = 0;
 		pot_thetaY = 0;
 		pot_theta = 0;
 		pot_goalTheta = 0;
 		pot_goalMag = 0;
 		for (int i = 0; i < 3; i++) {
-			pot_magnitude[i] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, adv[i]) - 0.08), 2)/2;
-			pot_angle[i] = atan2(double(robots[robot_index].position.y - adv[i].y),- double(robots[robot_index].position.x - adv[i].x));
-			pot_angle[i] = atan2(sin(pot_angle[i]+PI),cos(pot_angle[i]+PI));
-			printf("adv[%d] x %d, y %d| magnitude [%d] %f | angle[%d] %f\n",i,adv[i].x,adv[i].y,i,pot_magnitude[i],i,pot_angle[i]*180/PI);
+			if(distance_meters(robots[robot_index].position, adv[i]) > 0 && distance_meters(robots[robot_index].position, adv[i]) < rep_radius) {
+				pot_magnitude[i] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, adv[i]) - 1/rep_radius), 2)/2;
+				pot_angle[i] = atan2(double(robots[robot_index].position.y - adv[i].y),- double(robots[robot_index].position.x - adv[i].x));
+
+				if(pot_rotation_decision(robot_index,goal,adv[i])==0)
+					pot_magnitude[i] = 0;
+				else if(pot_rotation_decision(robot_index,goal,adv[i])>0){
+						pot_angle[i] = atan2(sin(pot_angle[i]+PI/2),cos(pot_angle[i]+PI/2));
+					printf("HORARIO ");
+				}else{
+					pot_angle[i] = atan2(sin(pot_angle[i]+3*PI/2),cos(pot_angle[i]+3*PI/2));
+
+						printf("ANTI-HORARIO ");
+					}
+				printf("adv[%d] x %d, y %d| magnitude [%d] %f | angle[%d] %f\n",i,adv[i].x,adv[i].y,i,pot_magnitude[i],i,pot_angle[i]*180/PI);
+			} else {
+				pot_magnitude[i] = 0;
+				pot_angle[i] = 0;
+			}
+
+
 		}
 		int j = 3;
 		for (int i = 0; i < 3; i++) {
 			if(i != robot_index) {
-				if(distance_meters(robots[robot_index].position, robots[i].position) > 0) {
-					pot_magnitude[j] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, robots[i].position) - 0.08), 2)/2;
+				if(distance_meters(robots[robot_index].position, robots[i].position) < rep_radius) {
+					pot_magnitude[j] = gain_rep*pow(1/(distance_meters(robots[robot_index].position, robots[i].position) - 1/rep_radius), 2)/2;
 					pot_angle[j] = atan2(double(robots[robot_index].position.y - robots[i].position.y),- double(robots[robot_index].position.x - robots[i].position.x));
-					pot_angle[j] = atan2(sin(pot_angle[j]+PI),cos(pot_angle[j]+PI));
+					if(pot_rotation_decision(robot_index,goal,robots[i].position)==0)
+						pot_magnitude[j] = 0;
+					else if(pot_rotation_decision(robot_index,goal,robots[i].position)>0){
+						pot_angle[j] = atan2(sin(pot_angle[j]+PI/2),cos(pot_angle[j]+PI/2));
+						printf("HORARIO ");
+
+					}else{
+							pot_angle[j] = atan2(sin(pot_angle[j]+3*PI/2),cos(pot_angle[j]+3*PI/2));
+							printf("ANTI-HORARIO ");
+						}
+				printf("robots[%d] x %d, y %d|magnitude [%d] %f | angle[%d] %f\n",i,robots[i].position.x,robots[i].position.y,j,pot_magnitude[j],j,pot_angle[j]*180/PI);
 				}else {
 					pot_magnitude[j] = 0;
 					pot_angle[j] = 0;
 				}
-				printf("robots[%d] x %d, y %d|magnitude [%d] %f | angle[%d] %f\n",i,robots[i].position.x,robots[i].position.y,j,pot_magnitude[j],j,pot_angle[j]*180/PI);
+
 				j++;
 
 			}
@@ -529,11 +559,108 @@ public:
 		}
 		pot_thetaY += pot_goalMag*sin(pot_goalTheta);
 		pot_thetaX += pot_goalMag*cos(pot_goalTheta);
-		pot_theta = atan2(pot_thetaY, - pot_thetaX);
+		pot_theta = atan2(pot_thetaY, pot_thetaX);
 		//pot_theta = robots[robot_index].orientation - pot_theta;
 		// pot_theta = atan2(-sin(robots[robot_index].orientation - pot_theta),cos(robots[robot_index].orientation - pot_theta));
 		printf("THETA %f \n",pot_theta*180/PI);
 		return pot_theta;
+	}
+
+	int pot_rotation_decision(int robot_index,cv::Point goal, cv::Point obst){
+		int HORARIO = 1;
+		int ANTI_HORARIO = -1;
+
+
+		float angle_Obst_Robot = atan2(double(obst.y - robots[robot_index].position.y),
+					- double(obst.x - robots[robot_index].position.x));
+		float angle_Obst_Goal = atan2(double(obst.y - goal.y),
+					- double(obst.x - goal.x));
+		printf("%f + %f = %f \n",fabs(angle_Obst_Robot)*180/PI,fabs(angle_Obst_Goal)*180/PI,(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal))*180/PI);
+		if(angle_Obst_Robot > 0 && angle_Obst_Robot <= PI/2){ // ROBO NO PRIMEIRO QUAD
+
+			if(angle_Obst_Goal > 0 && angle_Obst_Goal <= PI/2){ // OBJETIVO NO PRIMEIRO QUAD
+				return 0;
+
+			} else if(angle_Obst_Goal > PI/2 && angle_Obst_Goal <= PI){ // OBJETIVO NO SEGUNDO QUAD
+				return ANTI_HORARIO;
+
+			} else if(angle_Obst_Goal > -PI && angle_Obst_Goal <= -PI/2){// OBJETIVO NO TERCEIRO QUAD
+				return HORARIO;
+
+			} else { // OBJETIVO NO QUARTO QUAD
+				printf("DECIDE" );
+				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
+					return HORARIO;
+				else
+					return ANTI_HORARIO;
+			}
+
+		} else if(angle_Obst_Robot > PI/2 && angle_Obst_Robot <= PI){ // ROBO NO SEGUNDO QUAD
+
+			if(angle_Obst_Goal > 0 && angle_Obst_Goal <= PI/2){ // OBJETIVO NO PRIMEIRO QUAD
+				return HORARIO;
+
+			} else if(angle_Obst_Goal > PI/2 && angle_Obst_Goal <= PI){ // OBJETIVO NO SEGUNDO QUAD
+				return 0;
+
+			} else if(angle_Obst_Goal > -PI && angle_Obst_Goal <= -PI/2){// OBJETIVO NO TERCEIRO QUAD
+				return ANTI_HORARIO;
+
+			} else { // OBJETIVO NO QUARTO QUAD
+				printf("DECIDE" );
+				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
+					return HORARIO;
+				else
+					return ANTI_HORARIO;
+			}
+
+
+
+		} else if(angle_Obst_Robot > -PI && angle_Obst_Robot <= -PI/2){// ROBO NO TERCEIRO QUAD
+
+			if(angle_Obst_Goal > 0 && angle_Obst_Goal <= PI/2){ // OBJETIVO NO PRIMEIRO QUAD
+				printf("DECIDE" );
+				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
+					return ANTI_HORARIO;
+				else
+					return HORARIO;
+
+			} else if(angle_Obst_Goal > PI/2 && angle_Obst_Goal <= PI){ // OBJETIVO NO SEGUNDO QUAD
+				return HORARIO;
+
+			} else if(angle_Obst_Goal > -PI && angle_Obst_Goal <= -PI/2){// OBJETIVO NO TERCEIRO QUAD
+				return 0;
+
+			} else { // OBJETIVO NO QUARTO QUAD
+
+				return ANTI_HORARIO;
+			}
+
+
+
+		} else { // ROBO NO QUARTO QUAD
+
+			if(angle_Obst_Goal > 0 && angle_Obst_Goal <= PI/2){ // OBJETIVO NO PRIMEIRO QUAD
+				return ANTI_HORARIO;
+
+			} else if(angle_Obst_Goal > PI/2 && angle_Obst_Goal <= PI){ // OBJETIVO NO SEGUNDO QUAD
+				printf("DECIDE" );
+				if(fabs(angle_Obst_Robot)+fabs(angle_Obst_Goal)<PI)
+					return ANTI_HORARIO;
+				else
+					return HORARIO;
+
+			} else if(angle_Obst_Goal > -PI && angle_Obst_Goal <= -PI/2){// OBJETIVO NO TERCEIRO QUAD
+				return HORARIO;
+
+			} else { // OBJETIVO NO QUARTO QUAD
+
+				return 0;
+			}
+
+		}
+
+
 	}
 
 	double reach_on_time(double dist, double time_limit = 1) {
@@ -577,10 +704,58 @@ public:
 		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
 	}
 
-	void test_run(int i) {
-		robots[i].transAngle = potField(i, Ball);
-	}
+	void test_run(int index) {
 
+		FuzzyController controller;
+		float DGK, DATK, DDEF;
+		controller.importRules("cc/Fuzzy/RULES_VSS2017.txt");
+		controller.defineVariables("cc/Fuzzy/Membership_VSS2017.txt");
+		for(int i =0; i<3; i++) { //pegar posições e índices
+			switch (robots[i].role)	{
+
+				DGK = distance_meters(robots[i].position,Ball);
+		  break;
+
+
+				DDEF = distance_meters(robots[i].position,Ball);
+		  break;
+
+		  case ATTACKER:
+
+				DATK = distance_meters(robots[i].position,Ball);
+		  break;
+			}
+		}
+		vector<float> input;
+		input.push_back(DGK);
+		input.push_back(DATK);
+		input.push_back(DDEF);
+		vector<float>  out = controller.ControladorFuzzy(input);
+		std::cout << "resultado: " << out[0] << std::endl;
+		if (out.size()>0) {
+			switch(int(out[0])){
+				case 0:
+				std::cout << "NÃO TROCA NADA, PORRA: " << out[0] << std::endl;
+				break;
+				case 1:
+				std::cout << "TROCA A PORRA TODA: " << out[0] << std::endl;
+				break;
+				case 2:
+				std::cout << "TROCA ATK DEF: " << out[0] << std::endl;
+				break;
+
+			}
+
+
+		}
+
+	}
+	double map_range (double actual, double minactual, double maxactual)
+	{
+		double maxtarget = 1;
+		double mintarget = 0;
+		return (actual - minactual) * ((maxtarget-mintarget)/(maxactual-minactual));
+	}
 	void atk_routine(int i) {
 
 		switch (robots[i].status) {
