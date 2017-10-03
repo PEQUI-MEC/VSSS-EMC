@@ -4,3 +4,5 @@ media/**/*.png
 VSSS
 *.a
 *.o
+autosave.txt
+quicksave.txt
