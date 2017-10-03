@@ -234,20 +234,20 @@ public:
 				robots[i].fixedPos = false;
 
 				switch (robots[i].role)	{
-					case GOALKEEPER:
+				case GOALKEEPER:
 					Goalkeeper = robots[i].position;
 					gk = i;
-		      break;
+		      	break;
 
 					case DEFENDER:
 					Defender = robots[i].position;
 					def = i;
-		      break;
+		      	break;
 
-		      case ATTACKER:
+		      	case ATTACKER:
 					Attacker = robots[i].position;
 					atk = i;
-		      break;
+		      	break;
 				}
 			}
 			// cout << "indexes set" << endl;
@@ -305,6 +305,7 @@ public:
 			// cout << "transitions" << endl;
 			for(int i =0; i<3; i++) {
 				fixed_position_check(i);
+				position_to_vector(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
 				// position_to_vector(i);
@@ -441,31 +442,22 @@ public:
 
 	void go_to_the_ball_direct (int i) {
 
-		double approach = double(max_approach); // O alvo muda de acordo com o ângulo, quanto menor, mais próximo da bola
-		// cout << " approach "<< approach << endl;
+		cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
+		double m1 = double(goal.y - Ball.y)/double(goal.x - Ball.x);
+		double m2 = double(robots[i].position.y - Ball.y)/double(robots[i].position.x - Ball.x);
+		double ball_goal = distance(Ball, goal);
+		double r1 = ball_goal + max_approach;
 
-		target.x = round(Ball.x - approach * cos(atan2(abs(double(COORD_GOAL_MID_Y - Ball.y)),abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
+		double phi = atan((m2-m1)/(1+m2*m1));
+		cout << "phi -> " << phi*180/PI << " 180 - phi -> " << 180 - phi*180/PI << endl;
 
-		// cout << "calculos aproximação e alvo" << endl;
-
-		if(Ball.y > COORD_GOAL_MID_Y) {
-			target.y = round(Ball.y + approach * sin(atan2(abs(double(COORD_GOAL_MID_Y - Ball.y)),abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
+		if(phi*180/PI > 8 || phi*180/PI < -8 ) {
+			robots[i].target.x = double(max_approach * goal.x + r1 * Ball.x)/double(r1 + max_approach);
+			robots[i].target.y = double(max_approach * goal.y + r1 * Ball.y)/double(r1 + max_approach);
 		} else {
-			target.y = round(Ball.y - approach * sin(atan2(abs(double(COORD_GOAL_MID_Y - Ball.y)),abs(double(COORD_GOAL_ATK_FRONT_X - Ball.x)))));
+			robots[i].target = Ball;
 		}
-		// o alvo é posicionado na mesma reta, do meio do gol à bola
-		// por isso a utilização de seno e cosseno para encontrar as componentes X e Y
-		// os sinais em Y mudam de acordo com a metade do campo em que a bola se encontra
-		// uma vez que a reta alvo estará para cima ou para baixo
 
-		if(target.y < 0) target.y = 0;
-		if(target.y > ABS_FIELD_HEIGHT) target.y = ABS_FIELD_HEIGHT;
-
-		if(distance(robots[i].position, target) >= ABS_ROBOT_SIZE){
-			robots[i].target = target;
-		} else {
-
-		}
 
 	} // incompleto!!! //incompleto!!
 
@@ -703,6 +695,7 @@ public:
 		}
 		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
 	}
+
 	int Fuzzy_Troca(){
 
 				FuzzyController controller;
@@ -756,15 +749,18 @@ public:
 				return out[0];
 
 	}
-	void test_run(int index) {
-		//robots[index].transAngle = potField(index,Ball);
-	}
-	double map_range (double actual, double minactual, double maxactual)
-	{
+
+	double map_range (double actual, double minactual, double maxactual) {
 		double maxtarget = 1;
 		double mintarget = 0;
 		return (actual - minactual) * ((maxtarget-mintarget)/(maxactual-minactual));
 	}
+
+	void test_run(int i) {
+		//robots[index].transAngle = potField(index,Ball);
+		go_to_the_ball_direct(i);
+	}
+
 	void atk_routine(int i) {
 
 		switch (robots[i].status) {
