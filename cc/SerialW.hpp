@@ -125,7 +125,7 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 			temp0= temp2*180/PI;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
 			cmd << robot_list[i].ID<<'@'<<"O"<<temp0<<";"<<temp1<<"#"<< endl;
-			// cout << temp0 << endl;
+			cout << temp0 << endl;
 			break;
 			case VECTOR:
 			temp0= double(atan2(sin(robot_list[i].orientation-(-robot_list[i].transAngle)),cos(robot_list[i].orientation-(-robot_list[i].transAngle)))*180/PI);

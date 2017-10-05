@@ -448,12 +448,15 @@ public:
 		double ball_goal = distance(Ball, goal);
 		double r1 = ball_goal + max_approach;
 
-		double phi = atan((m2-m1)/(1+m2*m1));
-		cout << "phi -> " << phi*180/PI << " 180 - phi -> " << 180 - phi*180/PI << endl;
+		cv::Point v = cv::Point(goal.x - Ball.x, goal.y - Ball.y);
+		double module = sqrt(pow(v.x,2) + pow(v.y,2));
 
-		if(phi*180/PI > 8 || phi*180/PI < -8 ) {
-			robots[i].target.x = double(max_approach * goal.x + r1 * Ball.x)/double(r1 + max_approach);
-			robots[i].target.y = double(max_approach * goal.y + r1 * Ball.y)/double(r1 + max_approach);
+		double phi = atan((m2-m1)/(1+m2*m1));
+		// cout << "phi -> " << phi*180/PI << " 180 - phi -> " << 180 - phi*180/PI << endl;
+
+		if((phi*180/PI > 10 || phi*180/PI < -10)) {
+			robots[i].target.x = double(Ball.x - double(v.x/module) * max_approach);
+			robots[i].target.y = double(Ball.y - double(v.y/module) * max_approach);
 		} else {
 			robots[i].target = Ball;
 		}
@@ -473,7 +476,7 @@ public:
 
 	double look_at_ball(int i) {
 		robots[i].cmdType = ORIENTATION;
-		double target_angle = atan2(double(Ball.y - robots[i].position.y),double(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
+		double target_angle = atan2(double(Ball.y - robots[i].position.y),- double(Ball.x - robots[i].position.x)); // ângulo da bola em relação ao robô
 		return target_angle;
 	}
 
@@ -759,6 +762,7 @@ public:
 	void test_run(int i) {
 		//robots[index].transAngle = potField(index,Ball);
 		go_to_the_ball_direct(i);
+
 	}
 
 	void atk_routine(int i) {
