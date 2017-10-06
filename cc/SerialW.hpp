@@ -15,6 +15,7 @@
 #define SPEED 1
 #define ORIENTATION 2
 #define VECTOR 3
+#define VECTORRAW 4
 #define PI 3.14159265453
 
 class SerialW
@@ -130,6 +131,12 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 			case VECTOR:
 			temp0= double(atan2(sin(robot_list[i].orientation-(-robot_list[i].transAngle)),cos(robot_list[i].orientation-(-robot_list[i].transAngle)))*180/PI);
 			temp1= round(double(robot_list[i].vmax)*100)/100;
+			cmd << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
+			// cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
+			break;
+			case VECTORRAW:
+			temp0= robot_list[i].transAngle;
+			temp1= robot_list[i].vmax;
 			cmd << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
 			// cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
 			break;
