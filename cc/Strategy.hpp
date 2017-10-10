@@ -42,6 +42,11 @@
 #define	ADVANCING_STATE 3
 #define	TRANSITION_STATE 4
 
+//potField
+#define BALL_IS_OBS 0
+#define BALL_ONLY_OBS 1
+#define BALL_NOT_OBS 2
+
 
 
 
@@ -99,6 +104,8 @@ public:
 	double pot_goalMag;
 	double pot_magnitude[5];
 	double pot_angle[5];
+	float ball_angle = 0;
+	float ball_mag = 0;
 
 	vector<Robot> robots;
 	cv::Point* adv;
@@ -108,6 +115,8 @@ public:
 	cv::Point Defender;
 	cv::Point Attacker;
 	int atk, def, gk, opp;
+	double lock_angle;
+
 
 
 	bool half_transition = false;
@@ -268,8 +277,8 @@ public:
 
 			// gk_routine(gk);
 			// def_routine(def);
-			atk_routine(atk);
-			// test_run(atk);
+			// atk_routine(atk);
+			test_run(atk);
 
 			// cout << "routines end" << endl;
 
@@ -312,13 +321,13 @@ public:
 			// cout << "transitions" << endl;
 			for(int i =0; i<3; i++) {
 				fixed_position_check(i);
-				position_to_vector(i);
+				// position_to_vector(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
 				// position_to_vector(i);
 			}
 
-			overmind();
+			// overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -332,30 +341,43 @@ public:
 		double ball_goal = distance(Ball, goal);
 		double r1 = ball_goal + max_approach;
 
+		double mup = double(COORD_GOAL_UP_Y - Ball.y)/double(COORD_GOAL_ATK_FRONT_X - Ball.x);
+		double mdwn = double(COORD_GOAL_DWN_Y - Ball.y)/double(COORD_GOAL_ATK_FRONT_X - Ball.x);
+
+		double theta = atan((mup-mdwn)/(1+mup*mdwn));
 		double phi = atan((m2-m1)/(1+m2*m1));
 
 		if(atk_mindcontrol) {
-			robots[atk].cmdType = VECTORRAW;
-			robots[atk].transAngle = 0;
+			robots[atk].cmdType = VECTOR;
+			// robots[atk].target = goal;
+			// if(abs(robots[atk].orientation) > 90) robots[atk].transAngle = 180;
+			// else robots[atk].transAngle = 0;
+			robots[atk].transAngle = lock_angle;
 			robots[atk].vmax = 1.1;
 			timeout++;
-			if(timeout >= 60) {
+			if(timeout >= 30) {
 				timeout = 0;
 				atk_mindcontrol = false;
 			}
 		}
 
-		if((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE) && (phi*180/PI < 10) && (Ball.x > robots[atk].position.x ) &&
-		(((robots[atk].orientation - atan(m1))*180/PI) < 15 && ((robots[atk].orientation - atan(m1))*180/PI) > -15) ||
-		(((robots[atk].orientation - atan(m1))*180/PI) < -175 || ((robots[atk].orientation - atan(m1))*180/PI) > 175) ) {
+		if((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE*2) && (phi*180/PI < 20) && (Ball.x > robots[atk].position.x ) &&
+		((((robots[atk].orientation - atan(m1))*180/PI) < 20 && ((robots[atk].orientation - atan(m1))*180/PI) > -20) ||
+		(((robots[atk].orientation - atan(m1))*180/PI) < -165 || ((robots[atk].orientation - atan(m1))*180/PI) > 165) )
+		// 	(robots[atk].orientation > atan(mdwn) && robots[atk].orientation < atan(mup))
+	 	) {
+			if(!atk_mindcontrol) {
+				lock_angle = atan2(double(robots[atk].position.y - Ball.y), - double(robots[atk].position.x - Ball.x));
+			}
+
 			atk_mindcontrol = true;
-			cout << "mindcontrol" << endl;
+			// cout << "mindcontrol" << endl;
 		}
-		// cout << " cond1 " << (distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE) <<
-		//  " cond2 " << (phi < 10) <<
-		//  " cond3 " << (Ball.x > robots[atk].position.x)  <<
-		//  " cond4 " << (((robots[atk].orientation - atan(m1))*180/PI) < 15 && ((robots[atk].orientation - atan(m1))*180/PI) > -15) <<
-		//  " cond5 " << (((robots[atk].orientation - atan(m1))*180/PI) < -175 || ((robots[atk].orientation - atan(m1))*180/PI) > 175) << endl;
+		//  cout << " robot-ball " << distance(robots[atk].position, Ball) <<
+		//   " robot size " << ABS_ROBOT_SIZE <<
+		//   " angulo m1 " << atan(m1)*180/PI  << " robot.or " << robots[atk].orientation*180/PI  <<
+		//   " robot.or - m1 angle " << (robots[atk].orientation - atan(m1))*180/PI <<
+		//   " phi " << phi*180/PI << endl;
 	}
 
 	void set_flags () {
@@ -456,8 +478,8 @@ public:
 		if(targets_temp.y > ABS_FIELD_HEIGHT) targets_temp.y = ABS_FIELD_HEIGHT;
 
 		robots[i].target = targets_temp;
-		robots[i].vmax = 0.8 * 4*distance(robots[i].position, targets_temp)/ABS_GOAL_TO_GOAL_WIDTH;
-		if (robots[i].vmax > 0.8) robots[i].vmax = 0.8;
+		robots[i].vmax = 0.5 * 4*distance(robots[i].position, targets_temp)/ABS_GOAL_TO_GOAL_WIDTH;
+		if (robots[i].vmax > 0.5) robots[i].vmax = 0.5;
 	}
 
 	void go_to_the_ball_direct (int i) {
@@ -492,18 +514,20 @@ public:
 			action2 = false;
 		}
 		// cout << action1 << " actions " << action2 << endl;
-		if(!action1 && !action2) {
+		// if(!action1 && !action2) {
+		if(!is_near(i, targets_temp)) {
 			robots[i].target = targets_temp;
 			robots[i].vmax = 0.8 * 4*distance(robots[i].position, targets_temp)/ABS_GOAL_TO_GOAL_WIDTH;
 			if (robots[i].vmax > 0.8) robots[i].vmax = 0.8;
 			// cout << robots[i].target.x << " " << robots[i].target.y << endl;
 		}
-		if(action1 && !action2) {
-			robots[i].cmdType = ORIENTATION;
-			robots[i].targetOrientation = look_at_ball(i);
-			// cout << robots[i].targetOrientation*180/PI << " target Or"<< endl;
-		}
-		if(action1 && action2) {
+		// if(action1 && !action2) {
+		// 	robots[i].cmdType = ORIENTATION;
+		// 	robots[i].targetOrientation = look_at_ball(i);
+		// 	// cout << robots[i].targetOrientation*180/PI << " target Or"<< endl;
+		// }
+		// if(action1 && action2) {
+		else {
 			robots[i].target = Ball;
 		}
 
@@ -528,11 +552,13 @@ public:
 	// 	}
 	// }
 
-	double potField (int robot_index, cv::Point goal) {
+	double potField (int robot_index, cv::Point goal, int behavior=2) {
 		float gain_rep=10;
 		float gain_att=1;
 		float rep_radius=0.4;
 		float rot_angle = 0;
+		ball_angle = 0;
+		ball_mag = 0;
 		pot_thetaX = 0;
 		pot_thetaY = 0;
 		pot_theta = 0;
@@ -587,13 +613,73 @@ public:
 
 			}
 		}
-		pot_goalTheta = atan2(double(robots[robot_index].position.y -goal.y ),- double( robots[robot_index].position.x - goal.x ));
-		pot_goalMag = gain_att*pow(distance_meters(robots[robot_index].position, goal), 2)/2;
-		//	printf("goalMag %f | goalTheta %f\n",pot_goalMag,pot_goalTheta*180/PI);
+
 		for (int i = 0; i < 5; i++) {
 			pot_thetaY += pot_magnitude[i]*sin(pot_angle[i]);
 			pot_thetaX += pot_magnitude[i]*cos(pot_angle[i]);
 		}
+
+		switch(behavior) {
+			case BALL_IS_OBS:
+			if(distance_meters(robots[robot_index].position, Ball) > 0 && distance_meters(robots[robot_index].position, Ball) < rep_radius/2) {
+
+				ball_mag = (gain_rep*pow(1/(distance_meters(robots[robot_index].position, Ball) - 1/(rep_radius/2)), 2)/2 );
+
+				ball_angle = atan2(double(robots[robot_index].position.y - Ball.y),- double(robots[robot_index].position.x - Ball.x));
+				if(pot_rotation_decision(robot_index,goal,Ball)==0)
+					ball_mag = 0;
+				else if(pot_rotation_decision(robot_index,goal,Ball)>0){
+					ball_angle = atan2(sin(ball_angle+PI/2),cos(ball_angle+PI/2));
+				//	printf("HORARIO ");
+
+				}else{
+					ball_angle = atan2(sin(ball_angle+3*PI/2),cos(ball_angle+3*PI/2));
+					//	printf("ANTI-HORARIO ");
+				}
+				pot_thetaY += ball_mag*sin(ball_angle);
+				pot_thetaX += ball_mag*cos(ball_angle);
+
+			}else {
+				pot_magnitude[j] = 0;
+				pot_angle[j] = 0;
+			}
+			break;
+
+			case BALL_ONLY_OBS:
+				for (int i = 0; i < 5; i++) {
+				pot_magnitude[i] = 0;
+				}
+				if(distance_meters(robots[robot_index].position, Ball) > 0 && distance_meters(robots[robot_index].position, Ball) < rep_radius/2) {
+
+				ball_mag = (gain_rep*pow(1/(distance_meters(robots[robot_index].position, Ball) - 1/rep_radius/2), 2)/2 );
+
+				ball_angle = atan2(double(robots[robot_index].position.y - Ball.y),- double(robots[robot_index].position.x - Ball.x));
+				if(pot_rotation_decision(robot_index,goal,Ball)==0)
+					ball_mag = 0;
+				else if(pot_rotation_decision(robot_index,goal,Ball)>0){
+					ball_angle = atan2(sin(ball_angle+PI/2),cos(ball_angle+PI/2));
+						//	printf("HORARIO ");
+
+				}else{
+					ball_angle = atan2(sin(ball_angle+3*PI/2),cos(ball_angle+3*PI/2));
+							//	printf("ANTI-HORARIO ");
+				}
+				pot_thetaY = ball_mag*sin(ball_angle);
+				pot_thetaX = ball_mag*cos(ball_angle);
+				}else {
+					pot_magnitude[j] = 0;
+					pot_angle[j] = 0;
+				}
+			break;
+
+			case BALL_NOT_OBS:
+			break;
+		}
+
+		pot_goalTheta = atan2(double(robots[robot_index].position.y -goal.y ),- double( robots[robot_index].position.x - goal.x ));
+		pot_goalMag = gain_att*pow(distance_meters(robots[robot_index].position, goal), 2)/2;
+		//	printf("goalMag %f | goalTheta %f\n",pot_goalMag,pot_goalTheta*180/PI);
+
 		pot_thetaY += pot_goalMag*sin(pot_goalTheta);
 		pot_thetaX += pot_goalMag*cos(pot_goalTheta);
 		pot_theta = atan2(pot_thetaY, pot_thetaX);
@@ -804,8 +890,39 @@ public:
 	}
 
 	void test_run(int i) {
-		//robots[index].transAngle = potField(index,Ball);
-		go_to_the_ball_direct(i);
+
+		// go_to_the_ball_direct(i);
+		// go_to_the_ball(i);
+		cv::Point targets_temp;
+		cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
+		double m1 = double(goal.y - Ball.y)/double(goal.x - Ball.x);
+		double m2 = double(robots[i].position.y - Ball.y)/double(robots[i].position.x - Ball.x);
+		double ball_goal = distance(Ball, goal);
+		double r1 = ball_goal + max_approach;
+
+		cv::Point v = cv::Point(goal.x - Ball.x, goal.y - Ball.y);
+		double module = sqrt(pow(v.x,2) + pow(v.y,2));
+
+		double phi = atan((m2-m1)/(1+m2*m1));
+		// cout << "phi -> " << phi*180/PI << " 180 - phi -> " << 180 - phi*180/PI << endl;
+
+		targets_temp.x = double(Ball.x - double(v.x/module) * max_approach);
+		targets_temp.y = double(Ball.y - double(v.y/module) * max_approach);
+
+		robots[i].transAngle = potField(i, targets_temp, 1);
+		// cout << "go_to_the_ball " << endl;
+
+		if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE*5) action1 = false;
+
+		if(is_near(i, targets_temp) || action1) {
+			robots[i].transAngle = potField(i, Ball, 2);
+			action1 = true;
+			cout << "action1" << endl;
+		}
+
+		// robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), 1);
+		// cout << Ball.x << " " << Ball.y << endl;
+		// go_to_the_ball_direct(i);
 
 	}
 
