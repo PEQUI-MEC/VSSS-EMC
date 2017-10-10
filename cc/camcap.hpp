@@ -350,7 +350,7 @@ public:
                 // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(300));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(150));
         }
     }
 
@@ -403,13 +403,17 @@ public:
                 interface.robot_list[Selec_index].target=vision->getBall();
             else
                 interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
+
+                position_to_vector(Selec_index);
+                interface.robot_list[Selec_index].vmax = 0.8;
         }
 
 
         for(int i=0; i<interface.robot_list.size() && i<3; i++) {
-            if(fixed_ball[i])
+            if(fixed_ball[i]){
                 interface.robot_list[i].target=vision->getBall();
-            else {
+                position_to_vector(i);
+            }else {
                 if(sqrt(pow((interface.robot_list[i].position.x-interface.robot_list[i].target.x),2)+
                 pow((interface.robot_list[i].position.y-interface.robot_list[i].target.y),2))<15) {
                     interface.robot_list[i].target = cv::Point(-1,-1);
@@ -419,14 +423,20 @@ public:
                     interface.robot_list[i].Vl = 0 ;
                 }
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
-                    //interface.robot_list[i].goTo(interface.robot_list[i].target,vision->getBall());
+                        position_to_vector(i);
                 } else {
-                    interface.robot_list[i].Vr = 0 ;
-                    interface.robot_list[i].Vl = 0 ;
+                interface.robot_list[i].vmax = 0;
                 }
             }
         }
+
     } // PID_test
+    void position_to_vector(int i) {
+		interface.robot_list[i].transAngle =
+        atan2(double(interface.robot_list[i].position.y - interface.robot_list[i].target.y),
+        - double(interface.robot_list[i].position.x - interface.robot_list[i].target.x));
+        interface.robot_list[i].cmdType = VECTOR;
+    }
 
     void drawStrategyConstants(cv::Mat imageView, int width, int height)
     {

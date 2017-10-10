@@ -10,8 +10,8 @@ void Vision::run(cv::Mat raw_frame) {
   in_frame = raw_frame.clone();
   preProcessing();
   findTags();
-  findElements();
-  //pick_a_tag();
+  //findElements();
+  pick_a_tag();
 }
 
 void Vision::preProcessing() {
@@ -50,7 +50,7 @@ void Vision::searchTags(int color) {
 
   tags.at(color).clear();
 
-  cv::findContours(threshold_frame.at(color),contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
+  cv::findContours(threshold_frame.at(color),contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_NONE);
 
   for (int i = 0; i < contours.size(); i++) {
     double area = contourArea(contours[i]);

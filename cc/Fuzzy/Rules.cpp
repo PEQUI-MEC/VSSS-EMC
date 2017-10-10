@@ -34,16 +34,16 @@ void Rules::generate_baseRuleMatrix(std::string file_name)
 }
 
 
-float* Rules::inference(	float* inputs, 
+float* Rules::inference(	float* inputs,
 							std::vector<std::shared_ptr<FuzzyFunction>> &input_variables,
 							std::shared_ptr<FuzzyFunction> &output_variable)
 {
 	float *output_variable_array = (float*) calloc(output_variable->getnParticoes(), sizeof (float));
-	
+
 	for (uint16_t i = 0; i < output_variable->getnParticoes(); i++) {
 		output_variable_array[i] = 0;
 	}
-	
+
 	float temp = 1;
 	vector<float> local;
 	for (uint16_t k = 0; k < this->arrayRules.size(); k++) {
@@ -52,27 +52,27 @@ float* Rules::inference(	float* inputs,
 		vector<string> ruleWords = this->split(arrayRules[k]);
 
 		vector<int> igualdades = this->posicaoIgualdades(ruleWords);
-		
+
 		//comparar o nome da variavel para saber se está nessa regra
 		//cout << "Ruleoutput: " << ruleWords[igualdades[igualdades.size()-1]-1] << " OutputVar: " << output_variable->getVariableName() << endl;
 		//Eliminar as regras que não tem a ver com a output necessaria
 		if (strcmp(output_variable->getVariableName(), ruleWords[igualdades[igualdades.size()-1]-1].c_str())==0){
-			
+
 			for (uint16_t m=0;m<igualdades.size()-1;m++){
 				uint16_t n;
 				//Pegar a primeira variavel e verificar e verificar qual input é ela
 				for (n=0;n<input_variables.size();n++){
 					if (strcmp(input_variables[n].get()->getVariableName(),ruleWords[igualdades[m]-1].c_str())==0) break;
 				}
-				
+
 				//n agora possui a posição no vetor que corresponde a mesma input que tem na regra
-				local.push_back( input_variables[n].get()->singleton((char*)(ruleWords[igualdades[m]+1].c_str()), inputs[n]));				
+				local.push_back( input_variables[n].get()->singleton((char*)(ruleWords[igualdades[m]+1].c_str()), inputs[n]));
 				//cout << " singleton = " << ruleWords[igualdades[m]-1] << "/" << ruleWords[igualdades[m]+1] << "/" << inputs[n];
 			}
-			
+
 			temp=local[0];
 			uint16_t contLocal=1;
-			
+
 			if (local.size()>1){
 				for (uint16_t l=0; l<ruleWords.size(); l++){
 					if (ruleWords[l]=="AND") temp=AND(temp,local[contLocal++]);
@@ -86,16 +86,16 @@ float* Rules::inference(	float* inputs,
 			temp = 1;
 		}
 	}
-	
-	for (int i = 0; i < output_variable->getnParticoes(); i++) {
-		cout << output_variable_array[i] << " ";
-	}
-	cout << endl;
-	
+
+	// for (int i = 0; i < output_variable->getnParticoes(); i++) {
+	// 	// cout << output_variable_array[i] << " ";
+	// }
+	// // cout << endl;
+
 	return output_variable_array;
 }
 
-// Funcoes auxiliares 
+// Funcoes auxiliares
 //Operator AND
 double Rules::AND(double a, double b)
 {
@@ -122,7 +122,7 @@ vector<string> Rules::split(const std::string str)
     vector<string> tokens; // Create vector to hold our words
     while (ss >> buf)
         tokens.push_back(buf);
-        
+
     return tokens;
 }
 
