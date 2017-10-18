@@ -20,6 +20,7 @@ class Robot
         double thetaError = 0;
         double thetaErrorSum = 0;
         double thetaErrorPrevious = 0;
+        double vdefault = 0.8;
         double vmax = 1.4; // m/s
         cv::Point hist[MAX_SAMPLES_HIST];
         int hist_index =0;
@@ -30,13 +31,15 @@ class Robot
         float Vl,Vr;  // RPS
         bool spin = false;
         bool fixedPos=false;
+        bool using_pot_field = false;
         int role=0;
-        int status = 0; // 0 = estado de jogo, 1 = pegando a bola, 2 = acelerando
+        int status = 0;
         int previous_status =0;
         cv::Point rearPoint;
 
         Robot()
         {
+            vmax = vdefault;
             ternary = cv::Point(-1,-1);
             secundary= cv::Point(-1,-1);
             position= cv::Point(-1,-1);

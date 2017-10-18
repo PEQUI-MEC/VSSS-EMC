@@ -304,7 +304,7 @@ public:
 
         if(interface.start_game_flag) {
             Ball_Est=strategyGUI.strategy.get_Ball_Est();
-            line(imageView,vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
+            // line(imageView,vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
             circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
             //char buffer[3]; -> não é utilizado
             strategyGUI.strategy.get_targets(&(interface.robot_list), (vision->advRobots));
@@ -350,7 +350,7 @@ public:
                 // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(150));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
         }
     }
 
@@ -405,7 +405,7 @@ public:
                 interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
 
                 position_to_vector(Selec_index);
-                interface.robot_list[Selec_index].vmax = 1.2;
+                // interface.robot_list[Selec_index].vmax = 1.2;
         }
 
 
@@ -425,7 +425,7 @@ public:
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
                         position_to_vector(i);
                 } else {
-                interface.robot_list[i].vmax = 0;
+                //interface.robot_list[i].vmax = 0;
                 }
             }
         }

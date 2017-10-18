@@ -248,7 +248,8 @@ public:
 			for(int i =0; i<3; i++) { //pegar posições e índices
 				robots[i].cmdType = VECTOR;
 				robots[i].fixedPos = false;
-				robots[i].vmax = 0.8;
+				robots[i].using_pot_field = false;
+				robots[i].vmax = robots[i].vdefault;
 
 				switch (robots[i].role)	{
 				case GOALKEEPER:
@@ -276,7 +277,7 @@ public:
 			danger_zone_2 = false; //só para testes com um robô
 			// transition_enabled = true; //só para testes com um robô
 
-			 gk_routine(gk);
+			gk_routine(gk);
 			// def_routine(def);
 			// atk_routine(atk);
 			//test_run(atk);
@@ -322,13 +323,12 @@ public:
 			// cout << "transitions" << endl;
 			for(int i =0; i<3; i++) {
 				fixed_position_check(i);
-				// position_to_vector(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
-				// position_to_vector(i);
+				if(!robots[i].using_pot_field) position_to_vector(i);
 			}
 
-			overmind();
+			// overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -435,6 +435,7 @@ public:
 
 	void fixed_position_check(int i) { // Para posição fixa
 		if(robots[i].fixedPos) {
+			if(distance(robots[i].target, robots[i].position) <= ABS_ROBOT_SIZE) robots[i].vmax = 0.5;
 			if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
 				robots[i].target = robots[i].position;
 			}
@@ -465,6 +466,7 @@ public:
 
 	void position_to_vector(int i) {
 		robots[i].transAngle = atan2(double(robots[i].position.y - robots[i].target.y), - double(robots[i].position.x - robots[i].target.x));
+		if(distance(robots[i].position, robots[i].target) < ABS_ROBOT_SIZE/2) robots[i].vmax = 0;
 	}
 
 	bool set_ann(const char * annName) {
@@ -570,6 +572,7 @@ public:
 	// }
 
 	double potField (int robot_index, cv::Point goal, int behavior=2) {
+		robots[robot_index].using_pot_field = true;
 		float gain_rep=10;
 		float gain_att=1;
 		float rep_radius=0.4;
@@ -853,7 +856,7 @@ public:
 			}
 		}
 		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
-		
+
 	}
 
 	void fuzzy_init() {
@@ -919,6 +922,7 @@ public:
 	}
 
 	void pot_field_around(int i) {
+		robots[i].using_pot_field = true;
 		cv::Point targets_temp;
 		cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
 		double m1 = double(goal.y - Ball.y)/double(goal.x - Ball.x);
@@ -951,6 +955,10 @@ public:
 			action1 = true;
 			// cout << "action1" << endl;
 		}
+	}
+
+	void fixedAngle(int i) {
+
 	}
 
 	void test_run(int i) {
@@ -1050,10 +1058,11 @@ public:
 			case NORMAL_STATE:
 			robots[i].fixedPos = true;
 			robots[i].target.x = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE;
-			robots[i].target.y = Ball.y;
-			if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
-			else if (Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
-			if(danger_zone_2) robots[i].status = ADVANCING_STATE;
+			robots[i].target.y = Ball_Est.y;
+
+			if(Ball_Est.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
+			if(Ball_Est.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
+			// if(danger_zone_2) robots[i].status = ADVANCING_STATE;
 			break;
 
 			case ADVANCING_STATE:
