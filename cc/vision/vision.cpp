@@ -342,7 +342,90 @@ cv::Mat Vision::getThreshold(int index) {
   return threshold_frame.at(index);
 }
 
-Vision::Vision(int w, int h)
+int Vision::getHue(int index0, int index1) {
+  return hue[index0][index1];
+}
+
+int Vision::getSaturation(int index0, int index1) {
+  return saturation[index0][index1];
+}
+
+int Vision::getValue(int index0, int index1) {
+  return value[index0][index1];
+}
+
+int Vision::getErode(int index) {
+  return erode[index];
+}
+
+int Vision::getDilate(int index) {
+  return dilate[index];
+}
+
+int Vision::getBlur(int index) {
+  return blur[index];
+}
+
+int Vision::getAmin(int index) {
+  return areaMin[index];
+}
+
+void Vision::setHue(int index0, int index1, int inValue) {
+  if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) hue[index0][index1] = inValue;
+  else std::cout << "Vision:setHue: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setSaturation(int index0, int index1, int inValue) {
+  if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) saturation[index0][index1] = inValue;
+  else std::cout << "Vision:setSaturation: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setValue(int index0, int index1, int inValue) {
+  if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) value[index0][index1] = inValue;
+  else std::cout << "Vision:setValue: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setErode(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) erode[index] = inValue;
+  else std::cout << "Vision:setErode: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setDilate(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) dilate[index] = inValue;
+  else std::cout << "Vision:setDilate: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setBlur(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) blur[index] = inValue;
+  else std::cout << "Vision:setBlur: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setAmin(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) areaMin[index] = inValue;
+  else std::cout << "Vision:setAmin: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setFrameSize(int inWidth, int inHeight) {
+  if (inWidth >= 0) width = inWidth;
+  else std::cout << "Vision:setFrameSize: could not set width (invalid width)" << std::endl;
+  if (inHeight >= 0) height = inHeight;
+  else std::cout << "Vision:setFrameSize: could not set height (invalid height)" << std::endl;
+}
+
+int Vision::getFrameHeight() {
+  return height;
+}
+
+int Vision::getFrameWidth() {
+  return width;
+}
+
+cv::Point* Vision::getAllAdvRobots() {
+  return advRobots;
+}
+
+
+Vision::Vision(int w, int h) : width(w), height(h)
 {
   // Variables Init
   cv::Mat mat;
@@ -357,9 +440,6 @@ Vision::Vision(int w, int h)
   robot_list.push_back(robot);
   robot_list.push_back(robot);
   robot_list.push_back(robot);
-
-  width = w;
-  height = h;
 
   frameCounter = 0;
 }

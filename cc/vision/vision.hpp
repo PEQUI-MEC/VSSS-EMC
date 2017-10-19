@@ -17,7 +17,7 @@
 class Vision
 {
 
-public:
+private:
 
   // Constants
   static const int MAIN = 0;
@@ -90,9 +90,32 @@ public:
   Robot getRobot(int index);
   cv::Point getRobotPos(int index);
   cv::Point getAdvRobot(int index);
+  cv::Point* getAllAdvRobots();
+
   int getRobotListSize();
   int getAdvListSize();
   cv::Mat getThreshold(int index);
+
+  int getHue(int index0, int index1);
+  int getSaturation(int index0, int index1);
+  int getValue(int index0, int index1);
+  int getErode(int index);
+  int getDilate(int index);
+  int getBlur(int index);
+  int getAmin(int index);
+
+  void setFrameSize(int inWidth, int inHeight);
+  int getFrameHeight();
+  int getFrameWidth();
+
+  void setHue(int index0, int index1, int inValue);
+  void setSaturation(int index0, int index1, int inValue);
+  void setValue(int index0, int index1, int inValue);
+  void setErode(int index, int inValue);
+  void setDilate(int index, int inValue);
+  void setBlur(int index, int inValue);
+  void setAmin(int index, int inValue);
+
 
 };
 
