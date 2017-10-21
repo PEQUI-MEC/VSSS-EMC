@@ -285,12 +285,12 @@ public:
 			danger_zone_2 = false; //só para testes com um robô
 			transition_enabled = false; //só para testes com um robô
 
-			//gk_routine(gk);
+			gk_routine(gk);
 			// def_routine(def);
-			atk_routine(atk);
+			// atk_routine(atk);
 			//test_run(atk);
 
-			opp_gk_routine(opp);
+			// opp_gk_routine(opp);
 
 
 			// cout << "routines end" << endl;
@@ -358,18 +358,19 @@ public:
 
 		double theta = atan((mup-mdwn)/(1+mup*mdwn));
 		double phi = atan((m2-m1)/(1+m2*m1));
-		int trocaIndex = Fuzzy_Troca();
-		switch (trocaIndex) {
-			case 0:
-			// DO NOTHING
-			break;
-			case 1: // TROCA TUDO
-			full_transition = true;
-			break;
-			case 2: // TROCA ATKDEF
-			half_transition = true;
-			break;
-		}
+
+		// int trocaIndex = Fuzzy_Troca();
+		// switch (trocaIndex) {
+		// 	case 0:
+		// 	// DO NOTHING
+		// 	break;
+		// 	case 1: // TROCA TUDO
+		// 	full_transition = true;
+		// 	break;
+		// 	case 2: // TROCA ATKDEF
+		// 	half_transition = true;
+		// 	break;
+		// }
 
 		if(atk_mindcontrol) {
 			robots[atk].cmdType = VECTOR;
@@ -449,6 +450,7 @@ public:
 			if(distance(robots[i].target, robots[i].position) <= ABS_ROBOT_SIZE) robots[i].vmax = 0.5;
 			if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
 				robots[i].target = robots[i].position;
+				// robots[i].vmax = 0;
 			}
 		}
 	}
@@ -477,7 +479,6 @@ public:
 
 	void position_to_vector(int i) {
 		robots[i].transAngle = atan2(double(robots[i].position.y - robots[i].target.y), - double(robots[i].position.x - robots[i].target.x));
-		if(distance(robots[i].position, robots[i].target) < ABS_ROBOT_SIZE/2) robots[i].vmax = 0;
 	}
 
 	bool set_ann(const char * annName) {
@@ -968,8 +969,12 @@ public:
 		}
 	}
 
-	void fixedAngle(int i) {
-
+	void fixed_lookup(int i) {
+		if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
+			robots[i].cmdType = ORIENTATION;
+			robots[i].targetOrientation = PI/2;
+			cout << "lookup" << '\n';
+		}
 	}
 
 	void test_run(int i) {
@@ -1114,6 +1119,8 @@ public:
 			if(Ball_Est.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
 			if(Ball_Est.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
 			// if(danger_zone_2) robots[i].status = ADVANCING_STATE;
+
+			fixed_lookup(i);
 			break;
 
 			case ADVANCING_STATE:
