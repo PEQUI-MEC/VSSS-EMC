@@ -41,6 +41,8 @@
 #define	STEP_BACK 2
 #define	ADVANCING_STATE 3
 #define	TRANSITION_STATE 4
+#define	SIDEWAYS 5
+
 
 //potField
 #define BALL_IS_OBS 0
@@ -114,6 +116,7 @@ public:
 	cv::Point Goalkeeper;
 	cv::Point Defender;
 	cv::Point Attacker;
+	cv::Point Opponent;
 	int atk, def, gk, opp;
 	double lock_angle;
 
@@ -257,7 +260,7 @@ public:
 					gk = i;
 		      	break;
 
-					case DEFENDER:
+				case DEFENDER:
 					Defender = robots[i].position;
 					def = i;
 		      	break;
@@ -265,6 +268,11 @@ public:
 		      	case ATTACKER:
 					Attacker = robots[i].position;
 					atk = i;
+		      	break;
+
+				case OPPONENT:
+					Opponent = robots[i].position;
+					opp = i;
 		      	break;
 				}
 			}
@@ -275,12 +283,15 @@ public:
 
 			danger_zone_1 = false; //só para testes com um robô
 			danger_zone_2 = false; //só para testes com um robô
-			// transition_enabled = true; //só para testes com um robô
+			transition_enabled = false; //só para testes com um robô
 
-			gk_routine(gk);
+			//gk_routine(gk);
 			// def_routine(def);
-			// atk_routine(atk);
+			atk_routine(atk);
 			//test_run(atk);
+
+			opp_gk_routine(opp);
+
 
 			// cout << "routines end" << endl;
 
@@ -328,7 +339,7 @@ public:
 				if(!robots[i].using_pot_field) position_to_vector(i);
 			}
 
-			// overmind();
+			overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -941,7 +952,7 @@ public:
 
 		if(targets_temp.y < 0) targets_temp.y = 0;
 		if(targets_temp.y > ABS_FIELD_HEIGHT) targets_temp.y = ABS_FIELD_HEIGHT;
-
+		robots[i].target = targets_temp;
 		robots[i].transAngle = potField(i, targets_temp, BALL_ONLY_OBS);
 		// cout << "go_to_the_ball " << endl;
 
@@ -963,7 +974,7 @@ public:
 
 	void test_run(int i) {
 
-		// pot_field_around(i);
+		pot_field_around(i);
 
 	}
 
@@ -975,12 +986,52 @@ public:
 				if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
 					robots[i].status = CORNER_STATE; // bola no canto
 					// cout << "CORNER_STATE " << endl;
+				} else if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5 || Ball.y < ABS_ROBOT_SIZE*1.5) {
+					robots[i].status = SIDEWAYS;
 				}
  				if(atk_ball_possession) {
 					robots[i].status = ADVANCING_STATE; // ir para o gol
 					// cout << "ADVANCING_STATE " << endl;
 				}
 				pot_field_around(i);
+			break;
+
+			case SIDEWAYS:
+			if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5) {
+				if(Ball.x > COORD_MID_FIELD_X) {
+					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+						robots[i].target = Ball;
+					} else{
+						spin_left(i);
+					}
+				} else {
+					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+						robots[i].target = Ball;
+					} else if(Ball.x > robots[i].position.x){
+						robots[i].target = Ball;
+					} else{
+						spin_left(i);
+					}
+				}
+			} else if(Ball.y < ABS_ROBOT_SIZE*1.5) {
+				if(Ball.x > COORD_MID_FIELD_X) {
+					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+						robots[i].target = Ball;
+					} else{
+						spin_right(i);
+					}
+				} else {
+					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+						robots[i].target = Ball;
+					} else if(Ball.x > robots[i].position.x){
+						robots[i].target = Ball;
+					} else{
+						spin_right(i);
+					}
+				}
+			} else {
+				robots[i].status = NORMAL_STATE; // voltar ao estado normal
+			}
 			break;
 
 			case CORNER_STATE:
@@ -1057,7 +1108,7 @@ public:
 
 			case NORMAL_STATE:
 			robots[i].fixedPos = true;
-			robots[i].target.x = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE;
+			robots[i].target.x = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE/2;
 			robots[i].target.y = Ball_Est.y;
 
 			if(Ball_Est.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
@@ -1074,6 +1125,28 @@ public:
 		}
 	}
 
+	void opp_gk_routine(int i) {
+
+		switch (robots[i].status) {
+
+			case NORMAL_STATE:
+			robots[i].fixedPos = true;
+			robots[i].target.x = COORD_GOAL_ATK_FRONT_X - ABS_ROBOT_SIZE/2;
+			robots[i].target.y = Ball_Est.y;
+
+			if(Ball_Est.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
+			if(Ball_Est.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
+			// if(danger_zone_2) robots[i].status = ADVANCING_STATE;
+			break;
+
+			// case ADVANCING_STATE:
+			// robots[i].target = Ball;
+			// if(robots[i].position.x > COORD_BOX_DEF_X || robots[i].position.y < COORD_BOX_UP_Y || robots[i].position.y > COORD_BOX_DWN_Y) {
+			// 	full_transition = true;
+			// }
+			// break;
+		}
+	}
 
 
 cv::Point get_Ball_Est() {
