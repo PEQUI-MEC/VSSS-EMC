@@ -86,6 +86,7 @@ public:
   void startNewVideo(std::string videoName);
   bool recordToVideo();
   bool finishVideo();
+  bool isRecording();
   void savePicture(std::string in_name);
 
   cv::Point getBall();

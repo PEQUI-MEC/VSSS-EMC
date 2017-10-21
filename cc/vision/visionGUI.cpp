@@ -45,22 +45,22 @@ void VisionGUI::__create_frm_capture() {
 }
 
 void VisionGUI::bt_record_video_pressed() {
-  if (bOnAir) {
+  if (vision->isRecording()) {
     vision->finishVideo();
     bt_record_video.set_label("REC");
     en_video_name.set_text("");
+    en_video_name.set_state(Gtk::STATE_NORMAL);
   } else {
     std::string name = en_video_name.get_text();
 
     bt_record_video.set_label("Finish");
-
+    en_video_name.set_state(Gtk::STATE_INSENSITIVE);
     if (name.empty()) {
       vision->startNewVideo(std::to_string(vidIndex++));
     } else {
       vision->startNewVideo(name);
     }
   }
-  bOnAir = !bOnAir;
 }
 
 void VisionGUI::bt_save_picture_clicked() {
@@ -478,5 +478,5 @@ VisionGUI::VisionGUI() :
 }
 
 VisionGUI::~VisionGUI() {
- if (bOnAir) vision->finishVideo();
+  if (vision->isRecording()) vision->finishVideo();
 }

@@ -4,7 +4,7 @@ void Vision::run(cv::Mat raw_frame) {
   in_frame = raw_frame.clone();
 
   if (bOnAir) recordToVideo();
-  
+
   preProcessing();
   findTags();
   findElements();
@@ -306,6 +306,10 @@ bool Vision::finishVideo() {
   return true;
 }
 
+bool Vision::isRecording() {
+  return bOnAir;
+}
+
 cv::Point Vision::getBall() {
   return ball;
 }
@@ -440,5 +444,5 @@ Vision::Vision(int w, int h) : width(w), height(h), bOnAir(false)
 
 Vision::~Vision()
 {
-
+  
 }

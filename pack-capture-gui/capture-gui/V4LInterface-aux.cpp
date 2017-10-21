@@ -43,27 +43,29 @@ namespace capture
     cb_frame_interval.pack_start(model_frame_interval.m_col_name);
   }
 
-  void V4LInterface::__create_frm_quick_actions()
+  void V4LInterface::createQuickActionsFrame()
   {
-    Gtk::HBox *hbox;
+    Gtk::VBox *vbox;
 
-    hbox = new Gtk::HBox();
-    frm_quick_actions.add(*hbox);
-    frm_quick_actions.set_label("Action Menu");
+    vbox = new Gtk::VBox();
 
-    hbox->set_halign(Gtk::ALIGN_CENTER);
-    hbox->set_margin_top(7);
-    hbox->set_margin_bottom(7);
+    info_hbox.pack_start(frm_quick_actions, false, true, 5);
+    frm_quick_actions.add(*vbox);
+    frm_quick_actions.set_label("Save/Load");
 
-    bt_quick_save.set_label("Quick SAVE");
-    hbox->pack_start(bt_quick_save, false, true, 5);
-    bt_quick_load.set_label("Quick LOAD");
-    hbox->pack_start(bt_quick_load, false, true, 5);
+    vbox->set_valign(Gtk::ALIGN_CENTER);
+    vbox->set_margin_left(10);
+    vbox->set_margin_right(10);
 
-    bt_save.set_label("SAVE");
-    hbox->pack_start(bt_save, false, true, 5);
-    bt_load.set_label("LOAD");
-    hbox->pack_end(bt_load, false, true, 5);
+    bt_quick_save.set_label("Quick Save");
+    vbox->pack_start(bt_quick_save, false, true, 5);
+    bt_quick_load.set_label("Quick Load");
+    vbox->pack_start(bt_quick_load, false, true, 5);
+
+    bt_save.set_label("Save");
+    vbox->pack_start(bt_save, false, true, 5);
+    bt_load.set_label("Load");
+    vbox->pack_start(bt_load, false, true, 5);
 
   }
 
@@ -941,7 +943,7 @@ namespace capture
                 robots_checkbox_fm.add(draw_info_hbox);
                 draw_info_hbox.set_halign(Gtk::ALIGN_CENTER);
                 draw_info_hbox.pack_start(draw_info_checkbox, false, true, 5);
-                draw_info_checkbox.set_label("Don't Draw on Image");
+                draw_info_checkbox.set_label("Disable Drawing");
                 draw_info_checkbox.set_can_focus(false);
               }
 
@@ -997,9 +999,6 @@ namespace capture
                 pack_start(frm_device_info, false, false, 10);
                 __create_frm_device_info();
 
-                pack_start(frm_quick_actions, false, true, 10);
-                __create_frm_quick_actions();
-
                 pack_start(frm_device_prop, false, false, 10);
                 __create_frm_device_properties();
 
@@ -1028,6 +1027,7 @@ namespace capture
                 }
 
                 createPositionsAndButtonsFrame();
+                createQuickActionsFrame();
                 createIDsFrame();
                 createFunctionsFrame();
                 createSpeedsFrame();

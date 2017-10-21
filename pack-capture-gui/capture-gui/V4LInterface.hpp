@@ -111,7 +111,7 @@ class V4LInterface: public Gtk::VBox {
         void __init_combo_boxes();
         void __create_frm_device_info();
         void __create_frm_device_properties();
-        void __create_frm_quick_actions();
+        void createQuickActionsFrame();
         void __create_frm_warp();
 
         // Combo properties updates
