@@ -18,6 +18,8 @@
 #include "Robot.hpp"
 #include "ImageView.hpp"
 #include "../../cc/vision/visionGUI.hpp"
+#include <ctime>
+#include <chrono>
 
 namespace capture {
 

@@ -41,7 +41,6 @@ public:
 
 private:
 
-  bool bOnAir = false;
   // Frame Capture
   Gtk::Frame frm_capture;
   int picIndex, vidIndex;

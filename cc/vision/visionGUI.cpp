@@ -53,10 +53,11 @@ void VisionGUI::bt_record_video_pressed() {
   } else {
     std::string name = en_video_name.get_text();
 
-    bt_record_video.set_label("Finish");
+    bt_record_video.set_label("Stop");
     en_video_name.set_state(Gtk::STATE_INSENSITIVE);
     if (name.empty()) {
       vision->startNewVideo(std::to_string(vidIndex++));
+      en_video_name.set_text(std::to_string(vidIndex));
     } else {
       vision->startNewVideo(name);
     }
