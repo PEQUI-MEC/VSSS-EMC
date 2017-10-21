@@ -36,9 +36,6 @@ class ControlGUI: public Gtk::VBox
 public:
 	SerialW s;
 
-	time_t theTime = time(NULL);
-	struct tm *aTime = localtime(&theTime);
-
 	TestFrame testFrame;
 
 

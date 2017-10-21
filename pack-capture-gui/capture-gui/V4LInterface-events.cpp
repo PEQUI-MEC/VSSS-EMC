@@ -28,12 +28,6 @@ namespace capture {
 		return false;
 
 	}
-
-	void V4LInterface::HScale_Amin_value_changed() {
-
-		Amin[Img_id]=HScale_Amin.get_value();
-
-	}
 	void V4LInterface::HScale_offsetR_value_changed() {
 
 		offsetR=HScale_offsetR.get_value();
@@ -44,79 +38,6 @@ namespace capture {
 		offsetL=HScale_offsetL.get_value();
 
 	}
-	void V4LInterface::HScale_Hmin_value_changed() {
-
-		H[Img_id][0]=HScale_Hmin.get_value();
-		// std::cout<<H[Img_id][0]<<std::endl;
-
-	}
-	void V4LInterface::HScale_Smin_value_changed() {
-
-		S[Img_id][0]=HScale_Smin.get_value();
-		//  std::cout<<S[Img_id][0]<<std::endl;
-
-	}
-	void V4LInterface::HScale_Vmin_value_changed() {
-
-		V[Img_id][0]=HScale_Vmin.get_value();
-		//std::cout<<V[Img_id][0]<<std::endl;
-
-	}
-	void V4LInterface::HScale_Hmax_value_changed() {
-
-		H[Img_id][1]=HScale_Hmax.get_value();
-
-
-	}
-	void V4LInterface::HScale_Smax_value_changed() {
-
-		S[Img_id][1]=HScale_Smax.get_value();
-
-	}
-	void V4LInterface::HScale_Vmax_value_changed() {
-
-		V[Img_id][1]=HScale_Vmax.get_value();
-
-	}
-
-	 void V4LInterface::HScale_Dilate_value_changed() {
-
-		if(HScale_Dilate.get_value()<0){
-			D[Img_id]=0;
-		}else{
-			D[Img_id]=HScale_Dilate.get_value();
-		}
-		 //std::cout<<"=================================================="<<D[Img_id]<<std::endl;
-
-	}
-
-	void V4LInterface::HScale_Erode_value_changed() {
-
-
-		if(HScale_Erode.get_value()<0){
-			E[Img_id]=0;
-		}else{
-			E[Img_id]=HScale_Erode.get_value();
-		}
-		 //std::cout<<"=================================================="<<E[Img_id]<<std::endl;
-
-	}
-
-	void V4LInterface::HScale_Blur_value_changed() {
-
-		if(HScale_Blur.get_value()<3){
-			B[Img_id]=3;
-		}
-		else if((int) HScale_Blur.get_value() % 2 == 0){
-			B[Img_id]=(int) HScale_Blur.get_value()+1;
-		}
-		else{
-			B[Img_id]=(int)HScale_Blur.get_value();
-		}
-		 //std::cout<<"====Blur: "<<B[Img_id]<<" id color: "<<Img_id<<std::endl;
-
-	}
-
 
   // signals
 	void V4LInterface::__event_bt_quick_save_clicked()
@@ -128,15 +49,7 @@ namespace capture {
 			std::cout<<"Error: could not quick save."<<std::endl;
 		}
 	}
-	void V4LInterface::__event_auto_save()
-	{
-		std::cout << "AUTO SAVE" << std::endl;
 
-		if(!V4LInterface::__core_save("autosave.txt"))
-		{
-			std::cout<<"Error: could not auto save."<<std::endl;
-		}
-	}
 
 	void V4LInterface::__event_bt_save_clicked()
 	{
@@ -229,7 +142,6 @@ namespace capture {
 		    sp_width.set_state(Gtk::STATE_INSENSITIVE);
 		    sp_height.set_state(Gtk::STATE_INSENSITIVE);
 		    cb_frame_interval.set_state(Gtk::STATE_INSENSITIVE);
-		    bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
 		    bt_warp.set_state(Gtk::STATE_NORMAL);
 		    bt_quick_save.set_state(Gtk::STATE_NORMAL);
 		    bt_quick_load.set_state(Gtk::STATE_NORMAL);
@@ -237,6 +149,11 @@ namespace capture {
 		    bt_load.set_state(Gtk::STATE_NORMAL);
 				HScale_offsetR.set_state(Gtk::STATE_NORMAL);
 				HScale_offsetL.set_state(Gtk::STATE_NORMAL);
+				visionGUI.bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
+				visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
+				visionGUI.bt_save_picture.set_state(Gtk::STATE_NORMAL);
+				visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
+				visionGUI.en_picture_name.set_state(Gtk::STATE_NORMAL);
 		    m_signal_start.emit(true);
 
 		} else {
@@ -260,7 +177,7 @@ namespace capture {
 		    sp_width.set_state(Gtk::STATE_NORMAL);
 		    sp_height.set_state(Gtk::STATE_NORMAL);
 		    cb_frame_interval.set_state(Gtk::STATE_NORMAL);
-		    bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+		    visionGUI.bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
 		    bt_warp.set_state(Gtk::STATE_INSENSITIVE);
 		    bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
 		    bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
@@ -332,115 +249,6 @@ namespace capture {
 		{
 		    invert_image_flag = false;
 		    std::cout << "imageView >>>>>>>NORMAL<<<<<<<" << std::endl;
-		}
-	}
-
-	void V4LInterface::__event_bt_HSV_calib_pressed() {
-
-		if (HSV_calib_event_flag) {
-			HSV_calib_event_flag=false;
-			V4LInterface::__event_auto_save();
-		    HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-		    HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-		    HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-		    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-		    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-		    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
-			HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
-			HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
-			HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
-		    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-
-
-		} else {
-		    HSV_calib_event_flag=true;
-		    HScale_Hmin.set_state(Gtk::STATE_ACTIVE);
-		    HScale_Smin.set_state(Gtk::STATE_ACTIVE);
-		    HScale_Vmin.set_state(Gtk::STATE_ACTIVE);
-		    HScale_Hmax.set_state(Gtk::STATE_ACTIVE);
-		    HScale_Smax.set_state(Gtk::STATE_ACTIVE);
-		    HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
-			HScale_Dilate.set_state(Gtk::STATE_ACTIVE);
-			HScale_Erode.set_state(Gtk::STATE_ACTIVE);
-			HScale_Blur.set_state(Gtk::STATE_ACTIVE);
-		    HScale_Amin.set_state(Gtk::STATE_ACTIVE);
-
-	}
-}
-
-
-	void V4LInterface::__event_bt_right_HSV_calib_clicked() {
-
-		Img_id=Img_id+1;
-
-		if(Img_id>4) Img_id = 0;
-		HScale_Hmin.set_value(H[Img_id][0]);
-		HScale_Hmax.set_value(H[Img_id][1]);
-
-		HScale_Smin.set_value(S[Img_id][0]);
-		HScale_Smax.set_value(S[Img_id][1]);
-
-		HScale_Vmin.set_value(V[Img_id][0]);
-		HScale_Vmax.set_value(V[Img_id][1]);
-
-		HScale_Dilate.set_value(D[Img_id]);
-		HScale_Erode.set_value(E[Img_id]);
-
-		HScale_Blur.set_value(B[Img_id]);
-		HScale_Amin.set_value(Amin[Img_id]);
-		switch(Img_id) {
-		case 0:
-		    HSV_label.set_text("Main");
-		    break;
-		case 1:
-		    HSV_label.set_text("Green");
-		    break;
-		case 2:
-		    HSV_label.set_text("Pink");
-		    break;
-		case 3:
-		    HSV_label.set_text("Ball");
-		    break;
-		case 4:
-		    HSV_label.set_text("Opp.");
-		    break;
-		}
-	}
-
-	void V4LInterface::__event_bt_left_HSV_calib_clicked() {
-
-		Img_id=Img_id-1;
-		if(Img_id<0) Img_id = 4;
-		HScale_Hmin.set_value(H[Img_id][0]);
-		HScale_Hmax.set_value(H[Img_id][1]);
-
-		HScale_Smin.set_value(S[Img_id][0]);
-		HScale_Smax.set_value(S[Img_id][1]);
-
-		HScale_Vmin.set_value(V[Img_id][0]);
-		HScale_Vmax.set_value(V[Img_id][1]);
-
-		HScale_Dilate.set_value(D[Img_id]);
-		HScale_Erode.set_value(E[Img_id]);
-
-		HScale_Blur.set_value(B[Img_id]);
-		HScale_Amin.set_value(Amin[Img_id]);
-		switch(Img_id) {
-		case 0:
-		    HSV_label.set_text("Main");
-		    break;
-		case 1:
-		    HSV_label.set_text("Green");
-		    break;
-		case 2:
-		    HSV_label.set_text("Pink");
-		    break;
-		case 3:
-		    HSV_label.set_text("Ball");
-		    break;
-		case 4:
-		    HSV_label.set_text("Opp.");
-		    break;
 		}
 	}
 
@@ -748,20 +556,40 @@ namespace capture {
         {
             start_game_flag = true;
             start_game_bt.set_image(red_button_pressed);
+
 						robot_list[0].status = 0;
 						robot_list[1].status = 0;
 						robot_list[2].status = 0;
+
+						std::string dateString;
+						time_t tt;
+						std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+						tt = std::chrono::system_clock::to_time_t ( now );
+						dateString.append(std::string(ctime(&tt)).substr(0,24));
+
+						if (visionGUI.vision->isRecording()) {
+							visionGUI.vision->finishVideo();
+							visionGUI.bt_record_video.set_label("REC");
+						}
+						visionGUI.bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
+						visionGUI.en_video_name.set_state(Gtk::STATE_INSENSITIVE);
+						visionGUI.en_video_name.set_text(dateString);
+						visionGUI.vision->startNewVideo(dateString);
         }
         else
         {
-            start_game_flag = false;
-            start_game_bt.set_image(red_button_released);
-			for(int i=0; i<3; i++)
-				robot_list.at(i).cmdType = 0; // Position
-        }
+					visionGUI.vision->finishVideo();
+					visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
+					visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
+					visionGUI.en_video_name.set_text("");
+          start_game_flag = false;
+          start_game_bt.set_image(red_button_released);
+					for(int i=0; i<3; i++)
+						robot_list.at(i).cmdType = 0; // Position
+		    }
 
         for(int i=0; i<3; i++)
-            robot_list[i].histWipe();
+          robot_list[i].histWipe();
     }
 
     void V4LInterface::event_robots_function_edit_bt_signal_clicked(){
@@ -863,13 +691,13 @@ namespace capture {
 			std::cout<<"Saving HSV calibs..."<<std::endl;
 			// salva sempre 42 linhas linhas
 			for(int i=0; i<5; i++) {
-			  txtFile <<H[i][0]<<std::endl<<H[i][1]<<std::endl;
-			  txtFile <<S[i][0]<<std::endl<<S[i][1]<<std::endl;
-			  txtFile <<V[i][0]<<std::endl<<V[i][1]<<std::endl;
-			  txtFile <<D[i]<<std::endl;
-			  txtFile <<E[i]<<std::endl;
-			  txtFile <<B[i]<<std::endl;
-			  txtFile <<Amin[i]<<std::endl;
+			  txtFile <<visionGUI.vision->getHue(i, 0)<<std::endl<<visionGUI.vision->getHue(i, 1)<<std::endl;
+			  txtFile <<visionGUI.vision->getSaturation(i, 0)<<std::endl<<visionGUI.vision->getSaturation(i, 1)<<std::endl;
+			  txtFile <<visionGUI.vision->getValue(i, 0)<<std::endl<<visionGUI.vision->getValue(i, 1)<<std::endl;
+			  txtFile <<visionGUI.vision->getDilate(i)<<std::endl;
+			  txtFile <<visionGUI.vision->getErode(i)<<std::endl;
+			  txtFile <<visionGUI.vision->getBlur(i)<<std::endl;
+			  txtFile <<visionGUI.vision->getAmin(i)<<std::endl;
 			}
 			// !END_HSV
 
@@ -975,39 +803,40 @@ namespace capture {
 			std::cout<<"Loading HSV calibs..."<<std::endl;
 			for(int i=0; i<5; i++) {
 			  getline(txtFile, line);
-			  H[i][0]=atoi(line.c_str());
+			  visionGUI.vision->setHue(i, 0, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  H[i][1]=atoi(line.c_str());
+			  visionGUI.vision->setHue(i, 1, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  S[i][0]=atoi(line.c_str());
+			  visionGUI.vision->setSaturation(i, 0, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  S[i][1]=atoi(line.c_str());
+			  visionGUI.vision->setSaturation(i, 1, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  V[i][0]=atoi(line.c_str());
+			  visionGUI.vision->setValue(i, 0, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  V[i][1]=atoi(line.c_str());
+			  visionGUI.vision->setValue(i, 1, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  D[i]=atoi(line.c_str());
+			  visionGUI.vision->setDilate(i, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  E[i]=atoi(line.c_str());
+			  visionGUI.vision->setErode(i, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  B[i]=atoi(line.c_str());
+			  visionGUI.vision->setBlur(i, atoi(line.c_str()));
 			  getline(txtFile, line);
-			  Amin[i]=atoi(line.c_str());
+			  visionGUI.vision->setAmin(i, atoi(line.c_str()));
 			}
 
-			HScale_Hmin.set_value(H[Img_id][0]);
-			HScale_Hmax.set_value(H[Img_id][1]);
+			visionGUI.HScale_Hmin.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 0));
+			visionGUI.HScale_Hmax.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 1));
 
-			HScale_Smin.set_value(S[Img_id][0]);
-			HScale_Smax.set_value(S[Img_id][1]);
+			visionGUI.HScale_Smin.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 0));
+			visionGUI.HScale_Smax.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 1));
 
-			HScale_Vmin.set_value(V[Img_id][0]);
-			HScale_Vmax.set_value(V[Img_id][1]);
-			HScale_Dilate.set_value(D[Img_id]);
-			HScale_Erode.set_value(E[Img_id]);
-			HScale_Blur.set_value(B[Img_id]);
-			HScale_Amin.set_value(Amin[Img_id]);
+			visionGUI.HScale_Vmin.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 0));
+			visionGUI.HScale_Vmax.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 1));
+
+			visionGUI.HScale_Dilate.set_value(visionGUI.vision->getDilate(visionGUI.Img_id));
+			visionGUI.HScale_Erode.set_value(visionGUI.vision->getErode(visionGUI.Img_id));
+			visionGUI.HScale_Blur.set_value(visionGUI.vision->getBlur(visionGUI.Img_id));
+			visionGUI.HScale_Amin.set_value(visionGUI.vision->getAmin(visionGUI.Img_id));
 			// !END_HSV
 
 			// !BEGIN_WARP

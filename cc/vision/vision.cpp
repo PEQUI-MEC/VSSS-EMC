@@ -1,13 +1,10 @@
 #include "vision.hpp"
 
 void Vision::run(cv::Mat raw_frame) {
-  // frameCounter++;
-  // if (frameCounter == 100) startNewVideo("teste");
-  // if (frameCounter == 201) finishVideo();
-  // else if (frameCounter < 201) recordToVideo(raw_frame);
-  // else if (frameCounter == 202) savePicture("teste", raw_frame);
-
   in_frame = raw_frame.clone();
+
+  if (bOnAir) recordToVideo();
+
   preProcessing();
   findTags();
   findElements();
@@ -15,7 +12,7 @@ void Vision::run(cv::Mat raw_frame) {
 }
 
 void Vision::preProcessing() {
-  cv::cvtColor(in_frame,in_frame,cv::COLOR_RGB2HSV);
+  cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2HSV);
 }
 
 void Vision::findTags() {
@@ -26,7 +23,7 @@ void Vision::findTags() {
 }
 
 void Vision::segmentAndSearch(int color) {
-  cv::Mat frame = in_frame.clone();
+  cv::Mat frame = hsv_frame.clone();
 
   inRange(frame,cv::Scalar(hue[color][MIN],saturation[color][MIN],value[color][MIN]),
   cv::Scalar(hue[color][MAX],saturation[color][MAX],value[color][MAX]),threshold_frame.at(color));
@@ -275,7 +272,7 @@ void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], 
   }
 }
 
-void Vision::savePicture(std::string in_name, cv::Mat in_frame) {
+void Vision::savePicture(std::string in_name) {
   cv::Mat frame = in_frame.clone();
   std::string picName = "media/pictures/" + in_name + ".png";
 
@@ -287,25 +284,30 @@ void Vision::startNewVideo(std::string in_name) {
   std::string videoName = "media/videos/" + in_name + ".avi";
 
   video.open(videoName, CV_FOURCC('M','J','P','G'), 30, cv::Size(width,height));
-  std::cout << "Started a new video recording..." << std::endl;
+  std::cout << "Started a new video recording." << std::endl;
+  bOnAir = true;
 }
 
-bool Vision::recordToVideo(cv::Mat in_frame) {
+bool Vision::recordToVideo() {
   if (!video.isOpened()) return false;
   cv::Mat frame = in_frame.clone();
   cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
 
   video.write(frame);
-  std::cout << "Writing frame " << frameCounter << " to video." << std::endl;
   return true;
 }
 
 bool Vision::finishVideo() {
   if (!video.isOpened()) return false;
 
-  std::cout << "Finish video recording..." << std::endl;
+  std::cout << "Finished video recording." << std::endl;
   video.release();
+  bOnAir = false;
   return true;
+}
+
+bool Vision::isRecording() {
+  return bOnAir;
 }
 
 cv::Point Vision::getBall() {
@@ -342,7 +344,88 @@ cv::Mat Vision::getThreshold(int index) {
   return threshold_frame.at(index);
 }
 
-Vision::Vision(int w, int h)
+int Vision::getHue(int index0, int index1) {
+  return hue[index0][index1];
+}
+
+int Vision::getSaturation(int index0, int index1) {
+  return saturation[index0][index1];
+}
+
+int Vision::getValue(int index0, int index1) {
+  return value[index0][index1];
+}
+
+int Vision::getErode(int index) {
+  return erode[index];
+}
+
+int Vision::getDilate(int index) {
+  return dilate[index];
+}
+
+int Vision::getBlur(int index) {
+  return blur[index];
+}
+
+int Vision::getAmin(int index) {
+  return areaMin[index];
+}
+
+void Vision::setHue(int index0, int index1, int inValue) {
+  if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) hue[index0][index1] = inValue;
+  else std::cout << "Vision:setHue: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setSaturation(int index0, int index1, int inValue) {
+  if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) saturation[index0][index1] = inValue;
+  else std::cout << "Vision:setSaturation: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setValue(int index0, int index1, int inValue) {
+  if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) value[index0][index1] = inValue;
+  else std::cout << "Vision:setValue: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setErode(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) erode[index] = inValue;
+  else std::cout << "Vision:setErode: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setDilate(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) dilate[index] = inValue;
+  else std::cout << "Vision:setDilate: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setBlur(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) blur[index] = inValue;
+  else std::cout << "Vision:setBlur: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setAmin(int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS) areaMin[index] = inValue;
+  else std::cout << "Vision:setAmin: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setFrameSize(int inWidth, int inHeight) {
+  if (inWidth >= 0) width = inWidth;
+  if (inHeight >= 0) height = inHeight;
+}
+
+int Vision::getFrameHeight() {
+  return height;
+}
+
+int Vision::getFrameWidth() {
+  return width;
+}
+
+cv::Point* Vision::getAllAdvRobots() {
+  return advRobots;
+}
+
+
+Vision::Vision(int w, int h) : width(w), height(h), bOnAir(false)
 {
   // Variables Init
   cv::Mat mat;
@@ -357,14 +440,9 @@ Vision::Vision(int w, int h)
   robot_list.push_back(robot);
   robot_list.push_back(robot);
   robot_list.push_back(robot);
-
-  width = w;
-  height = h;
-
-  frameCounter = 0;
 }
 
 Vision::~Vision()
 {
-
+  
 }
