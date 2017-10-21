@@ -1,13 +1,10 @@
 #include "vision.hpp"
 
 void Vision::run(cv::Mat raw_frame) {
-  // frameCounter++;
-  // if (frameCounter == 100) startNewVideo("teste");
-  // if (frameCounter == 201) finishVideo();
-  // else if (frameCounter < 201) recordToVideo(raw_frame);
-  // else if (frameCounter == 202) savePicture("teste", raw_frame);
-
   in_frame = raw_frame.clone();
+
+  if (bOnAir) recordToVideo();
+  
   preProcessing();
   findTags();
   findElements();
@@ -15,7 +12,7 @@ void Vision::run(cv::Mat raw_frame) {
 }
 
 void Vision::preProcessing() {
-  cv::cvtColor(in_frame,in_frame,cv::COLOR_RGB2HSV);
+  cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2HSV);
 }
 
 void Vision::findTags() {
@@ -26,7 +23,7 @@ void Vision::findTags() {
 }
 
 void Vision::segmentAndSearch(int color) {
-  cv::Mat frame = in_frame.clone();
+  cv::Mat frame = hsv_frame.clone();
 
   inRange(frame,cv::Scalar(hue[color][MIN],saturation[color][MIN],value[color][MIN]),
   cv::Scalar(hue[color][MAX],saturation[color][MAX],value[color][MAX]),threshold_frame.at(color));
@@ -275,7 +272,7 @@ void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], 
   }
 }
 
-void Vision::savePicture(std::string in_name, cv::Mat in_frame) {
+void Vision::savePicture(std::string in_name) {
   cv::Mat frame = in_frame.clone();
   std::string picName = "media/pictures/" + in_name + ".png";
 
@@ -287,24 +284,25 @@ void Vision::startNewVideo(std::string in_name) {
   std::string videoName = "media/videos/" + in_name + ".avi";
 
   video.open(videoName, CV_FOURCC('M','J','P','G'), 30, cv::Size(width,height));
-  std::cout << "Started a new video recording..." << std::endl;
+  std::cout << "Started a new video recording." << std::endl;
+  bOnAir = true;
 }
 
-bool Vision::recordToVideo(cv::Mat in_frame) {
+bool Vision::recordToVideo() {
   if (!video.isOpened()) return false;
   cv::Mat frame = in_frame.clone();
   cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
 
   video.write(frame);
-  std::cout << "Writing frame " << frameCounter << " to video." << std::endl;
   return true;
 }
 
 bool Vision::finishVideo() {
   if (!video.isOpened()) return false;
 
-  std::cout << "Finish video recording..." << std::endl;
+  std::cout << "Finished video recording." << std::endl;
   video.release();
+  bOnAir = false;
   return true;
 }
 
@@ -407,9 +405,7 @@ void Vision::setAmin(int index, int inValue) {
 
 void Vision::setFrameSize(int inWidth, int inHeight) {
   if (inWidth >= 0) width = inWidth;
-  else std::cout << "Vision:setFrameSize: could not set width (invalid width)" << std::endl;
   if (inHeight >= 0) height = inHeight;
-  else std::cout << "Vision:setFrameSize: could not set height (invalid height)" << std::endl;
 }
 
 int Vision::getFrameHeight() {
@@ -425,7 +421,7 @@ cv::Point* Vision::getAllAdvRobots() {
 }
 
 
-Vision::Vision(int w, int h) : width(w), height(h)
+Vision::Vision(int w, int h) : width(w), height(h), bOnAir(false)
 {
   // Variables Init
   cv::Mat mat;
@@ -440,8 +436,6 @@ Vision::Vision(int w, int h) : width(w), height(h)
   robot_list.push_back(robot);
   robot_list.push_back(robot);
   robot_list.push_back(robot);
-
-  frameCounter = 0;
 }
 
 Vision::~Vision()

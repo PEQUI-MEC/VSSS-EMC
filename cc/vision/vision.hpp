@@ -31,7 +31,7 @@ private:
   static const int MAX = 1;
 
   // Frames
-  cv::Mat in_frame;
+  cv::Mat in_frame, hsv_frame;
   std::vector<cv::Mat>threshold_frame;
 
   // Robots
@@ -57,9 +57,11 @@ private:
   int width;
   int height;
 
+  // record video flag
+  bool bOnAir;
+
   // video
   cv::VideoWriter video;
-  int frameCounter;
 
   // threads
   boost::thread_group threshold_threads;
@@ -82,9 +84,9 @@ public:
   double calcDistance(cv::Point p1, cv::Point p2);
 
   void startNewVideo(std::string videoName);
-  bool recordToVideo(cv::Mat frame);
+  bool recordToVideo();
   bool finishVideo();
-  void savePicture(std::string in_name, cv::Mat in_frame);
+  void savePicture(std::string in_name);
 
   cv::Point getBall();
   Robot getRobot(int index);

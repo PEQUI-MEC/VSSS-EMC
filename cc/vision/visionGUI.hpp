@@ -28,6 +28,10 @@ public:
 
   Gtk::Scale HScale_Amin;
 
+  Gtk::ToggleButton bt_record_video;
+  Gtk::Button bt_save_picture;
+  Gtk::Entry en_video_name, en_picture_name;
+
   VisionGUI();
   ~VisionGUI();
 
@@ -36,21 +40,27 @@ public:
   int getFrameWidth();
 
 private:
-  Gtk::Frame frm_calibration;
+
+  bool bOnAir = false;
+  // Frame Capture
+  Gtk::Frame frm_capture;
+  int picIndex, vidIndex;
+
+  // Frame HSV Calibration
   Gtk::Label HSV_label;
-
-
+  Gtk::Frame frm_calibration;
   Gtk::Button bt_HSV_left;
   Gtk::Button bt_HSV_right;
-
-
-
 
   void __event_bt_HSV_calib_pressed();
   void __event_bt_right_HSV_calib_clicked();
   void __event_bt_left_HSV_calib_clicked();
 
+  void bt_save_picture_clicked();
+  void bt_record_video_pressed();
+
   void __create_frm_calibration();
+  void __create_frm_capture();
 
   void HScale_Hmin_value_changed();
   void HScale_Smin_value_changed();

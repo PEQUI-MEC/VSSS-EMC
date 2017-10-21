@@ -1,5 +1,78 @@
 #include "visionGUI.hpp"
 
+void VisionGUI::__create_frm_capture() {
+  Gtk::VBox * vbox;
+  Gtk::Grid * grid;
+  Gtk::Label * label;
+
+  vbox = new Gtk::VBox();
+  grid = new Gtk::Grid();
+
+  frm_capture.add(*vbox);
+  vbox->pack_start(*grid, false, true, 5);
+  vbox->set_halign(Gtk::ALIGN_CENTER);
+  vbox->set_valign(Gtk::ALIGN_CENTER);
+
+  frm_capture.set_label("Video/Image Capture");
+
+  grid->set_border_width(10);
+  grid->set_column_spacing(10);
+  grid->set_row_spacing(5);
+  // grid->set_column_homogeneous(true);
+
+  label = new Gtk::Label("Picture Name:");
+  label->set_xalign(1.0);
+  grid->attach(*label, 0, 0, 1, 1);
+  label = new Gtk::Label("Video Name:");
+  label->set_xalign(1.0);
+  grid->attach(*label, 0, 1, 1, 1);
+
+  grid->attach(en_picture_name, 1, 0, 1, 1);
+  grid->attach(en_video_name, 1, 1, 1, 1);
+
+  bt_save_picture.set_label("Save");
+  bt_record_video.set_label("REC");
+  grid->attach(bt_save_picture, 2, 0, 1, 1);
+  grid->attach(bt_record_video, 2, 1, 1, 1);
+
+  en_video_name.set_state(Gtk::STATE_INSENSITIVE);
+  en_picture_name.set_state(Gtk::STATE_INSENSITIVE);
+  bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
+  bt_save_picture.set_state(Gtk::STATE_INSENSITIVE);
+
+  bt_record_video.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::bt_record_video_pressed));
+  bt_save_picture.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::bt_save_picture_clicked));
+}
+
+void VisionGUI::bt_record_video_pressed() {
+  if (bOnAir) {
+    vision->finishVideo();
+    bt_record_video.set_label("REC");
+    en_video_name.set_text("");
+  } else {
+    std::string name = en_video_name.get_text();
+
+    bt_record_video.set_label("Finish");
+
+    if (name.empty()) {
+      vision->startNewVideo(std::to_string(vidIndex++));
+    } else {
+      vision->startNewVideo(name);
+    }
+  }
+  bOnAir = !bOnAir;
+}
+
+void VisionGUI::bt_save_picture_clicked() {
+  std::string name = en_picture_name.get_text();
+  if (name.empty()) {
+    vision->savePicture(std::to_string(picIndex++));
+  } else {
+    vision->savePicture(name);
+  }
+  en_picture_name.set_text("");
+}
+
 void VisionGUI::__create_frm_calibration() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
@@ -13,7 +86,7 @@ void VisionGUI::__create_frm_calibration() {
   vbox->set_halign(Gtk::ALIGN_CENTER);
   vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frm_calibration.set_label("Calibration");
+  frm_calibration.set_label("HSV Calibration");
 
   grid->set_border_width(10);
   grid->set_column_spacing(15);
@@ -389,16 +462,21 @@ int VisionGUI::getFrameWidth() {
   return vision->getFrameWidth();
 }
 
-VisionGUI::VisionGUI() : HSV_calib_event_flag(false), Img_id(0) {
+VisionGUI::VisionGUI() :
+  HSV_calib_event_flag(false), Img_id(0),
+  vidIndex(0), picIndex(0) {
 
   vision = new Vision(640, 480);
 
+  pack_start(frm_capture, false, false, 10);
   pack_start(frm_calibration, false, false, 10);
+
+  __create_frm_capture();
   __create_frm_calibration();
 
   init_calib_params();
 }
 
 VisionGUI::~VisionGUI() {
-
+ if (bOnAir) vision->finishVideo();
 }
