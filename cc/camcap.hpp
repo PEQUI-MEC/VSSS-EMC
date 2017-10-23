@@ -350,7 +350,7 @@ public:
                 // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(200));
         }
     }
 
@@ -410,6 +410,7 @@ public:
 
 
         for(int i=0; i<interface.robot_list.size() && i<3; i++) {
+            interface.robot_list[i].vmax = interface.robot_list[i].vdefault;
             if(fixed_ball[i]){
                 interface.robot_list[i].target=vision->getBall();
                 position_to_vector(i);
@@ -425,7 +426,7 @@ public:
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
                         position_to_vector(i);
                 } else {
-                //interface.robot_list[i].vmax = 0;
+                interface.robot_list[i].vmax = 0;
                 }
             }
         }

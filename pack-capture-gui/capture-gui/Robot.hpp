@@ -39,7 +39,6 @@ class Robot
 
         Robot()
         {
-            vmax = vdefault;
             ternary = cv::Point(-1,-1);
             secundary= cv::Point(-1,-1);
             position= cv::Point(-1,-1);

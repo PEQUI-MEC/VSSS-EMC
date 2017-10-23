@@ -8,6 +8,7 @@
 #include "SerialW.hpp"
 #include <math.h>
 #include "Ann.hpp"
+#include "TestFrame.hpp"
 
 #define PREDICAO_NUM_SAMPLES 15
 // Parametros para atacante sem bola
@@ -58,6 +59,8 @@ class Strategy
 public:
 	Ann * ann;
 	bool useAnn_flag = false;
+
+	TestFrame testFrame;
 
 	// Robot Goalkeeper;
 	// Robot Attack;
@@ -155,6 +158,7 @@ public:
 		fixed_pos_distance,
 		collision_radius,
 		max_collision_count,
+		goalie_line,
 		acceleration;
 
 	int t = 0;
@@ -205,6 +209,7 @@ public:
 		max_approach = ABS_ROBOT_SIZE*3;
 		max_collision_count = 15;
 		acceleration = 0.8;
+		goalie_line = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE/2;
 
 		fuzzy_init();
 
@@ -242,6 +247,10 @@ public:
 		return dist;
 	}
 
+	void get_variables() {
+		goalie_line = testFrame.getValue(0); // index da barrinha
+	}
+
 	void get_targets(vector<Robot> * pRobots, cv::Point * advRobots) {
 
 			robots = * pRobots;
@@ -253,6 +262,8 @@ public:
 				robots[i].fixedPos = false;
 				robots[i].using_pot_field = false;
 				robots[i].vmax = robots[i].vdefault;
+
+				get_variables();
 
 				switch (robots[i].role)	{
 				case GOALKEEPER:
@@ -285,10 +296,10 @@ public:
 			danger_zone_2 = false; //só para testes com um robô
 			transition_enabled = false; //só para testes com um robô
 
-			gk_routine(gk);
+			//gk_routine(gk);
 			// def_routine(def);
-			// atk_routine(atk);
-			//test_run(atk);
+			 atk_routine(atk);
+			// test_run(gk);
 
 			// opp_gk_routine(opp);
 
@@ -333,10 +344,10 @@ public:
 			}
 			// cout << "transitions" << endl;
 			for(int i =0; i<3; i++) {
+				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
-				if(!robots[i].using_pot_field) position_to_vector(i);
 			}
 
 			overmind();
@@ -355,8 +366,8 @@ public:
 
 		double mup = double(COORD_GOAL_UP_Y - Ball.y)/double(COORD_GOAL_ATK_FRONT_X - Ball.x);
 		double mdwn = double(COORD_GOAL_DWN_Y - Ball.y)/double(COORD_GOAL_ATK_FRONT_X - Ball.x);
-
 		double theta = atan((mup-mdwn)/(1+mup*mdwn));
+
 		double phi = atan((m2-m1)/(1+m2*m1));
 
 		// int trocaIndex = Fuzzy_Troca();
@@ -372,17 +383,20 @@ public:
 		// 	break;
 		// }
 
+		if(robots[atk].cmdType == SPEED) atk_mindcontrol = false;
+
 		if(atk_mindcontrol) {
 			robots[atk].cmdType = VECTOR;
 			// robots[atk].target = goal;
 			// if(abs(robots[atk].orientation) > 90) robots[atk].transAngle = 180;
 			// else robots[atk].transAngle = 0;
 			robots[atk].transAngle = lock_angle;
-			robots[atk].vmax = 1.0;
+			robots[atk].vmax = 1.4;
 			timeout++;
 			if(timeout >= 30) {
 				timeout = 0;
 				atk_mindcontrol = false;
+				robots[atk].vmax = robots[atk].vdefault;
 			}
 		}
 
@@ -446,11 +460,11 @@ public:
 	}
 
 	void fixed_position_check(int i) { // Para posição fixa
-		if(robots[i].fixedPos) {
+		if(robots[i].fixedPos && (robots[i].cmdType == VECTOR || robots[i].cmdType == POSITION)) {
 			if(distance(robots[i].target, robots[i].position) <= ABS_ROBOT_SIZE) robots[i].vmax = 0.5;
 			if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
 				robots[i].target = robots[i].position;
-				// robots[i].vmax = 0;
+				robots[i].vmax = 0;
 			}
 		}
 	}
@@ -548,8 +562,8 @@ public:
 		// if(!action1 && !action2) {
 		if(!is_near(i, targets_temp)) {
 			robots[i].target = targets_temp;
-			robots[i].vmax = 0.8 * 4*distance(robots[i].position, targets_temp)/ABS_GOAL_TO_GOAL_WIDTH;
-			if (robots[i].vmax > 0.8) robots[i].vmax = 0.8;
+			robots[i].vmax = robots[i].vdefault * 4*distance(robots[i].position, targets_temp)/ABS_GOAL_TO_GOAL_WIDTH;
+			if (robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
 			// cout << robots[i].target.x << " " << robots[i].target.y << endl;
 		}
 		// if(action1 && !action2) {
@@ -978,9 +992,8 @@ public:
 	}
 
 	void test_run(int i) {
-
-		pot_field_around(i);
-
+		// robots[i].target = robots[i].position;
+		// fixed_lookup(i);
 	}
 
 	void atk_routine(int i) {
@@ -1113,7 +1126,7 @@ public:
 
 			case NORMAL_STATE:
 			robots[i].fixedPos = true;
-			robots[i].target.x = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE/2;
+			robots[i].target.x = goalie_line;
 			robots[i].target.y = Ball_Est.y;
 
 			if(Ball_Est.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
