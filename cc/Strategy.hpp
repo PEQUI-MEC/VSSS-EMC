@@ -49,6 +49,7 @@
 #define BALL_IS_OBS 0
 #define BALL_ONLY_OBS 1
 #define BALL_NOT_OBS 2
+#define NO_OBS 3
 
 
 
@@ -294,11 +295,11 @@ public:
 
 			danger_zone_1 = false; //só para testes com um robô
 			danger_zone_2 = false; //só para testes com um robô
-			transition_enabled = false; //só para testes com um robô
+			// transition_enabled = false; //só para testes com um robô
 
-			//gk_routine(gk);
-			// def_routine(def);
-			 atk_routine(atk);
+			gk_routine(gk);
+			def_routine(def);
+			atk_routine(atk);
 			// test_run(gk);
 
 			// opp_gk_routine(opp);
@@ -370,20 +371,22 @@ public:
 
 		double phi = atan((m2-m1)/(1+m2*m1));
 
-		// int trocaIndex = Fuzzy_Troca();
-		// switch (trocaIndex) {
-		// 	case 0:
-		// 	// DO NOTHING
-		// 	break;
-		// 	case 1: // TROCA TUDO
-		// 	full_transition = true;
-		// 	break;
-		// 	case 2: // TROCA ATKDEF
-		// 	half_transition = true;
-		// 	break;
-		// }
+		int trocaIndex = Fuzzy_Troca();
+		switch (trocaIndex) {
+			case 0:
+			// DO NOTHING
+			break;
+			case 1: // TROCA TUDO
+			full_transition = true;
+			cout << "troca tudo" << endl;
+			break;
+			case 2: // TROCA ATKDEF
+			half_transition = true;
+			cout << "troca atk/def" << endl;
+			break;
+		}
 
-		if(robots[atk].cmdType == SPEED) atk_mindcontrol = false;
+		if(robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
 		if(atk_mindcontrol) {
 			robots[atk].cmdType = VECTOR;
@@ -391,7 +394,7 @@ public:
 			// if(abs(robots[atk].orientation) > 90) robots[atk].transAngle = 180;
 			// else robots[atk].transAngle = 0;
 			robots[atk].transAngle = lock_angle;
-			robots[atk].vmax = 1.4;
+			robots[atk].vmax = 1.2;
 			timeout++;
 			if(timeout >= 30) {
 				timeout = 0;
@@ -419,7 +422,7 @@ public:
 		//   " phi " << phi*180/PI << endl;
 	}
 
-	void set_flags () {
+	void set_flags() {
 		danger_zone_1 = false;
 		danger_zone_2 = false;
 		atk_ball_possession = false;
@@ -461,7 +464,11 @@ public:
 
 	void fixed_position_check(int i) { // Para posição fixa
 		if(robots[i].fixedPos && (robots[i].cmdType == VECTOR || robots[i].cmdType == POSITION)) {
-			if(distance(robots[i].target, robots[i].position) <= ABS_ROBOT_SIZE) robots[i].vmax = 0.5;
+			robots[i].vmax = robots[i].vdefault * pow(distance(robots[i].position, robots[i].target)/(ABS_GOAL_TO_GOAL_WIDTH/4), 2);
+			// cout << "vmax " << robots[i].vmax << " distancia "<< distance(robots[i].position, robots[i].target) << " distancia max " << ABS_GOAL_TO_GOAL_WIDTH/4<<endl;
+			if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
+			if(robots[i].vmax < 0.3) robots[i].vmax = 0.3;
+
 			if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
 				robots[i].target = robots[i].position;
 				robots[i].vmax = 0;
@@ -501,7 +508,7 @@ public:
 		return true;
 	}
 
-	void go_to_the_ball (int i) {
+	void go_to_the_ball(int i) {
 
 		cv::Point targets_temp;
 		cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
@@ -527,7 +534,7 @@ public:
 		if (robots[i].vmax > 0.5) robots[i].vmax = 0.5;
 	}
 
-	void go_to_the_ball_direct (int i) {
+	void go_to_the_ball_direct(int i) {
 
 		cv::Point targets_temp;
 		cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
@@ -579,7 +586,7 @@ public:
 
 	} // incompleto!!! //incompleto!!
 
-	void around_the_ball (int i) {
+	void around_the_ball(int i) {
 		// serve como um estado anterior ao go_to_the_ball, para quando o robô se encontra a frente da bola
 		robots[i].target.x = Ball.x;
 		if (robots[i].position.y > Ball.y) robots[i].target.y = Ball.y + max_approach;
@@ -591,13 +598,7 @@ public:
 		return target_angle;
 	}
 
-	// void reach_point(int i, cv::Point target_point) {
-	// 	if(distance(target_point, robots[i].position) > ABS_ROBOT_SIZE) {
-	// 		robots[i].target = target_point;
-	// 	}
-	// }
-
-	double potField (int robot_index, cv::Point goal, int behavior=2) {
+	double potField(int robot_index, cv::Point goal, int behavior=2) {
 		robots[robot_index].using_pot_field = true;
 		float gain_rep=10;
 		float gain_att=1;
@@ -714,6 +715,12 @@ public:
 				}
 			break;
 
+			case NO_OBS:
+			for (int i = 0; i < 5; i++) {
+			pot_magnitude[i] = 0;
+			}
+			break;
+
 			case BALL_NOT_OBS:
 			break;
 		}
@@ -736,7 +743,7 @@ public:
 		return pot_theta;
 	}
 
-	int pot_rotation_decision(int robot_index,cv::Point goal, cv::Point obst){
+	int pot_rotation_decision(int robot_index,cv::Point goal, cv::Point obst) {
 		int HORARIO = 1;
 		int ANTI_HORARIO = -1;
 		bool goal_ahead = robots[robot_index].position.x > obst.x && obst.x > goal.x;
@@ -850,13 +857,13 @@ public:
 		else return 1.0;
 	}
 
-	void spin_left(int i){
+	void spin_left(int i) {
 		robots[i].cmdType = SPEED;
 		robots[i].Vr = robots[i].vmax;
 		robots[i].Vl = - robots[i].vmax;
 	}
 
-	void spin_right(int i){
+	void spin_right(int i) {
 		robots[i].cmdType = SPEED;
 		robots[i].Vr = - robots[i].vmax;
 		robots[i].Vl = robots[i].vmax;
@@ -864,25 +871,10 @@ public:
 
 	void def_wait(int i) {
 		robots[i].fixedPos = true;
-		if (Ball.y > COORD_GOAL_MID_Y) {
-			if (sqrt(pow(double(COORD_GOAL_DWN_Y - robots[i].position.y), 2) + pow(double(def_line - robots[i].position.x), 2)) < ABS_ROBOT_SIZE) {
-				robots[i].cmdType = ORIENTATION;
-				robots[i].targetOrientation = look_at_ball(i);
-			} else {
-				robots[i].target.x = def_line;
-				robots[i].target.y = COORD_GOAL_DWN_Y;
-			}
-		} else {
-			if (sqrt(pow(double(COORD_GOAL_UP_Y - robots[i].position.y), 2) + pow(double(def_line - robots[i].position.x), 2)) < ABS_ROBOT_SIZE) {
-				robots[i].cmdType = ORIENTATION;
-				robots[i].targetOrientation = look_at_ball(i);
-			} else {
-				robots[i].target.x = def_line;
-				robots[i].target.y = COORD_GOAL_UP_Y;
-			}
+		if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
+			robots[i].cmdType = ORIENTATION;
+			robots[i].targetOrientation = look_at_ball(i);
 		}
-		// cout << robots[i].target.x << " x " << robots[i].target.y << " y "<< endl;
-
 	}
 
 	void fuzzy_init() {
@@ -890,7 +882,7 @@ public:
 		controller.defineVariables("cc/Fuzzy/Membership_VSS2017.txt");
 	}
 
-	int Fuzzy_Troca(){
+	int Fuzzy_Troca() {
 
 				float DGK, DATK, DDEF;
 
@@ -941,7 +933,7 @@ public:
 
 	}
 
-	double map_range (double actual, double minactual, double maxactual) {
+	double map_range(double actual, double minactual, double maxactual) {
 		double maxtarget = 1;
 		double mintarget = 0;
 		return (actual - minactual) * ((maxtarget-mintarget)/(maxactual-minactual));
@@ -962,8 +954,8 @@ public:
 		double phi = atan((m2-m1)/(1+m2*m1));
 		// cout << "phi -> " << phi*180/PI << " 180 - phi -> " << 180 - phi*180/PI << endl;
 
-		targets_temp.x = double(Ball.x - double(v.x/module) * max_approach);
-		targets_temp.y = double(Ball.y - double(v.y/module) * max_approach);
+		targets_temp.x = double(Ball_Est.x - double(v.x/module) * max_approach);
+		targets_temp.y = double(Ball_Est.y - double(v.y/module) * max_approach);
 
 		if(targets_temp.y < 0) targets_temp.y = 0;
 		if(targets_temp.y > ABS_FIELD_HEIGHT) targets_temp.y = ABS_FIELD_HEIGHT;
@@ -977,7 +969,7 @@ public:
 
 
 		if(is_near(i, targets_temp) || action1) {
-			robots[i].transAngle = potField(i, Ball, BALL_NOT_OBS);
+			robots[i].transAngle = potField(i, Ball, NO_OBS);
 			action1 = true;
 			// cout << "action1" << endl;
 		}
@@ -987,7 +979,7 @@ public:
 		if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
 			robots[i].cmdType = ORIENTATION;
 			robots[i].targetOrientation = PI/2;
-			cout << "lookup" << '\n';
+			// cout << "lookup" << '\n';
 		}
 	}
 
@@ -1015,48 +1007,40 @@ public:
 			break;
 
 			case SIDEWAYS:
-			if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5) {
-				if(Ball.x > COORD_MID_FIELD_X) {
+				if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5) {
 					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+						robots[i].target = Ball;
+					} else if(Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE/2){
 						robots[i].target = Ball;
 					} else{
 						spin_left(i);
 					}
-				} else {
-					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
-						robots[i].target = Ball;
-					} else if(Ball.x > robots[i].position.x){
-						robots[i].target = Ball;
-					} else{
-						spin_left(i);
+					if(Ball.x < robots[i].position.x) {
+						robots[i].target.x = Ball.x - max_approach;
+						robots[i].target.y = Ball.y - max_approach/2;
 					}
-				}
-			} else if(Ball.y < ABS_ROBOT_SIZE*1.5) {
-				if(Ball.x > COORD_MID_FIELD_X) {
+				} else if(Ball.y < ABS_ROBOT_SIZE*1.5) {
 					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+						robots[i].target = Ball;
+					} else if(Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE/2){
 						robots[i].target = Ball;
 					} else{
 						spin_right(i);
 					}
-				} else {
-					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
-						robots[i].target = Ball;
-					} else if(Ball.x > robots[i].position.x){
-						robots[i].target = Ball;
-					} else{
-						spin_right(i);
+					if(Ball.x < robots[i].position.x) {
+						robots[i].target.x = Ball.x - max_approach;
+						robots[i].target.y = Ball.y + max_approach/2;
 					}
+				} else {
+					robots[i].status = NORMAL_STATE; // voltar ao estado normal
 				}
-			} else {
-				robots[i].status = NORMAL_STATE; // voltar ao estado normal
-			}
 			break;
 
 			case CORNER_STATE:
 				if(Ball.x > corner_atk_limit) {
 					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
-							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_right(i); // giro que leva a bola ao gol
+							if((Ball.x > robots[i].position.x || Ball.y < robots[i].position.y) && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_right(i); // giro que leva a bola ao gol
 							else robots[i].target = Ball; //!!! testar pode dar ruim com a troca
 						} else {
 							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_left(i); // giro para faze-la entrar
@@ -1064,7 +1048,7 @@ public:
 						}
 					} else {
 						if(Ball.y > COORD_GOAL_DWN_Y) {
-							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_left(i);
+							if((Ball.x > robots[i].position.x || Ball.y > robots[i].position.y) && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_left(i);
 							else robots[i].target = Ball;
 						} else {
 							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_right(i); // giro para faze-la entrar
@@ -1090,32 +1074,22 @@ public:
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
-				if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) robots[i].status = CORNER_STATE;
-				else def_wait(i);
-				if(danger_zone_1) half_transition = true;
-				else if(danger_zone_2) robots[i].status = STEP_BACK;
-			break;
-
-			case STEP_BACK:
-				if(distance(robots[i].position, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y)) >= ABS_ROBOT_SIZE/2) {
+				if(Ball.x > corner_atk_limit) {
 					robots[i].target.x = COORD_MID_FIELD_X;
 					robots[i].target.y = COORD_GOAL_MID_Y;
 				} else {
-					robots[i].cmdType = ORIENTATION;
-					robots[i].targetOrientation = look_at_ball(i);
+					robots[i].target.x = COORD_MID_FIELD_X/2;
+					robots[i].target.y = COORD_GOAL_MID_Y;
 				}
+				def_wait(i);
+			break;
+
+			case STEP_BACK:
+
 			break;
 
 			case TRANSITION_STATE:
-				robots[i].target.x = COORD_MID_FIELD_X;
-				if(Ball.y < robots[i].position.y) {
-					robots[i].target.y = ABS_FIELD_HEIGHT;
-				} else {
-					robots[i].target.y = 0;
-				}
-				if(distance(Ball, robots[i].position) > ABS_ROBOT_SIZE*4) {
-					robots[i].status = NORMAL_STATE;
-				}
+
 			break;
 		}
 	}
@@ -1132,6 +1106,11 @@ public:
 			if(Ball_Est.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
 			if(Ball_Est.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
 			// if(danger_zone_2) robots[i].status = ADVANCING_STATE;
+
+			if(Ball.x < COORD_BOX_DEF_X) {
+				if(Ball.y > COORD_MID_FIELD_X) robots[i].target.y = COORD_GOAL_DWN_Y + ABS_ROBOT_SIZE/2;
+				else robots[i].target.y = COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2;
+			}
 
 			fixed_lookup(i);
 			break;
@@ -1180,8 +1159,8 @@ void set_Ball(cv::Point b) {
 	LS_ball_x.addValue(Ball.x);
 	LS_ball_y.addValue(Ball.y);
 
-	Ball_Est.x =  LS_ball_x.estimate(8);
-	Ball_Est.y =  LS_ball_y.estimate(8);
+	Ball_Est.x =  LS_ball_x.estimate(10);
+	Ball_Est.y =  LS_ball_y.estimate(10);
 
 }
 
