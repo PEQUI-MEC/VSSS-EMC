@@ -166,18 +166,21 @@ vector<float> FuzzyController::defuzzyfier(vector<float> &inputs)
 	}
 	float in[inputs.size()];
 	for (uint16_t i=0;i<inputs.size();i++) {
-		// cout << "Input: " << inputs[i] << endl; 
+		//cout << "Input: " << inputs[i] << endl;
 		in[i] = inputs[i];
 		}
-
+		// cout<<"output size "<<output_Variables.size()<<endl;
 	for (uint8_t i=0; i<output_Variables.size();i++){
+		// cout << " I = "<<int(i)<<endl;
 		float* output_inference_values = this->Regras->inference(in, input_Variables, output_Variables[i]);
+		// cout << "pos" <<endl;
+
 		int* pos = heightMethod(output_Variables[i], output_inference_values);
 		results.push_back(pos[0]);
 		results.push_back(pos[1]);
 		results.push_back(pos[2]);
-		//results.push_back(centroidMax(output_Variables[i], output_inference_values));
-		//cout << "Result: " << results.back() << endl;
+		// results.push_back(centroidMax(output_Variables[i], output_inference_values));
+		// cout << "Result: " << results.back() << endl;
 	}
 	return results;
 }

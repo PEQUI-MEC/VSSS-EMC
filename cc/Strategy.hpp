@@ -206,7 +206,7 @@ public:
 		def_line = ABS_GOAL_TO_GOAL_WIDTH/3;
 		possession_distance = ABS_ROBOT_SIZE;
 		collision_radius = ABS_ROBOT_SIZE/2;
-		fixed_pos_distance = ABS_ROBOT_SIZE/2;
+		fixed_pos_distance = ABS_ROBOT_SIZE;
 		max_approach = ABS_ROBOT_SIZE*3;
 		max_collision_count = 15;
 		acceleration = 0.8;
@@ -303,9 +303,14 @@ public:
 			// test_run(gk);
 
 			// opp_gk_routine(opp);
+			// cout << "Ball Speed -> " << distance_meters(Ball, Ball_Est)/0.5 << " m/s" << endl;
+			// timeout++;
+			// if(timeout >= 15) {
+			// 	timeout = 0;
+			// 	cout << "Ball Est -> " <<  Ball_Est.x << " " << Ball_Est.y << " Ball -> " << Ball.x << " " << Ball.y << endl;
+			//
+			// }
 
-
-			// cout << "routines end" << endl;
 
 			if(half_transition && transition_enabled) {
 				half_transition = false;
@@ -317,10 +322,11 @@ public:
 						break;
 						case DEFENDER:
 						robots[i].role = ATTACKER;
+						atk = i;
 						break;
 						case ATTACKER:
 						robots[i].role = DEFENDER;
-						robots[i].status = TRANSITION_STATE;
+						def = i;
 						break;
 					}
 				}
@@ -333,12 +339,15 @@ public:
 					switch (robots[i].role) {
 						case GOALKEEPER:
 						robots[i].role = ATTACKER;
+						atk = i;
 						break;
 						case DEFENDER:
 						robots[i].role = GOALKEEPER;
+						gk = i;
 						break;
 						case ATTACKER:
 						robots[i].role = DEFENDER;
+						def = i;
 						break;
 					}
 				}
@@ -351,7 +360,7 @@ public:
 				// collision_check(i);
 			}
 
-			overmind();
+			// overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -371,20 +380,24 @@ public:
 
 		double phi = atan((m2-m1)/(1+m2*m1));
 
+		cout << " Robo1 " << robots[0].role << " Robo2 " << robots[1].role << " Robo3 " << robots[2].role << endl;
+
 		int trocaIndex = Fuzzy_Troca();
 		switch (trocaIndex) {
 			case 0:
 			// DO NOTHING
+			cout << "não vai troca ninguem!" << endl;
 			break;
 			case 1: // TROCA TUDO
 			full_transition = true;
-			cout << "troca tudo" << endl;
+			cout << "troca tudo nessa porra" << endl;
 			break;
 			case 2: // TROCA ATKDEF
 			half_transition = true;
 			cout << "troca atk/def" << endl;
 			break;
 		}
+		cout << endl;
 
 		if(robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
@@ -878,41 +891,50 @@ public:
 	}
 
 	void fuzzy_init() {
+		cout << "init " << endl;
+
 		controller.importRules("cc/Fuzzy/RULES_VSS2017.txt");
+		cout << "rules " << endl;
+
 		controller.defineVariables("cc/Fuzzy/Membership_VSS2017.txt");
+		cout << "variables " << endl;
+
 	}
 
 	int Fuzzy_Troca() {
 
-				float DGK, DATK, DDEF;
-
-				for(int i =0; i<3; i++) { //pegar posições e índices
-					switch (robots[i].role)	{
-
-				case GOALKEEPER:
-						DGK = distance_meters(robots[i].position,Ball);
-						DGK = DGK > 2 ? 2 : DGK;
-				  break;
-
-				  case DEFENDER:
-						DDEF = distance_meters(robots[i].position,Ball);
-						DDEF = DDEF > 2 ? 2 : DDEF;
-				  break;
-
-				  case ATTACKER:
-						DATK = distance_meters(robots[i].position,Ball);
-						DATK = DATK > 2 ? 2 : DATK;
-				  break;
-					}
-				}
 				vector<float> input;
+				// cout << "vector " << endl;
+				if(Ball.x < 0) Ball.x = 0;
+				if(Ball.y < 0) Ball.y = 0;
+				if(robots[atk].position.x < 0) robots[atk].position.x = 0;
+				if(robots[atk].position.y < 0) robots[atk].position.y = 0;
+				if(robots[def].position.x < 0) robots[def].position.x = 0;
+				if(robots[def].position.y < 0) robots[def].position.y = 0;
+				//
+				// input.push_back(float(Ball.x * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
+				// input.push_back(float(Ball.y * 1.3/ABS_FIELD_HEIGHT));
+				// input.push_back(float(robots[atk].position.x * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
+				// input.push_back(float(distance(robots[atk].position, Ball) * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
+				// input.push_back(float(robots[def].position.x * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
+				// input.push_back(float(distance(robots[def].position, Ball) * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
+
+				// cout << "var " << endl;
+				// cout << "XB " << input[0]<<endl;
+				// cout << "YB " << input[1]<<endl;
+				// cout << "XA " << input[2]<<endl;
+				// cout << "DAB " << input[3]<<endl;
+				// cout << "XD " << input[4]<<endl;
+				// cout << "DDB " << input[5]<<endl;
+
+				input.push_back(float(distance(robots[gk].position, Ball) * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
+				input.push_back(float(distance(robots[atk].position, Ball) * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
+				input.push_back(float(distance(robots[def].position, Ball) * 1.7/(ABS_GOAL_TO_GOAL_WIDTH)));
 
 
-				input.push_back(DGK);
-				input.push_back(DATK);
-				input.push_back(DDEF);
 				vector<float>  out = controller.ControladorFuzzy(input);
-				//std::cout << "resultado: " << out[0] << std::endl;
+				std::cout << "resultado: " << out[0] << std::endl;
+
 				if (out.size()>0) {
 					switch(int(out[0])){
 						case 0:
@@ -1099,7 +1121,7 @@ public:
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
-			robots[i].fixedPos = true;
+			// robots[i].fixedPos = true;
 			robots[i].target.x = goalie_line;
 			robots[i].target.y = Ball_Est.y;
 
@@ -1107,12 +1129,26 @@ public:
 			if(Ball_Est.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
 			// if(danger_zone_2) robots[i].status = ADVANCING_STATE;
 
-			if(Ball.x < COORD_BOX_DEF_X) {
-				if(Ball.y > COORD_MID_FIELD_X) robots[i].target.y = COORD_GOAL_DWN_Y + ABS_ROBOT_SIZE/2;
-				else robots[i].target.y = COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2;
+			if(Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_GOAL_DWN_Y) {
+				robots[i].target.y = COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2;
+			} else if (Ball.x < COORD_BOX_DEF_X && Ball.y < COORD_GOAL_UP_Y){
+				robots[i].target.y = COORD_GOAL_DWN_Y + ABS_ROBOT_SIZE/2;
 			}
 
 			fixed_lookup(i);
+
+			if((robots[i].cmdType == VECTOR || robots[i].cmdType == POSITION)) {
+				robots[i].vmax = robots[i].vdefault * (distance_meters(Ball, Ball_Est)/0.5)/1.4;
+				// cout << "vmax " << robots[i].vmax << " distancia "<< distance(robots[i].position, robots[i].target) << " distancia max " << ABS_GOAL_TO_GOAL_WIDTH/4<<endl;
+				if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
+				if(robots[i].vmax < 0.3) robots[i].vmax = 0.3;
+
+				if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
+					robots[i].target = robots[i].position;
+					robots[i].vmax = 0;
+				}
+			}
+
 			break;
 
 			case ADVANCING_STATE:
@@ -1159,8 +1195,8 @@ void set_Ball(cv::Point b) {
 	LS_ball_x.addValue(Ball.x);
 	LS_ball_y.addValue(Ball.y);
 
-	Ball_Est.x =  LS_ball_x.estimate(10);
-	Ball_Est.y =  LS_ball_y.estimate(10);
+	Ball_Est.x =  LS_ball_x.estimate(15);
+	Ball_Est.y =  LS_ball_y.estimate(15);
 
 }
 

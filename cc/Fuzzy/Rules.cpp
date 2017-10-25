@@ -54,7 +54,7 @@ float* Rules::inference(	float* inputs,
 		vector<int> igualdades = this->posicaoIgualdades(ruleWords);
 
 		//comparar o nome da variavel para saber se está nessa regra
-		//cout << "Ruleoutput: " << ruleWords[igualdades[igualdades.size()-1]-1] << " OutputVar: " << output_variable->getVariableName() << endl;
+		// cout << "Ruleoutput: " << ruleWords[igualdades[igualdades.size()-1]-1] << " OutputVar: " << output_variable->getVariableName() << endl;
 		//Eliminar as regras que não tem a ver com a output necessaria
 		if (strcmp(output_variable->getVariableName(), ruleWords[igualdades[igualdades.size()-1]-1].c_str())==0){
 
@@ -68,6 +68,7 @@ float* Rules::inference(	float* inputs,
 				//n agora possui a posição no vetor que corresponde a mesma input que tem na regra
 				local.push_back( input_variables[n].get()->singleton((char*)(ruleWords[igualdades[m]+1].c_str()), inputs[n]));
 				//cout << " singleton = " << ruleWords[igualdades[m]-1] << "/" << ruleWords[igualdades[m]+1] << "/" << inputs[n];
+				//cout<<endl;
 			}
 
 			temp=local[0];
@@ -79,18 +80,22 @@ float* Rules::inference(	float* inputs,
 					if (ruleWords[l]=="OR") temp=OR(temp,local[contLocal++]);
 				}
 			}
+			// cout<<"1"<<endl;
 			char *membershipNameTemp = (char*) ruleWords[igualdades[igualdades.size()-1]+1].c_str();
 			int indiceMembershipTemp = output_variable->getIndexbyLabel(membershipNameTemp);
+			// cout<<"2"<<endl;
 			if (output_variable_array[indiceMembershipTemp] < temp)
 				output_variable_array[indiceMembershipTemp] = temp;
 			temp = 1;
-		}
-	}
 
+		}
+		// cout<<"k = "<<k<<endl;
+	}
+// cout<<"4"<<endl;
 	// for (int i = 0; i < output_variable->getnParticoes(); i++) {
-	// 	// cout << output_variable_array[i] << " ";
+	//  cout << output_variable_array[i] << " ";
 	// }
-	// // cout << endl;
+	// cout << endl;
 
 	return output_variable_array;
 }
