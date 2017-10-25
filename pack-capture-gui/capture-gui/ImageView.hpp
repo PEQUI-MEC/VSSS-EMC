@@ -19,86 +19,96 @@ namespace capture {
 
 		virtual bool on_button_press_event(GdkEventButton *event){
 
-		if(warp_event_flag){
-			//std::cerr <<"EVENT"<<std::endl;
-			if (event->button == 1)
-			{
-
-				//std::cerr << event->x <<"	"<< event->y<< std::endl;
-				warp_mat[warp_counter][0] =  event->x;
-				warp_mat[warp_counter][1] =  event->y;
-				warp_counter++;
-				if(warp_counter==4){
-						//std::cerr <<"COUNTER END"<<std::endl;
-					warp_event_flag = false;
-					hold_warp = true;
-					warp_counter=0;
+			if(warp_event_flag){
+				//std::cerr <<"EVENT"<<std::endl;
+				if (event->button == 1) {
+					//std::cerr << event->x <<"	"<< event->y<< std::endl;
+					warp_mat[warp_counter][0] =  event->x;
+					warp_mat[warp_counter][1] =  event->y;
+					warp_counter++;
+					if(warp_counter==4){
+							//std::cerr <<"COUNTER END"<<std::endl;
+						warp_event_flag = false;
+						hold_warp = true;
+						warp_counter=0;
+					}
+					return true;
 				}
 				return true;
 			}
 
-					return true;
+			if(adjust_event_flag){
+				if (event->button == 1) {
+					adj_counter++;
+					//std::cerr << event->x <<"	"<< event->y<< std::endl;
+					std::cerr << adj_counter << std::endl;
+					if(event->x < width/2){
+						if(event->y < height/2){
+							//std::cerr <<"ESQUERDA SUPERIOR"<<std::endl;
+							adjust_mat[0][0] = event->x;
+							adjust_mat[0][1] = event->y;
+						}else{
+							//std::cerr <<"ESQUERDA INFERIOR"<<std::endl;
+							adjust_mat[1][0] = event->x;
+							adjust_mat[1][1] = event->y;
+						}
+					} else{
+						if(event->y < height/2){
+							//std::cerr <<"DIREITA SUPERIOR"<<std::endl;
+							adjust_mat[2][0] = event->x;
+							adjust_mat[2][1] = event->y;
+						}else{
+							//std::cerr <<"DIREITA INFERIOR"<<std::endl;
+							adjust_mat[3][0] = event->x;
+							adjust_mat[3][1] = event->y;
+						}
+					}
+					if(adj_counter==4){
+						adjust_rdy = true;
+						adjust_event_flag=false;
+						adj_counter = 0;
+						//std::cerr << "ADJ END"<< std::endl;
+					}
+				}
+
+			} else if(PID_test_flag){
+				robot_pos[0]=0;
+				robot_pos[1]=0;
+
+				if (event->button == 1) {
+					robot_pos[0] = event->x;
+					robot_pos[1] = event->y;
+
+					//std::cerr <<robot_pos[0] <<"  -  "<<robot_pos[1]<<std::endl;
+				}
+				else if(event->button == 3) {
+					tar_pos[0] = event->x;
+					tar_pos[1] = event->y;
+					//std::cerr <<tar_pos[0] <<"  -  "<<tar_pos[1]<<std::endl;
+				}
+
+			} else if(formation_flag) {
+				robot_pos[0]= -1;
+				robot_pos[1]= -1;
+
+				if (event->button == 1) {
+					robot_pos[0] = event->x;
+					robot_pos[1] = event->y;
+
+					//std::cerr <<robot_pos[0] <<"  -  "<<robot_pos[1]<<std::endl;
+				}
+				else if(event->button == 2) {
+					look_pos[0] = event->x;
+					look_pos[1] = event->y;
+				}
+				else if(event->button == 3) {
+					tar_pos[0] = event->x;
+					tar_pos[1] = event->y;
+					//std::cerr <<tar_pos[0] <<"  -  "<<tar_pos[1]<<std::endl;
+				}
+			}
+
 		}
-
-		if(adjust_event_flag){
-			if (event->button == 1)
-			{
-				adj_counter++;
-			//std::cerr << event->x <<"	"<< event->y<< std::endl;
-			std::cerr << adj_counter << std::endl;
-			if(event->x < width/2){
-				if(event->y < height/2){
-				//std::cerr <<"ESQUERDA SUPERIOR"<<std::endl;
-				adjust_mat[0][0] = event->x;
-				adjust_mat[0][1] = event->y;
-				}else{
-				//std::cerr <<"ESQUERDA INFERIOR"<<std::endl;
-				adjust_mat[1][0] = event->x;
-				adjust_mat[1][1] = event->y;
-				}
-			}else{
-				if(event->y < height/2){
-				//std::cerr <<"DIREITA SUPERIOR"<<std::endl;
-				adjust_mat[2][0] = event->x;
-				adjust_mat[2][1] = event->y;
-				}else{
-				//std::cerr <<"DIREITA INFERIOR"<<std::endl;
-				adjust_mat[3][0] = event->x;
-				adjust_mat[3][1] = event->y;
-				}
-			}
-
-				if(adj_counter==4){
-				adjust_rdy = true;
-				adjust_event_flag=false;
-				adj_counter = 0;
-				//std::cerr << "ADJ END"<< std::endl;
-				}
-
-		    }
-
-		}else if(PID_test_flag){
-
-			robot_pos[0]=0;
-			robot_pos[1]=0;
-			if (event->button == 1)
-			{
-				robot_pos[0] = event->x;
-				robot_pos[1] = event->y;
-
-				//std::cerr <<robot_pos[0] <<"  -  "<<robot_pos[1]<<std::endl;
-			}
-			if(event->button == 3)
-			{
-				tar_pos[0] = event->x;
-				tar_pos[1] = event->y;
-				//std::cerr <<tar_pos[0] <<"  -  "<<tar_pos[1]<<std::endl;
-			}
-
-
-		}
-
-}
 
 
 
@@ -112,12 +122,14 @@ namespace capture {
 			int adjust_mat[4][2];
 			double tar_pos[2];
 			double robot_pos[2];
+			double look_pos[2];
 			cv::Point pointClicked;
 
 			int warp_counter =0;
 			int adj_counter =0;
 		    bool warp_event_flag = false;
-		    bool PID_test_flag =false;
+			bool PID_test_flag = false;
+			bool formation_flag = false;
 		    bool adjust_event_flag = false;
 		    bool hold_warp = false;
 		    bool adjust_rdy = false;
