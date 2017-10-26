@@ -195,16 +195,7 @@ public:
 	}
 
 	void _PID_Test(){
-		if (PID_test_flag)
-		{
-			PID_test_flag = false;
-			//std::cout<<PID_test_flag<<endl;
-		}
-		else
-		{
-			PID_test_flag = true;
-			//std::cout<<PID_test_flag<<endl;
-		}
+		PID_test_flag = !PID_test_flag;
 	}
 
 	// translate battery message
