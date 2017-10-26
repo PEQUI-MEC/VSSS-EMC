@@ -360,7 +360,7 @@ public:
 				// collision_check(i);
 			}
 
-			// overmind();
+			overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -380,24 +380,24 @@ public:
 
 		double phi = atan((m2-m1)/(1+m2*m1));
 
-		cout << " Robo1 " << robots[0].role << " Robo2 " << robots[1].role << " Robo3 " << robots[2].role << endl;
-
-		int trocaIndex = Fuzzy_Troca();
-		switch (trocaIndex) {
-			case 0:
-			// DO NOTHING
-			cout << "não vai troca ninguem!" << endl;
-			break;
-			case 1: // TROCA TUDO
-			full_transition = true;
-			cout << "troca tudo nessa porra" << endl;
-			break;
-			case 2: // TROCA ATKDEF
-			half_transition = true;
-			cout << "troca atk/def" << endl;
-			break;
-		}
-		cout << endl;
+		// cout << " Robo1 " << robots[0].role << " Robo2 " << robots[1].role << " Robo3 " << robots[2].role << endl;
+		//
+		// int trocaIndex = Fuzzy_Troca();
+		// switch (trocaIndex) {
+		// 	case 0:
+		// 	// DO NOTHING
+		// 	cout << "não vai troca ninguem!" << endl;
+		// 	break;
+		// 	case 1: // TROCA TUDO
+		// 	full_transition = true;
+		// 	cout << "troca tudo nessa porra" << endl;
+		// 	break;
+		// 	case 2: // TROCA ATKDEF
+		// 	half_transition = true;
+		// 	cout << "troca atk/def" << endl;
+		// 	break;
+		// }
+		// cout << endl;
 
 		if(robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
@@ -433,6 +433,16 @@ public:
 		//   " angulo m1 " << atan(m1)*180/PI  << " robot.or " << robots[atk].orientation*180/PI  <<
 		//   " robot.or - m1 angle " << (robots[atk].orientation - atan(m1))*180/PI <<
 		//   " phi " << phi*180/PI << endl;
+
+		if(danger_zone_1) {
+			if(distance(robots[atk].position, Ball) > transition_back_radius) half_transition = true;
+			else if(distance(robots[def].position, Ball) < transition_back_radius) half_transition = true;
+		} else if(danger_zone_2) {
+			
+		} else if() {
+
+		}
+
 	}
 
 	void set_flags() {
