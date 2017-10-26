@@ -12,19 +12,19 @@ FuzzyController::~FuzzyController(void)
 
 void FuzzyController::read_from_file(string file_name)
 {
-	//exemplo de implementação utilizando a lib FuzzyVS2014
+	//exemplo de implementaï¿½ï¿½o utilizando a lib FuzzyVS2014
 	ifstream in(file_name);
 
 	string line;
 	vector<string> v;
 
     bool is_input = true;
-    
+
 	while ( getline(in,line) )
 	{
 		stringstream ss(line);
-		
-		if (line.size()<2){		
+
+		if (line.size()<2){
 				if (is_input) inputVars.push_back(v);
 				else outputVars.push_back(v);
 			v.clear();
@@ -56,24 +56,24 @@ void FuzzyController::read_from_file(string file_name)
 	}
 	if (is_input) inputVars.push_back(v);
 	else outputVars.push_back(v);
-	
+
 	//cout << "Quantidade de variaveis de entrada=" << inputVars.size() << endl;
 	//cout << "Quantidade de variaveis de saida=" << outputVars.size() << endl;
 }
 
 vector<float> FuzzyController::ControladorFuzzy(vector<float> &input)
 {
-	
+
 	vector<float> output;
-	
+
 	if (input.size()!=input_Variables.size()){
 		cout << "O numero de variaveis declarados difere do numero de inputs enviados" << endl;
 		return output;
 	}
-	
+
 	output = defuzzyfier(input);
 	//cout << "out defuzzyfier: " << output[0];
-	
+
 	return output;
 }
 
@@ -81,17 +81,17 @@ void FuzzyController::importRules(string file_name)
 {
 	this->Regras=shared_ptr<Rules>(new Rules(file_name));
 }
-  
+
 void FuzzyController::defineVariables(string file_name)
 {
-	//ler as variáves a partir do arquivo 
+	//ler as variï¿½ves a partir do arquivo
 	read_from_file(file_name);
 	vector<string> v;
-	
-	//inputVars.size() - numero de variáveis de entrada
+
+	//inputVars.size() - numero de variï¿½veis de entrada
 	//inputVars[i].size() - numero de linhas armazenadas para cada variavel
 	for (uint i=0;i<inputVars.size();i++){
-		for (uint j=0;j<inputVars[i].size();j++){	
+		for (uint j=0;j<inputVars[i].size();j++){
 			//cout << inputVars[i][j] << endl;
 			v = split(inputVars[i][j]);
 			if (j==0)
@@ -117,11 +117,11 @@ void FuzzyController::defineVariables(string file_name)
 				}
 			}
 		}
-		input_Variables[i]->setValues();	
+		input_Variables[i]->setValues();
 	}
-	
+
 	for (uint i=0;i<outputVars.size();i++){
-		for (uint j=0;j<outputVars[i].size();j++){	
+		for (uint j=0;j<outputVars[i].size();j++){
 			v = split(outputVars[i][j]);
 			if (j==0)
 			{ 	// A primeira linha descreve como e a membership
@@ -146,38 +146,41 @@ void FuzzyController::defineVariables(string file_name)
 				}
 			}
 		}
-		output_Variables[i]->setValues();	
+		output_Variables[i]->setValues();
 	}
 }
 
 vector<float> FuzzyController::defuzzyfier(vector<float> &inputs)
 {
-	
+
 	vector<float> results;
 
 	for(uint16_t i=0; i<input_Variables.size();i++){
 		if(inputs[i] < input_Variables[i]->getVmin() || inputs[i] > input_Variables[i]->getVmax()){
-			cout << "input " << inputs[i] << endl;
-			cout << "max " << input_Variables[i]->getVmax() << endl;
-			cout << "min " << input_Variables[i]->getVmin() << endl;
-			cout << "Inputs out of range!" << endl;
+			// cout << "input " << inputs[i] << endl;
+			// cout << "max " << input_Variables[i]->getVmax() << endl;
+			// cout << "min " << input_Variables[i]->getVmin() << endl;
+			// cout << "Inputs out of range!" << endl;
 			return results;
 			}
 	}
 	float in[inputs.size()];
-	for (uint16_t i=0;i<inputs.size();i++) { 
-		cout << "Input: " << inputs[i] << endl; 
-		in[i] = inputs[i]; 
+	for (uint16_t i=0;i<inputs.size();i++) {
+		//cout << "Input: " << inputs[i] << endl;
+		in[i] = inputs[i];
 		}
-	
+		// cout<<"output size "<<output_Variables.size()<<endl;
 	for (uint8_t i=0; i<output_Variables.size();i++){
+		// cout << " I = "<<int(i)<<endl;
 		float* output_inference_values = this->Regras->inference(in, input_Variables, output_Variables[i]);
+		// cout << "pos" <<endl;
+
 		int* pos = heightMethod(output_Variables[i], output_inference_values);
 		results.push_back(pos[0]);
 		results.push_back(pos[1]);
 		results.push_back(pos[2]);
-		//results.push_back(centroidMax(output_Variables[i], output_inference_values));
-		//cout << "Result: " << results.back() << endl;
+		// results.push_back(centroidMax(output_Variables[i], output_inference_values));
+		// cout << "Result: " << results.back() << endl;
 	}
 	return results;
 }
@@ -203,7 +206,7 @@ float FuzzyController::centroidMax(std::shared_ptr<FuzzyFunction> &varOut, float
         max = 0.0;
     }
     //essa linha me impede de usar mais de 1 funcao de centroide
-    free(output);    
+    free(output);
     return fabs(numerador / denominador) > 0.01 ? (numerador / denominador) : 0;
 }
 
@@ -227,7 +230,7 @@ int * FuzzyController::heightMethod(std::shared_ptr<FuzzyFunction> &varOut, floa
 		}
 	}
     //essa linha me impede de usar mais de 1 funcao de centroide
-    free(output);    
+    free(output);
     return positions;
 }
 
@@ -238,6 +241,6 @@ vector<string> FuzzyController::split(const std::string str)
     vector<string> tokens; // Create vector to hold our words
     while (ss >> buf)
         tokens.push_back(buf);
-        
+
     return tokens;
 }
