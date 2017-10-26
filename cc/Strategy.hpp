@@ -160,10 +160,13 @@ public:
 		collision_radius,
 		max_collision_count,
 		goalie_line,
+		transition_back_radius,
+		transition_y_distance,
 		acceleration;
 
 	int t = 0;
 	int timeout = 0;
+	int transition_timeout = 0;
 	bool action1 = false;
 	bool action2 = false;
 	bool action3 = false;
@@ -211,6 +214,8 @@ public:
 		max_collision_count = 15;
 		acceleration = 0.8;
 		goalie_line = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE/2;
+		transition_back_radius = ABS_ROBOT_SIZE*3;
+		transition_y_distance = ABS_ROBOT_SIZE*4;
 
 		fuzzy_init();
 
@@ -293,28 +298,19 @@ public:
 			set_flags(); // analisar situação atual e setar flags
 			// cout << "flags set" << endl;
 
-			danger_zone_1 = false; //só para testes com um robô
-			danger_zone_2 = false; //só para testes com um robô
+			// danger_zone_1 = false; //só para testes com um robô
+			// danger_zone_2 = false; //só para testes com um robô
 			// transition_enabled = false; //só para testes com um robô
 
-			gk_routine(gk);
-			def_routine(def);
-			atk_routine(atk);
-			// test_run(gk);
+			overmind();
 
-			// opp_gk_routine(opp);
-			// cout << "Ball Speed -> " << distance_meters(Ball, Ball_Est)/0.5 << " m/s" << endl;
-			// timeout++;
-			// if(timeout >= 15) {
-			// 	timeout = 0;
-			// 	cout << "Ball Est -> " <<  Ball_Est.x << " " << Ball_Est.y << " Ball -> " << Ball.x << " " << Ball.y << endl;
-			//
-			// }
+			transition_timeout--;
+			if(transition_timeout < 0) transition_timeout = 0;
 
-
-			if(half_transition && transition_enabled) {
+			if(half_transition && transition_enabled && transition_timeout == 0) {
 				half_transition = false;
 				transition_enabled = false;
+				transition_timeout = 90; //3 segundos
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
 					switch (robots[i].role) {
@@ -331,9 +327,10 @@ public:
 					}
 				}
 			}
-			if(full_transition && transition_enabled) {
+			if(full_transition && transition_enabled && transition_timeout == 0) {
 				full_transition = false;
 				transition_enabled = false;
+				transition_timeout = 90; //3 segundos
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
 					switch (robots[i].role) {
@@ -353,14 +350,27 @@ public:
 				}
 			}
 			// cout << "transitions" << endl;
+
+			gk_routine(gk);
+			def_routine(def);
+			atk_routine(atk);
+			// test_run(gk);
+
+			// opp_gk_routine(opp);
+			// cout << "Ball Speed -> " << distance_meters(Ball, Ball_Est)/0.5 << " m/s" << endl;
+			// timeout++;
+			// if(timeout >= 15) {
+			// 	timeout = 0;
+			// 	cout << "Ball Est -> " <<  Ball_Est.x << " " << Ball_Est.y << " Ball -> " << Ball.x << " " << Ball.y << endl;
+			//
+			// }
+
 			for(int i =0; i<3; i++) {
 				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
 			}
-
-			overmind();
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -434,13 +444,23 @@ public:
 		//   " robot.or - m1 angle " << (robots[atk].orientation - atan(m1))*180/PI <<
 		//   " phi " << phi*180/PI << endl;
 
+		//defender mindcontrol
+		if(Ball.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_DWN_Y &&
+		Ball.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE) {
+			half_transition = true;
+			atk_mindcontrol = true;
+			lock_angle = 0;
+		}
+
+
+
 		if(danger_zone_1) {
 			if(distance(robots[atk].position, Ball) > transition_back_radius) half_transition = true;
 			else if(distance(robots[def].position, Ball) < transition_back_radius) half_transition = true;
 		} else if(danger_zone_2) {
-			
-		} else if() {
-
+			if(Ball.x < COORD_BOX_DEF_X && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y) ) full_transition = true;
+		} else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
+			half_transition = true;
 		}
 
 	}
@@ -449,6 +469,8 @@ public:
 		danger_zone_1 = false;
 		danger_zone_2 = false;
 		atk_ball_possession = false;
+		half_transition = false;
+		full_transition = false;
 		if(Ball.x > COORD_MID_FIELD_X) {
 			transition_enabled = true;
 		}
@@ -1107,11 +1129,9 @@ public:
 
 			case NORMAL_STATE:
 				if(Ball.x > corner_atk_limit) {
-					robots[i].target.x = COORD_MID_FIELD_X;
-					robots[i].target.y = COORD_GOAL_MID_Y;
+					potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y));
 				} else {
-					robots[i].target.x = COORD_MID_FIELD_X/2;
-					robots[i].target.y = COORD_GOAL_MID_Y;
+					potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y));
 				}
 				def_wait(i);
 			break;
