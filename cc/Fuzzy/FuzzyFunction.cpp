@@ -4,15 +4,15 @@
 FuzzyFunction::FuzzyFunction(int nParticoes, int points, char *functionName, char tipoDasMemberships) : nParticoes(nParticoes), nPoints(points), tipoMemberships(tipoDasMemberships) {
     // Alocacao para o array de strings
     this->particoes = (const char**) calloc(nParticoes, sizeof (const char*));
-
+    
     // Alocacao para o array de pontos
     this->pontos = (float**) calloc(nParticoes, sizeof (float*));
     for (int i = 0; i < nParticoes; i++)
         this->pontos[i] = (float*) calloc(points, sizeof (float));
-
+   
 	this->variableName = (char*) calloc(sizeof (*functionName), sizeof (char*));
 	strcpy(this->variableName, functionName);
-
+	
     //std::cout << "nParticoes " << nParticoes << " this->fuctionName " << this->variableName << " points " << points << " tipoDasMemberships " << tipoDasMemberships << std::endl;
 }
 
@@ -42,14 +42,14 @@ void FuzzyFunction::addMembership(int indice, const char * const label, float a,
 	float array[] = {a,b,c,d};
 	this->addMembership(indice, label, array);
 }
+ 
 
-
-void FuzzyFunction::addMembership(int indice, const char * const label, const float * const pontos) {
-    //std::cout << "i=" << indice << " label=" << label ;
+void FuzzyFunction::addMembership(int indice, const char * const label, const float * const pontos) {  
+    //std::cout << "i=" << indice << " label=" << label ; 
     //Guardo o nome da particao num vetor chamado particoes
-    this->particoes[indice] = (const char*) calloc(strlen(label)+1, sizeof (const char));
+    this->particoes[indice] = (const char*) calloc(strlen(label)+1, sizeof (const char)); 
     strcpy((char*) this->particoes[indice], label);
-
+    
     //defino os pontos que fazem parte daquela membership (particao)
     for (int i = 0; i < this->nPoints; i++) {
         this->pontos[indice][i] = pontos[i];
@@ -107,11 +107,11 @@ int FuzzyFunction::getIndexbyLabel(char* label) const {
 
 // As funcoes de singleton disponiveis
 float FuzzyFunction::singleton(char *label, float x){
-
+	
 	int indice = getIndexbyLabel(label);
 	if (indice == -1) return 0;
 
-	return this->singleton(indice, x);
+	return this->singleton(indice, x);	
 }
 
 float FuzzyFunction::singleton(int indice, float x){
@@ -131,11 +131,11 @@ float FuzzyFunction::singletonTrapez(int indice, float x){
 	// Calculo da equacao do trapezio
 	if (x < a || x >= d)
 		return 0;
-	if (x>=a && x < b)
+	if (x>=a && x < b) 
 		return (x - a) / (b - a);
-	if (x >= b && x < c)
+	if (x >= b && x < c) 
 		return 1;
-	if (x>=c && x < d)
+	if (x>=c && x < d) 
 		return (d - x) / (d - c);
 
 	return -1;
@@ -148,9 +148,9 @@ float FuzzyFunction::singletonTriang(int indice, float x){
 	// Calculo da equacao do trapezio
 	if (x < a || x >= c)
 		return 0;
-	if (x>=a && x < b)
+	if (x>=a && x < b) 
 		return (x - a) / (b - a);
-	if (x>=b && x < c)
+	if (x>=b && x < c) 
 		return (c - x) / (c - b);
 
 	return -1;

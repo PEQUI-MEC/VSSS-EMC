@@ -540,12 +540,9 @@ namespace capture {
 
     void V4LInterface::event_robots_speed_done_bt_signal_clicked(){
 
-        robot_list[0].vdefault = (float) robots_speed_hscale[0].get_value();
-        robot_list[1].vdefault = (float) robots_speed_hscale[1].get_value();
-        robot_list[2].vdefault = (float) robots_speed_hscale[2].get_value();
-		robot_list[0].vmax = robot_list[0].vdefault;
-		robot_list[1].vmax = robot_list[1].vdefault;
-		robot_list[2].vmax = robot_list[2].vdefault;
+        robot_list[0].vmax = (float) robots_speed_hscale[0].get_value();
+        robot_list[1].vmax = (float) robots_speed_hscale[1].get_value();
+        robot_list[2].vmax = (float) robots_speed_hscale[2].get_value();
         robots_speed_edit_flag = false;
         robots_speed_edit_bt.set_label("Edit");
         robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
@@ -792,8 +789,7 @@ namespace capture {
 			  double value = atof(line.c_str());
 			  //std::cout << "ATOF " << atof(line.c_str()) << std::endl;
 			  robots_speed_hscale[i].set_value(value);
-			  robot_list[i].vdefault = (float) value;
-			  robot_list[i].vmax = robot_list[i].vdefault;
+			  robot_list[i].vmax = (float) value;
 
 			  robots_speed_progressBar[i].set_fraction(robots_speed_hscale[i].get_value()/6);
 			  std::ostringstream strs;
