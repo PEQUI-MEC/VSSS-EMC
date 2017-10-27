@@ -622,7 +622,7 @@ public:
 		robots[robot_index].using_pot_field = true;
 		float gain_rep=10;
 		float gain_att=1;
-		float rep_radius=0.4;
+		float rep_radius=0.2;
 		float ball_rep_radius = 0.3;
 		float rot_angle = 0;
 		ball_angle = 0;

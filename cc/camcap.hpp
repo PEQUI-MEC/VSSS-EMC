@@ -270,9 +270,19 @@ public:
         {
             control.button_PID_Test.set_active(true);
             PID_test();
+
+            if(Selec_index!=-1) {
+                circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
+            }
+
+            for(int i=0; i<interface.robot_list.size(); i++) {
+                if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
+                    line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
+                circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
+            }
         }
-        else if(/*strategyGUI.formation_flag && */!interface.get_start_game_flag()) {
-            formation_creation();
+        //else if(/*strategyGUI.formation_flag && */!interface.get_start_game_flag()) {
+        //    formation_creation();
 
             // exibe os robos virtual
             // for(int i = 0; i < 3; i++) {
@@ -287,7 +297,7 @@ public:
             //     // identificação
             //     putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
             // }
-        }
+        //}
         else {
             for(int i=0; i<interface.robot_list.size(); i++) {
                 interface.robot_list[i].target=cv::Point(-1,-1);
@@ -298,15 +308,7 @@ public:
         if (interface.imageView.PID_test_flag && interface.get_start_game_flag())
             control.button_PID_Test.set_active(false);
 
-        if(Selec_index!=-1) {
-            circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
-        }
 
-        for(int i=0; i<interface.robot_list.size(); i++) {
-            if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
-                line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
-            circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
-        }
 
         // ----------- ESTRATEGIA -----------------//
         strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
@@ -359,7 +361,7 @@ public:
                 // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(300));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(250));
         }
     }
 

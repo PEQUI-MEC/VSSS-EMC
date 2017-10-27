@@ -7,8 +7,8 @@ void Vision::run(cv::Mat raw_frame) {
 
   preProcessing();
   findTags();
-  findElements();
-  //pick_a_tag();
+  //findElements();
+  pick_a_tag();
 }
 
 void Vision::preProcessing() {
@@ -444,5 +444,5 @@ Vision::Vision(int w, int h) : width(w), height(h), bOnAir(false)
 
 Vision::~Vision()
 {
-  
+
 }
