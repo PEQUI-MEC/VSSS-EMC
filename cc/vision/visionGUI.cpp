@@ -21,10 +21,10 @@ void VisionGUI::__create_frm_capture() {
   // grid->set_column_homogeneous(true);
 
   label = new Gtk::Label("Picture Name:");
-  label->set_xalign(1.0);
+  label->set_alignment(1.0);
   grid->attach(*label, 0, 0, 1, 1);
   label = new Gtk::Label("Video Name:");
-  label->set_xalign(1.0);
+  label->set_alignment(1.0);
   grid->attach(*label, 0, 1, 1, 1);
 
   grid->attach(en_picture_name, 1, 0, 1, 1);
