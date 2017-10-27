@@ -55,24 +55,24 @@ cc/vision/visionGUI.o: cc/vision/visionGUI.cpp
 
 # objeto das tags
 cc/vision/tag.o: cc/vision/tag.cpp
-	g++ -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
+	$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
 
 # objeto do frame de teste
 cc/TestFrame.o: cc/TestFrame.cpp
-	g++ `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/TestFrame.cpp" -o "cc/TestFrame.o"
+	$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/TestFrame.cpp" -o "cc/TestFrame.o"
 
 # objeto do v4lcap (captura)
 pack-capture/capture/v4lcap.o: pack-capture/capture/v4lcap.cpp
-	g++ -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
+	$(COMPILER) -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
 	ar -r "pack-capture/libpack-capture.a" "pack-capture/capture/v4lcap.o"
 
 # objeto da interface
 pack-capture-gui/capture-gui/V4LInterface-aux.o: pack-capture-gui/capture-gui/V4LInterface-aux.cpp
-	g++ $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
+	$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
 
 # objeto de eventos da interface
 pack-capture-gui/capture-gui/V4LInterface-events.o: pack-capture-gui/capture-gui/V4LInterface-events.cpp
-	g++ $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
+	$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
 	ar -r  "pack-capture-gui/libpack-capture-gui.a"  "pack-capture-gui/capture-gui/V4LInterface-aux.o" "pack-capture-gui/capture-gui/V4LInterface-events.o"
 
 # objeto do controlador da fuzzy
