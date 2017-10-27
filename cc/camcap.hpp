@@ -275,18 +275,18 @@ public:
             formation_creation();
 
             // exibe os robos virtual
-            for(int i = 0; i < 3; i++) {
-                if(virtual_robot_selected == i) {
-                    circle(imageView,virtual_robots_positions[i], 20, cv::Scalar(0,255,100), 3);
-                }
-                // posição
-                circle(imageView,virtual_robots_positions[i], 17, cv::Scalar(0,255,0), 2);
-                // orientação
-                cv::Point aux_point = cv::Point(virtual_robots_positions[i].x + 30*cos(virtual_robots_orientations[i]), virtual_robots_positions[i].y + 30*sin(virtual_robots_orientations[i]));
-                arrowedLine(imageView,virtual_robots_positions[i], aux_point,cv::Scalar(0,255,0),2);
-                // identificação
-                putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
-            }
+            // for(int i = 0; i < 3; i++) {
+            //     if(virtual_robot_selected == i) {
+            //         circle(imageView,virtual_robots_positions[i], 20, cv::Scalar(0,255,100), 3);
+            //     }
+            //     // posição
+            //     circle(imageView,virtual_robots_positions[i], 17, cv::Scalar(0,255,0), 2);
+            //     // orientação
+            //     cv::Point aux_point = cv::Point(virtual_robots_positions[i].x + 30*cos(virtual_robots_orientations[i]), virtual_robots_positions[i].y + 30*sin(virtual_robots_orientations[i]));
+            //     arrowedLine(imageView,virtual_robots_positions[i], aux_point,cv::Scalar(0,255,0),2);
+            //     // identificação
+            //     putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
+            // }
         }
         else {
             for(int i=0; i<interface.robot_list.size(); i++) {
