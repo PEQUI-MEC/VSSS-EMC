@@ -43,27 +43,29 @@ namespace capture
     cb_frame_interval.pack_start(model_frame_interval.m_col_name);
   }
 
-  void V4LInterface::__create_frm_quick_actions()
+  void V4LInterface::createQuickActionsFrame()
   {
-    Gtk::HBox *hbox;
+    Gtk::VBox *vbox;
 
-    hbox = new Gtk::HBox();
-    frm_quick_actions.add(*hbox);
-    frm_quick_actions.set_label("Action Menu");
+    vbox = new Gtk::VBox();
 
-    hbox->set_halign(Gtk::ALIGN_CENTER);
-    hbox->set_margin_top(7);
-    hbox->set_margin_bottom(7);
+    info_hbox.pack_start(frm_quick_actions, false, true, 5);
+    frm_quick_actions.add(*vbox);
+    frm_quick_actions.set_label("Save/Load");
 
-    bt_quick_save.set_label("Quick SAVE");
-    hbox->pack_start(bt_quick_save, false, true, 5);
-    bt_quick_load.set_label("Quick LOAD");
-    hbox->pack_start(bt_quick_load, false, true, 5);
+    vbox->set_valign(Gtk::ALIGN_CENTER);
+    vbox->set_margin_left(10);
+    vbox->set_margin_right(10);
 
-    bt_save.set_label("SAVE");
-    hbox->pack_start(bt_save, false, true, 5);
-    bt_load.set_label("LOAD");
-    hbox->pack_end(bt_load, false, true, 5);
+    bt_quick_save.set_label("Quick Save");
+    vbox->pack_start(bt_quick_save, false, true, 5);
+    bt_quick_load.set_label("Quick Load");
+    vbox->pack_start(bt_quick_load, false, true, 5);
+
+    bt_save.set_label("Save");
+    vbox->pack_start(bt_save, false, true, 5);
+    bt_load.set_label("Load");
+    vbox->pack_start(bt_load, false, true, 5);
 
   }
 
@@ -254,156 +256,7 @@ namespace capture
       HScale_offsetL.signal_value_changed().connect(sigc::mem_fun(*this,&V4LInterface::HScale_offsetL_value_changed));
     }
 
-    void V4LInterface::__create_frm_calibration() {
-      Gtk::VBox * vbox;
-      Gtk::Grid * grid;
-      Gtk::Label * label;
 
-      vbox = new Gtk::VBox();
-      grid = new Gtk::Grid();
-
-      frm_calibration.add(*vbox);
-      vbox->pack_start(*grid, false, true, 5);
-      vbox->set_halign(Gtk::ALIGN_CENTER);
-      vbox->set_valign(Gtk::ALIGN_CENTER);
-
-      frm_calibration.set_label("Calibration");
-
-      grid->set_border_width(10);
-      grid->set_column_spacing(15);
-      grid->set_row_spacing(5);
-      grid->set_column_homogeneous(true);
-
-      bt_HSV_calib.set_label("HSV Calib.");
-      grid->attach(bt_HSV_calib, 0, 0, 2, 1);
-
-      bt_HSV_left.set_label(" < ");
-      grid->attach(bt_HSV_left, 3, 0, 1, 1);
-      HSV_label.set_text("Main");
-      grid->attach(HSV_label, 4, 0, 1, 1);
-      bt_HSV_right.set_label(" > ");
-      grid->attach(bt_HSV_right, 5, 0, 1, 1);
-
-      label = new Gtk::Label("Hmin:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 0, 1, 1, 1);
-
-      HScale_Hmin.set_digits(0);
-      HScale_Hmin.set_increments(1,1);
-      HScale_Hmin.set_range(0,255);
-      HScale_Hmin.set_value_pos(Gtk::POS_TOP);
-      HScale_Hmin.set_draw_value();
-      HScale_Hmin.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Hmin_value_changed));
-      grid->attach(HScale_Hmin, 1, 1, 2, 1);
-
-      label = new Gtk::Label("Hmax:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 3, 1, 1, 1);
-
-      HScale_Hmax.set_digits(0);
-      HScale_Hmax.set_increments(1,1);
-      HScale_Hmax.set_range(0,180);
-      HScale_Hmax.set_value_pos(Gtk::POS_TOP);
-      HScale_Hmax.set_draw_value();
-      HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Hmax_value_changed));
-      grid->attach(HScale_Hmax, 4, 1, 2, 1);
-
-      label = new Gtk::Label("Smin:");
-      label->set_alignment(1.0, 1.0);
-       grid->attach(*label, 0, 2, 1, 1);
-
-      HScale_Smin.set_digits(0);
-      HScale_Smin.set_increments(1,1);
-      HScale_Smin.set_range(0,255);
-      HScale_Smin.set_value_pos(Gtk::POS_TOP);
-      HScale_Smin.set_draw_value();
-      HScale_Smin.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Smin_value_changed));
-      grid->attach(HScale_Smin, 1, 2, 2, 1);
-
-      label = new Gtk::Label("Smax:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 3, 2, 1, 1);
-
-      HScale_Smax.set_digits(0);
-      HScale_Smax.set_increments(1,1);
-      HScale_Smax.set_range(0,255);
-      HScale_Smax.set_value_pos(Gtk::POS_TOP);
-      HScale_Smax.set_draw_value();
-      HScale_Smax.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Smax_value_changed));
-      grid->attach(HScale_Smax,4, 2, 2, 1);
-
-      label = new Gtk::Label("Vmin:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 0, 3, 1, 1);
-
-      HScale_Vmin.set_digits(0);
-      HScale_Vmin.set_increments(1,1);
-      HScale_Vmin.set_range(0,255);
-      HScale_Vmin.set_value_pos(Gtk::POS_TOP);
-      HScale_Vmin.set_draw_value();
-      HScale_Vmin.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Vmin_value_changed));
-      grid->attach(HScale_Vmin, 1, 3, 2, 1);
-
-      label = new Gtk::Label("Vmax:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 3, 3, 1, 1);
-
-      HScale_Vmax.set_digits(0);
-      HScale_Vmax.set_increments(1,1);
-      HScale_Vmax.set_range(0,255);
-      HScale_Vmax.set_value_pos(Gtk::POS_TOP);
-      HScale_Vmax.set_draw_value();
-      HScale_Vmax.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Vmax_value_changed));
-      grid->attach(HScale_Vmax, 4, 3, 2, 1);
-
-      label = new Gtk::Label("Erode:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 0,4, 1, 1);
-
-      HScale_Erode.set_digits(0);
-      HScale_Erode.set_increments(1,1);
-      HScale_Erode.set_range(0,50);
-      HScale_Erode.set_value_pos(Gtk::POS_TOP);
-      HScale_Erode.set_draw_value();
-      HScale_Erode.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Erode_value_changed));
-      grid->attach(HScale_Erode, 1, 4, 2, 1);
-
-      label = new Gtk::Label("Dilate:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 3, 4, 1, 1);
-
-      HScale_Dilate.set_digits(0);
-      HScale_Dilate.set_increments(1,1);
-      HScale_Dilate.set_range(0,50);
-      HScale_Dilate.set_value_pos(Gtk::POS_TOP);
-      HScale_Dilate.set_draw_value();
-      HScale_Dilate.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Dilate_value_changed));
-      grid->attach(HScale_Dilate, 4, 4, 2, 1);
-
-      label = new Gtk::Label("Blur:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 0, 5, 1, 1);
-
-      HScale_Blur.set_digits(0);
-      HScale_Blur.set_increments(2,2);
-      HScale_Blur.set_range(3,9);
-      HScale_Blur.set_value_pos(Gtk::POS_TOP);
-      HScale_Blur.set_draw_value();
-      HScale_Blur.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Blur_value_changed));
-      grid->attach(HScale_Blur, 1, 5, 2, 1);
-
-      label = new Gtk::Label("Amin:");
-      label->set_alignment(1.0, 1.0);
-      grid->attach(*label, 3, 5, 1, 1);
-
-      HScale_Amin.set_digits(0);
-      HScale_Amin.set_increments(1,1);
-      HScale_Amin.set_range(0,1000);
-      HScale_Amin.set_value_pos(Gtk::POS_TOP);
-      HScale_Amin.set_draw_value();
-      HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &V4LInterface::HScale_Amin_value_changed));
-      grid->attach(HScale_Amin, 4, 5, 2, 1);
-    }
 
     void V4LInterface::__update_cb_device() {
 
@@ -1090,40 +943,17 @@ namespace capture
                 robots_checkbox_fm.add(draw_info_hbox);
                 draw_info_hbox.set_halign(Gtk::ALIGN_CENTER);
                 draw_info_hbox.pack_start(draw_info_checkbox, false, true, 5);
-                draw_info_checkbox.set_label("Don't Draw on Image");
+                draw_info_checkbox.set_label("Disable Drawing");
                 draw_info_checkbox.set_can_focus(false);
-              }
-
-              void V4LInterface::init_calib_params()
-              {
-                // Inicializar variáveis de calibração
-                for(int i =0; i<5; i++) {
-                  H[i][0] = 0;
-                  H[i][1] = 180;
-                  S[i][0] = 0;
-                  S[i][1] = 255;
-                  V[i][0] = 0;
-                  V[i][1] = 255;
-                  B[i] = 3;
-                  D[i] = 0;
-                  E[i] = 0;
-                  Amin[i]=500;
-                }
-                // Corrigir os valores mostrados na interface
-                HScale_Hmax.set_value(H[0][1]);
-                HScale_Smax.set_value(S[0][1]);
-                HScale_Vmax.set_value(V[0][1]);
-                HScale_Amin.set_value(Amin[0]);
               }
 
               // Constructor
 
               V4LInterface::V4LInterface() :
               Gtk::VBox(false, 0) {
-                Img_id=0;
                 offsetL=0;
                 offsetR=0;
-                HSV_calib_event_flag=false;
+
                 Robot r;
 
                 robot_list.push_back(r);
@@ -1138,7 +968,6 @@ namespace capture
                 sp_width.set_state(Gtk::STATE_NORMAL);
                 sp_height.set_state(Gtk::STATE_NORMAL);
                 cb_frame_interval.set_state(Gtk::STATE_NORMAL);
-                bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
                 bt_warp.set_state(Gtk::STATE_INSENSITIVE);
                 bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
                 bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
@@ -1153,16 +982,7 @@ namespace capture
 
                 HScale_offsetR.set_state(Gtk::STATE_INSENSITIVE);
                 HScale_offsetL.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
-                HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
+
 
 
                 notebook.set_scrollable(true);
@@ -1179,17 +999,11 @@ namespace capture
                 pack_start(frm_device_info, false, false, 10);
                 __create_frm_device_info();
 
-                pack_start(frm_quick_actions, false, true, 10);
-                __create_frm_quick_actions();
-
                 pack_start(frm_device_prop, false, false, 10);
                 __create_frm_device_properties();
 
                 pack_start(frm_warp, false, false, 10);
                 __create_frm_warp();
-
-                pack_start(frm_calibration, false, false, 10);
-                __create_frm_calibration();
 
                 __update_cb_device();
 
@@ -1206,13 +1020,14 @@ namespace capture
                 robot_list[1].role = 1;
                 robot_list[2].role = 2;
 
-                init_calib_params();
+
 
                 for(int i=0; i<robot_list.size(); i++) {
                   robot_list[i].position = cv::Point(-1,-1);
                 }
 
                 createPositionsAndButtonsFrame();
+                createQuickActionsFrame();
                 createIDsFrame();
                 createFunctionsFrame();
                 createSpeedsFrame();
@@ -1225,8 +1040,6 @@ namespace capture
                 start_game_bt.set_size_request(50,100);
                 start_game_bt.set_image(red_button_released);
 
-
-
                 start_game_bt.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_start_game_bt_signal_clicked));
 
                 bt_quick_save.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_quick_save_clicked));
@@ -1238,11 +1051,6 @@ namespace capture
                 bt_warp.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_clicked));
                 bt_reset_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_reset_warp_clicked));
                 bt_adjust.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_adjust_pressed));
-
-                bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_HSV_calib_pressed));
-
-                bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_right_HSV_calib_clicked));
-                bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_left_HSV_calib_clicked));
 
                 cb_input_signal = cb_device.signal_changed().connect(sigc::mem_fun(*this, &V4LInterface::__event_cb_device_changed));
                 cb_input_signal = cb_input.signal_changed().connect(sigc::mem_fun(*this, &V4LInterface::__event_cb_input_changed));

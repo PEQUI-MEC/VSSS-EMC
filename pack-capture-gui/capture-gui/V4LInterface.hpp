@@ -17,12 +17,17 @@
 #include <capture/v4lcap.hpp>
 #include "Robot.hpp"
 #include "ImageView.hpp"
+#include "../../cc/vision/visionGUI.hpp"
+#include <ctime>
+#include <chrono>
 
 namespace capture {
 
 class V4LInterface: public Gtk::VBox {
 
     public:
+
+      VisionGUI visionGUI;
 
       bool warped = false;
 
@@ -90,45 +95,14 @@ class V4LInterface: public Gtk::VBox {
         V4LInterface();
         int offsetL;
         int offsetR;
-        int Amin[5];
         Gtk::Scale HScale_offsetL;
         Gtk::Scale HScale_offsetR;
-        int H[5][2];
-        int S[5][2];
-        int V[5][2];
-        int D[5];
-        int E[5];
-        int B[5];
-        int Img_id = 0;
         bool adjust_event_flag;
         bool invert_image_flag = false;
 
-
-        bool HSV_calib_event_flag;
-
         Gtk::ToggleButton bt_warp;
         Gtk::ToggleButton bt_adjust;
-        Gtk::ToggleButton bt_HSV_calib;
         Gtk::CheckButton bt_invert_image;
-        Gtk::Button bt_HSV_left;
-        Gtk::Button bt_HSV_right;
-
-
-
-        Gtk::Scale HScale_Hmin;
-        Gtk::Scale HScale_Smin;
-        Gtk::Scale HScale_Vmin;
-
-        Gtk::Scale HScale_Hmax;
-        Gtk::Scale HScale_Smax;
-        Gtk::Scale HScale_Vmax;
-
-        Gtk::Scale HScale_Dilate;
-        Gtk::Scale HScale_Erode;
-
-        Gtk::Scale HScale_Blur;
-
-        Gtk::Scale HScale_Amin;
 
         void grab_rgb(unsigned char * rgb) {
             std::cout << "Grabbing\n";
@@ -139,9 +113,9 @@ class V4LInterface: public Gtk::VBox {
         void __init_combo_boxes();
         void __create_frm_device_info();
         void __create_frm_device_properties();
-        void __create_frm_quick_actions();
+        void createQuickActionsFrame();
         void __create_frm_warp();
-        void __create_frm_calibration();
+
         // Combo properties updates
         void __update_cb_device();
         void __update_cb_input();
@@ -161,11 +135,10 @@ class V4LInterface: public Gtk::VBox {
 
         void __event_bt_quick_save_clicked();
         void __event_bt_quick_load_clicked();
-        void __event_auto_save();
         void __event_bt_save_clicked();
         void __event_bt_load_clicked();
 
-		bool __core_save(const char *);
+		    bool __core_save(const char *);
         bool __core_load(const char *);
 
         void __event_bt_start_clicked();
@@ -173,25 +146,9 @@ class V4LInterface: public Gtk::VBox {
         void __event_bt_adjust_pressed();
         void __event_bt_reset_warp_clicked();
 
-        void __event_bt_HSV_calib_pressed();
-        void __event_bt_right_HSV_calib_clicked();
-        void __event_bt_left_HSV_calib_clicked();
-
         void HScale_offsetR_value_changed();
         void HScale_offsetL_value_changed();
         void __event_bt_invert_image_signal_clicked();
-
-        void HScale_Hmin_value_changed();
-        void HScale_Smin_value_changed();
-        void HScale_Vmin_value_changed();
-
-        void HScale_Hmax_value_changed();
-        void HScale_Smax_value_changed();
-        void HScale_Vmax_value_changed();
-        void HScale_Dilate_value_changed();
-        void HScale_Erode_value_changed();
-        void HScale_Blur_value_changed();
-        void HScale_Amin_value_changed();
 
         void __event_cb_device_changed();
         void __event_cb_input_changed();
@@ -217,7 +174,6 @@ class V4LInterface: public Gtk::VBox {
 
         void updateRobotLabels();
         void updateFPS(int fps);
-        void init_calib_params();
         bool get_start_game_flag();
 
     public:
@@ -254,11 +210,9 @@ class V4LInterface: public Gtk::VBox {
         Gtk::Label lb_device_bus;
         Gtk::Label right_offset_label;
         Gtk::Label left_offset_label;
-        Gtk::Label HSV_label;
         //==================================================================
         Gtk::Frame frm_device_prop;
         Gtk::Frame frm_warp;
-        Gtk::Frame frm_calibration;
         Gtk::SpinButton sp_width;
         Gtk::SpinButton sp_height;
 

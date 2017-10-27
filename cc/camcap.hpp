@@ -58,10 +58,13 @@ public:
     cv::Point Ball_Est;
     cv::Point Ball_kf_est;
 
+    cv::Point virtual_robots_positions[3];
+    float virtual_robots_orientations[3];
+    int virtual_robot_selected = -1;
+
     StrategyGUI strategyGUI;
     ControlGUI control;
     capture::V4LInterface interface;
-    Vision *vision;
 
     Gtk::Frame fm;
     Gtk::Frame info_fm;
@@ -76,15 +79,15 @@ public:
         Robot robot;
         cv::Point ballPosition;
 
-        for (int i = 0; i < vision->getRobotListSize(); i++)
+        for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
         {
-            robot = vision->getRobot(i);
+            robot = interface.visionGUI.vision->getRobot(i);
             interface.robot_list[i].position = robot.position;
             interface.robot_list[i].orientation = robot.orientation;
             interface.robot_list[i].secundary = robot.secundary;
         }
 
-        ballPosition = vision->getBall();
+        ballPosition = interface.visionGUI.vision->getBall();
         interface.ballX = ballPosition.x;
         interface.ballY = ballPosition.y;
 
@@ -100,15 +103,15 @@ public:
         if(KF_FIRST) {
             //KALMAN FILTER INIT
             for(int i=0; i<3; i++) {
-                KF_RobotBall[i].KF_init(vision->getRobotPos(i));
+                KF_RobotBall[i].KF_init(interface.visionGUI.vision->getRobotPos(i));
             }
-            KF_RobotBall[3].KF_init(vision->getBall());
+            KF_RobotBall[3].KF_init(interface.visionGUI.vision->getBall());
             KF_FIRST = false;
         }
 
-        robot_kf_est[0] = KF_RobotBall[0].KF_Prediction(vision->getRobotPos(0));
-        robot_kf_est[1] = KF_RobotBall[1].KF_Prediction(vision->getRobotPos(1));
-        robot_kf_est[2] = KF_RobotBall[2].KF_Prediction(vision->getRobotPos(2));
+        robot_kf_est[0] = KF_RobotBall[0].KF_Prediction(interface.visionGUI.vision->getRobotPos(0));
+        robot_kf_est[1] = KF_RobotBall[1].KF_Prediction(interface.visionGUI.vision->getRobotPos(1));
+        robot_kf_est[2] = KF_RobotBall[2].KF_Prediction(interface.visionGUI.vision->getRobotPos(2));
         Ball_kf_est = KF_RobotBall[3].KF_Prediction(ballPosition);
 
     } // updateAllPositions
@@ -136,13 +139,14 @@ public:
             strategyGUI.strategy.set_constants(width,height);
             //}
 
+            interface.visionGUI.setFrameSize(width, height);
 
             // Liberar os botões de edit
             interface.robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
             interface.robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
             interface.robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
-
-            vision = new Vision(width, height);
+            strategyGUI.formation_box.set_sensitive(true);
+            strategyGUI.bt_createFormation.set_sensitive(true);
 
             data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
@@ -159,6 +163,8 @@ public:
             interface.robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
             interface.robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
             interface.robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+            strategyGUI.formation_box.set_sensitive(false);
+            strategyGUI.bt_createFormation.set_sensitive(false);
         }
 
         interface.__event_bt_quick_load_clicked();
@@ -190,6 +196,7 @@ public:
         }
 
         interface.imageView.PID_test_flag = control.PID_test_flag;
+        interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
 
         if(interface.warped) {
@@ -205,70 +212,55 @@ public:
         }
 
 
-
-        vision->setCalibParams(interface.H,interface.S,interface.V,interface.Amin, interface.E, interface.D, interface.B);
-        vision->run(imageView);
+        interface.visionGUI.vision->run(imageView);
 
 
-        if(!interface.HSV_calib_event_flag) {
+        if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag)
             {
                 drawStrategyConstants(imageView, width, height);
 
-                circle(imageView,vision->getBall(), 7, cv::Scalar(255,255,255), 2);
+                circle(imageView,interface.visionGUI.vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
-                for (int i = 0; i < vision->getRobotListSize(); i++)
+                for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
                 {
                     // robo 1
-                    line(imageView, vision->getRobot(i).position, vision->getRobot(i).secundary,cv::Scalar(255,255,0), 2);
+                    line(imageView, interface.visionGUI.vision->getRobot(i).position, interface.visionGUI.vision->getRobot(i).secundary,cv::Scalar(255,255,0), 2);
                     //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
-                    putText(imageView, std::to_string(i+1),cv::Point(vision->getRobot(i).position.x-5,vision->getRobot(i).position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                    circle(imageView, vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
+                    putText(imageView, std::to_string(i+1),cv::Point(interface.visionGUI.vision->getRobot(i).position.x-5,interface.visionGUI.vision->getRobot(i).position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
+                    circle(imageView, interface.visionGUI.vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
                     // linha da pick-a
-                    if(vision->getRobot(i).rearPoint != cv::Point(-1,-1))
-                        line(imageView, vision->getRobot(i).secundary,vision->getRobot(i).rearPoint,cv::Scalar(255,0,0), 2);
+                    if(interface.visionGUI.vision->getRobot(i).rearPoint != cv::Point(-1,-1))
+                        line(imageView, interface.visionGUI.vision->getRobot(i).secundary,interface.visionGUI.vision->getRobot(i).rearPoint,cv::Scalar(255,0,0), 2);
                 }
+                
+                cv::Point aux_point;
 
+                for(int i=0;i<5;i++){
+                    aux_point.x = round(100*cos(strategyGUI.strategy.pot_angle[i]));
+                    aux_point.y = - round(100*sin(strategyGUI.strategy.pot_angle[i]));
+                    aux_point += interface.robot_list[2].position;
+                    if(strategyGUI.strategy.pot_magnitude[i]!=0){
+                        arrowedLine(imageView,interface.robot_list[2].position, aux_point, cv::Scalar(0,255,0));
+                    }
+                }
+                
+                aux_point.x = round(100*cos(strategyGUI.strategy.pot_goalTheta));
+                aux_point.y = - round(100*sin(strategyGUI.strategy.pot_goalTheta));
+                aux_point += interface.robot_list[2].position;
+                arrowedLine(imageView,interface.robot_list[2].position, aux_point, cv::Scalar(255,255,0));
+                aux_point.x = round(100*cos(interface.robot_list[2].transAngle));
+                aux_point.y = - round(100*sin(interface.robot_list[2].transAngle));
+                aux_point += interface.robot_list[2].position;
+                arrowedLine(imageView,interface.robot_list[2].position, aux_point,cv::Scalar(255,0,0),2);
 
-                    cv::Point aux_point;
-
-
-
-
-                        for(int i=0;i<5;i++){
-                            aux_point.x = round(100*cos(strategyGUI.strategy.pot_angle[i]));
-                            aux_point.y = - round(100*sin(strategyGUI.strategy.pot_angle[i]));
-                            aux_point += interface.robot_list[2].position;
-                            if(strategyGUI.strategy.pot_magnitude[i]!=0){
-                            arrowedLine(imageView,interface.robot_list[2].position,
-                                aux_point,
-                                cv::Scalar(0,255,0));
-                                }
-                        }
-                            aux_point.x = round(100*cos(strategyGUI.strategy.pot_goalTheta));
-                            aux_point.y = - round(100*sin(strategyGUI.strategy.pot_goalTheta));
-                            aux_point += interface.robot_list[2].position;
-                            arrowedLine(imageView,interface.robot_list[2].position,
-                                aux_point,
-                                cv::Scalar(255,255,0));
-                                aux_point.x = round(100*cos(interface.robot_list[2].transAngle));
-                                aux_point.y = - round(100*sin(interface.robot_list[2].transAngle));
-                                aux_point += interface.robot_list[2].position;
-                                arrowedLine(imageView,interface.robot_list[2].position,
-                                    aux_point,cv::Scalar(255,0,0),2);
-
-                                aux_point.x = round(100*cos(strategyGUI.strategy.ball_angle));
-                                aux_point.y = - round(100*sin(strategyGUI.strategy.ball_angle));
-                                aux_point += interface.robot_list[2].position;
-                                arrowedLine(imageView,interface.robot_list[2].position,
-                                    aux_point,cv::Scalar(0,0,255),2);
-                for(int i=0; i<vision->getAdvListSize(); i++)
-                    circle(imageView,vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
+                for(int i=0; i<interface.visionGUI.vision->getAdvListSize(); i++)
+                    circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
         } // if !draw_info_flag
         else
         {
-            interface.imageView.set_data(vision->getThreshold(interface.Img_id).data, width, height);
+            interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
             interface.imageView.refresh();
         }
 
@@ -278,6 +270,23 @@ public:
         {
             control.button_PID_Test.set_active(true);
             PID_test();
+        }
+        else if(strategyGUI.formation_flag && !interface.get_start_game_flag()) {
+            formation_creation();
+
+            // exibe os robos virtual
+            for(int i = 0; i < 3; i++) {
+                if(virtual_robot_selected == i) {
+                    circle(imageView,virtual_robots_positions[i], 20, cv::Scalar(0,255,100), 3);
+                }
+                // posição
+                circle(imageView,virtual_robots_positions[i], 17, cv::Scalar(0,255,0), 2);
+                // orientação
+                cv::Point aux_point = cv::Point(virtual_robots_positions[i].x + 30*cos(virtual_robots_orientations[i]), virtual_robots_positions[i].y + 30*sin(virtual_robots_orientations[i]));
+                arrowedLine(imageView,virtual_robots_positions[i], aux_point,cv::Scalar(0,255,0),2);
+                // identificação
+                putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
+            }
         }
         else {
             for(int i=0; i<interface.robot_list.size(); i++) {
@@ -300,14 +309,14 @@ public:
         }
 
         // ----------- ESTRATEGIA -----------------//
-        strategyGUI.strategy.set_Ball(vision->getBall());
+        strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
 
         if(interface.start_game_flag) {
             Ball_Est=strategyGUI.strategy.get_Ball_Est();
-            // line(imageView,vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
+            line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
             circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
             //char buffer[3]; -> não é utilizado
-            strategyGUI.strategy.get_targets(&(interface.robot_list), (vision->advRobots));
+            strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
             for(int i =0; i<3; i++) {
                 circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
                 putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
@@ -350,7 +359,57 @@ public:
                 // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(300));
+        }
+    }
+
+    void formation_creation() {
+        if (interface.get_start_game_flag()) return;
+
+        if(strategyGUI.update_interface_flag) {
+            for(int i = 0; i < 3; i++) {
+                virtual_robots_positions[i] = strategyGUI.formation_positions[i];
+                virtual_robots_orientations[i] = strategyGUI.formation_orientations[i];
+            }
+            strategyGUI.update_interface_flag = false;
+        }
+
+        // marca o robô mais próximo
+        for(int i = 0; i < 3; i++) {
+            float dist = sqrt(pow((interface.imageView.robot_pos[0]-virtual_robots_positions[i].x),2)+pow((interface.imageView.robot_pos[1]-virtual_robots_positions[i].y),2));
+            if(dist<=17) {
+                virtual_robot_selected = i;
+                interface.imageView.tar_pos[0] = -1;
+                interface.imageView.tar_pos[1] = -1;
+                interface.imageView.look_pos[0] = -1;
+                interface.imageView.look_pos[1] = -1;
+            }
+        }
+
+        // segundo clique
+        if(virtual_robot_selected > -1) {
+            if(interface.imageView.look_pos[0] >= 0) {
+                float x1, x2, y1, y2;
+                x1 = virtual_robots_positions[virtual_robot_selected].x;
+                y1 = virtual_robots_positions[virtual_robot_selected].y;
+                x2 = interface.imageView.look_pos[0];
+                y2 = interface.imageView.look_pos[1];
+                virtual_robots_orientations[virtual_robot_selected] = atan2((y2-y1)*1.3/height,(x2-x1)*1.5/width);
+                update_formation_information();
+            }
+            else if(interface.imageView.tar_pos[0] >= 0) {
+                virtual_robots_positions[virtual_robot_selected] = cv::Point(interface.imageView.tar_pos[0], interface.imageView.tar_pos[1]);
+                update_formation_information();
+            }
+        }
+    }
+    void update_formation_information() {
+        // reseta robo selecionado
+        virtual_robot_selected = -1;
+        // copia os dados pra estratégia
+        for(int i = 0; i < 3; i++) {
+            strategyGUI.formation_positions[i] = virtual_robots_positions[i];
+            strategyGUI.formation_orientations[i] = virtual_robots_orientations[i];
         }
     }
 
@@ -396,25 +455,20 @@ public:
         }
         if(Selec_index>-1) {
             interface.robot_list[Selec_index].histWipe();
-            if(sqrt(pow((vision->getBall().x-interface.robot_list[Selec_index].target.x),2)+pow((vision->getBall().y-interface.robot_list[Selec_index].target.y),2))<=7)
+            if(sqrt(pow((interface.visionGUI.vision->getBall().x-interface.robot_list[Selec_index].target.x),2)+pow((interface.visionGUI.vision->getBall().y-interface.robot_list[Selec_index].target.y),2))<=7)
                 fixed_ball[Selec_index]=true;
 
             if(fixed_ball[Selec_index])
-                interface.robot_list[Selec_index].target=vision->getBall();
+                interface.robot_list[Selec_index].target=interface.visionGUI.vision->getBall();
             else
                 interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
-
-                position_to_vector(Selec_index);
-                // interface.robot_list[Selec_index].vmax = 1.2;
         }
 
 
         for(int i=0; i<interface.robot_list.size() && i<3; i++) {
-            interface.robot_list[i].vmax = interface.robot_list[i].vdefault;
-            if(fixed_ball[i]){
-                interface.robot_list[i].target=vision->getBall();
-                position_to_vector(i);
-            }else {
+            if(fixed_ball[i])
+                interface.robot_list[i].target=interface.visionGUI.vision->getBall();
+            else {
                 if(sqrt(pow((interface.robot_list[i].position.x-interface.robot_list[i].target.x),2)+
                 pow((interface.robot_list[i].position.y-interface.robot_list[i].target.y),2))<15) {
                     interface.robot_list[i].target = cv::Point(-1,-1);
@@ -424,20 +478,14 @@ public:
                     interface.robot_list[i].Vl = 0 ;
                 }
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
-                        position_to_vector(i);
+                    //interface.robot_list[i].goTo(interface.robot_list[i].target,interface.visionGUI.vision->getBall());
                 } else {
-                interface.robot_list[i].vmax = 0;
+                    interface.robot_list[i].Vr = 0 ;
+                    interface.robot_list[i].Vl = 0 ;
                 }
             }
         }
-
     } // PID_test
-    void position_to_vector(int i) {
-		interface.robot_list[i].transAngle =
-        atan2(double(interface.robot_list[i].position.y - interface.robot_list[i].target.y),
-        - double(interface.robot_list[i].position.x - interface.robot_list[i].target.x));
-        interface.robot_list[i].cmdType = VECTOR;
-    }
 
     void drawStrategyConstants(cv::Mat imageView, int width, int height)
     {
@@ -542,7 +590,9 @@ public:
         fixed_ball[2]=false;
         fm.set_label("imageView");
         fm.add(interface.imageView);
-        notebook.append_page(interface, "Vision");
+
+        notebook.append_page(interface, "Capture");
+        notebook.append_page(interface.visionGUI, "Vision");
         notebook.append_page(control, "Control");
         notebook.append_page(strategyGUI, "Strategy");
 
@@ -557,6 +607,10 @@ public:
         KF_RobotBall.push_back(kf);
         KF_RobotBall.push_back(kf);
 
+        for(int i = 0; i < 3; i++) {
+            virtual_robots_orientations[i] = 0;
+            virtual_robots_positions[i] = cv::Point(200, 480 / 6 + (i + 1) * 480 / 6); // !TODO hardcoded, usar variáveis quando possível
+        }
 
         for(int i=0; i<4; i++) {
             interface.imageView.adjust_mat[i][0] = -1;
