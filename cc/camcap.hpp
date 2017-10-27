@@ -145,8 +145,8 @@ public:
             interface.robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
             interface.robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
             interface.robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
-            strategyGUI.formation_box.set_sensitive(true);
-            strategyGUI.bt_createFormation.set_sensitive(true);
+            // strategyGUI.formation_box.set_sensitive(true);
+            // strategyGUI.bt_createFormation.set_sensitive(true);
 
             data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
@@ -163,8 +163,8 @@ public:
             interface.robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
             interface.robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
             interface.robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-            strategyGUI.formation_box.set_sensitive(false);
-            strategyGUI.bt_createFormation.set_sensitive(false);
+            // strategyGUI.formation_box.set_sensitive(false);
+            // strategyGUI.bt_createFormation.set_sensitive(false);
         }
 
         interface.__event_bt_quick_load_clicked();
@@ -196,7 +196,7 @@ public:
         }
 
         interface.imageView.PID_test_flag = control.PID_test_flag;
-        interface.imageView.formation_flag = strategyGUI.formation_flag;
+        // interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
 
         if(interface.warped) {
@@ -233,7 +233,7 @@ public:
                     if(interface.visionGUI.vision->getRobot(i).rearPoint != cv::Point(-1,-1))
                         line(imageView, interface.visionGUI.vision->getRobot(i).secundary,interface.visionGUI.vision->getRobot(i).rearPoint,cv::Scalar(255,0,0), 2);
                 }
-                
+
                 cv::Point aux_point;
 
                 for(int i=0;i<5;i++){
@@ -244,7 +244,7 @@ public:
                         arrowedLine(imageView,interface.robot_list[2].position, aux_point, cv::Scalar(0,255,0));
                     }
                 }
-                
+
                 aux_point.x = round(100*cos(strategyGUI.strategy.pot_goalTheta));
                 aux_point.y = - round(100*sin(strategyGUI.strategy.pot_goalTheta));
                 aux_point += interface.robot_list[2].position;
@@ -271,7 +271,7 @@ public:
             control.button_PID_Test.set_active(true);
             PID_test();
         }
-        else if(strategyGUI.formation_flag && !interface.get_start_game_flag()) {
+        else if(/*strategyGUI.formation_flag && */!interface.get_start_game_flag()) {
             formation_creation();
 
             // exibe os robos virtual
@@ -366,13 +366,13 @@ public:
     void formation_creation() {
         if (interface.get_start_game_flag()) return;
 
-        if(strategyGUI.update_interface_flag) {
-            for(int i = 0; i < 3; i++) {
-                virtual_robots_positions[i] = strategyGUI.formation_positions[i];
-                virtual_robots_orientations[i] = strategyGUI.formation_orientations[i];
-            }
-            strategyGUI.update_interface_flag = false;
-        }
+        // if(strategyGUI.update_interface_flag) {
+        //     for(int i = 0; i < 3; i++) {
+        //         virtual_robots_positions[i] = strategyGUI.formation_positions[i];
+        //         virtual_robots_orientations[i] = strategyGUI.formation_orientations[i];
+        //     }
+        //     strategyGUI.update_interface_flag = false;
+        // }
 
         // marca o robô mais próximo
         for(int i = 0; i < 3; i++) {
@@ -408,8 +408,8 @@ public:
         virtual_robot_selected = -1;
         // copia os dados pra estratégia
         for(int i = 0; i < 3; i++) {
-            strategyGUI.formation_positions[i] = virtual_robots_positions[i];
-            strategyGUI.formation_orientations[i] = virtual_robots_orientations[i];
+            // strategyGUI.formation_positions[i] = virtual_robots_positions[i];
+            // strategyGUI.formation_orientations[i] = virtual_robots_orientations[i];
         }
     }
 
