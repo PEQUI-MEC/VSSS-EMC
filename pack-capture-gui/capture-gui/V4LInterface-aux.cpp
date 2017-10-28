@@ -840,7 +840,7 @@ namespace capture
               }
 
               void V4LInterface::update_robot_functions(){
-                for (int i = 0; i < robot_list.size(); i++)
+                for (int i = 0; i < 3; i++)
                   cb_robot_function[i].set_active(robot_list[i].role);
               }
 
