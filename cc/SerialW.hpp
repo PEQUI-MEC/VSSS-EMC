@@ -87,6 +87,7 @@ return USB;
 
 
 void sendToRobot(Robot r){
+	if (!Serial_Enabled) return;
 	stringstream cmd;
 	double temp0= floor(r.Vr*100)/100;
 	double temp1= floor(r.Vl*100)/100;
@@ -96,6 +97,7 @@ void sendToRobot(Robot r){
 	}
 
 void sendCmdToRobots(std::vector<Robot> robot_list){
+	if (!Serial_Enabled) return;
 	stringstream cmd;
 	double temp0, temp1, temp2, temp3, temp4;
 	for (int i = 0; i < 3; i++){
@@ -153,13 +155,15 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 	//std::cout<<cmd.str()<<std::endl;
 }
 void sendSerial(std::string cmd){
-
-int n_written = write( USB, cmd.c_str(),cmd.size());
+	if (!Serial_Enabled) return;
+	int n_written = write( USB, cmd.c_str(),cmd.size());
 
 	}
 
 
 int readSerial(char* buf, int size){
+	if (!Serial_Enabled) return -2;
+
   fd_set set;
   struct timeval timeout;
   int rv;
