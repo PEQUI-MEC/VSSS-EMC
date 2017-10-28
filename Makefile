@@ -33,62 +33,83 @@ CAPFLAGS = -w -I"pack-capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c
 SOURCES = $(shell find . -name "*.cpp") $(shell find . -name "*.hpp")
 
 # roda o programa se estiver compilado
-RUN: VSSS
-	sudo -S ./VSSS
+# comentado pois faz com que o make continue rodando em background. para executar, utilize o buildVSSS.sh
+#RUN: welcome VSSS
+#	@echo "\n\n\033[92mCompilation done. Running program...\033[0m\n"
+#	@echo "\n\033[92m|---------- VSSS Terminal Output ----------|\033[0m\n" && sudo -S ./VSSS
 
 # isso compila o projeto
 # ele gera primeiro os objetos que são dependências e depois linka tudo
-VSSS: cc/main.o cc/vision/vision.o cc/vision/visionGUI.o cc/vision/tag.o cc/TestFrame.o pack-capture/capture/v4lcap.o pack-capture-gui/capture-gui/V4LInterface-aux.o pack-capture-gui/capture-gui/V4LInterface-events.o cc/Fuzzy/FuzzyController.o cc/Fuzzy/FuzzyFunction.o cc/Fuzzy/Rules.o
-	$(COMPILER) -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/vision.o" "cc/vision/visionGUI.o" "cc/vision/tag.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
+VSSS: welcome cc/main.o cc/vision/vision.o cc/vision/visionGUI.o cc/vision/tag.o cc/TestFrame.o pack-capture/capture/v4lcap.o pack-capture-gui/capture-gui/V4LInterface-aux.o pack-capture-gui/capture-gui/V4LInterface-events.o cc/Fuzzy/FuzzyController.o cc/Fuzzy/FuzzyFunction.o cc/Fuzzy/Rules.o
+	@echo "\n\n\033[92mLinking objects...\033[0m\n"
+	@$(COMPILER) -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/vision.o" "cc/vision/visionGUI.o" "cc/vision/tag.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
+	@echo "\n\n\033[92mAll done. Run 'sh runVSSS.sh' to open VSSS terminal.\033[0m\n"
+
+# mensagem de boas vindas, fica daora
+welcome: 
+	@echo "\n\033[92m|------- VSSS 2017 - PEQUI MECÂNICO -------|\033[0m"
 
 # verifica se algum hpp ou cpp foi alterado e compila a main se precisar
 cc/main.o: cc/main.cpp $(SOURCES)
-	$(COMPILER) -w -I"pack-capture-gui" -I"pack-capture" -O0 -g3 -Wall -c "cc/main.cpp" -o "cc/main.o" `pkg-config gtkmm-3.0 --cflags`
+	@echo "\n\n\033[92mCompiling main program...\033[0m\n"
+	@$(COMPILER) -w -I"pack-capture-gui" -I"pack-capture" -O0 -g3 -Wall -c "cc/main.cpp" -o "cc/main.o" `pkg-config gtkmm-3.0 --cflags`
 
 # objeto da visão
 cc/vision/vision.o: cc/vision/vision.cpp
-	$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/vision.cpp" -o "cc/vision/vision.o" -lboost_thread -lboost_system
+	@echo "\n\n\033[92mCompiling vision object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/vision.cpp" -o "cc/vision/vision.o" -lboost_thread -lboost_system
 
 # objeto visionGUI
 cc/vision/visionGUI.o: cc/vision/visionGUI.cpp
-	$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags` "cc/vision/visionGUI.cpp" -o "cc/vision/visionGUI.o"
+	@echo "\n\n\033[92mCompiling visionGUI object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags` "cc/vision/visionGUI.cpp" -o "cc/vision/visionGUI.o"
 
 # objeto das tags
 cc/vision/tag.o: cc/vision/tag.cpp
-	$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
+	@echo "\n\n\033[92mCompiling tag object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
 
 # objeto do frame de teste
 cc/TestFrame.o: cc/TestFrame.cpp
-	$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/TestFrame.cpp" -o "cc/TestFrame.o"
+	@echo "\n\n\033[92mCompiling test frame object...\033[0m\n"
+	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/TestFrame.cpp" -o "cc/TestFrame.o"
 
 # objeto do v4lcap (captura)
 pack-capture/capture/v4lcap.o: pack-capture/capture/v4lcap.cpp
-	$(COMPILER) -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
-	ar -r "pack-capture/libpack-capture.a" "pack-capture/capture/v4lcap.o"
+	@echo "\n\n\033[92mCompiling capture object...\033[0m\n"
+	@$(COMPILER) -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
+	@ar -r "pack-capture/libpack-capture.a" "pack-capture/capture/v4lcap.o"
 
 # objeto da interface
 pack-capture-gui/capture-gui/V4LInterface-aux.o: pack-capture-gui/capture-gui/V4LInterface-aux.cpp
-	$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
+	@echo "\n\n\033[92mCompiling interface object...\033[0m\n"
+	@$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
 
 # objeto de eventos da interface
 pack-capture-gui/capture-gui/V4LInterface-events.o: pack-capture-gui/capture-gui/V4LInterface-events.cpp
-	$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
-	ar -r  "pack-capture-gui/libpack-capture-gui.a"  "pack-capture-gui/capture-gui/V4LInterface-aux.o" "pack-capture-gui/capture-gui/V4LInterface-events.o"
+	@echo "\n\n\033[92mCompiling interface events object...\033[0m\n"
+	@$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
+	@ar -r  "pack-capture-gui/libpack-capture-gui.a"  "pack-capture-gui/capture-gui/V4LInterface-aux.o" "pack-capture-gui/capture-gui/V4LInterface-events.o"
 
 # objeto do controlador da fuzzy
 cc/Fuzzy/FuzzyController.o: cc/Fuzzy/FuzzyController.cpp
-	$(COMPILER) $(FUZZYFLAGS) "cc/Fuzzy/FuzzyController.cpp" -o "cc/Fuzzy/FuzzyController.o"
+	@echo "\n\n\033[92mCompiling fuzzy controller object...\033[0m\n"
+	@$(COMPILER) $(FUZZYFLAGS) "cc/Fuzzy/FuzzyController.cpp" -o "cc/Fuzzy/FuzzyController.o"
 
 # objeto das funções da fuzzy
 cc/Fuzzy/FuzzyFunction.o: cc/Fuzzy/FuzzyFunction.cpp
-	$(COMPILER) $(FUZZYFLAGS) "cc/Fuzzy/FuzzyFunction.cpp" -o "cc/Fuzzy/FuzzyFunction.o"
+	@echo "\n\n\033[92mCompiling fuzzy functions object...\033[0m\n"
+	@$(COMPILER) $(FUZZYFLAGS) "cc/Fuzzy/FuzzyFunction.cpp" -o "cc/Fuzzy/FuzzyFunction.o"
 
 # objeto das regras
 cc/Fuzzy/Rules.o: cc/Fuzzy/Rules.cpp
-	$(COMPILER) $(FUZZYFLAGS) "cc/Fuzzy/Rules.cpp" -o "cc/Fuzzy/Rules.o"
+	@echo "\n\n\033[92mCompiling fuzzy rules object...\033[0m\n"
+	@$(COMPILER) $(FUZZYFLAGS) "cc/Fuzzy/Rules.cpp" -o "cc/Fuzzy/Rules.o"
 
 # regras de limpeza
 # isso apaga todos os objetos compilados e o executável
 clean:
-	find . -name "*.o" -type f -delete
-	rm -f VSSS
+	@echo "\033[92m\nCleaning all generated objects and executables...\033[0m\n"
+	@find . -name "*.o" -type f -delete
+	@rm -f VSSS
+	@echo "\033[92m\nDone.\033[0m\n"
