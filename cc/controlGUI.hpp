@@ -217,7 +217,6 @@ public:
 
 		// get battery
 		battery = atof(cmd.substr(6,4).c_str());
-		cout << "battery = " << battery << endl;
 		battery = ((battery - 6.4)/2.0)*100; // % of battery
 
 		// update battery
