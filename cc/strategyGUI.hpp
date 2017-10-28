@@ -28,10 +28,6 @@ protected:
 	Gtk::CheckButton goalArea_bt;
 	Gtk::CheckButton sideRectangles_bt;
 
-	Gtk::Grid loadAnn_grid;
-	Gtk::CheckButton useAnn_bt;
-	Gtk::Button bt_loadAnn;
-
 private:
 	bool deslocamentoZagaAtaque_flag = false;
 	bool goalSize_flag = false;
@@ -45,10 +41,6 @@ private:
 	bool ballRadius_flag = false;
 	bool goalArea_flag = false;
 	bool sideRectangles_flag = false;
-
-	std::string annName = "ANN not loaded";
-
-
 
 	void _event_sideRectangles_bt_clicked()
 	{
@@ -105,39 +97,6 @@ private:
 		deslocamentoZagaAtaque_flag = !deslocamentoZagaAtaque_flag;
 	}
 
-	void _event_useAnn_bt_clicked() {
-		if(strategy.useAnn_flag) {
-			strategy.useAnn_flag = false;
-			strategy_title_label.set_text("Default Strategy");
-		}
-		else {
-			strategy.useAnn_flag = true;
-			strategy_title_label.set_text(annName);
-		}
-	}
-
-	void _event_loadAnn_bt_clicked() {
-		// abre o popup pra pegar o nome do arquivo
-		FileChooser selectAnnWindow;
-
-		if (selectAnnWindow.result == Gtk::RESPONSE_OK) {
-			// cria ann passando o arquivo e seta na classe
-		  if(!strategy.set_ann(selectAnnWindow.filename.c_str()))
-			{
-				std::cout << "Error: could not load ANN." << std::endl;
-			}
-			else
-			{
-				// se ocorreu tudo com sucesso, da um cout e habilita botão de usar ann
-				annName = selectAnnWindow.filename;
-				std::cout << "ANN \"" << annName << "\" successfully loaded!" << std::endl;
-				useAnn_bt.set_sensitive(true);
-			}
-		}
-		else
-		    return;
-	}
-
 public:
 	//Tree model columns:
 	class ModelColumns : public Gtk::TreeModel::ColumnRecord
@@ -155,11 +114,9 @@ public:
 
 
 	Gtk::Frame menu_fm;
-	Gtk::Frame selection_fm;
 	Gtk::Frame info_text_fm;
 	Gtk::Frame info_img_fm;
 	Gtk::Frame constants_fm;
-	Gtk::Frame selectAnn_fm;
 	Gtk::TreeView m_TreeView;
 	Glib::RefPtr<Gtk::ListStore> m_refTreeModel;
 
@@ -173,7 +130,6 @@ public:
 	Gtk::Image strategy_img;
 
 	Gtk::Button select_button;
-	Gtk::Label strategy_title_label;
 
 	Gtk::ScrolledWindow m_ScrolledWindow;
 	Gtk::TextView strategy_description_view;
@@ -237,18 +193,9 @@ public:
 		return areaLimitX_flag;
 	}
 
-	void set_AnnName(std::string newAnnName) {
-		annName = newAnnName;
-	}
-	std::string get_AnnName() {
-		return annName;
-	}
-
 	StrategyGUI()
 	{
 		createCheckConstantsFrame();
-		createSelectAnnFrame();
-		createSelectionFrame();
 		pack_start(strategy.testFrame, false, true, 5);
 		configureTestFrame();
 		//createMenuFrame();
@@ -319,38 +266,6 @@ public:
 		goalMax_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_goalMax_bt_clicked));
 		defenseLine_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_defenseLine_bt_clicked));
 		deslocamentoZagaAtaque_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_deslocamentoZagaAtaque_bt_clicked));
-	}
-
-	void createSelectAnnFrame()
-	{
-		pack_start(selectAnn_fm, false, true, 5);
-		selectAnn_fm.add(loadAnn_grid);
-		selectAnn_fm.set_label("Select ANN");
-		loadAnn_grid.set_halign(Gtk::ALIGN_CENTER);
-
-		bt_loadAnn.set_label("Load ANN");
-		useAnn_bt.set_label("Use loaded ANN");
-
-		loadAnn_grid.set_border_width(10);
-		loadAnn_grid.set_column_spacing(5);
-
-		loadAnn_grid.attach(bt_loadAnn, 0, 0, 1, 1);
-		loadAnn_grid.attach(useAnn_bt, 1, 0, 1, 1);
-
-		useAnn_bt.set_sensitive(false);
-
-		bt_loadAnn.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_loadAnn_bt_clicked));
-		useAnn_bt.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_useAnn_bt_clicked));
-	}
-
-	void createSelectionFrame()
-	{
-		pack_start(selection_fm, false, true, 5);
-		selection_fm.set_label("Strategy Selected:  ");
-		selection_fm.add(selection_hbox);
-		strategy_title_label.set_text("Default Strategy");
-		selection_hbox.set_halign(Gtk::ALIGN_CENTER);
-		selection_hbox.pack_start(strategy_title_label, false, true, 5);
 	}
 
 	void createMenuFrame()
