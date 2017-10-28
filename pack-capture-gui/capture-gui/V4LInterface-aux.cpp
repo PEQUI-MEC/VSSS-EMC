@@ -839,6 +839,11 @@ namespace capture
                 robots_speed_progressBar[2].set_text(str2.substr(0,4));
               }
 
+              void V4LInterface::update_robot_functions(){
+                for (int i = 0; i < 3; i++)
+                  cb_robot_function[i].set_active(robot_list[i].role);
+              }
+
               void V4LInterface::createFunctionsFrame(){
                 Gtk::Label *label;
                 robots_function_fm.set_label("Robot Functions");
