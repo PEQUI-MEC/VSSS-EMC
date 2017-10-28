@@ -536,51 +536,23 @@ void _create_status_frame(){
 	lastUpdate_lb.set_valign(Gtk::ALIGN_BASELINE);
 	status_grid.attach(lastUpdate_lb, 1, 0, 3, 1);
 
-	status_img[0].set("img/offline.png");
-	status_grid.attach(status_img[0], 0, 1, 1, 1);
-	status_img[1].set("img/offline.png");
-	status_grid.attach(status_img[1], 0, 2, 1, 1);
-	status_img[2].set("img/offline.png");
-	status_grid.attach(status_img[2], 0, 3, 1, 1);
-	status_img[3].set("img/offline.png");
-	status_grid.attach(status_img[3], 0, 4, 1, 1);
-	status_img[4].set("img/offline.png");
-	status_grid.attach(status_img[4], 0, 5, 1, 1);
+	std::vector<std::string> name;
+	name.push_back("Robot A");
+	name.push_back("Robot B");
+	name.push_back("Robot C");
+	name.push_back("Robot D");
+	name.push_back("Robot E");
 
-	robots_lb[0].set_text("Robot A: ");
-	status_grid.attach(robots_lb[0], 1, 1, 1, 1);
-	robots_lb[1].set_text("Robot B: ");
-	status_grid.attach(robots_lb[1], 1, 2, 1, 1);
-	robots_lb[2].set_text("Robot C: ");
-	status_grid.attach(robots_lb[2], 1, 3, 1, 1);
-	robots_lb[3].set_text("Robot D: ");
-	status_grid.attach(robots_lb[3], 1, 4, 1, 1);
-	robots_lb[4].set_text("Robot E: ");
-	status_grid.attach(robots_lb[4], 1, 5, 1, 1);
-
-	battery_bar[0].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[0], 2, 1, 1, 1);
-	battery_bar[1].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[1], 2, 2, 1, 1);
-	battery_bar[2].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[2], 2, 3, 1, 1);
-	battery_bar[3].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[3], 2, 4, 1, 1);
-	battery_bar[4].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[4], 2, 5, 1, 1);
-
-	status_lb[0].set_text("Offline");
-	status_grid.attach(status_lb[0], 3, 1, 1, 1);
-	status_lb[1].set_text("Offline");
-	status_grid.attach(status_lb[1], 3, 2, 1, 1);
-	status_lb[2].set_text("Offline");
-	status_grid.attach(status_lb[2], 3, 3, 1, 1);
-	status_lb[3].set_text("Offline");
-	status_grid.attach(status_lb[3], 3, 4, 1, 1);
-	status_lb[4].set_text("Offline");
-	status_grid.attach(status_lb[4], 3, 5, 1, 1);
-
-
+	for (int i = 0; i < 5; i++) {
+		status_img[i].set("img/offline.png");
+		status_grid.attach(status_img[i], 0, i+1, 1, 1);
+		robots_lb[i].set_text(name.at(i));
+		status_grid.attach(robots_lb[i], 1, i+1, 1, 1);
+		battery_bar[i].set_valign(Gtk::ALIGN_CENTER);
+		status_grid.attach(battery_bar[i], 2, i+1, 1, 1);
+		status_lb[i].set_text("Offline");
+		status_grid.attach(status_lb[i], 3, i+1, 1, 1);
+	}
 }
 
 	// Função para verificar se os valores digitados nos campos
