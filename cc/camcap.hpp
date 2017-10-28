@@ -311,9 +311,8 @@ public:
 
 
         // ----------- ESTRATEGIA -----------------//
-        strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
-
         if(interface.start_game_flag) {
+            strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
             Ball_Est=strategyGUI.strategy.get_Ball_Est();
             line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
             circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
@@ -323,9 +322,10 @@ public:
                 circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
                 putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
             } // for
-        } // if start_game_flag
 
-        interface.update_speed_progressBars();
+            interface.update_speed_progressBars();
+            interface.update_robot_functions();
+        } // if start_game_flag
         // ----------------------------------------//
 
 
