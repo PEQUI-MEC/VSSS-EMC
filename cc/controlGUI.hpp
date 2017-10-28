@@ -237,7 +237,7 @@ public:
 			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
 		}
 		else {
-			status_img[id].set("img/dead.png");
+			status_img[id].set("img/zombie.png");
 			battery_bar[id].set_fraction(0.0);
 			battery_bar[id].set_text("0%");
 			status_lb[id].set_text("DEAD");
