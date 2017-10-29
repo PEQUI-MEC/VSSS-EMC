@@ -8,7 +8,7 @@
 #include "SerialW.hpp"
 #include <math.h>
 #include "TestFrame.hpp"
-//#include "Planner.hpp"
+#include "Planner.hpp"
 
 #define PREDICAO_NUM_SAMPLES 15
 // Parametros para atacante sem bola
@@ -112,7 +112,7 @@ public:
 
 	vector<Robot> robots;
 	cv::Point* adv;
-	//Planner planner;
+	Planner planner;
 	int collision_count[3];
 	cv::Point past_position[3];
 	cv::Point Goalkeeper;
@@ -123,6 +123,8 @@ public:
 	double lock_angle;
 
 	FuzzyController controller;
+
+	bool using_planner_flag = true;
 
 	bool half_transition = false;
 	bool full_transition = false;
@@ -238,6 +240,9 @@ public:
 		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
 		BALL_RADIUS = 100;
 		//não usando
+
+		// passa algumas constantes pro Planner
+		planner.set_constants(width/2, height/2, height);
 	}
 
 	double distance(cv::Point A, cv::Point B) {
@@ -262,7 +267,10 @@ public:
 			// cout << "vector copied" << endl;
 
 			for(int i =0; i<3; i++) { //pegar posições e índices
-				robots[i].cmdType = VECTOR;
+				if(using_planner_flag)
+					robots[i].cmdType = POSITION;
+				else
+					robots[i].cmdType = VECTOR;
 				robots[i].fixedPos = false;
 				robots[i].using_pot_field = false;
 				robots[i].vmax = robots[i].vdefault;
@@ -363,14 +371,16 @@ public:
 			//
 			// }
 
+			if(using_planner_flag) {
+				planner.plan(&robots, adv, Ball);
+			}
+
 			for(int i =0; i<3; i++) {
 				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
 			}
-
-			//planner.plan(&robots, adv, Ball);
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -519,6 +529,7 @@ public:
 	}
 
 	void position_to_vector(int i) {
+		robots.at(i).cmdType = VECTOR;
 		robots[i].transAngle = atan2(double(robots[i].position.y - robots[i].target.y), - double(robots[i].position.x - robots[i].target.x));
 	}
 
