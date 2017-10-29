@@ -198,6 +198,7 @@ public:
         interface.imageView.PID_test_flag = control.PID_test_flag;
         interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
+        interface.imageView.gmm_sample_flag = interface.visionGUI.getSamplesEventFlag();
 
         if(interface.warped) {
             interface.bt_warp.set_active(false);
@@ -211,9 +212,14 @@ public:
             }
         }
 
+        if (interface.imageView.gmm_ready_flag) {
+          interface.visionGUI.gmm.setFrame(imageView);
+          interface.visionGUI.gmm.pushSample(interface.imageView.gmm_clicks);
+          interface.imageView.gmm_ready_flag = false;
+        }
+
 
         interface.visionGUI.vision->run(imageView);
-
 
         if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag)

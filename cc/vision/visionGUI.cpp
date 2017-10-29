@@ -1,19 +1,87 @@
 #include "visionGUI.hpp"
 
-void VisionGUI::__create_frm_capture() {
+void VisionGUI::__create_frm_gmm() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
-  Gtk::Label * label;
+  Gtk::Frame * frame;
 
   vbox = new Gtk::VBox();
   grid = new Gtk::Grid();
+  frame = new Gtk::Frame();
 
-  frm_capture.add(*vbox);
+  pack_start(*frame, false, false, 10);
+
+  frame->add(*vbox);
   vbox->pack_start(*grid, false, true, 5);
   vbox->set_halign(Gtk::ALIGN_CENTER);
   vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frm_capture.set_label("Video/Image Capture");
+  frame->set_label("GMM Calibration");
+
+  grid->set_border_width(10);
+  grid->set_column_spacing(10);
+  grid->set_row_spacing(5);
+
+  bt_collectSamples.set_label("Collect Samples");
+  grid->attach(bt_collectSamples, 0, 0, 1, 1);
+  bt_popSample.set_label("Pop Sample");
+  grid->attach(bt_popSample, 2, 0, 1, 1);
+  bt_clearSamples.set_label("Reset Samples");
+  grid->attach(bt_clearSamples, 3, 0, 1, 1);
+
+  bt_collectSamples.set_state(Gtk::STATE_NORMAL);
+  bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
+  bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+
+  bt_collectSamples.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_collectSamples_pressed));
+  bt_popSample.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_popSample_clicked));
+  bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
+}
+
+void VisionGUI::__event_bt_collectSamples_pressed() {
+  if (samplesEventFlag) {
+    bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
+    bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+  } else {
+    bt_popSample.set_state(Gtk::STATE_NORMAL);
+    bt_clearSamples.set_state(Gtk::STATE_NORMAL);
+  }
+
+  samplesEventFlag = !samplesEventFlag;
+}
+
+void VisionGUI::__event_bt_popSample_clicked() {
+  gmm.popSample();
+  std::cout << "GMM sample popped. Total left: " << gmm.getSamplesSize() << std::endl;
+}
+
+void VisionGUI::__event_bt_clearSamples_clicked() {
+  gmm.clearSamples();
+  std::cout << "GMM samples cleared." << std::endl;
+}
+
+bool VisionGUI::getSamplesEventFlag() {
+  return samplesEventFlag;
+}
+
+void VisionGUI::__create_frm_capture() {
+  Gtk::VBox * vbox;
+  Gtk::Grid * grid;
+  Gtk::Label * label;
+  Gtk::Frame * frame;
+
+  vbox = new Gtk::VBox();
+  grid = new Gtk::Grid();
+  frame = new Gtk::Frame();
+
+  pack_start(*frame, false, false, 10);
+
+  frame->add(*vbox);
+  vbox->pack_start(*grid, false, true, 5);
+  vbox->set_halign(Gtk::ALIGN_CENTER);
+  vbox->set_valign(Gtk::ALIGN_CENTER);
+
+  frame->set_label("Video/Image Capture");
 
   grid->set_border_width(10);
   grid->set_column_spacing(10);
@@ -78,16 +146,20 @@ void VisionGUI::__create_frm_calibration() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
   Gtk::Label * label;
+  Gtk::Frame * frame;
 
   vbox = new Gtk::VBox();
   grid = new Gtk::Grid();
+  frame = new Gtk::Frame();
 
-  frm_calibration.add(*vbox);
+  pack_start(*frame, false, false, 10);
+
+  frame->add(*vbox);
   vbox->pack_start(*grid, false, true, 5);
   vbox->set_halign(Gtk::ALIGN_CENTER);
   vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frm_calibration.set_label("HSV Calibration");
+  frame->set_label("HSV Calibration");
 
   grid->set_border_width(10);
   grid->set_column_spacing(15);
@@ -465,15 +537,13 @@ int VisionGUI::getFrameWidth() {
 
 VisionGUI::VisionGUI() :
   HSV_calib_event_flag(false), Img_id(0),
-  vidIndex(0), picIndex(0) {
+  vidIndex(0), picIndex(0), samplesEventFlag(false) {
 
   vision = new Vision(640, 480);
 
-  pack_start(frm_capture, false, false, 10);
-  pack_start(frm_calibration, false, false, 10);
-
   __create_frm_capture();
   __create_frm_calibration();
+  __create_frm_gmm();
 
   init_calib_params();
 }

@@ -3,11 +3,13 @@
 
 #include <gtkmm.h>
 #include "vision.hpp"
+#include "gmm.hpp"
 
 class VisionGUI: public Gtk::VBox
 {
 public:
   Vision *vision;
+  GMM gmm;
   Gtk::ToggleButton bt_HSV_calib;
 
   int Img_id;
@@ -38,28 +40,37 @@ public:
   void setFrameSize(int inWidth, int inHeight);
   int getFrameHeight();
   int getFrameWidth();
+  bool getSamplesEventFlag();
 
 private:
 
   // Frame Capture
-  Gtk::Frame frm_capture;
   int picIndex, vidIndex;
 
   // Frame HSV Calibration
   Gtk::Label HSV_label;
-  Gtk::Frame frm_calibration;
   Gtk::Button bt_HSV_left;
   Gtk::Button bt_HSV_right;
+
+  // Frame GMM
+  Gtk::ToggleButton bt_collectSamples;
+  Gtk::Button bt_popSample, bt_clearSamples;
+  bool samplesEventFlag;
 
   void __event_bt_HSV_calib_pressed();
   void __event_bt_right_HSV_calib_clicked();
   void __event_bt_left_HSV_calib_clicked();
+
+  void __event_bt_collectSamples_pressed();
+  void __event_bt_popSample_clicked();
+  void __event_bt_clearSamples_clicked();
 
   void bt_save_picture_clicked();
   void bt_record_video_pressed();
 
   void __create_frm_calibration();
   void __create_frm_capture();
+  void __create_frm_gmm();
 
   void HScale_Hmin_value_changed();
   void HScale_Smin_value_changed();
