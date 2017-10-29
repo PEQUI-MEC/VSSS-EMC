@@ -67,12 +67,12 @@ public:
 
 	Gtk::Grid status_grid;
 	Gtk::Frame status_fm;
-	Gtk::Image status_img[4];
-	Gtk::Label number_lb[4];
-	Gtk::Label robots_lb[4];
-	Gtk::Label status_lb[4];
+	Gtk::Image status_img[5];
+	Gtk::Label number_lb[5];
+	Gtk::Label robots_lb[5];
+	Gtk::Label status_lb[5];
 	Gtk::Label lastUpdate_lb;
-	Gtk::ProgressBar battery_bar[4];
+	Gtk::ProgressBar battery_bar[5];
 
 	Gtk::Frame pid_fm;
 	Gtk::VBox pid_vbox;
@@ -132,13 +132,14 @@ public:
 		Tbox_V2.set_max_length(6);
 		Tbox_V1.set_width_chars(6);
 		Tbox_V2.set_width_chars(6);
-		cb_test.append("Robo A");
-		cb_test.append("Robo B");
-		cb_test.append("Robo C");
-		cb_test.append("Robo D");
+		cb_test.append("Robot A");
+		cb_test.append("Robot B");
+		cb_test.append("Robot C");
+		cb_test.append("Robot D");
+		cb_test.append("Robot E");
 		cb_test.append("All");
 
-		cb_test.set_active(4); // ALL
+		cb_test.set_active(5); // ALL
 		Tbox_V1.set_text("0.8");
 		Tbox_V2.set_text("0.8");
 
@@ -203,14 +204,14 @@ public:
 		double battery;
 		string cmd(buf);
 		// check if first element is an ID
-		if (cmd[0] != 'A' && cmd[0] != 'B' && cmd[0] != 'C' && cmd[0] != 'D') {
-			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG ID)."<< std::endl;
+		if (cmd[0] != 'A' && cmd[0] != 'B' && cmd[0] != 'C' && cmd[0] != 'D' && cmd[0] != 'E') {
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG ID). " << cmd << std::endl;
 			return;
 		}
 
 		// check if the message's type is correct
 		if (cmd.find("VBAT;") == std::string::npos) {
-			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG MSG TYPE)."<< std::endl;
+			std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG MSG TYPE). " << cmd << std::endl;
 			return;
 		}
 
@@ -229,22 +230,22 @@ public:
 			battery_bar[id].set_fraction(battery/100);
 			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
 		}
-		else if (battery >= 0 && battery <= 20) {
+		else if (battery > 0) {
 			status_img[id].set("img/critical.png");
 			battery_bar[id].set_fraction(battery/100);
 			status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
 		}
 		else {
-			status_img[id].set("img/offline.png");
+			status_img[id].set("img/zombie.png");
 			battery_bar[id].set_fraction(0.0);
 			battery_bar[id].set_text("0%");
-			status_lb[id].set_text("Offline");
+			status_lb[id].set_text("DEAD");
 		}
 	}
 
 	// update the battery status of all robots
 	void _robot_status(){
-		string cmd[4] = {"A@BAT#", "B@BAT#", "C@BAT#", "D@BAT#"};
+		string cmd[5] = {"A@BAT#", "B@BAT#", "C@BAT#", "D@BAT#", "E@BAT#"};
 		string dateString;
 		time_t tt;
 		char buf[4][12];
@@ -257,13 +258,16 @@ public:
 		lastUpdate_lb.set_text(dateString);
 
 		// update robot status
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 5; i++) {
 			s.sendSerial(cmd[i]);
 			usleep(100000);
 			if(s.readSerial(buf[i],sizeof buf[i]) == 1) {
 				handleBatteryMsg(buf[i], i);
 			} else {
-				updateInterfaceStatus(-1, i);
+				status_img[i].set("img/offline.png");
+				battery_bar[i].set_fraction(0.0);
+				battery_bar[i].set_text("0%");
+				status_lb[i].set_text("Offline");
 			}
 		}
 
@@ -380,6 +384,14 @@ public:
 			break;
 
 			case 4:
+			cmd.append("E");
+			cmd.append(Tbox_V1.get_text());
+			cmd.append(";");
+			cmd.append(Tbox_V2.get_text());
+			cmd.append("#");
+			break;
+
+			case 5:
 			cmd.append("A");
 			cmd.append(Tbox_V1.get_text());
 			cmd.append(";");
@@ -399,6 +411,12 @@ public:
 			cmd.append("#");
 
 			cmd.append("D");
+			cmd.append(Tbox_V1.get_text());
+			cmd.append(";");
+			cmd.append(Tbox_V2.get_text());
+			cmd.append("#");
+
+			cmd.append("E");
 			cmd.append(Tbox_V1.get_text());
 			cmd.append(";");
 			cmd.append(Tbox_V2.get_text());
@@ -517,43 +535,23 @@ void _create_status_frame(){
 	lastUpdate_lb.set_valign(Gtk::ALIGN_BASELINE);
 	status_grid.attach(lastUpdate_lb, 1, 0, 3, 1);
 
-	status_img[0].set("img/offline.png");
-	status_grid.attach(status_img[0], 0, 1, 1, 1);
-	status_img[1].set("img/offline.png");
-	status_grid.attach(status_img[1], 0, 2, 1, 1);
-	status_img[2].set("img/offline.png");
-	status_grid.attach(status_img[2], 0, 3, 1, 1);
-	status_img[3].set("img/offline.png");
-	status_grid.attach(status_img[3], 0, 4, 1, 1);
+	std::vector<std::string> name;
+	name.push_back("Robot A");
+	name.push_back("Robot B");
+	name.push_back("Robot C");
+	name.push_back("Robot D");
+	name.push_back("Robot E");
 
-	robots_lb[0].set_text("Robot A: ");
-	status_grid.attach(robots_lb[0], 1, 1, 1, 1);
-	robots_lb[1].set_text("Robot B: ");
-	status_grid.attach(robots_lb[1], 1, 2, 1, 1);
-	robots_lb[2].set_text("Robot C: ");
-	status_grid.attach(robots_lb[2], 1, 3, 1, 1);
-	robots_lb[3].set_text("Robot D: ");
-	status_grid.attach(robots_lb[3], 1, 4, 1, 1);
-
-	battery_bar[0].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[0], 2, 1, 1, 1);
-	battery_bar[1].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[1], 2, 2, 1, 1);
-	battery_bar[2].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[2], 2, 3, 1, 1);
-	battery_bar[3].set_valign(Gtk::ALIGN_CENTER);
-	status_grid.attach(battery_bar[3], 2, 4, 1, 1);
-
-	status_lb[0].set_text("Offline");
-	status_grid.attach(status_lb[0], 3, 1, 1, 1);
-	status_lb[1].set_text("Offline");
-	status_grid.attach(status_lb[1], 3, 2, 1, 1);
-	status_lb[2].set_text("Offline");
-	status_grid.attach(status_lb[2], 3, 3, 1, 1);
-	status_lb[3].set_text("Offline");
-	status_grid.attach(status_lb[3], 3, 4, 1, 1);
-
-
+	for (int i = 0; i < 5; i++) {
+		status_img[i].set("img/offline.png");
+		status_grid.attach(status_img[i], 0, i+1, 1, 1);
+		robots_lb[i].set_text(name.at(i));
+		status_grid.attach(robots_lb[i], 1, i+1, 1, 1);
+		battery_bar[i].set_valign(Gtk::ALIGN_CENTER);
+		status_grid.attach(battery_bar[i], 2, i+1, 1, 1);
+		status_lb[i].set_text("Offline");
+		status_grid.attach(status_lb[i], 3, i+1, 1, 1);
+	}
 }
 
 	// Função para verificar se os valores digitados nos campos
