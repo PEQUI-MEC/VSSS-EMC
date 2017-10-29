@@ -3,9 +3,9 @@
 #
 #### TUTORIAL ####
 # Para adicionar novos objetos ao projeto, você deve criar uma nova regra (veja "CRIANDO NOVAS REGRAS") para sua classe
-# Depois disso, adicione a regra como dependência da regra "VSSS" e linke o objeto 
+# Depois disso, adicione a regra como dependência da regra "VSSS" e linke o objeto
 # na compilação do executável adicionando seu "arquivo.o" como argumento
-# 
+#
 ## CRIANDO NOVAS REGRAS ##
 # Uma regra é uma especificação para o make sobre o que fazer com um arquivo.
 # Ela deve respeitar uma sintaxe e identação específica (veja na especificação abaixo).
@@ -15,9 +15,9 @@
 # 	g++ arquivo.cpp -o arquivo.o
 #
 # O nome desta regra deve ser o nome do objeto que será gerado
-# Após o nome e ":", você inclui as dependências (que podem ser outras regras ou arquivos) 
+# Após o nome e ":", você inclui as dependências (que podem ser outras regras ou arquivos)
 # e o arquivo fonte que deverá ser monitorado
-# Na linha de baixo, você escreve os comandos de compilação, ou seja, 
+# Na linha de baixo, você escreve os comandos de compilação, ou seja,
 # o comando que deveria ser executado no terminal para compilar sua classe
 # Os comandos de compilação devem ser identados por um único tab, senão o make não entende sua regra.
 # Você pode utilizar as variáveis abaixo em suas regras de compilação e pode criar novas variáveis,
@@ -40,13 +40,13 @@ SOURCES = $(shell find . -name "*.cpp") $(shell find . -name "*.hpp")
 
 # isso compila o projeto
 # ele gera primeiro os objetos que são dependências e depois linka tudo
-VSSS: welcome cc/main.o cc/vision/vision.o cc/vision/visionGUI.o cc/vision/tag.o cc/TestFrame.o pack-capture/capture/v4lcap.o pack-capture-gui/capture-gui/V4LInterface-aux.o pack-capture-gui/capture-gui/V4LInterface-events.o cc/Fuzzy/FuzzyController.o cc/Fuzzy/FuzzyFunction.o cc/Fuzzy/Rules.o
+VSSS: welcome cc/main.o cc/vision/vision.o cc/vision/visionGUI.o cc/Planner.o cc/vision/tag.o cc/TestFrame.o pack-capture/capture/v4lcap.o pack-capture-gui/capture-gui/V4LInterface-aux.o pack-capture-gui/capture-gui/V4LInterface-events.o cc/Fuzzy/FuzzyController.o cc/Fuzzy/FuzzyFunction.o cc/Fuzzy/Rules.o
 	@echo "\n\n\033[92mLinking objects...\033[0m\n"
-	@$(COMPILER) -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/vision.o" "cc/vision/visionGUI.o" "cc/vision/tag.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
+	@$(COMPILER) -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/vision.o" "cc/vision/visionGUI.o" "cc/Planner.o" "cc/vision/tag.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
 	@echo "\n\n\033[92mAll done. Run 'sh runVSSS.sh' to open VSSS terminal.\033[0m\n"
 
 # mensagem de boas vindas, fica daora
-welcome: 
+welcome:
 	@echo "\n\033[92m|------- VSSS 2017 - PEQUI MECÂNICO -------|\033[0m"
 
 # verifica se algum hpp ou cpp foi alterado e compila a main se precisar
@@ -63,6 +63,11 @@ cc/vision/vision.o: cc/vision/vision.cpp
 cc/vision/visionGUI.o: cc/vision/visionGUI.cpp
 	@echo "\n\n\033[92mCompiling visionGUI object...\033[0m\n"
 	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags` "cc/vision/visionGUI.cpp" -o "cc/vision/visionGUI.o"
+
+# objeto Planner
+cc/Planner.o: cc/Planner.cpp
+	@echo "\n\n\033[92mCompiling planner object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags` "cc/Planner.cpp" -o "cc/Planner.o"
 
 # objeto das tags
 cc/vision/tag.o: cc/vision/tag.cpp
