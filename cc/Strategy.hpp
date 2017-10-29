@@ -8,6 +8,7 @@
 #include "SerialW.hpp"
 #include <math.h>
 #include "TestFrame.hpp"
+//#include "Planner.hpp"
 
 #define PREDICAO_NUM_SAMPLES 15
 // Parametros para atacante sem bola
@@ -111,6 +112,7 @@ public:
 
 	vector<Robot> robots;
 	cv::Point* adv;
+	//Planner planner;
 	int collision_count[3];
 	cv::Point past_position[3];
 	cv::Point Goalkeeper;
@@ -367,6 +369,8 @@ public:
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
 			}
+
+			//planner.plan(&robots, adv, Ball);
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
