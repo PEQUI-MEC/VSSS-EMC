@@ -41,6 +41,7 @@ public:
   int getFrameHeight();
   int getFrameWidth();
   bool getSamplesEventFlag();
+  bool getDrawSamples();
 
 private:
 
@@ -55,7 +56,9 @@ private:
   // Frame GMM
   Gtk::ToggleButton bt_collectSamples;
   Gtk::Button bt_popSample, bt_clearSamples;
+  Gtk::CheckButton bt_drawSamples;
   bool samplesEventFlag;
+  bool drawSamples_flag;
 
   void __event_bt_HSV_calib_pressed();
   void __event_bt_right_HSV_calib_clicked();
@@ -64,6 +67,7 @@ private:
   void __event_bt_collectSamples_pressed();
   void __event_bt_popSample_clicked();
   void __event_bt_clearSamples_clicked();
+  void __event_bt_drawSamples_clicked();
 
   void bt_save_picture_clicked();
   void bt_record_video_pressed();

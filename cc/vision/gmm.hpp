@@ -11,7 +11,7 @@ class GMM
 
 private:
   cv::Mat inFrame;
-
+  std::vector<cv::Point> samplePoints;
   std::vector<cv::Mat> samples;
 
 
@@ -27,6 +27,7 @@ public:
   void popSample();
   void clearSamples();
   int getSamplesSize();
+  std::vector<cv::Point> getSamplePoints();
 
 
 

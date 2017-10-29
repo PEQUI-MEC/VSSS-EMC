@@ -8,8 +8,8 @@ cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
   cv::Mat frame = inFrame.clone();
   cv::Rect roi;
 
-  if ( p1.x < 0 || p2.x < 0 || p1.y < 0 || p2.y < 0 || p1.x > frame.rows ||
-  p2.x > frame.rows || p1.y > frame.cols || p2.y > frame.cols)
+  if ( p1.x < 0 || p2.x < 0 || p1.y < 0 || p2.y < 0 || p1.x > frame.cols ||
+  p2.x > frame.cols || p1.y > frame.rows || p2.y > frame.rows)
     return cv::Mat::zeros(1, 1, CV_32F);
 
   if (p1.x <= p2.x && p1.y <= p2.y) {
@@ -46,19 +46,31 @@ void GMM::pushSample(int points[2][2]) {
 
   // cv::imwrite("sample.png", sample);
 
+  samplePoints.push_back(p1);
+  samplePoints.push_back(p2);
+
   samples.push_back(sample);
 }
 
 void GMM::popSample() {
-  if (!samples.empty()) samples.pop_back();
+  if (!samples.empty()) {
+    samplePoints.pop_back();
+    samplePoints.pop_back();
+    samples.pop_back();
+  }
 }
 
 void GMM::clearSamples() {
   samples.clear();
+  samplePoints.clear();
 }
 
 int GMM::getSamplesSize() {
   return samples.size();
+}
+
+std::vector<cv::Point> GMM::getSamplePoints() {
+  return samplePoints;
 }
 
 GMM::GMM() {

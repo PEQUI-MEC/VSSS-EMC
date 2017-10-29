@@ -224,6 +224,12 @@ public:
         if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag)
             {
+              if (interface.visionGUI.getDrawSamples()) {
+                std::vector<cv::Point> points = interface.visionGUI.gmm.getSamplePoints();
+                for (int i = 0; i < points.size(); i=i+2) {
+                  rectangle(imageView, points.at(i), points.at(i+1), cv::Scalar(0,255,255));
+                }
+              }
                 circle(imageView,interface.visionGUI.vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
                 for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)

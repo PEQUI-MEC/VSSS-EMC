@@ -25,9 +25,11 @@ void VisionGUI::__create_frm_gmm() {
   bt_collectSamples.set_label("Collect Samples");
   grid->attach(bt_collectSamples, 0, 0, 1, 1);
   bt_popSample.set_label("Pop Sample");
-  grid->attach(bt_popSample, 2, 0, 1, 1);
+  grid->attach(bt_popSample, 1, 0, 1, 1);
   bt_clearSamples.set_label("Reset Samples");
-  grid->attach(bt_clearSamples, 3, 0, 1, 1);
+  grid->attach(bt_clearSamples, 2, 0, 1, 1);
+  bt_drawSamples.set_label("Draw Samples");
+  grid->attach(bt_drawSamples, 3, 0, 1, 1);
 
   bt_collectSamples.set_state(Gtk::STATE_NORMAL);
   bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
@@ -36,6 +38,15 @@ void VisionGUI::__create_frm_gmm() {
   bt_collectSamples.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_collectSamples_pressed));
   bt_popSample.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_popSample_clicked));
   bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
+  bt_drawSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_drawSamples_clicked));
+}
+
+bool VisionGUI::getDrawSamples() {
+  return drawSamples_flag;
+}
+
+void VisionGUI::__event_bt_drawSamples_clicked() {
+  drawSamples_flag = !drawSamples_flag;
 }
 
 void VisionGUI::__event_bt_collectSamples_pressed() {
@@ -537,7 +548,8 @@ int VisionGUI::getFrameWidth() {
 
 VisionGUI::VisionGUI() :
   HSV_calib_event_flag(false), Img_id(0),
-  vidIndex(0), picIndex(0), samplesEventFlag(false) {
+  vidIndex(0), picIndex(0), samplesEventFlag(false),
+  drawSamples_flag(false) {
 
   vision = new Vision(640, 480);
 
