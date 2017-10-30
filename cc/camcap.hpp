@@ -220,8 +220,13 @@ public:
 
         if (interface.visionGUI.gmm.getIsTrained()) {
           interface.visionGUI.gmm.run(imageView);
-          interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
-          interface.imageView.refresh();
+          if (interface.visionGUI.getGaussiansFrameFlag()) {
+            interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
+            interface.imageView.refresh();
+          } else if (interface.visionGUI.getFinalFrameFlag()) {
+            interface.imageView.set_data(interface.visionGUI.gmm.getFinalFrame().data, width, height);
+            interface.imageView.refresh();
+          }
         }
         else interface.visionGUI.vision->run(imageView);
 

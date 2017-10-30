@@ -25,6 +25,7 @@ private:
 
   const static int TOTAL_THREADS = 8;
   cv::Mat partialFrames[TOTAL_THREADS];
+  cv::Mat partialPredicts[TOTAL_THREADS];
   boost::thread_group threads;
 
   const std::vector<cv::Vec3b> colors = {
@@ -45,7 +46,12 @@ private:
 		{89, 89, 89} // dark grey
   };
 
+  std::vector<int> matchColor = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  };
+
   void classify(int index);
+  void paint();
   cv::Mat predict(int index);
   cv::Mat crop(cv::Point p1, cv::Point p2);
   cv::Mat formatSamplesForEM();
@@ -68,6 +74,7 @@ public:
   cv::Mat getGaussiansFrame();
   cv::Mat getFinalFrame();
   bool getIsTrained();
+  void setMatchColor(int gaussian, int color);
 
   int train();
   void run(cv::Mat frame);

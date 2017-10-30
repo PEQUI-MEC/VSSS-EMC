@@ -6,3 +6,5 @@ VSSS
 *.o
 autosave.txt
 quicksave.txt
+
+gmm\.json

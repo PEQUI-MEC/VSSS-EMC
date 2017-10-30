@@ -72,7 +72,7 @@ cc/vision/tag.o: cc/vision/tag.cpp
 # objeto do GMM
 cc/vision/gmm.o: cc/vision/gmm.cpp
 	@echo "\n\n\033[92mCompiling GMM object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/gmm.cpp" `pkg-config --libs opencv` -o "cc/vision/gmm.o"
+	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/gmm.cpp" `pkg-config --libs opencv` -o "cc/vision/gmm.o" -lboost_thread -lboost_system
 
 # objeto do frame de teste
 cc/TestFrame.o: cc/TestFrame.cpp

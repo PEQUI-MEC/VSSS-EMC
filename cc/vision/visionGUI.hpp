@@ -59,7 +59,7 @@ private:
   // Frame GMM
   Gtk::ToggleButton bt_collectSamples;
   Gtk::Button bt_popSample, bt_clearSamples;
-  Gtk::Button bt_trainGMM, bt_GMM_left, bt_GMM_right;
+  Gtk::Button bt_trainGMM, bt_GMM_match, bt_GMM_right;
   Gtk::ComboBoxText cb_gaussianColor, cb_realColor;
   Gtk::CheckButton bt_drawSamples;
   Gtk::HScale HScale_clusters;
@@ -82,11 +82,9 @@ private:
   void __event_bt_drawSamples_clicked();
   void __event_bt_trainGMM_clicked();
   void HScale_clusters_value_changed();
-  void __event_bt_GMM_left_clicked();
+  void __event_bt_GMM_match_clicked();
   void __event_bt_GMM_right_clicked();
-  void __event_rb_GMM_original_clicked();
-  void __event_rb_GMM_gaussians_clicked();
-  void __event_rb_GMM_final_clicked();
+  void __event_rb_GMM_frame_clicked();
 
   void bt_save_picture_clicked();
   void bt_record_video_pressed();
