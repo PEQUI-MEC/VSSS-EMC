@@ -42,6 +42,9 @@ public:
   int getFrameWidth();
   bool getSamplesEventFlag();
   bool getDrawSamples();
+  bool getOriginalFrameFlag();
+  bool getGaussiansFrameFlag();
+  bool getFinalFrameFlag();
 
 private:
 
@@ -56,9 +59,18 @@ private:
   // Frame GMM
   Gtk::ToggleButton bt_collectSamples;
   Gtk::Button bt_popSample, bt_clearSamples;
+  Gtk::Button bt_trainGMM, bt_GMM_left, bt_GMM_right;
+  Gtk::ComboBoxText cb_gaussianColor, cb_realColor;
   Gtk::CheckButton bt_drawSamples;
+  Gtk::HScale HScale_clusters;
+  Gtk::RadioButton rb_GMM_original, rb_GMM_gaussians, rb_GMM_final;
+  const std::vector<std::string> gaussianColors {
+    "Yellow", "Green", "Pink", "Orange", "Blue", "Black", "White", "Red",
+    "Purple", "Brown", "Silver", "Cyan", "Dark Green","Baby Pink", "Dark Grey"
+  };
   bool samplesEventFlag;
   bool drawSamples_flag;
+  bool originalFrame_flag, gaussiansFrame_flag, finalFrame_flag;
 
   void __event_bt_HSV_calib_pressed();
   void __event_bt_right_HSV_calib_clicked();
@@ -68,6 +80,13 @@ private:
   void __event_bt_popSample_clicked();
   void __event_bt_clearSamples_clicked();
   void __event_bt_drawSamples_clicked();
+  void __event_bt_trainGMM_clicked();
+  void HScale_clusters_value_changed();
+  void __event_bt_GMM_left_clicked();
+  void __event_bt_GMM_right_clicked();
+  void __event_rb_GMM_original_clicked();
+  void __event_rb_GMM_gaussians_clicked();
+  void __event_rb_GMM_final_clicked();
 
   void bt_save_picture_clicked();
   void bt_record_video_pressed();

@@ -4,6 +4,7 @@ void VisionGUI::__create_frm_gmm() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
   Gtk::Frame * frame;
+  Gtk::Label *label;
 
   vbox = new Gtk::VBox();
   grid = new Gtk::Grid();
@@ -29,7 +30,49 @@ void VisionGUI::__create_frm_gmm() {
   bt_clearSamples.set_label("Reset Samples");
   grid->attach(bt_clearSamples, 2, 0, 1, 1);
   bt_drawSamples.set_label("Draw Samples");
+  bt_drawSamples.set_active(true);
   grid->attach(bt_drawSamples, 3, 0, 1, 1);
+
+  label = new Gtk::Label("Clusters: ");
+  grid->attach(*label, 0, 1, 1, 1);
+  HScale_clusters.set_digits(0);
+  HScale_clusters.set_increments(1,3);
+  HScale_clusters.set_range(1,15);
+  HScale_clusters.set_value_pos(Gtk::POS_TOP);
+  HScale_clusters.set_draw_value();
+  grid->attach(HScale_clusters, 1, 1, 2, 1);
+  bt_trainGMM.set_label("Train GMM");
+  grid->attach(bt_trainGMM, 3, 1, 1, 1);
+
+  rb_GMM_original.set_label("Original");
+  grid->attach(rb_GMM_original, 0, 2, 1, 1);
+  rb_GMM_gaussians.set_label("Gaussians");
+  rb_GMM_gaussians.join_group(rb_GMM_original);
+  grid->attach(rb_GMM_gaussians, 1, 2, 1, 1);
+  rb_GMM_final.set_label("Final");
+  rb_GMM_final.join_group(rb_GMM_original);
+  grid->attach(rb_GMM_final, 2, 2, 1, 1);
+
+
+  bt_GMM_left.set_label("<");
+  grid->attach(bt_GMM_left, 0, 3, 1, 1);
+  cb_gaussianColor.append("Select Gaussian:");
+  for (int i = 0; i < gmm.getClusters(); i++) {
+    cb_gaussianColor.append(gaussianColors.at(i));
+  }
+  cb_gaussianColor.set_active(0);
+  grid->attach(cb_gaussianColor, 1, 3, 1, 1);
+  cb_realColor.append("Select Color:");
+  cb_realColor.append("Main");
+  cb_realColor.append("Green");
+  cb_realColor.append("Pink");
+  cb_realColor.append("Ball");
+  cb_realColor.append("Opponent");
+  cb_realColor.append("Background");
+  cb_realColor.set_active(0);
+  grid->attach(cb_realColor, 2, 3, 1, 1);
+  bt_GMM_right.set_label(">");
+  grid->attach(bt_GMM_right, 3, 3, 1, 1);
 
   bt_collectSamples.set_state(Gtk::STATE_NORMAL);
   bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
@@ -39,10 +82,86 @@ void VisionGUI::__create_frm_gmm() {
   bt_popSample.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_popSample_clicked));
   bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
   bt_drawSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_drawSamples_clicked));
+  bt_trainGMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_trainGMM_clicked));
+  HScale_clusters.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_clusters_value_changed));
+  bt_GMM_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_left_clicked));
+  bt_GMM_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_right_clicked));
+  rb_GMM_original.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_original_clicked));
+  rb_GMM_gaussians.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_gaussians_clicked));
+  rb_GMM_final.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_final_clicked));
 }
 
 bool VisionGUI::getDrawSamples() {
   return drawSamples_flag;
+}
+
+bool VisionGUI::getOriginalFrameFlag() {
+  return originalFrame_flag;
+}
+
+bool VisionGUI::getGaussiansFrameFlag() {
+  return gaussiansFrame_flag;
+}
+
+bool VisionGUI::getFinalFrameFlag() {
+  return finalFrame_flag;
+}
+
+void VisionGUI::__event_rb_GMM_original_clicked() {
+  originalFrame_flag = !originalFrame_flag;
+}
+
+void VisionGUI::__event_rb_GMM_gaussians_clicked() {
+  gaussiansFrame_flag = !gaussiansFrame_flag;
+}
+
+void VisionGUI::__event_rb_GMM_final_clicked() {
+  finalFrame_flag = !finalFrame_flag;
+}
+
+void VisionGUI::__event_bt_GMM_left_clicked() {
+  int index = cb_gaussianColor.get_active_row_number();
+
+  if (index-1 < 1) index = gmm.getClusters();
+  else index--;
+
+  cb_gaussianColor.set_active(index);
+}
+
+void VisionGUI::__event_bt_GMM_right_clicked() {
+  int index = cb_gaussianColor.get_active_row_number();
+
+  if (index+1 > gmm.getClusters()) index = 1;
+  else index++;
+
+  cb_gaussianColor.set_active(index);
+}
+
+void VisionGUI::HScale_clusters_value_changed() {
+  gmm.setClusters(HScale_clusters.get_value());
+
+  cb_gaussianColor.remove_all();
+  cb_gaussianColor.append("Select Gaussian:");
+  cb_gaussianColor.set_active(0);
+  for (int i = 0; i < gmm.getClusters(); i++) {
+    cb_gaussianColor.append(gaussianColors.at(i));
+  }
+}
+
+void VisionGUI::__event_bt_trainGMM_clicked() {
+  HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
+
+  int res = gmm.train();
+  if (res == 0) {
+    bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
+    bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
+    bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
+    bt_collectSamples.set_active(false);
+    bt_drawSamples.set_active(false);
+    samplesEventFlag = false;
+    drawSamples_flag = false;
+  }
+  else HScale_clusters.set_state(Gtk::STATE_NORMAL);
 }
 
 void VisionGUI::__event_bt_drawSamples_clicked() {
@@ -549,7 +668,8 @@ int VisionGUI::getFrameWidth() {
 VisionGUI::VisionGUI() :
   HSV_calib_event_flag(false), Img_id(0),
   vidIndex(0), picIndex(0), samplesEventFlag(false),
-  drawSamples_flag(false) {
+  drawSamples_flag(true), originalFrame_flag(true),
+  gaussiansFrame_flag(false), finalFrame_flag(false) {
 
   vision = new Vision(640, 480);
 

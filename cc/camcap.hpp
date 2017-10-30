@@ -218,10 +218,14 @@ public:
           interface.imageView.gmm_ready_flag = false;
         }
 
+        if (interface.visionGUI.gmm.getIsTrained()) {
+          interface.visionGUI.gmm.run(imageView);
+          interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
+          interface.imageView.refresh();
+        }
+        else interface.visionGUI.vision->run(imageView);
 
-        interface.visionGUI.vision->run(imageView);
-
-        if(!interface.visionGUI.HSV_calib_event_flag) {
+        if(!interface.visionGUI.HSV_calib_event_flag /*&& interface.visionGUI.getOriginalFrameFlag()*/) {
             if (!interface.draw_info_flag)
             {
               if (interface.visionGUI.getDrawSamples()) {
@@ -268,6 +272,14 @@ public:
                     circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
         } // if !draw_info_flag
+        // else if (interface.visionGUI.getGaussiansFrameFlag()){
+        //   interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
+        //   interface.imageView.refresh();
+        // }
+        // else if (interface.visionGUI.getFinalFrameFlag()) {
+        //   interface.imageView.set_data(interface.visionGUI.gmm.getFinalFrame().data, width, height);
+        //   interface.imageView.refresh();
+        // }
         else
         {
             interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
