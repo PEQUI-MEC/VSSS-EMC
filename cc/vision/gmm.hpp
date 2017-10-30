@@ -13,7 +13,7 @@ class GMM
 {
 
 private:
-  cv::Mat inFrame, gaussiansFrame, finalFrame;
+  cv::Mat inFrame, gaussiansFrame, finalFrame, preThreshold;
   std::vector<cv::Point> samplePoints;
   std::vector<cv::Mat> samples;
 
@@ -73,6 +73,7 @@ public:
   int getClusters();
   cv::Mat getGaussiansFrame();
   cv::Mat getFinalFrame();
+  cv::Mat getPreThresholdFrame();
   bool getIsTrained();
   void setMatchColor(int gaussian, int color);
 

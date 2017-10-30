@@ -85,16 +85,16 @@ void GMM::paint() {
   cv::Mat predictFrame;
   cv::vconcat(partialPredicts, TOTAL_THREADS, predictFrame);
 	finalFrame = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
-	// preThreshold = cv::Mat::zeros(input.rows, input.cols, CV_8UC3);
+	preThreshold = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
 	for (int x = 0; x < predictFrame.rows; x++) {
 		for (int y = 0; y < predictFrame.cols; y++) {
 			int label = predictFrame.at<float>(x,y);
 			finalFrame.at<cv::Vec3b>(x, y)[0] = colors[matchColor.at(label)][0];
 			finalFrame.at<cv::Vec3b>(x, y)[1] = colors[matchColor.at(label)][1];
 			finalFrame.at<cv::Vec3b>(x, y)[2] = colors[matchColor.at(label)][2];
-			// preThreshold.at<cv::Vec3b>(x, y)[0] = matchColor.at(label);
-			// preThreshold.at<cv::Vec3b>(x, y)[1] = matchColor.at(label);
-			// preThreshold.at<cv::Vec3b>(x, y)[2] = matchColor.at(label);
+			preThreshold.at<cv::Vec3b>(x, y)[0] = matchColor.at(label);
+			preThreshold.at<cv::Vec3b>(x, y)[1] = matchColor.at(label);
+			preThreshold.at<cv::Vec3b>(x, y)[2] = matchColor.at(label);
 		}
 	}
 }
@@ -309,6 +309,10 @@ cv::Mat GMM::getGaussiansFrame() {
 
 cv::Mat GMM::getFinalFrame() {
   return finalFrame;
+}
+
+cv::Mat GMM::getPreThresholdFrame() {
+  return preThreshold;
 }
 
 bool GMM::getIsTrained() {

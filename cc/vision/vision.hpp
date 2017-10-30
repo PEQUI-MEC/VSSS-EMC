@@ -98,6 +98,7 @@ public:
   int getRobotListSize();
   int getAdvListSize();
   cv::Mat getThreshold(int index);
+  void setAllThresholds(cv::Mat input);
 
   int getHue(int index0, int index1);
   int getSaturation(int index0, int index1);

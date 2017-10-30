@@ -37,6 +37,8 @@ public:
   VisionGUI();
   ~VisionGUI();
 
+  void runVisionWithGMM();
+
   void setFrameSize(int inWidth, int inHeight);
   int getFrameHeight();
   int getFrameWidth();

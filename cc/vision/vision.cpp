@@ -340,7 +340,7 @@ int Vision::getAdvListSize() {
 }
 
 cv::Mat Vision::getThreshold(int index) {
-  cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
+  // cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
   return threshold_frame.at(index);
 }
 
@@ -422,6 +422,23 @@ int Vision::getFrameWidth() {
 
 cv::Point* Vision::getAllAdvRobots() {
   return advRobots;
+}
+
+void Vision::setAllThresholds(cv::Mat input) {
+  threshold_frame.clear();
+  for (int i = 0; i < TOTAL_COLORS; i++) {
+    threshold_frame.push_back(cv::Mat::zeros(input.rows, input.cols, CV_8UC3));
+  }
+  for (int x = 0; x < input.rows; x++) {
+    for (int y = 0; y < input.cols; y++) {
+      int label = input.at<cv::Vec3b>(x,y)[0];
+      if (label < TOTAL_COLORS) {
+        threshold_frame.at(label).at<cv::Vec3b>(x, y)[0] = 255;
+        threshold_frame.at(label).at<cv::Vec3b>(x, y)[1] = 255;
+        threshold_frame.at(label).at<cv::Vec3b>(x, y)[2] = 255;
+      }
+    }
+  }
 }
 
 

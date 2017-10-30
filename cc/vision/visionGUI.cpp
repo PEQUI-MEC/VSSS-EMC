@@ -92,6 +92,10 @@ void VisionGUI::__create_frm_gmm() {
   rb_GMM_final.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
 }
 
+void VisionGUI::runVisionWithGMM() {
+  vision->setAllThresholds(gmm.getPreThresholdFrame());
+}
+
 bool VisionGUI::getDrawSamples() {
   return drawSamples_flag;
 }
