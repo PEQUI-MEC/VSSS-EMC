@@ -5,6 +5,9 @@
 #include "opencv2/ml.hpp"
 #include <iostream>     // std::cout
 #include <math.h>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/bind.hpp>
 
 class GMM
 {
@@ -20,29 +23,33 @@ private:
   cv::Ptr<cv::ml::EM> em;
   bool isTrained;
 
+  const static int TOTAL_THREADS = 8;
+  cv::Mat partialFrames[TOTAL_THREADS];
+  boost::thread_group threads;
+
   const std::vector<cv::Vec3b> colors = {
-		{22, 255, 239}, // yellow
+		{239, 255, 22}, // yellow
 		{0, 255, 0}, // green
-		{195, 0, 255}, // pink
-		{46, 83, 247}, // orange
-		{137, 56, 39}, // blue
+		{255, 0, 195}, // pink
+		{247, 83, 46}, // orange
+		{39, 56, 137}, // blue
 		{0, 0, 0}, // black
 		{255, 255, 255}, // white
-		{0, 0, 255}, // red
-		{102, 12, 75}, // purple
-		{0, 0, 86}, // brown
+		{255, 0, 0}, // red
+		{75, 12, 102}, // purple
+		{86, 0, 0}, // brown
 		{179, 179, 179}, // silver
-		{255, 255, 0}, // cyan
-		{19, 81, 2}, // dark green
-		{230, 169, 252}, // baby pink
+		{0, 255, 255}, // cyan
+		{2, 81, 19}, // dark green
+		{252, 169, 230}, // baby pink
 		{89, 89, 89} // dark grey
   };
 
-  cv::Mat classify();
-  cv::Mat predict();
+  void classify(int index);
+  cv::Mat predict(int index);
   cv::Mat crop(cv::Point p1, cv::Point p2);
   cv::Mat formatSamplesForEM();
-  cv::Mat formatFrameForEM();
+  cv::Mat formatFrameForEM(int index);
 
 public:
   GMM();

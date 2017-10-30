@@ -1,7 +1,7 @@
 g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/vision.cpp" -o "cc/vision/vision.o" -lboost_thread -lboost_system
 g++ -std=c++11 -c `pkg-config gtkmm-3.0 --cflags` "cc/vision/visionGUI.cpp" -o "cc/vision/visionGUI.o"
 g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
-g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/gmm.cpp" `pkg-config --libs opencv` -o "cc/vision/gmm.o"
+g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/gmm.cpp" `pkg-config --libs opencv` -o "cc/vision/gmm.o" -lboost_thread -lboost_system
 g++ -std=c++11 `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/TestFrame.cpp" -o "cc/TestFrame.o"
 
 g++ -std=c++11 -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
