@@ -219,7 +219,7 @@ public:
           interface.imageView.gmm_ready_flag = false;
         }
 
-        if (interface.visionGUI.gmm.getIsTrained()) {
+        if (interface.visionGUI.gmm.getIsTrained() && !interface.visionGUI.getIsHSV()) {
           interface.visionGUI.gmm.run(imageView);
           if (interface.visionGUI.gmm.getDoneFlag()) {
             interface.visionGUI.vision->runGMM(interface.visionGUI.gmm.getAllThresholds());

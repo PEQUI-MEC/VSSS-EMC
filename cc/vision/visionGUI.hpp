@@ -34,6 +34,9 @@ public:
   Gtk::Button bt_save_picture;
   Gtk::Entry en_video_name, en_picture_name;
 
+  // Frame Calibration Mode
+  Gtk::RadioButton rb_mode_GMM, rb_mode_HSV;
+
   VisionGUI();
   ~VisionGUI();
 
@@ -47,8 +50,12 @@ public:
   bool getFinalFrameFlag();
   bool getThresholdFrameFlag();
   int getGMMColorIndex();
+  bool getIsHSV();
 
 private:
+
+  // Frame Calibration Mode
+  bool isHSV;
 
   // Frame Capture
   int picIndex, vidIndex;
@@ -99,10 +106,13 @@ private:
   void HScale_closing_value_changed();
   void HScale_opening_value_changed();
 
+  void __event_rb_mode_clicked();
+
   void bt_save_picture_clicked();
   void bt_record_video_pressed();
 
-  void __create_frm_calibration();
+  void __create_frm_calib_mode();
+  void __create_frm_hsv();
   void __create_frm_capture();
   void __create_frm_gmm();
 

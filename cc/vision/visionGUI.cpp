@@ -1,5 +1,117 @@
 #include "visionGUI.hpp"
 
+void VisionGUI::__create_frm_calib_mode() {
+  Gtk::VBox * vbox;
+  Gtk::Grid * grid;
+  Gtk::Frame * frame;
+  Gtk::Label *label;
+
+  vbox = new Gtk::VBox();
+  grid = new Gtk::Grid();
+  frame = new Gtk::Frame();
+
+  pack_start(*frame, false, false, 10);
+
+  frame->add(*vbox);
+  vbox->pack_start(*grid, false, true, 5);
+  vbox->set_halign(Gtk::ALIGN_CENTER);
+  vbox->set_valign(Gtk::ALIGN_CENTER);
+
+  frame->set_label("Choose Your Destiny");
+
+  grid->set_border_width(10);
+  grid->set_column_spacing(10);
+  grid->set_row_spacing(5);
+
+  label = new Gtk::Label("Calibration Mode: ");
+  grid->attach(*label, 0, 0, 1, 1);
+  rb_mode_HSV.set_label("HSV");
+  grid->attach(rb_mode_HSV, 1, 0, 1, 1);
+  rb_mode_GMM.set_label("GMM");
+  rb_mode_GMM.join_group(rb_mode_HSV);
+  grid->attach(rb_mode_GMM, 2, 0, 1, 1);
+
+  rb_mode_HSV.set_state(Gtk::STATE_INSENSITIVE);
+  rb_mode_GMM.set_state(Gtk::STATE_INSENSITIVE);
+
+  rb_mode_HSV.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
+  rb_mode_GMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
+
+}
+
+void VisionGUI::__event_rb_mode_clicked() {
+  if (rb_mode_GMM.get_active()) {
+    isHSV = false;
+    bt_collectSamples.set_state(Gtk::STATE_NORMAL);
+    bt_popSample.set_state(Gtk::STATE_NORMAL);
+    bt_clearSamples.set_state(Gtk::STATE_NORMAL);
+    bt_trainGMM.set_state(Gtk::STATE_NORMAL);
+    bt_GMM_match.set_state(Gtk::STATE_NORMAL);
+    bt_GMM_done.set_state(Gtk::STATE_NORMAL);
+    cb_gaussianColor.set_state(Gtk::STATE_NORMAL);
+    cb_realColor.set_state(Gtk::STATE_NORMAL);
+    bt_drawSamples.set_state(Gtk::STATE_NORMAL);
+    HScale_clusters.set_state(Gtk::STATE_NORMAL);
+    HScale_closing.set_state(Gtk::STATE_NORMAL);
+    HScale_opening.set_state(Gtk::STATE_NORMAL);
+    rb_GMM_original.set_state(Gtk::STATE_NORMAL);
+    rb_GMM_gaussians.set_state(Gtk::STATE_NORMAL);
+    rb_GMM_final.set_state(Gtk::STATE_NORMAL);
+    rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+    bt_GMM_left.set_state(Gtk::STATE_NORMAL);
+    bt_GMM_right.set_state(Gtk::STATE_NORMAL);
+    bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
+    bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+    bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+  }
+  else {
+    isHSV = true;
+    bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
+    bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
+    bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+    bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
+    bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
+    bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);
+    cb_gaussianColor.set_state(Gtk::STATE_INSENSITIVE);
+    cb_realColor.set_state(Gtk::STATE_INSENSITIVE);
+    bt_drawSamples.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_closing.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_opening.set_state(Gtk::STATE_INSENSITIVE);
+    rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
+    rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
+    rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
+    rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
+    bt_GMM_left.set_state(Gtk::STATE_INSENSITIVE);
+    bt_GMM_right.set_state(Gtk::STATE_INSENSITIVE);
+    bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
+    if (bt_HSV_calib.get_active()) {
+      HScale_Hmin.set_state(Gtk::STATE_NORMAL);
+      HScale_Smin.set_state(Gtk::STATE_NORMAL);
+      HScale_Vmin.set_state(Gtk::STATE_NORMAL);
+      HScale_Hmax.set_state(Gtk::STATE_NORMAL);
+      HScale_Smax.set_state(Gtk::STATE_NORMAL);
+      HScale_Vmax.set_state(Gtk::STATE_NORMAL);
+      HScale_Dilate.set_state(Gtk::STATE_NORMAL);
+      HScale_Erode.set_state(Gtk::STATE_NORMAL);
+      HScale_Blur.set_state(Gtk::STATE_NORMAL);
+      HScale_Amin.set_state(Gtk::STATE_NORMAL);
+      bt_HSV_left.set_state(Gtk::STATE_NORMAL);
+      bt_HSV_right.set_state(Gtk::STATE_NORMAL);
+    }
+  }
+}
+
 void VisionGUI::__create_frm_gmm() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
@@ -102,11 +214,24 @@ void VisionGUI::__create_frm_gmm() {
   HScale_opening.set_draw_value();
   grid->attach(HScale_opening, 3, 5, 1, 1);
 
-
-  bt_collectSamples.set_state(Gtk::STATE_NORMAL);
+  bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
   bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
   bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+  bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
+  bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
+  bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);
+  cb_gaussianColor.set_state(Gtk::STATE_INSENSITIVE);
+  cb_realColor.set_state(Gtk::STATE_INSENSITIVE);
+  bt_drawSamples.set_state(Gtk::STATE_INSENSITIVE);
+  HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
+  HScale_closing.set_state(Gtk::STATE_INSENSITIVE);
+  HScale_opening.set_state(Gtk::STATE_INSENSITIVE);
+  rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
+  rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
+  rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
   rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
+  bt_GMM_left.set_state(Gtk::STATE_INSENSITIVE);
+  bt_GMM_right.set_state(Gtk::STATE_INSENSITIVE);
 
   bt_collectSamples.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_collectSamples_pressed));
   bt_popSample.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_popSample_clicked));
@@ -338,7 +463,7 @@ void VisionGUI::bt_save_picture_clicked() {
   en_picture_name.set_text("");
 }
 
-void VisionGUI::__create_frm_calibration() {
+void VisionGUI::__create_frm_hsv() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
   Gtk::Label * label;
@@ -485,6 +610,7 @@ void VisionGUI::__create_frm_calibration() {
 
   grid->attach(HScale_Amin, 4, 5, 2, 1);
 
+  bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
@@ -495,7 +621,8 @@ void VisionGUI::__create_frm_calibration() {
   HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-  bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+  bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+  bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 
   bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_HSV_calib_pressed));
   bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_HSV_calib_clicked));
@@ -584,32 +711,33 @@ void VisionGUI::__event_bt_HSV_calib_pressed() {
   if (HSV_calib_event_flag) {
     HSV_calib_event_flag=false;
     // VisionGUI::__event_auto_save();
-      HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-      HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-      HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-      HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-      HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-      HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
+    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
     HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
     HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
     HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
-      HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-
-
+    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
+    bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+    bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
   } else {
-      HSV_calib_event_flag=true;
-      HScale_Hmin.set_state(Gtk::STATE_ACTIVE);
-      HScale_Smin.set_state(Gtk::STATE_ACTIVE);
-      HScale_Vmin.set_state(Gtk::STATE_ACTIVE);
-      HScale_Hmax.set_state(Gtk::STATE_ACTIVE);
-      HScale_Smax.set_state(Gtk::STATE_ACTIVE);
-      HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
+    HSV_calib_event_flag=true;
+    HScale_Hmin.set_state(Gtk::STATE_ACTIVE);
+    HScale_Smin.set_state(Gtk::STATE_ACTIVE);
+    HScale_Vmin.set_state(Gtk::STATE_ACTIVE);
+    HScale_Hmax.set_state(Gtk::STATE_ACTIVE);
+    HScale_Smax.set_state(Gtk::STATE_ACTIVE);
+    HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
     HScale_Dilate.set_state(Gtk::STATE_ACTIVE);
     HScale_Erode.set_state(Gtk::STATE_ACTIVE);
     HScale_Blur.set_state(Gtk::STATE_ACTIVE);
-      HScale_Amin.set_state(Gtk::STATE_ACTIVE);
-
-}
+    HScale_Amin.set_state(Gtk::STATE_ACTIVE);
+    bt_HSV_right.set_state(Gtk::STATE_ACTIVE);
+    bt_HSV_left.set_state(Gtk::STATE_ACTIVE);
+  }
 }
 
 
@@ -735,17 +863,22 @@ int VisionGUI::getGMMColorIndex() {
   return colorIndex;
 }
 
+bool VisionGUI::getIsHSV() {
+  return isHSV;
+}
+
 VisionGUI::VisionGUI() :
   HSV_calib_event_flag(false), Img_id(0),
   vidIndex(0), picIndex(0), samplesEventFlag(false),
   drawSamples_flag(true), originalFrame_flag(true),
   gaussiansFrame_flag(false), finalFrame_flag(false),
-  thresholdFrame_flag(false), colorIndex(0) {
+  thresholdFrame_flag(false), colorIndex(0), isHSV(true) {
 
   vision = new Vision(640, 480);
 
+  __create_frm_calib_mode();
   __create_frm_capture();
-  __create_frm_calibration();
+  __create_frm_hsv();
   __create_frm_gmm();
 
   init_calib_params();
