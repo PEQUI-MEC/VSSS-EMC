@@ -173,6 +173,7 @@ public:
     } // start_signal
 
     bool capture_and_show() {
+
         if (!data) return false;
 
         if (frameCounter == 0) {
@@ -220,18 +221,26 @@ public:
 
         if (interface.visionGUI.gmm.getIsTrained()) {
           interface.visionGUI.gmm.run(imageView);
-          interface.visionGUI.runVisionWithGMM();
           if (interface.visionGUI.getGaussiansFrameFlag()) {
             interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
             interface.imageView.refresh();
           } else if (interface.visionGUI.getFinalFrameFlag()) {
             interface.imageView.set_data(interface.visionGUI.gmm.getFinalFrame().data, width, height);
             interface.imageView.refresh();
+          } else if (interface.visionGUI.getThresholdFrameFlag()) {
+            interface.imageView.set_data(interface.visionGUI.gmm.getThresholdFrame(interface.visionGUI.getGMMColorIndex()).data, width, height);
+            interface.imageView.refresh();
           }
         }
-        else interface.visionGUI.vision->run(imageView);
+        else {
+          interface.visionGUI.vision->run(imageView);
+          if (interface.visionGUI.HSV_calib_event_flag) {
+              interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
+              interface.imageView.refresh();
+          }
+        }
 
-        if(!interface.visionGUI.HSV_calib_event_flag /*&& interface.visionGUI.getOriginalFrameFlag()*/) {
+        if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag)
             {
               if (interface.visionGUI.getDrawSamples()) {
@@ -286,11 +295,6 @@ public:
         //   interface.imageView.set_data(interface.visionGUI.gmm.getFinalFrame().data, width, height);
         //   interface.imageView.refresh();
         // }
-        else
-        {
-            interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
-            interface.imageView.refresh();
-        }
 
         updateAllPositions();
 

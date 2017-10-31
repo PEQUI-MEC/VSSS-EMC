@@ -14,6 +14,7 @@ class GMM
 
 private:
   cv::Mat inFrame, gaussiansFrame, finalFrame, preThreshold;
+  std::vector<cv::Mat>threshold_frame;
   std::vector<cv::Point> samplePoints;
   std::vector<cv::Mat> samples;
 
@@ -22,7 +23,9 @@ private:
   cv::Mat means, weights;
   cv::Ptr<cv::ml::EM> em;
   bool isTrained;
+  bool isDone;
 
+  const static int TOTAL_COLORS = 5;
   const static int TOTAL_THREADS = 8;
   cv::Mat partialFrames[TOTAL_THREADS];
   cv::Mat partialPredicts[TOTAL_THREADS];
@@ -56,6 +59,7 @@ private:
   cv::Mat crop(cv::Point p1, cv::Point p2);
   cv::Mat formatSamplesForEM();
   cv::Mat formatFrameForEM(int index);
+  void setAllThresholds();
 
 public:
   GMM();
@@ -75,7 +79,10 @@ public:
   cv::Mat getFinalFrame();
   cv::Mat getPreThresholdFrame();
   bool getIsTrained();
+  bool getDoneFlag();
+  void setDone();
   void setMatchColor(int gaussian, int color);
+  cv::Mat getThresholdFrame(int color);
 
   int train();
   void run(cv::Mat frame);

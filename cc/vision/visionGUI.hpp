@@ -37,8 +37,6 @@ public:
   VisionGUI();
   ~VisionGUI();
 
-  void runVisionWithGMM();
-
   void setFrameSize(int inWidth, int inHeight);
   int getFrameHeight();
   int getFrameWidth();
@@ -47,6 +45,8 @@ public:
   bool getOriginalFrameFlag();
   bool getGaussiansFrameFlag();
   bool getFinalFrameFlag();
+  bool getThresholdFrameFlag();
+  int getGMMColorIndex();
 
 private:
 
@@ -61,11 +61,17 @@ private:
   // Frame GMM
   Gtk::ToggleButton bt_collectSamples;
   Gtk::Button bt_popSample, bt_clearSamples;
-  Gtk::Button bt_trainGMM, bt_GMM_match, bt_GMM_right;
+  Gtk::Button bt_trainGMM, bt_GMM_match, bt_GMM_done;
   Gtk::ComboBoxText cb_gaussianColor, cb_realColor;
   Gtk::CheckButton bt_drawSamples;
   Gtk::HScale HScale_clusters;
-  Gtk::RadioButton rb_GMM_original, rb_GMM_gaussians, rb_GMM_final;
+  Gtk::RadioButton rb_GMM_original, rb_GMM_gaussians, rb_GMM_final, rb_GMM_threshold;
+  Gtk::Button bt_GMM_left, bt_GMM_right;
+  Gtk::Label lb_threshold;
+  int colorIndex;
+  const std::vector<std::string> realColors {
+    "Main", "Green", "Pink", "Ball", "Opponent"
+  };
   const std::vector<std::string> gaussianColors {
     "Yellow", "Green", "Pink", "Orange", "Blue", "Black", "White", "Red",
     "Purple", "Brown", "Silver", "Cyan", "Dark Green","Baby Pink", "Dark Grey"
@@ -73,6 +79,7 @@ private:
   bool samplesEventFlag;
   bool drawSamples_flag;
   bool originalFrame_flag, gaussiansFrame_flag, finalFrame_flag;
+  bool thresholdFrame_flag;
 
   void __event_bt_HSV_calib_pressed();
   void __event_bt_right_HSV_calib_clicked();
@@ -85,8 +92,10 @@ private:
   void __event_bt_trainGMM_clicked();
   void HScale_clusters_value_changed();
   void __event_bt_GMM_match_clicked();
-  void __event_bt_GMM_right_clicked();
+  void __event_bt_GMM_done_clicked();
   void __event_rb_GMM_frame_clicked();
+  void __event_bt_GMM_left_clicked();
+  void __event_bt_GMM_right_clicked();
 
   void bt_save_picture_clicked();
   void bt_record_video_pressed();

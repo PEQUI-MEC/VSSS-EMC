@@ -1,5 +1,27 @@
 #include "gmm.hpp"
 
+void GMM::run(cv::Mat frame) {
+  inFrame = frame.clone();
+  // cv::pyrDown(inFrame, inFrame);
+  // cv::pyrDown(inFrame, inFrame);
+  for (int i = 0; i < TOTAL_THREADS; i++) {
+    threads.add_thread(new boost::thread(&GMM::classify, this, i));
+    // classify(i);
+  }
+  threads.join_all();
+  // gaussiansFrame = cv::Mat(partialFrames.at(0).rows, partialFrames.at(0).cols, CV_8UC3, partialFrames.at(0).data);
+  cv::Mat emptyMat;
+  gaussiansFrame = emptyMat;
+  cv::vconcat(partialFrames, TOTAL_THREADS, gaussiansFrame);
+  // std::cout << "GAUSSIANS: rows = " << gaussiansFrame.rows << ", cols = " << gaussiansFrame.cols << std::endl;
+  // std::cout << "ORIGINAL: rows = " << inFrame.rows << ", cols = " << inFrame.cols << std::endl;
+  paint();
+
+  if (isDone) {
+    setAllThresholds();
+  }
+}
+
 void GMM::setFrame(cv::Mat frame) {
   inFrame = frame.clone();
 }
@@ -35,50 +57,21 @@ cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
 }
 
 void GMM::classify(int index) {
-  // std::cout << "CLASSIFY 1" << std::endl;
   cv::Mat input = predict(index);
-  // std::cout << "CLASSIFY 2" << std::endl;
+
   int rows = input.rows;
   int cols = input.cols;
-  // std::cout << "input rows = " << input.rows << ", input cols = " << input.cols << std::endl;
+
 	partialFrames[index] = cv::Mat::zeros(rows, cols, CV_8UC3);
-  // std::cout << "CLASSIFY 3" << std::endl;
-  // std::cout << "index = " << index << std::endl;
+
 	for (int x = 0; x < rows; x++) {
 		for (int y = 0; y < cols; y++) {
-      // std::cout << "CLASSIFY 3.1 ("  << x << ", " << y << ")" << std::endl;
 			int label = input.at<float>(x,y);
-      // std::cout << "CLASSIFY 3.2 ("  << x << ", " << y << ")" << std::endl;
 			partialFrames[index].at<cv::Vec3b>(x, y)[0] = colors[label][0];
-      // std::cout << "CLASSIFY 3.3 ("  << x << ", " << y << ")" << std::endl;
 			partialFrames[index].at<cv::Vec3b>(x, y)[1] = colors[label][1];
-      // std::cout << "CLASSIFY 3.4 ("  << x << ", " << y << ")" << std::endl;
 			partialFrames[index].at<cv::Vec3b>(x, y)[2] = colors[label][2];
-      // std::cout << "CLASSIFY 3.5 ("  << x << ", " << y << ")" << std::endl;
 		}
 	}
-
-  // std::cout << "CLASSIFY 4" << std::endl;
-}
-
-void GMM::run(cv::Mat frame) {
-  inFrame = frame.clone();
-  // cv::pyrDown(inFrame, inFrame);
-  // cv::pyrDown(inFrame, inFrame);
-  for (int i = 0; i < TOTAL_THREADS; i++) {
-    threads.add_thread(new boost::thread(&GMM::classify, this, i));
-    // classify(i);
-  }
-  threads.join_all();
-
-  // gaussiansFrame = cv::Mat(partialFrames.at(0).rows, partialFrames.at(0).cols, CV_8UC3, partialFrames.at(0).data);
-  cv::Mat emptyMat;
-  gaussiansFrame = emptyMat;
-  cv::vconcat(partialFrames, TOTAL_THREADS, gaussiansFrame);
-
-  // std::cout << "GAUSSIANS: rows = " << gaussiansFrame.rows << ", cols = " << gaussiansFrame.cols << std::endl;
-  // std::cout << "ORIGINAL: rows = " << inFrame.rows << ", cols = " << inFrame.cols << std::endl;
-  paint();
 }
 
 void GMM::paint() {
@@ -100,33 +93,22 @@ void GMM::paint() {
 }
 
 cv::Mat GMM::predict(int threadIndex) {
-  // std::cout << "PREDICT 1" << std::endl;
   cv::Mat input = formatFrameForEM(threadIndex);
-  // std::cout << "input rows = " << input.rows << ", input cols = " << input.cols << std::endl;
   partialPredicts[threadIndex] = cv::Mat(inFrame.rows/TOTAL_THREADS, inFrame.cols, CV_32F);
-  // std::cout << "partialPredicts[threadIndex] rows = " << partialPredicts[threadIndex].rows << ", partialPredicts[threadIndex] cols = " << partialPredicts[threadIndex].cols << std::endl;
-  // std::cout << "PREDICT 2" << std::endl;
   int pixelIndex = 0;
-  // std::cout << "------ SAMPLES" << std::endl;
-  // std::cout << input << std::endl;
+
   cv::Mat results;
-  // std::cout << "----- PREDICT" << std::endl;
+
   for (int i = 0; i < inFrame.rows/TOTAL_THREADS; i++) {
     for (int j = 0; j < inFrame.cols; j++) {
-      // std::cout << "PREDICT FOR (" << i << ", " << j << ")" << std::endl;
-      // std::cout <<  "pixelIndex = " << pixelIndex << std::endl;
+
       double result = em->predict2(input.row(pixelIndex), results)[1];
-      // std::cout << input.row(pixelIndex) << std::endl;
-      // std::cout << results << std::endl;
-      // std::cout << "INSERT TRY" << std::endl;
+
       partialPredicts[threadIndex].at<float>(i, j) = result;
-      // std::cout << "INSERT DONE" << std::endl;
+
       pixelIndex++;
     }
   }
-  // std::cout << "PREDICT 3" << std::endl;
-  // std::cout << "------ OUTPUT" << std::endl;
-  // std::cout << partialPredicts[threadIndex] << std::endl;
 
   return partialPredicts[threadIndex];
 }
@@ -137,31 +119,19 @@ cv::Mat GMM::formatFrameForEM(int index) {
   int cols = inFrame.cols;
   int rows = inFrame.rows/TOTAL_THREADS;
 
-  // std::cout << "rows = " << rows << ", cols = " << cols << std::endl;
-
-
-
   cv::Rect roi;
   roi.x = 0;
   roi.y = index*rows;
   roi.width = cols;
   roi.height = rows;
 
-  // std::cout << "[1]: " << roi.x << ", " << roi.y << std::endl;
-  // std::cout << "[2]: " <<  roi.width << ", " << roi.height << std::endl;
-
   cv::Mat dst = inFrame(roi);
 
-  // std::cout << "dst rows = " << dst.rows << ", dst cols = " << dst.cols << std::endl;
-
   cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
-
-  // std::cout << "FORMAT FRAME 1" << std::endl;
 
   cv::Mat float_image;
   dst.convertTo(float_image,CV_32F);
 
-  // std::cout << "FORMAT FRAME 2" << std::endl;
   cv::Mat output(dst.rows*dst.cols, 3, CV_32FC1);
 
   int counter = 0;
@@ -175,8 +145,6 @@ cv::Mat GMM::formatFrameForEM(int index) {
       }
   }
 
-  // std::cout << "FORMAT FRAME 3" << std::endl;
-
   return output;
 }
 
@@ -186,7 +154,6 @@ int GMM::train() {
   std::cout << "Training..." << std::endl;
   cv::Mat input = formatSamplesForEM().clone();
   if (input.total() <= 1) return -1;
-  // em = cv::ml::EM::create();
   em->setClustersNumber(clusters);
   em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
   em->setTermCriteria(cv::TermCriteria(cv::TermCriteria::EPS, 10000, 0.000000001));
@@ -323,8 +290,43 @@ void GMM::setMatchColor(int gaussian, int color) {
   matchColor.at(gaussian) = color;
 }
 
-GMM::GMM() : clusters(1), isTrained(false) {
+bool GMM::getDoneFlag() {
+  return isDone;
+}
+void GMM::setDone() {
+  isDone = true;
+}
+
+void GMM::setAllThresholds() {
+
+  for (int i = 0; i < TOTAL_COLORS; i++) {
+    threshold_frame.at(i) = cv::Mat::zeros(preThreshold.rows, preThreshold.cols, CV_8UC3);
+  }
+
+  for (int x = 0; x < preThreshold.rows; x++) {
+    for (int y = 0; y < preThreshold.cols; y++) {
+      int label = preThreshold.at<cv::Vec3b>(x,y)[0];
+      if (label < TOTAL_COLORS) {
+        threshold_frame.at(label).at<cv::Vec3b>(x, y)[0] = 255;
+        threshold_frame.at(label).at<cv::Vec3b>(x, y)[1] = 255;
+        threshold_frame.at(label).at<cv::Vec3b>(x, y)[2] = 255;
+      }
+    }
+  }
+}
+
+cv::Mat GMM::getThresholdFrame(int color) {
+  // cv::cvtColor(threshold_frame.at(color), threshold_frame.at(color), cv::COLOR_GRAY2RGB);
+  return threshold_frame.at(color);
+}
+
+GMM::GMM() : clusters(1), isTrained(false), isDone(false) {
   em = cv::ml::EM::create();
+
+  cv::Mat mat;
+  for (int i = 0; i < TOTAL_COLORS; i++) {
+    threshold_frame.push_back(mat);
+  }
 }
 
 GMM::~GMM() {
