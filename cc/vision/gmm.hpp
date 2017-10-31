@@ -88,6 +88,7 @@ public:
   cv::Mat getThresholdFrame(int color);
   void setOpeningSize(int value);
   void setClosingSize(int value);
+  std::vector<cv::Mat> getAllThresholds();
 
   int train();
   void run(cv::Mat frame);

@@ -221,6 +221,10 @@ public:
 
         if (interface.visionGUI.gmm.getIsTrained()) {
           interface.visionGUI.gmm.run(imageView);
+          if (interface.visionGUI.gmm.getDoneFlag()) {
+            interface.visionGUI.vision->runGMM(interface.visionGUI.gmm.getAllThresholds());
+          }
+
           if (interface.visionGUI.getGaussiansFrameFlag()) {
             interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
             interface.imageView.refresh();

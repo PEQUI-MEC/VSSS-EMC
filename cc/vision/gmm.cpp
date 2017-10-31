@@ -339,6 +339,10 @@ void GMM::setOpeningSize(int value) {
   openingSize = value;
 }
 
+std::vector<cv::Mat> GMM::getAllThresholds() {
+  return threshold_frame;
+}
+
 GMM::GMM() : clusters(1), isTrained(false), isDone(false) {
   em = cv::ml::EM::create();
 
