@@ -67,7 +67,7 @@ cc/vision/visionGUI.o: cc/vision/visionGUI.cpp
 # objeto Planner
 cc/Planner.o: cc/Planner.cpp
 	@echo "\n\n\033[92mCompiling planner object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags opencv` "cc/Planner.cpp" -o "cc/Planner.o"
+	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/Planner.cpp" -o "cc/Planner.o"
 
 # objeto das tags
 cc/vision/tag.o: cc/vision/tag.cpp
