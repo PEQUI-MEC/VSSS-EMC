@@ -66,6 +66,7 @@ private:
   Gtk::Button bt_HSV_right;
 
   // Frame GMM
+  Gtk::Button bt_GMM_save, bt_GMM_load;
   Gtk::ToggleButton bt_collectSamples;
   Gtk::Button bt_popSample, bt_clearSamples;
   Gtk::Button bt_trainGMM, bt_GMM_match, bt_GMM_done;
@@ -92,6 +93,8 @@ private:
   void __event_bt_right_HSV_calib_clicked();
   void __event_bt_left_HSV_calib_clicked();
 
+  void __event_bt_GMM_save_clicked();
+  void __event_bt_GMM_load_clicked();
   void __event_bt_collectSamples_pressed();
   void __event_bt_popSample_clicked();
   void __event_bt_clearSamples_clicked();

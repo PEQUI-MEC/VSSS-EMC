@@ -160,7 +160,6 @@ cv::Mat GMM::formatFrameForEM(int index) {
 }
 
 int GMM::train() {
-  cv::FileStorage fs("gmm.json", cv::FileStorage::WRITE );
   cv::Mat probs, loglikelihoods, labels;
   std::cout << "Training..." << std::endl;
   cv::Mat input = formatSamplesForEM().clone();
@@ -170,8 +169,7 @@ int GMM::train() {
   em->setTermCriteria(cv::TermCriteria(cv::TermCriteria::EPS, 10000, 0.000000001));
   // em->trainE(input, initMeans);
   em->trainEM(input, loglikelihoods, labels, probs);
-  em->write(fs);
-  fs.release();
+
   std::cout << "Training: Finished" << std::endl;
   // std::cout << "------ LOGLIKELIHOODS" << std::endl;
   // std::cout << loglikelihoods << std::endl;
@@ -199,6 +197,8 @@ int GMM::train() {
 
   std::cout << "-------- WEIGHTS" << std::endl;
   std::cout << weights << std::endl;
+
+  write("");
 
   return 0;
 }
@@ -262,6 +262,41 @@ void GMM::popSample() {
 void GMM::clearSamples() {
   samples.clear();
   samplePoints.clear();
+}
+
+void GMM::read(std::string fileName) {
+  cv::FileStorage fs("autoGMM.json", cv::FileStorage::READ);
+  // else const cv::FileStorage fs(fileName, cv::FileStorage::READ);
+  if (fs.isOpened()) {
+    const cv::FileNode& fn = fs["StatModel.EM"];
+    em->read(fn);
+    means = em->getMeans();
+    em->getCovs(covs);
+    weights = em->getWeights();
+    isTrained = true;
+    std::cout << "-------- MEANS" << std::endl;
+    std::cout << means << std::endl;
+
+    std::cout << "-------- COVS" << std::endl;
+    for (int i = 0; i < covs.size(); i++) {
+      std::cout << ">> " << i << std::endl;
+      std::cout << covs.at(i) << std::endl;
+    }
+
+    std::cout << "-------- WEIGHTS" << std::endl;
+    std::cout << weights << std::endl;
+  } else {
+    std::cout << "GMM::read: Could not open ";
+    if (fileName == "") std::cout << "autoGMM.json. Maybe it does not exist." << std::endl;
+    else std::cout << fileName << ". Maybe it does not exist." << std::endl;
+  }
+}
+
+void GMM::write(std::string fileName) {
+  cv::FileStorage fs("autoGMM.json", cv::FileStorage::WRITE);
+  // else const cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
+  em->write(fs);
+  fs.release();
 }
 
 int GMM::getSamplesSize() {

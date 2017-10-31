@@ -4,7 +4,6 @@ media/**/*.png
 VSSS
 *.a
 *.o
+*.json
 autosave.txt
 quicksave.txt
-
-gmm\.json

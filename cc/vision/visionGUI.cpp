@@ -42,6 +42,8 @@ void VisionGUI::__create_frm_calib_mode() {
 void VisionGUI::__event_rb_mode_clicked() {
   if (rb_mode_GMM.get_active()) {
     isHSV = false;
+    bt_GMM_save.set_state(Gtk::STATE_NORMAL);
+    bt_GMM_load.set_state(Gtk::STATE_NORMAL);
     bt_collectSamples.set_state(Gtk::STATE_NORMAL);
     bt_popSample.set_state(Gtk::STATE_NORMAL);
     bt_clearSamples.set_state(Gtk::STATE_NORMAL);
@@ -57,7 +59,7 @@ void VisionGUI::__event_rb_mode_clicked() {
     rb_GMM_original.set_state(Gtk::STATE_NORMAL);
     rb_GMM_gaussians.set_state(Gtk::STATE_NORMAL);
     rb_GMM_final.set_state(Gtk::STATE_NORMAL);
-    rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+    if (gmm.getDoneFlag()) rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
     bt_GMM_left.set_state(Gtk::STATE_NORMAL);
     bt_GMM_right.set_state(Gtk::STATE_NORMAL);
     bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
@@ -76,6 +78,8 @@ void VisionGUI::__event_rb_mode_clicked() {
   }
   else {
     isHSV = true;
+    bt_GMM_save.set_state(Gtk::STATE_INSENSITIVE);
+    bt_GMM_load.set_state(Gtk::STATE_INSENSITIVE);
     bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
     bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
     bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
@@ -135,54 +139,59 @@ void VisionGUI::__create_frm_gmm() {
   grid->set_column_spacing(10);
   grid->set_row_spacing(5);
 
+  bt_GMM_save.set_label("Save");
+  grid->attach(bt_GMM_save, 0, 0, 1, 1);
+  bt_GMM_load.set_label("Load");
+  grid->attach(bt_GMM_load, 3, 0, 1, 1);
+
   bt_collectSamples.set_label("Collect Samples");
-  grid->attach(bt_collectSamples, 0, 0, 1, 1);
+  grid->attach(bt_collectSamples, 0, 1, 1, 1);
   bt_popSample.set_label("Pop Sample");
-  grid->attach(bt_popSample, 1, 0, 1, 1);
+  grid->attach(bt_popSample, 1, 1, 1, 1);
   bt_clearSamples.set_label("Reset Samples");
-  grid->attach(bt_clearSamples, 2, 0, 1, 1);
+  grid->attach(bt_clearSamples, 2, 1, 1, 1);
   bt_drawSamples.set_label("Draw Samples");
   bt_drawSamples.set_active(true);
-  grid->attach(bt_drawSamples, 3, 0, 1, 1);
+  grid->attach(bt_drawSamples, 3, 1, 1, 1);
 
   label = new Gtk::Label("Clusters: ");
-  grid->attach(*label, 0, 1, 1, 1);
+  grid->attach(*label, 0, 2, 1, 1);
   HScale_clusters.set_digits(0);
   HScale_clusters.set_increments(1,3);
   HScale_clusters.set_range(1,15);
   HScale_clusters.set_value_pos(Gtk::POS_TOP);
   HScale_clusters.set_draw_value();
-  grid->attach(HScale_clusters, 1, 1, 2, 1);
+  grid->attach(HScale_clusters, 1, 2, 2, 1);
   bt_trainGMM.set_label("Train GMM");
-  grid->attach(bt_trainGMM, 3, 1, 1, 1);
+  grid->attach(bt_trainGMM, 3, 2, 1, 1);
 
   rb_GMM_original.set_label("Original");
-  grid->attach(rb_GMM_original, 0, 2, 1, 1);
+  grid->attach(rb_GMM_original, 0, 3, 1, 1);
   rb_GMM_gaussians.set_label("Gaussians");
   rb_GMM_gaussians.join_group(rb_GMM_original);
-  grid->attach(rb_GMM_gaussians, 1, 2, 1, 1);
+  grid->attach(rb_GMM_gaussians, 1, 3, 1, 1);
   rb_GMM_final.set_label("Final");
   rb_GMM_final.join_group(rb_GMM_original);
-  grid->attach(rb_GMM_final, 2, 2, 1, 1);
+  grid->attach(rb_GMM_final, 2, 3, 1, 1);
   rb_GMM_threshold.set_label("Threshold");
   rb_GMM_threshold.join_group(rb_GMM_original);
-  grid->attach(rb_GMM_threshold, 3, 2, 1, 1);
+  grid->attach(rb_GMM_threshold, 3, 3, 1, 1);
 
   label = new Gtk::Label("Threshold: ");
-  grid->attach(*label, 0, 3, 1, 1);
+  grid->attach(*label, 0, 4, 1, 1);
   bt_GMM_left.set_label("<");
-  grid->attach(bt_GMM_left, 1, 3, 1, 1);
+  grid->attach(bt_GMM_left, 1, 4, 1, 1);
   lb_threshold.set_text(realColors.at(0));
-  grid->attach(lb_threshold, 2, 3, 1, 1);
+  grid->attach(lb_threshold, 2, 4, 1, 1);
   bt_GMM_right.set_label(">");
-  grid->attach(bt_GMM_right, 3, 3, 1, 1);
+  grid->attach(bt_GMM_right, 3, 4, 1, 1);
 
   cb_gaussianColor.append("Select Gaussian:");
   for (int i = 0; i < gmm.getClusters(); i++) {
     cb_gaussianColor.append(gaussianColors.at(i));
   }
   cb_gaussianColor.set_active(0);
-  grid->attach(cb_gaussianColor, 0, 4, 1, 1);
+  grid->attach(cb_gaussianColor, 0, 5, 1, 1);
   cb_realColor.append("Select Color:");
   cb_realColor.append("Main");
   cb_realColor.append("Green");
@@ -191,29 +200,31 @@ void VisionGUI::__create_frm_gmm() {
   cb_realColor.append("Opponent");
   cb_realColor.append("Background");
   cb_realColor.set_active(0);
-  grid->attach(cb_realColor, 1, 4, 1, 1);
+  grid->attach(cb_realColor, 1, 5, 1, 1);
   bt_GMM_match.set_label("Match!");
-  grid->attach(bt_GMM_match, 2, 4, 1, 1);
+  grid->attach(bt_GMM_match, 2, 5, 1, 1);
   bt_GMM_done.set_label("Done");
-  grid->attach(bt_GMM_done, 3, 4, 1, 1);
+  grid->attach(bt_GMM_done, 3, 5, 1, 1);
 
   label = new Gtk::Label("Closing: ");
-  grid->attach(*label, 0, 5, 1, 1);
+  grid->attach(*label, 0, 6, 1, 1);
   HScale_closing.set_digits(0);
   HScale_closing.set_increments(1,2);
   HScale_closing.set_range(0,5);
   HScale_closing.set_value_pos(Gtk::POS_TOP);
   HScale_closing.set_draw_value();
-  grid->attach(HScale_closing, 1, 5, 1, 1);
+  grid->attach(HScale_closing, 1, 6, 1, 1);
   label = new Gtk::Label("Opening: ");
-  grid->attach(*label, 2, 5, 1, 1);
+  grid->attach(*label, 2, 6, 1, 1);
   HScale_opening.set_digits(0);
   HScale_opening.set_increments(1,2);
   HScale_opening.set_range(0,5);
   HScale_opening.set_value_pos(Gtk::POS_TOP);
   HScale_opening.set_draw_value();
-  grid->attach(HScale_opening, 3, 5, 1, 1);
+  grid->attach(HScale_opening, 3, 6, 1, 1);
 
+  bt_GMM_save.set_state(Gtk::STATE_INSENSITIVE);
+  bt_GMM_load.set_state(Gtk::STATE_INSENSITIVE);
   bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
   bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
   bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
@@ -233,6 +244,8 @@ void VisionGUI::__create_frm_gmm() {
   bt_GMM_left.set_state(Gtk::STATE_INSENSITIVE);
   bt_GMM_right.set_state(Gtk::STATE_INSENSITIVE);
 
+  bt_GMM_save.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_save_clicked));
+  bt_GMM_load.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_load_clicked));
   bt_collectSamples.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_collectSamples_pressed));
   bt_popSample.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_popSample_clicked));
   bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
@@ -277,6 +290,16 @@ void VisionGUI::HScale_closing_value_changed() {
 
 void VisionGUI::HScale_opening_value_changed() {
   gmm.setOpeningSize(HScale_opening.get_value());
+}
+
+void VisionGUI::__event_bt_GMM_save_clicked() {
+  gmm.write("");
+}
+
+void VisionGUI::__event_bt_GMM_load_clicked() {
+  gmm.read("");
+  rb_GMM_gaussians.set_active(true);
+  rb_GMM_gaussians.clicked();
 }
 
 void VisionGUI::__event_bt_GMM_left_clicked() {
@@ -340,13 +363,10 @@ void VisionGUI::HScale_clusters_value_changed() {
 }
 
 void VisionGUI::__event_bt_trainGMM_clicked() {
-  HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
-
   int res = gmm.train();
   if (res == 0) {
-    bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
-    bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
-    bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
+    rb_GMM_gaussians.set_active(true);
+    rb_GMM_gaussians.clicked();
     bt_collectSamples.set_active(false);
     bt_drawSamples.set_active(false);
     samplesEventFlag = false;

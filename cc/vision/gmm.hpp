@@ -73,9 +73,11 @@ public:
   void pushSample(int points[2][2]);
   void popSample();
   void clearSamples();
+  void read(std::string fileName);
+  void write(std::string fileName);
+
   int getSamplesSize();
   std::vector<cv::Point> getSamplePoints();
-
   void setClusters(int k);
   int getClusters();
   cv::Mat getGaussiansFrame();
