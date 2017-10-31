@@ -19,6 +19,17 @@ void GMM::run(cv::Mat frame) {
 
   if (isDone) {
     setAllThresholds();
+    posProcessing();
+  }
+}
+
+void GMM::posProcessing() {
+  for (int i = 0; i < TOTAL_COLORS; i++) {
+    cv::Mat closingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*closingSize+1, 2*closingSize+1 ), cv::Point(closingSize, closingSize));
+    cv::morphologyEx(threshold_frame.at(i), threshold_frame.at(i), cv::MORPH_CLOSE, closingElement);
+
+    cv::Mat openingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*openingSize+1, 2*openingSize+1 ), cv::Point(openingSize, openingSize));
+    cv::morphologyEx(threshold_frame.at(i), threshold_frame.at(i), cv::MORPH_OPEN, openingElement);
   }
 }
 
@@ -318,6 +329,14 @@ void GMM::setAllThresholds() {
 cv::Mat GMM::getThresholdFrame(int color) {
   // cv::cvtColor(threshold_frame.at(color), threshold_frame.at(color), cv::COLOR_GRAY2RGB);
   return threshold_frame.at(color);
+}
+
+void GMM::setClosingSize(int value) {
+  closingSize = value;
+}
+
+void GMM::setOpeningSize(int value) {
+  openingSize = value;
 }
 
 GMM::GMM() : clusters(1), isTrained(false), isDone(false) {

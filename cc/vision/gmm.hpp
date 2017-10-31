@@ -25,6 +25,8 @@ private:
   bool isTrained;
   bool isDone;
 
+  int closingSize, openingSize;
+
   const static int TOTAL_COLORS = 5;
   const static int TOTAL_THREADS = 8;
   cv::Mat partialFrames[TOTAL_THREADS];
@@ -60,6 +62,7 @@ private:
   cv::Mat formatSamplesForEM();
   cv::Mat formatFrameForEM(int index);
   void setAllThresholds();
+  void posProcessing();
 
 public:
   GMM();
@@ -83,6 +86,8 @@ public:
   void setDone();
   void setMatchColor(int gaussian, int color);
   cv::Mat getThresholdFrame(int color);
+  void setOpeningSize(int value);
+  void setClosingSize(int value);
 
   int train();
   void run(cv::Mat frame);

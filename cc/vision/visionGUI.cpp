@@ -85,6 +85,24 @@ void VisionGUI::__create_frm_gmm() {
   bt_GMM_done.set_label("Done");
   grid->attach(bt_GMM_done, 3, 4, 1, 1);
 
+  label = new Gtk::Label("Closing: ");
+  grid->attach(*label, 0, 5, 1, 1);
+  HScale_closing.set_digits(0);
+  HScale_closing.set_increments(1,2);
+  HScale_closing.set_range(0,5);
+  HScale_closing.set_value_pos(Gtk::POS_TOP);
+  HScale_closing.set_draw_value();
+  grid->attach(HScale_closing, 1, 5, 1, 1);
+  label = new Gtk::Label("Opening: ");
+  grid->attach(*label, 2, 5, 1, 1);
+  HScale_opening.set_digits(0);
+  HScale_opening.set_increments(1,2);
+  HScale_opening.set_range(0,5);
+  HScale_opening.set_value_pos(Gtk::POS_TOP);
+  HScale_opening.set_draw_value();
+  grid->attach(HScale_opening, 3, 5, 1, 1);
+
+
   bt_collectSamples.set_state(Gtk::STATE_NORMAL);
   bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
   bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
@@ -104,6 +122,8 @@ void VisionGUI::__create_frm_gmm() {
   rb_GMM_threshold.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
   bt_GMM_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_left_clicked));
   bt_GMM_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_right_clicked));
+  HScale_closing.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_closing_value_changed));
+  HScale_opening.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_opening_value_changed));
 }
 
 bool VisionGUI::getDrawSamples() {
@@ -124,6 +144,14 @@ bool VisionGUI::getFinalFrameFlag() {
 
 bool VisionGUI::getThresholdFrameFlag() {
   return thresholdFrame_flag;
+}
+
+void VisionGUI::HScale_closing_value_changed() {
+  gmm.setClosingSize(HScale_closing.get_value());
+}
+
+void VisionGUI::HScale_opening_value_changed() {
+  gmm.setOpeningSize(HScale_opening.get_value());
 }
 
 void VisionGUI::__event_bt_GMM_left_clicked() {
@@ -162,16 +190,7 @@ void VisionGUI::__event_rb_GMM_frame_clicked() {
     finalFrame_flag = false;
     thresholdFrame_flag = true;
   }
-
 }
-
-// void VisionGUI::__event_rb_GMM_gaussians_changed() {
-//   gaussiansFrame_flag = !gaussiansFrame_flag;
-// }
-//
-// void VisionGUI::__event_rb_GMM_final_changed() {
-//   finalFrame_flag = !finalFrame_flag;
-// }
 
 void VisionGUI::__event_bt_GMM_match_clicked() {
   int gaussian = cb_gaussianColor.get_active_row_number();
