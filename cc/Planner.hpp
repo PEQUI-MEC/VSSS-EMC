@@ -31,11 +31,12 @@ private:
     } VelocityVector;
 
     // constantes
-    int COORD_MID_FIELD_X, MEIO_GOL_Y, MAX_Y;
+    int WIDTH, HEIGHT;
     // histórico de estados: armazena os HIST_SIZE últimos frames
     std::vector<State> hist;
 
-
+    // recebe pontos de início e fim de trajetória com suas respectivas orientações e retorna pontos da curva correspondente
+    VelocityVector curve_control(cv::Point start, double start_orientation, cv::Point end, double end_orientation);        
     // recebe três pontos e retorna o vetor que deve ser executado para a curva nesse passo
     VelocityVector curve_control(cv::Point start, cv::Point mid, cv::Point end, double vdefault);
 
@@ -50,9 +51,12 @@ private:
 
     double distance_to_line(cv::Point start, cv::Point end, cv::Point mid);
 
-    double distance(cv::Point p1, cv::Point p2);
-
     cv::Point * find_deviation(cv::Point start, cv::Point end, Obstacle obstacle);
+
+    double canonic_to_robot_base(cv::Point * origin, cv::Point * mid, cv::Point * target);
+    cv::Point robot_base_to_canonic(cv::Point base, double theta, cv::Point point);
+
+    double compl_y(double y);
 
 public:
     // criar função de planejamento de trajetória
@@ -61,7 +65,7 @@ public:
     // recebe um ponteiro para os robôs pois após tudo ser calculado os alvos devem ser atualizados
     void plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball);
 
-    void set_constants(int midfieldX, int midgoalY, int maxY);
+    void set_constants(int width, int height);
 
     State predict_positions(double timeAhead);
 };

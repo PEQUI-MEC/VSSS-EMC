@@ -242,7 +242,7 @@ public:
 		//não usando
 
 		// passa algumas constantes pro Planner
-		planner.set_constants(width/2, height/2, height);
+		planner.set_constants(width, height);
 	}
 
 	double distance(cv::Point A, cv::Point B) {
@@ -376,7 +376,7 @@ public:
 			}
 
 			for(int i =0; i<3; i++) {
-				if(!robots[i].using_pot_field) position_to_vector(i);
+				if(!robots[i].using_pot_field && !robots[i].cmdType == VECTOR) position_to_vector(i);
 				fixed_position_check(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
