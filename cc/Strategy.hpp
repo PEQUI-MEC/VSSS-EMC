@@ -1210,13 +1210,16 @@ public:
 			if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
 			if(robots[i].vmax < 0.3) robots[i].vmax = 0.3;
 			// fixed_lookup(i);
-			
-				if(distance(robots[i].position, robots[i].target) < fixed_pos_distance/2 && ()) {
-					robots[i].cmdType = ORIENTATION;
-					robots[i].targetOrientation = PI/2;
 
-				// cout << "lookup" << '\n';
+			if(distance(robots[i].position, robots[i].target) < fixed_pos_distance/2) {
+				robots[i].cmdType = ORIENTATION;
+				robots[i].targetOrientation = PI/2;
+				if( tan(robots[i].orientation) > tan(robots[i].targetOrientation - 5*PI/180) && tan(robots[i].orientation) < tan(robots[i].targetOrientation + 5*PI/180) )
+				{
+					robots[i].cmdType = POSITION;
+					robots[i].vmax = 0;
 				}
+			}
 
 			break;
 
