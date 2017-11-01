@@ -160,6 +160,7 @@ class V4LInterface: public Gtk::VBox {
         void createIDsFrame();
         void createSpeedsFrame();
         void update_speed_progressBars();
+        void update_robot_functions();
         void event_draw_info_checkbox_signal_clicked();
         void createPositionsAndButtonsFrame();
         void createFunctionsFrame();

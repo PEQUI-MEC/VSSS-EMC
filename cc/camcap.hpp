@@ -145,8 +145,8 @@ public:
             interface.robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
             interface.robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
             interface.robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
-            // strategyGUI.formation_box.set_sensitive(true);
-            // strategyGUI.bt_createFormation.set_sensitive(true);
+            strategyGUI.formation_box.set_sensitive(true);
+            strategyGUI.bt_createFormation.set_sensitive(true);
 
             data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
@@ -163,8 +163,8 @@ public:
             interface.robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
             interface.robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
             interface.robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-            // strategyGUI.formation_box.set_sensitive(false);
-            // strategyGUI.bt_createFormation.set_sensitive(false);
+            strategyGUI.formation_box.set_sensitive(false);
+            strategyGUI.bt_createFormation.set_sensitive(false);
         }
 
         interface.__event_bt_quick_load_clicked();
@@ -196,7 +196,7 @@ public:
         }
 
         interface.imageView.PID_test_flag = control.PID_test_flag;
-        // interface.imageView.formation_flag = strategyGUI.formation_flag;
+        interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
 
         if(interface.warped) {
@@ -218,8 +218,6 @@ public:
         if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag)
             {
-                drawStrategyConstants(imageView, width, height);
-
                 circle(imageView,interface.visionGUI.vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
                 for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
@@ -266,6 +264,23 @@ public:
 
         updateAllPositions();
 
+        if(!interface.imageView.PID_test_flag && strategyGUI.formation_flag && !interface.get_start_game_flag()) {
+            formation_creation();
+            // exibe os robos virtuais
+            for(int i = 0; i < 3; i++) {
+                if(virtual_robot_selected == i) {
+                    circle(imageView,virtual_robots_positions[i], 20, cv::Scalar(0,255,100), 3);
+                }
+                // posição
+                circle(imageView,virtual_robots_positions[i], 17, cv::Scalar(0,255,0), 2);
+                // orientação
+                cv::Point aux_point = cv::Point(virtual_robots_positions[i].x + 30*cos(virtual_robots_orientations[i]), virtual_robots_positions[i].y + 30*sin(virtual_robots_orientations[i]));
+                arrowedLine(imageView,virtual_robots_positions[i], aux_point,cv::Scalar(0,255,0),2);
+                // identificação
+                putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
+            }
+        }
+
         if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
         {
             control.button_PID_Test.set_active(true);
@@ -281,23 +296,6 @@ public:
                 circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
             }
         }
-        //else if(/*strategyGUI.formation_flag && */!interface.get_start_game_flag()) {
-        //    formation_creation();
-
-            // exibe os robos virtual
-            // for(int i = 0; i < 3; i++) {
-            //     if(virtual_robot_selected == i) {
-            //         circle(imageView,virtual_robots_positions[i], 20, cv::Scalar(0,255,100), 3);
-            //     }
-            //     // posição
-            //     circle(imageView,virtual_robots_positions[i], 17, cv::Scalar(0,255,0), 2);
-            //     // orientação
-            //     cv::Point aux_point = cv::Point(virtual_robots_positions[i].x + 30*cos(virtual_robots_orientations[i]), virtual_robots_positions[i].y + 30*sin(virtual_robots_orientations[i]));
-            //     arrowedLine(imageView,virtual_robots_positions[i], aux_point,cv::Scalar(0,255,0),2);
-            //     // identificação
-            //     putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
-            // }
-        //}
         else {
             for(int i=0; i<interface.robot_list.size(); i++) {
                 interface.robot_list[i].target=cv::Point(-1,-1);
@@ -311,9 +309,8 @@ public:
 
 
         // ----------- ESTRATEGIA -----------------//
-        strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
-
         if(interface.start_game_flag) {
+            strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
             Ball_Est=strategyGUI.strategy.get_Ball_Est();
             line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
             circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
@@ -323,9 +320,10 @@ public:
                 circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
                 putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
             } // for
-        } // if start_game_flag
 
-        interface.update_speed_progressBars();
+            interface.update_speed_progressBars();
+            interface.update_robot_functions();
+        } // if start_game_flag
         // ----------------------------------------//
 
 
@@ -368,13 +366,13 @@ public:
     void formation_creation() {
         if (interface.get_start_game_flag()) return;
 
-        // if(strategyGUI.update_interface_flag) {
-        //     for(int i = 0; i < 3; i++) {
-        //         virtual_robots_positions[i] = strategyGUI.formation_positions[i];
-        //         virtual_robots_orientations[i] = strategyGUI.formation_orientations[i];
-        //     }
-        //     strategyGUI.update_interface_flag = false;
-        // }
+        if(strategyGUI.update_interface_flag) {
+            for(int i = 0; i < 3; i++) {
+                 virtual_robots_positions[i] = strategyGUI.formation_positions[i];
+                 virtual_robots_orientations[i] = strategyGUI.formation_orientations[i];
+            }
+            strategyGUI.update_interface_flag = false;
+        }
 
         // marca o robô mais próximo
         for(int i = 0; i < 3; i++) {
@@ -410,8 +408,8 @@ public:
         virtual_robot_selected = -1;
         // copia os dados pra estratégia
         for(int i = 0; i < 3; i++) {
-            // strategyGUI.formation_positions[i] = virtual_robots_positions[i];
-            // strategyGUI.formation_orientations[i] = virtual_robots_orientations[i];
+            strategyGUI.formation_positions[i] = virtual_robots_positions[i];
+            strategyGUI.formation_orientations[i] = virtual_robots_orientations[i];
         }
     }
 
@@ -488,54 +486,6 @@ public:
             }
         }
     } // PID_test
-
-    void drawStrategyConstants(cv::Mat imageView, int width, int height)
-    {
-        if (strategyGUI.get_deslocamentoZagaAtaque_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.DESLOCAMENTO_ZAGA_ATAQUE, 0),cv::Point(strategyGUI.strategy.DESLOCAMENTO_ZAGA_ATAQUE, height),cv::Scalar(255,255,0), 2);
-
-        if (strategyGUI.get_goalArea_flag())
-        {
-            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2-strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2),cv::Point(0,strategyGUI.strategy.LARGURA_CAMPO/2+strategyGUI.strategy.TAMANHO_AREA/2), cv::Scalar(255,255,255),2);
-        }
-
-        if (strategyGUI.get_sideRectangles_flag())
-        {
-            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,0),cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MIN_GOL_Y), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,height),cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MAX_GOL_Y), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MAX_GOL_Y),cv::Point(width,strategyGUI.strategy.MAX_GOL_Y), cv::Scalar(255,255,255),2);
-            line(imageView, cv::Point(strategyGUI.strategy.COMPRIMENTO_CAMPO_TOTAL - strategyGUI.strategy.LIMITE_AREA_X,strategyGUI.strategy.MIN_GOL_Y),cv::Point(width,strategyGUI.strategy.MIN_GOL_Y), cv::Scalar(255,255,255),2);
-        }
-
-        if (strategyGUI.get_ballRadius_flag())
-        {
-            ellipse(imageView, strategyGUI.strategy.Ball, cv::Size(100,100), 90, 0, 180, cv::Scalar(255,0,0), 2);
-            line(imageView, cv::Point(strategyGUI.strategy.Ball.x, strategyGUI.strategy.Ball.y+100), cv::Point(strategyGUI.strategy.Ball.x, strategyGUI.strategy.Ball.y-100), cv::Scalar(255,0,0), 2);
-        }
-
-        if (strategyGUI.get_defenseLine_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.LINHA_ZAGA, 0),cv::Point(strategyGUI.strategy.LINHA_ZAGA, height),cv::Scalar(255,255,0), 2);
-
-        if (strategyGUI.get_goalMax_flag())
-            putText(imageView, "X", cv::Point(width-strategyGUI.strategy.COMPRIMENTO_PISTA, strategyGUI.strategy.MEIO_GOL_Y+strategyGUI.strategy.TAMANHO_GOL/2),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
-
-        if (strategyGUI.get_goalMin_flag())
-            putText(imageView, "X", cv::Point(width-strategyGUI.strategy.COMPRIMENTO_PISTA, strategyGUI.strategy.MEIO_GOL_Y-strategyGUI.strategy.TAMANHO_GOL/2),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
-
-        if (strategyGUI.get_goalCenter_flag())
-            putText(imageView, "X", cv::Point(strategyGUI.strategy.COORD_GOAL_ATK_FRONT_X, strategyGUI.strategy.COORD_GOAL_MID_Y),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0), 2);
-
-        if (strategyGUI.get_banheira_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.BANHEIRA, 0),cv::Point(strategyGUI.strategy.BANHEIRA, height),cv::Scalar(255,255,0), 2);
-
-        if (strategyGUI.get_areasDivision_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.corner_atk_limit, 0),cv::Point(strategyGUI.strategy.corner_atk_limit, height),cv::Scalar(255,255,0), 2);
-
-        if (strategyGUI.get_areaLimitX_flag())
-            line(imageView,cv::Point(strategyGUI.strategy.COORD_GOAL_DEF_FRONT_X, 0),cv::Point(strategyGUI.strategy.COORD_GOAL_DEF_FRONT_X, height),cv::Scalar(255,255,0), 2);
-    } // drawStrategyConstants
 
     void warp_transform(cv::Mat imageView){
         cv::Point2f inputQuad[4];

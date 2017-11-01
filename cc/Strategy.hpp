@@ -7,7 +7,6 @@
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
 #include "SerialW.hpp"
 #include <math.h>
-#include "Ann.hpp"
 #include "TestFrame.hpp"
 
 #define PREDICAO_NUM_SAMPLES 15
@@ -58,9 +57,6 @@
 class Strategy
 {
 public:
-	Ann * ann;
-	bool useAnn_flag = false;
-
 	TestFrame testFrame;
 
 	// Robot Goalkeeper;
@@ -531,12 +527,6 @@ public:
 
 	void position_to_vector(int i) {
 		robots[i].transAngle = atan2(double(robots[i].position.y - robots[i].target.y), - double(robots[i].position.x - robots[i].target.x));
-	}
-
-	bool set_ann(const char * annName) {
-		// bool pra fazer alguma verificação se deu certo (no futuro)
-		ann = new Ann(annName);
-		return true;
 	}
 
 	void go_to_the_ball(int i) {
