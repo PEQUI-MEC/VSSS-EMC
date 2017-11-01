@@ -22,7 +22,7 @@
 #include <fstream>
 #include <string>
 #include "SerialW.hpp"
-#include "filechooser.cpp"
+#include "filechooser.hpp"
 #include "TestFrame.hpp"
 #include <unistd.h>
 #include <time.h>

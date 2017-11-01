@@ -198,7 +198,7 @@ int GMM::train() {
   std::cout << "-------- WEIGHTS" << std::endl;
   std::cout << weights << std::endl;
 
-  write("");
+  write("autoGMM.json");
 
   return 0;
 }
@@ -264,9 +264,10 @@ void GMM::clearSamples() {
   samplePoints.clear();
 }
 
-void GMM::read(std::string fileName) {
-  cv::FileStorage fs("autoGMM.json", cv::FileStorage::READ);
-  // else const cv::FileStorage fs(fileName, cv::FileStorage::READ);
+bool GMM::read(std::string fileName) {
+
+  cv::FileStorage fs(fileName, cv::FileStorage::READ);
+
   if (fs.isOpened()) {
     const cv::FileNode& fn = fs["StatModel.EM"];
     em->read(fn);
@@ -285,18 +286,28 @@ void GMM::read(std::string fileName) {
 
     std::cout << "-------- WEIGHTS" << std::endl;
     std::cout << weights << std::endl;
+    return true;
   } else {
-    std::cout << "GMM::read: Could not open ";
-    if (fileName == "") std::cout << "autoGMM.json. Maybe it does not exist." << std::endl;
-    else std::cout << fileName << ". Maybe it does not exist." << std::endl;
+    std::cout << "GMM::read: Could not open " << fileName << ". Maybe it does not exist." << std::endl;
+    return false;
   }
 }
 
-void GMM::write(std::string fileName) {
-  cv::FileStorage fs("autoGMM.json", cv::FileStorage::WRITE);
-  // else const cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
-  em->write(fs);
-  fs.release();
+bool GMM::write(std::string fileName) {
+
+  cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
+
+  if (fileName == "") cv::FileStorage fs("autoGMM.json", cv::FileStorage::WRITE);
+
+  if (fs.isOpened()) {
+    em->write(fs);
+    fs.release();
+    return true;
+  } else {
+    std::cout << "GMM::write: Could not open " << fileName << ". Maybe it does not exist." << std::endl;
+    return false;
+  }
+
 }
 
 int GMM::getSamplesSize() {

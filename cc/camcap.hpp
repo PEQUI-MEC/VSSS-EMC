@@ -168,6 +168,7 @@ public:
         }
 
         interface.__event_bt_quick_load_clicked();
+        interface.visionGUI.quickLoadGMM();
 
         return true;
     } // start_signal
@@ -216,6 +217,7 @@ public:
         if (interface.imageView.gmm_ready_flag) {
           interface.visionGUI.gmm.setFrame(imageView);
           interface.visionGUI.gmm.pushSample(interface.imageView.gmm_clicks);
+          interface.visionGUI.incrementSamples();
           interface.imageView.gmm_ready_flag = false;
         }
 

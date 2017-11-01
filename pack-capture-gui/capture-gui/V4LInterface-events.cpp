@@ -58,7 +58,7 @@ namespace capture {
 		FileChooser loadWindow;
 
 		if (loadWindow.result == Gtk::RESPONSE_OK)
-		    if(!V4LInterface::__core_save(loadWindow.filename.c_str()))
+		    if(!V4LInterface::__core_save(loadWindow.fileName.c_str()))
 			{
 				std::cout<<"Error: could not save."<<std::endl;
 			}
@@ -83,7 +83,7 @@ namespace capture {
 		FileChooser loadWindow;
 
 		if (loadWindow.result == Gtk::RESPONSE_OK)
-			if (!V4LInterface::__core_load(loadWindow.filename.c_str()))
+			if (!V4LInterface::__core_load(loadWindow.fileName.c_str()))
 			{
 			  std::cout << "Error: could not quick load. The requested file could not be opened." << std::endl;
 			}

@@ -73,8 +73,8 @@ public:
   void pushSample(int points[2][2]);
   void popSample();
   void clearSamples();
-  void read(std::string fileName);
-  void write(std::string fileName);
+  bool read(std::string fileName);
+  bool write(std::string fileName);
 
   int getSamplesSize();
   std::vector<cv::Point> getSamplePoints();

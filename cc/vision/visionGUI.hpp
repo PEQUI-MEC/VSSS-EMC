@@ -4,6 +4,7 @@
 #include <gtkmm.h>
 #include "vision.hpp"
 #include "gmm.hpp"
+#include "../filechooser.hpp"
 
 class VisionGUI: public Gtk::VBox
 {
@@ -40,6 +41,11 @@ public:
   VisionGUI();
   ~VisionGUI();
 
+  void incrementSamples();
+  void decrementSamples();
+
+  void quickLoadGMM();
+
   void setFrameSize(int inWidth, int inHeight);
   int getFrameHeight();
   int getFrameWidth();
@@ -71,11 +77,11 @@ private:
   Gtk::Button bt_popSample, bt_clearSamples;
   Gtk::Button bt_trainGMM, bt_GMM_match, bt_GMM_done;
   Gtk::ComboBoxText cb_gaussianColor, cb_realColor;
-  Gtk::CheckButton bt_drawSamples;
   Gtk::HScale HScale_clusters, HScale_closing, HScale_opening;
   Gtk::RadioButton rb_GMM_original, rb_GMM_gaussians, rb_GMM_final, rb_GMM_threshold;
   Gtk::Button bt_GMM_left, bt_GMM_right;
   Gtk::Label lb_threshold;
+  int totalSamples;
   int colorIndex;
   const std::vector<std::string> realColors {
     "Main", "Green", "Pink", "Ball", "Opponent"
@@ -85,7 +91,6 @@ private:
     "Purple", "Brown", "Silver", "Cyan", "Dark Green","Baby Pink", "Dark Grey"
   };
   bool samplesEventFlag;
-  bool drawSamples_flag;
   bool originalFrame_flag, gaussiansFrame_flag, finalFrame_flag;
   bool thresholdFrame_flag;
 
@@ -98,7 +103,6 @@ private:
   void __event_bt_collectSamples_pressed();
   void __event_bt_popSample_clicked();
   void __event_bt_clearSamples_clicked();
-  void __event_bt_drawSamples_clicked();
   void __event_bt_trainGMM_clicked();
   void HScale_clusters_value_changed();
   void __event_bt_GMM_match_clicked();
