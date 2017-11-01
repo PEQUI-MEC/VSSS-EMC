@@ -293,14 +293,6 @@ public:
                     circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
         } // if !draw_info_flag
-        // else if (interface.visionGUI.getGaussiansFrameFlag()){
-        //   interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
-        //   interface.imageView.refresh();
-        // }
-        // else if (interface.visionGUI.getFinalFrameFlag()) {
-        //   interface.imageView.set_data(interface.visionGUI.gmm.getFinalFrame().data, width, height);
-        //   interface.imageView.refresh();
-        // }
 
         updateAllPositions();
 
