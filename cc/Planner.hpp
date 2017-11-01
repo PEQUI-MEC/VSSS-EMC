@@ -5,6 +5,7 @@
 #include "opencv2/opencv.hpp"
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
 
+#define PI 3.14159265453
 #define HIST_SIZE 3
 #define DELTA_X 3
 #define ROBOT_RADIUS 17
@@ -47,7 +48,7 @@ private:
     State gen_state(std::vector<Robot> robots, cv::Point * advRobots, cv::Point ball);
 
     // encontra os obstáculos entre o ponto de início e de fim
-    std::vector<Obstacle> find_obstacles(State predicted_state, int start_index, cv::Point target);
+    std::vector<Obstacle> find_obstacles(State predicted_state, cv::Point startPos, cv::Point target);
 
     double distance_to_line(cv::Point start, cv::Point end, cv::Point mid);
 

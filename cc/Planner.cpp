@@ -20,33 +20,49 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
 
         // teste do controle por cuva fazendo com que sempe que seja passado um ponto como alvo
         // ele desenvolva uma curva que passa pelo meio do campo
-        if(true) {
+        if(false) {
             Planner::VelocityVector vector;
-            //cv::Point vector;
+            // parâmetros para fazer com que o robô sempre chegue em seu alvo alinhado com o gol
             vector = curved_arrival_control(robots.at(i).position, robots.at(i).target, cv::Point(WIDTH, HEIGHT/2), robots.at(i).vdefault);
 
             // salva o novo passo da trajetória no robô
             // - controle por vetor
             robots[i].cmdType = VECTOR;
-            //robots[i].target = vector;
             robots[i].transAngle = vector.angle;
             robots[i].vmax = vector.velocity;
-            //std::cout << "atualizou\n";
         }
         else {
             cv::Point target = robots.at(i).target;
             State predicted_state = predict_positions(robots.at(i).vmax);
-            std::vector<Obstacle> obstacles = find_obstacles(predicted_state, i + 1, robots.at(i).target);
-            // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
+            // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
+            std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(i + 1), robots.at(i).target);
+            // se há obstáculos
             if(obstacles.size() > 0) {
-                cv::Point * deviation_points = find_deviation(cv::Point(robots.at(i).position), cv::Point(robots.at(i).target), obstacles.at(0));
-                target = deviation_points[0];
-            }
+                // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
+                cv::Point * deviation_points = find_deviation(robots.at(i).position, target, obstacles.at(0));
+                // calcula pelo menos mais um obstáculo a partir desse ponto para ser possível gerar a curva
+                obstacles = find_obstacles(predicted_state, deviation_points[0], robots.at(i).target);
+                // se ainda há obstáculos
+                if(obstacles.size() > 0) {
+                    cv::Point * sec_deviation_points = find_deviation(deviation_points[0], target, obstacles.at(0));
+                    target = sec_deviation_points[0];
+                }
 
-            // salva o novo passo da trajetória no robô
-            // - controle por pontos de intermédio
-            robots.at(i).cmdType = POSITION;
-            robots.at(i).target = target;
+                Planner::VelocityVector vector;
+                vector = curved_deviation_control(robots.at(i).position, deviation_points[0], target, robots.at(i).vdefault);
+                
+                // salva o novo passo da trajetória no robô
+                // - controle por vetor
+                robots[i].cmdType = VECTOR;
+                robots[i].transAngle = vector.angle;
+                robots[i].vmax = vector.velocity;
+            }
+            else {
+                // salva o novo passo da trajetória no robô
+                // - controle por pontos de intermédio
+                robots.at(i).cmdType = POSITION;
+                robots.at(i).target = target;
+            }
         }
     }
     // atualiza o vetor pra estratégia
@@ -337,17 +353,17 @@ double Planner::distance_to_line(cv::Point start, cv::Point end, cv::Point mid){
 
 // encontra obstáculos entre dois pontos e retorna um vetor ordenado
 // os obstáculos mais próximos do ponto de início vêm primeiro
-std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, int start_index, cv::Point target) {
+std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv::Point startPos, cv::Point target) {
     std::vector<Obstacle> obstacles;
     double tempDist;
 
     // para cada objeto na pista, verifica se este é um obstáculo
     for(int i = 0; i < predicted_state.objects.size(); i++) {
-        if(i == start_index)
+        if(predicted_state.objects.at(i) == startPos)
             continue;
 
         // verifica se o obstáculo está perto suficiente da reta
-        if((tempDist = distance_to_line(predicted_state.objects.at(start_index), target, predicted_state.objects.at(i))) < 2 * ROBOT_RADIUS) {
+        if((tempDist = distance_to_line(startPos, target, predicted_state.objects.at(i))) < 2 * ROBOT_RADIUS) {
             Obstacle obstacle;
             obstacle.position = predicted_state.objects.at(i);
             obstacle.distance = tempDist;
@@ -372,19 +388,31 @@ std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, in
     };
     // ordena
     struct closest_to_start cts;
-    cts.start = predicted_state.objects.at(start_index);
+    cts.start = startPos;
 
     std::sort (obstacles.begin(), obstacles.end(), cts);
+
+    return obstacles;
 }
 
 // encontra desvios dados obstáculos e a reta de trajetória inicial
-// !TODO ainda não tá pronto mas está calculado
 cv::Point * Planner::find_deviation(cv::Point start, cv::Point end, Planner::Obstacle obstacle) {
     cv::Point * deviations = new cv::Point[2];
 
     // encontra o angulo entre start e end, soma 90 pra encontrar o angulo da perpendicular
+    double angle = atan2(double(start.y - end.y), - double(start.x - end.x));
+    angle -= PI/2;
 
     // gera uma reta a partir do obstacle.position
+    deviations[0] = cv::Point(obstacle.position.x + 2*ROBOT_RADIUS*cos(angle), obstacle.position.y + 2*ROBOT_RADIUS*sin(angle));
+    deviations[1] = cv::Point(obstacle.position.x + 2*ROBOT_RADIUS*cos(angle + PI/2), obstacle.position.y + 2*ROBOT_RADIUS*sin(angle + PI/2));
+
+    // ordena pro desvio mais próximo
+    if(distance_to_line(start, end, deviations[0]) > distance_to_line(start, end, deviations[1])) {
+        cv::Point aux = deviations[0];
+        deviations[0] = deviations[1];
+        deviations[1] = aux;
+    }
 
     return deviations;
 }
