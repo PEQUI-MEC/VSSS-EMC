@@ -32,6 +32,8 @@
 #include <fstream>
 #include "CPUTimer.cpp"
 
+#define MAX_THETA_TOLERATION 3
+#define MAX_POSITIONING_VEL 0.5
 
 
 class CamCap:
@@ -265,6 +267,9 @@ public:
         updateAllPositions();
 
         if(!interface.imageView.PID_test_flag && strategyGUI.formation_flag && !interface.get_start_game_flag()) {
+            if(strategyGUI.updating_formation_flag) {
+                updating_formation();
+            }
             formation_creation();
             // exibe os robos virtuais
             for(int i = 0; i < 3; i++) {
@@ -279,6 +284,8 @@ public:
                 // identificação
                 putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
             }
+        } else if(strategyGUI.updating_formation_flag) {
+            strategyGUI.updating_formation_flag = false;
         }
 
         if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
@@ -355,7 +362,7 @@ public:
 
     void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){
         while (1) {
-            if (interface.start_game_flag || interface.imageView.PID_test_flag) {
+            if (interface.start_game_flag || interface.imageView.PID_test_flag || strategyGUI.updating_formation_flag) {
                 // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
@@ -363,6 +370,31 @@ public:
         }
     }
 
+    // manda os robôs para a posição e orientação alvo
+    void updating_formation() {
+        if(!strategyGUI.updating_formation_flag || !strategyGUI.update_interface_flag) {
+            strategyGUI.updating_formation_flag = false;
+            return;
+        }
+
+        for(int i = 0; i < interface.robot_list.size(); i++) {
+            if(interface.visionGUI.vision->calcDistance(interface.robot_list.at(i).position, virtual_robots_positions[i]) > strategyGUI.strategy.fixed_pos_distance) {
+                interface.robot_list.at(i).cmdType = POSITION;
+                interface.robot_list.at(i).target = virtual_robots_positions[i];
+                interface.robot_list.at(i).vmax = MAX_POSITIONING_VEL;
+            }
+            else if(abs(interface.robot_list.at(i).orientation - virtual_robots_orientations[i]) > MAX_THETA_TOLERATION) {
+                interface.robot_list.at(i).cmdType = ORIENTATION;
+                interface.robot_list.at(i).targetOrientation = virtual_robots_orientations[i];
+                interface.robot_list.at(i).vmax = MAX_POSITIONING_VEL;
+            }
+            else {
+                strategyGUI.updating_formation_flag = false;
+            }
+        }
+    }
+
+    // cria a interface de criação e carregamento de formação
     void formation_creation() {
         if (interface.get_start_game_flag()) return;
 
@@ -403,6 +435,8 @@ public:
             }
         }
     }
+
+    // atualiza as informações dadas pela interface na estratégia
     void update_formation_information() {
         // reseta robo selecionado
         virtual_robot_selected = -1;

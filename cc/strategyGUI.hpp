@@ -49,6 +49,7 @@ private:
 
 		if(formation_box.get_active_row_number() == 0) {
 			bt_loadFormation.set_sensitive(false);
+			bt_deleteFormation.set_sensitive(false);
 			return;
 		}
 
@@ -92,12 +93,80 @@ private:
 			update_interface_flag = true;
 
 			// valores disponíveis: formation_positions e formation_orientations
+			// isso é atualizado no camcap
+
+			// manda atualizar
+			updating_formation_flag = true;
 
 			txtFile.close();
 		}
 		else {
 			// não existem formações salvas
 			std::cout << "You removed the file before I could read it.\n";
+		}
+	}
+	void _event_deleteFormation_bt_clicked() {
+		std::ofstream tmpTxtFile;
+		std::ifstream txtFile;
+		std::string formationName;
+		std::string line;
+
+		txtFile.open("formation.txt");
+		tmpTxtFile.open("tmp_formation.txt");
+
+		if (txtFile.is_open() && tmpTxtFile.is_open()) {
+			getline(txtFile, line);
+			// formações salvas
+			int n = atoi(line.c_str());
+			// se só tem uma formação salva, apaga o arquivo
+			if(n-1 == 0) {
+				std::cout << "There was only one formation saved. Formation file deleted.\n";
+				txtFile.close();
+				tmpTxtFile.close();
+
+				// desabilita os botões
+				formation_flag = false;
+				bt_createFormation.set_active(false);
+				bt_saveFormation.set_sensitive(false);
+				formation_name_entry.set_sensitive(false);	
+				// salva as alterações
+				txtFile.close();
+				tmpTxtFile.close();
+				// remove os arquivos
+				system("rm -rf formation.txt");
+				system("rm -rf tmp_formation.txt");
+				// atualiza a interface
+				loadSavedFormations();
+				return;
+			}
+			// decrementa o número de formações no novo arquivo
+			tmpTxtFile << (n-1) << std::endl;
+			// para cada prox linha
+			for(int i = 0; i < n; i++) {
+				// move o cursor enquanto não é a linha que eu quero e copia os dados para o novo arquivo
+				getline(txtFile, line);
+				// ignora a linha selecionada
+				if(i == formation_box.get_active_row_number() - 1)
+					continue;
+				tmpTxtFile << line << std::endl;
+			}
+			
+			// desabilita os botões
+			formation_flag = false;
+			bt_createFormation.set_active(false);
+			bt_saveFormation.set_sensitive(false);
+			formation_name_entry.set_sensitive(false);	
+			// salva as alterações
+			txtFile.close();
+			tmpTxtFile.close();
+			// agora as alterações não são mais temporárias
+			system("rm -rf formation.txt");
+			system("mv tmp_formation.txt formation.txt");
+			// atualiza a interface
+			loadSavedFormations();
+		}
+		else {
+			std::cout << "Could not delete formation.\n";
 		}
 	}
 	void _event_saveFormation_bt_clicked() {
@@ -198,9 +267,11 @@ private:
 	void _event_formation_box_changed() {
 		if(formation_box.get_active_row_number() == 0) {
 			bt_loadFormation.set_sensitive(false);
+			bt_deleteFormation.set_sensitive(false);
 			return;
 		}
 		bt_loadFormation.set_sensitive(true);
+		bt_deleteFormation.set_sensitive(true);
 	}
 	/// formation.txt:
 	///	Nº de formações
@@ -277,11 +348,14 @@ public:
 
 	Strategy strategy;
 
+	bool updating_formation_flag = false;
+
 	Gtk::Frame formation_fm;
 	bool formation_flag = false;
 	bool update_interface_flag = false;
 	Gtk::Grid formation_grid;
 	Gtk::Button bt_loadFormation;
+	Gtk::Button bt_deleteFormation;
 	Gtk::ToggleButton bt_createFormation;
 	Gtk::Button bt_saveFormation;
 	Gtk::ComboBoxText formation_box;
@@ -322,6 +396,7 @@ public:
 		bt_createFormation.set_label("Create Formation");
 		loadSavedFormations();
 		bt_loadFormation.set_label("Load");
+		bt_deleteFormation.set_label("Delete");
 		formation_name_entry.set_max_length(30);
 		formation_name_entry.set_width_chars(30);
 		formation_name_entry.set_text(Glib::ustring::format("Formation_name"));
@@ -333,6 +408,7 @@ public:
 		formation_grid.attach(bt_createFormation, 0, 0, 1, 1);
 		formation_grid.attach(formation_box, 0, 1, 1, 1);
 		formation_grid.attach(bt_loadFormation, 1, 1, 1, 1);
+		formation_grid.attach(bt_deleteFormation, 2, 1, 1, 1);
 		formation_grid.attach(formation_name_entry, 0, 2, 1, 1);
 		formation_grid.attach(bt_saveFormation, 1, 2, 1, 1);
 
@@ -341,6 +417,7 @@ public:
 		bt_createFormation.set_sensitive(false); // habilita quando der start
 
 		bt_loadFormation.set_sensitive(false); // habilita só quando selecionar uma formação
+		bt_deleteFormation.set_sensitive(false); // habilita só quando selecionar uma formação
 		bt_saveFormation.set_sensitive(false); // habilita só quando o createFormation está ativado
 		formation_name_entry.set_sensitive(false); // habilita só quando o createFormation está ativado
 
@@ -348,6 +425,7 @@ public:
 		bt_createFormation.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_createFormation_bt_clicked));
 		bt_saveFormation.signal_clicked().connect(sigc::mem_fun(*this, &StrategyGUI::_event_saveFormation_bt_clicked));
 		bt_loadFormation.signal_clicked().connect(sigc::mem_fun(*this, &StrategyGUI::_event_loadFormation_bt_clicked));
+		bt_deleteFormation.signal_clicked().connect(sigc::mem_fun(*this, &StrategyGUI::_event_deleteFormation_bt_clicked));
 	}
 
 
