@@ -188,14 +188,20 @@ void VisionGUI::__create_frm_gmm() {
   label = new Gtk::Label("Clusters: ");
   grid->attach(*label, 0, 0, 1, 1);
   HScale_clusters.set_digits(0);
-  HScale_clusters.set_size_request(200);
+  HScale_clusters.set_size_request(125);
   HScale_clusters.set_increments(1,3);
   HScale_clusters.set_range(1,15);
   HScale_clusters.set_value_pos(Gtk::POS_RIGHT);
   HScale_clusters.set_draw_value();
+  cb_realColor.append("Select Color:");
+  cb_realColor.append("Main");
   grid->attach(HScale_clusters, 1, 0, 2, 1);
+  cb_convertType.append("HSV");
+  cb_convertType.append("CieLAB");
+  cb_convertType.set_active(0);
+  grid->attach(cb_convertType, 3, 0, 1, 1);
   bt_trainGMM.set_label("Train GMM");
-  grid->attach(bt_trainGMM, 3, 0, 1, 1);
+  grid->attach(bt_trainGMM, 4, 0, 1, 1);
 
   frame = new Gtk::Frame();
   Gtk::VBox * innerVbox = new Gtk::VBox();
@@ -313,6 +319,7 @@ void VisionGUI::__create_frm_gmm() {
   bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
   bt_trainGMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_trainGMM_clicked));
   HScale_clusters.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_clusters_value_changed));
+  cb_convertType.signal_changed().connect(sigc::mem_fun(*this, &VisionGUI::__event_cb_convertType_signal_changed));
   bt_GMM_match.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_match_clicked));
   bt_GMM_done.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_done_clicked));
   rb_GMM_original.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
@@ -323,6 +330,10 @@ void VisionGUI::__create_frm_gmm() {
   bt_GMM_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_right_clicked));
   HScale_closing.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_closing_value_changed));
   HScale_opening.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_opening_value_changed));
+}
+
+void VisionGUI::__event_cb_convertType_signal_changed() {
+  gmm.setConvertType(cb_convertType.get_active_row_number());
 }
 
 bool VisionGUI::getDrawSamples() {

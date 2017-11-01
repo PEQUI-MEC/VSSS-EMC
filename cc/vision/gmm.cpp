@@ -138,7 +138,8 @@ cv::Mat GMM::formatFrameForEM(int index) {
 
   cv::Mat dst = inFrame(roi);
 
-  cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
+  if (convertType == HSV_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
+  else if (convertType == CIELAB_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
 
   cv::Mat float_image;
   dst.convertTo(float_image,CV_32F);
@@ -217,7 +218,8 @@ cv::Mat GMM::formatSamplesForEM()
   int counter = 0;
   for (int k = 0; k < samples.size(); k++) {
     cv::Mat dst = samples.at(k).clone();
-    cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
+    if (convertType == HSV_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
+    else if (convertType == CIELAB_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
     cv::Mat float_image;
     dst.convertTo(float_image,CV_32F);
 
@@ -373,7 +375,6 @@ void GMM::setAllThresholds() {
 }
 
 cv::Mat GMM::getThresholdFrame(int color) {
-  // cv::cvtColor(threshold_frame.at(color), threshold_frame.at(color), cv::COLOR_GRAY2RGB);
   return threshold_frame.at(color);
 }
 
@@ -389,7 +390,11 @@ std::vector<cv::Mat> GMM::getAllThresholds() {
   return threshold_frame;
 }
 
-GMM::GMM() : clusters(1), isTrained(false), isDone(false) {
+void GMM::setConvertType(int value) {
+  convertType = value;
+}
+
+GMM::GMM() : clusters(1), isTrained(false), isDone(false), convertType(0) {
   em = cv::ml::EM::create();
 
   cv::Mat mat;

@@ -33,6 +33,10 @@ private:
   cv::Mat partialPredicts[TOTAL_THREADS];
   boost::thread_group threads;
 
+  const static int HSV_TYPE = 0;
+  const static int CIELAB_TYPE = 1;
+  int convertType;
+
   const std::vector<cv::Vec3b> colors = {
 		{239, 255, 22}, // yellow
 		{0, 255, 0}, // green
@@ -91,6 +95,7 @@ public:
   void setOpeningSize(int value);
   void setClosingSize(int value);
   std::vector<cv::Mat> getAllThresholds();
+  void setConvertType(int value);
 
   int train();
   void run(cv::Mat frame);
