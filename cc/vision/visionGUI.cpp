@@ -47,6 +47,7 @@ void VisionGUI::__event_rb_mode_clicked() {
     bt_collectSamples.set_state(Gtk::STATE_NORMAL);
     bt_popSample.set_state(Gtk::STATE_NORMAL);
     bt_clearSamples.set_state(Gtk::STATE_NORMAL);
+    cb_convertType.set_state(Gtk::STATE_NORMAL);
     bt_trainGMM.set_state(Gtk::STATE_NORMAL);
     bt_GMM_match.set_state(Gtk::STATE_NORMAL);
     bt_GMM_done.set_state(Gtk::STATE_NORMAL);
@@ -82,6 +83,7 @@ void VisionGUI::__event_rb_mode_clicked() {
     bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
     bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
     bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+    cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
     bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
     bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
     bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);
@@ -297,6 +299,7 @@ void VisionGUI::__create_frm_gmm() {
   bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
   bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
   bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+  cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
   bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
   bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
   bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);

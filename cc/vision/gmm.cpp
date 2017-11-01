@@ -2,19 +2,16 @@
 
 void GMM::run(cv::Mat frame) {
   inFrame = frame.clone();
-  // cv::pyrDown(inFrame, inFrame);
-  // cv::pyrDown(inFrame, inFrame);
+
   for (int i = 0; i < TOTAL_THREADS; i++) {
     threads.add_thread(new boost::thread(&GMM::classify, this, i));
-    // classify(i);
   }
   threads.join_all();
-  // gaussiansFrame = cv::Mat(partialFrames.at(0).rows, partialFrames.at(0).cols, CV_8UC3, partialFrames.at(0).data);
+
   cv::Mat emptyMat;
   gaussiansFrame = emptyMat;
   cv::vconcat(partialFrames, TOTAL_THREADS, gaussiansFrame);
-  // std::cout << "GAUSSIANS: rows = " << gaussiansFrame.rows << ", cols = " << gaussiansFrame.cols << std::endl;
-  // std::cout << "ORIGINAL: rows = " << inFrame.rows << ", cols = " << inFrame.cols << std::endl;
+
   paint();
 
   if (isDone) {
@@ -23,6 +20,7 @@ void GMM::run(cv::Mat frame) {
   }
 }
 
+// Aplica Abertura e Fechamento nos thresholds
 void GMM::posProcessing() {
   for (int i = 0; i < TOTAL_COLORS; i++) {
     cv::Mat closingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*closingSize+1, 2*closingSize+1 ), cv::Point(closingSize, closingSize));
@@ -37,14 +35,17 @@ void GMM::setFrame(cv::Mat frame) {
   inFrame = frame.clone();
 }
 
+// Recorta um retângulo do Frame Original
 cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
   cv::Mat frame = inFrame.clone();
   cv::Rect roi;
 
+  // Ter certeza que clicou na imagem e não fora dela
   if ( p1.x < 0 || p2.x < 0 || p1.y < 0 || p2.y < 0 || p1.x > frame.cols ||
   p2.x > frame.cols || p1.y > frame.rows || p2.y > frame.rows)
     return cv::Mat::zeros(1, 1, CV_32F);
 
+  // Adaptar os pontos para o ROI funcionar
   if (p1.x <= p2.x && p1.y <= p2.y) {
     roi.x = p1.x;
     roi.y = p1.y;
@@ -67,6 +68,7 @@ cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
   return out;
 }
 
+// Classifica cada pixel quanto a cor de sua gaussiana
 void GMM::classify(int index) {
   cv::Mat input = predict(index);
 
@@ -85,11 +87,16 @@ void GMM::classify(int index) {
 	}
 }
 
+// Pinta os pixels das gaussianas em suas cores reais
+// Prepara o preThreshold para a futura separação dos thresholds de cada cor
 void GMM::paint() {
   cv::Mat predictFrame;
+
   cv::vconcat(partialPredicts, TOTAL_THREADS, predictFrame);
+
 	finalFrame = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
 	preThreshold = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
+
 	for (int x = 0; x < predictFrame.rows; x++) {
 		for (int y = 0; y < predictFrame.cols; y++) {
 			int label = predictFrame.at<float>(x,y);
@@ -103,6 +110,7 @@ void GMM::paint() {
 	}
 }
 
+// Associa cada pixel com uma gaussiana do modelo
 cv::Mat GMM::predict(int threadIndex) {
   cv::Mat input = formatFrameForEM(threadIndex);
   partialPredicts[threadIndex] = cv::Mat(inFrame.rows/TOTAL_THREADS, inFrame.cols, CV_32F);
@@ -124,6 +132,7 @@ cv::Mat GMM::predict(int threadIndex) {
   return partialPredicts[threadIndex];
 }
 
+// Formata o Frame para o tipo de variável requerido pelo EM
 cv::Mat GMM::formatFrameForEM(int index) {
   if (inFrame.empty()) return cv::Mat::zeros(1, 1, CV_32F);
 
@@ -160,31 +169,22 @@ cv::Mat GMM::formatFrameForEM(int index) {
   return output;
 }
 
+// Treina e gera o modelo GMM (com base no EM)
 int GMM::train() {
-  cv::Mat probs, loglikelihoods, labels;
+
   std::cout << "Training..." << std::endl;
   cv::Mat input = formatSamplesForEM().clone();
   if (input.total() <= 1) return -1;
   em->setClustersNumber(clusters);
   em->setCovarianceMatrixType(cv::ml::EM::COV_MAT_DIAGONAL);
   em->setTermCriteria(cv::TermCriteria(cv::TermCriteria::EPS, 10000, 0.000000001));
-  // em->trainE(input, initMeans);
-  em->trainEM(input, loglikelihoods, labels, probs);
+
+  em->trainEM(input);
 
   std::cout << "Training: Finished" << std::endl;
-  // std::cout << "------ LOGLIKELIHOODS" << std::endl;
-  // std::cout << loglikelihoods << std::endl;
-  // std::cout << "------ LABELS" << std::endl;
-  // std::cout << labels << std::endl;
-  // std::cout << "------ PROBS" << std::endl;
-  // std::cout << probs << std::endl;
   means = em->getMeans();
   em->getCovs(covs);
   weights = em->getWeights();
-  // cv::Mat results;
-  // em->predict(input, results);
-  // std::cout << "----- Resultados" << std::endl;
-  // std::cout << results << std::endl;
   isTrained = true;
 
   std::cout << "-------- MEANS" << std::endl;
@@ -204,6 +204,7 @@ int GMM::train() {
   return 0;
 }
 
+// Formata as samples para o tipo de variável requerido pelo EM.
 cv::Mat GMM::formatSamplesForEM()
 {
   if (samples.empty()) {
@@ -266,6 +267,7 @@ void GMM::clearSamples() {
   samplePoints.clear();
 }
 
+// Carrega a GMM de um arquivo
 bool GMM::read(std::string fileName) {
 
   cv::FileStorage fs(fileName, cv::FileStorage::READ);
@@ -295,6 +297,7 @@ bool GMM::read(std::string fileName) {
   }
 }
 
+// Salva a GMM em um arquivo
 bool GMM::write(std::string fileName) {
 
   cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
@@ -320,6 +323,7 @@ std::vector<cv::Point> GMM::getSamplePoints() {
   return samplePoints;
 }
 
+// Define o número de gaussianas do modelo
 void GMM::setClusters(int k) {
   if (k > 0) clusters = k;
   else std::cout << "GMM::setClusters: invalid value = " << k << std::endl;
@@ -356,6 +360,7 @@ void GMM::setDone() {
   isDone = true;
 }
 
+// Usa o preThreshold para fazer um threshold para cada cor
 void GMM::setAllThresholds() {
 
   for (int i = 0; i < TOTAL_COLORS; i++) {

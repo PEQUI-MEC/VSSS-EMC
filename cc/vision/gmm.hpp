@@ -13,11 +13,13 @@ class GMM
 {
 
 private:
+  // Frames
   cv::Mat inFrame, gaussiansFrame, finalFrame, preThreshold;
   std::vector<cv::Mat>threshold_frame;
   std::vector<cv::Point> samplePoints;
   std::vector<cv::Mat> samples;
 
+  // Expectation Maximization
   int clusters;
   std::vector<cv::Mat> covs;
   cv::Mat means, weights;
@@ -25,18 +27,22 @@ private:
   bool isTrained;
   bool isDone;
 
+  // Pos-Processing
   int closingSize, openingSize;
 
+  // Multi-thread
   const static int TOTAL_COLORS = 5;
   const static int TOTAL_THREADS = 8;
   cv::Mat partialFrames[TOTAL_THREADS];
   cv::Mat partialPredicts[TOTAL_THREADS];
   boost::thread_group threads;
 
+  // Convert Type
   const static int HSV_TYPE = 0;
   const static int CIELAB_TYPE = 1;
   int convertType;
 
+  // Colors
   const std::vector<cv::Vec3b> colors = {
 		{239, 255, 22}, // yellow
 		{0, 255, 0}, // green
@@ -54,7 +60,6 @@ private:
 		{252, 169, 230}, // baby pink
 		{89, 89, 89} // dark grey
   };
-
   std::vector<int> matchColor = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   };
@@ -72,38 +77,35 @@ public:
   GMM();
   ~GMM();
 
-  void setFrame(cv::Mat frame);
-
+  // Expectation Maximization
   void pushSample(int points[2][2]);
   void popSample();
   void clearSamples();
   bool read(std::string fileName);
   bool write(std::string fileName);
+  int train();
+  void run(cv::Mat frame);
 
+  // GET
   int getSamplesSize();
   std::vector<cv::Point> getSamplePoints();
-  void setClusters(int k);
   int getClusters();
   cv::Mat getGaussiansFrame();
   cv::Mat getFinalFrame();
   cv::Mat getPreThresholdFrame();
   bool getIsTrained();
   bool getDoneFlag();
+  cv::Mat getThresholdFrame(int color);
+  std::vector<cv::Mat> getAllThresholds();
+
+  // SET
+  void setFrame(cv::Mat frame);
+  void setClusters(int k);
   void setDone();
   void setMatchColor(int gaussian, int color);
-  cv::Mat getThresholdFrame(int color);
   void setOpeningSize(int value);
   void setClosingSize(int value);
-  std::vector<cv::Mat> getAllThresholds();
   void setConvertType(int value);
-
-  int train();
-  void run(cv::Mat frame);
-
-
-
-
-
 
 };
 
