@@ -23,7 +23,7 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
         if(true) {
             Planner::VelocityVector vector;
             //cv::Point vector;
-            vector = curve_control(robots.at(i).position, cv::Point(WIDTH/2, HEIGHT/2), ball, robots.at(i).vdefault);
+            vector = curved_arrival_control(robots.at(i).position, robots.at(i).target, cv::Point(WIDTH, HEIGHT/2), robots.at(i).vdefault);
 
             // salva o novo passo da trajetória no robô
             // - controle por vetor
@@ -101,6 +101,8 @@ double Planner::canonic_to_robot_base(cv::Point * origin, cv::Point * mid, cv::P
     *origin = ori;
     *mid = mi;
     *target = tar;
+
+    return theta;
 }
 // função que faz a transformação da base na qual o robô é a origem para a base canônica
 cv::Point Planner::robot_base_to_canonic(cv::Point base, double theta, cv::Point point) {
@@ -121,7 +123,20 @@ double Planner::compl_y(double y) {
 double Planner::determinant(double a, double b, double c, double d) {
     return (a * d) - (b * c);
 }
-bool Planner::find_curve(double * a, double * b, double * c, cv::Point p1, cv::Point p2, cv::Point p3) {
+bool Planner::find_parabola(double * a, double * b, double * c, cv::Point p1, cv::Point p2, cv::Point p3) {
+    /*
+    a = y1/((x1-x2)*(x1-x3)) +
+        y2/((x2-x1)*(x2-x3)) +
+        y3/((x3-x1)*(x3-x2));
+
+    b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
+        -y2*(x1+x3)/((x2-x1)*(x2-x3))
+        -y3*(x1+x2)/((x3-x1)*(x3-x2));
+
+    c = y1*x2*x3/((x1-x2)*(x1-x3))
+      + y2*x1*x3/((x2-x1)*(x2-x3))
+      + y3*x1*x2/((x3-x1)*(x3-x2));
+    */
     double ax = p1.x;
     double ay = p1.y;
     double bx = p2.x;
@@ -158,31 +173,45 @@ bool Planner::find_curve(double * a, double * b, double * c, cv::Point p1, cv::P
 }
 /* CURVA GERADA */
 
-Planner::VelocityVector Planner::curve_control(cv::Point start, double start_orientation, cv::Point end, double end_orientation) {
+// resolve um sistema de equações de três variáveis e três incógnitas
+bool Planner::solve_eq_system(double * a, double * b, double * c, cv::Point p1, cv::Point p2, double end_slope) {
+    double D = (p1.x*p2.x+pow(p2.x, 2))-(pow(p1.x, 2)+p2.x*p2.x);
 
+    if(D != 0) {
+        *a = ((p2.x*end_slope+p1.y)-(p1.x*end_slope+p2.y))/D;
+        *b = ((pow(p1.x, 2)*end_slope+p2.x*p2.y)-(pow(p2.x, 2)*end_slope+p1.y*p2.x))/D;
+        *c = ((pow(p1.x, 2)*p2.y+p1.x*pow(p2.x, 2)*end_slope+p1.y*p2.x*p2.x)-(pow(p1.x, 2)*p2.x*end_slope+p1.x*p2.x*p2.y+p1.y*pow(p2.x, 2)))/D;
+        return true;
+    }
+    else {
+        return false;
+    }
 }
-Planner::VelocityVector Planner::curve_control(cv::Point start, cv::Point mid, cv::Point end, double vdefault) {
+
+Planner::VelocityVector Planner::curved_arrival_control(cv::Point start, cv::Point end, cv::Point after_end, double vdefault) {
     Planner::VelocityVector vector;
-    double a, b, c, baseTheta;
+    double a, b, c, slope, baseTheta;
     cv::Point target, base = start;
 
-    std::cout << "\nStart: " << start << " Mid: " << mid << " End: " << end << "\n";
-
-    // coloca os y na escala correta
+    // coloca os y pra crescer pra cima
     start.y = compl_y(start.y);
-    base.y = start.y; // é o mesmo valor
-    mid.y = compl_y(mid.y);
+    base.y = start.y; // são o mesmo valor
     end.y = compl_y(end.y);
+    after_end.y = compl_y(after_end.y);
 
     // converte os pontos para a base do ponto start
-    baseTheta = canonic_to_robot_base(&start, &mid, &end);
+    end -= start;
+    after_end -= start;
+    start -= start;
+    baseTheta = atan2(end.y, end.x);
+    end = cv::Point(end.x*cos(-baseTheta) - end.y*sin(-baseTheta), end.x*sin(-baseTheta) + end.y*cos(-baseTheta));
+    after_end = cv::Point(after_end.x*cos(-baseTheta) - after_end.y*sin(-baseTheta), after_end.x*sin(-baseTheta) + after_end.y*cos(-baseTheta));
 
-    std::cout << "baseTheta: " << baseTheta << "\nStart: " << start << " Mid: " << mid << " End: " << end << "\n";
+    // calcula o slope da reta que o robô deve chegar
+    slope = (after_end.y - end.y) / (after_end.x - end.x);
 
-    // gera os coeficientes da curva
-    if(find_curve(&a, &b, &c, start, mid, end)) {
-        std::cout << "a:" << a << " b:" << b << " c: " << c << "\n";
-
+    // verifica se o sistema é resolvível
+    if(solve_eq_system(&a, &b, &c, start, end, slope)) {
         // encontra o próximo ponto de alvo
         target.x = start.x + DELTA_X;
         // aplica a equação
@@ -192,14 +221,16 @@ Planner::VelocityVector Planner::curve_control(cv::Point start, cv::Point mid, c
 
         // desconverte o alvo encontrado
         target = robot_base_to_canonic(base, baseTheta, target);
-
         // desconverte o Y do alvo
         target.y = compl_y(target.y);
-
-        std::cout << target << "\n";
-    }
+    } // senão, vai reto mesmo
     else {
         target = end;
+        // desconverte o alvo encontrado
+        target = robot_base_to_canonic(base, baseTheta, target);
+        // desconverte o Y do alvo
+        target.y = compl_y(target.y);
+        //std::cout << "Deu não\n";
     }
 
     // volta o start pra posição que tava antes e desconverte seu Y
@@ -212,7 +243,66 @@ Planner::VelocityVector Planner::curve_control(cv::Point start, cv::Point mid, c
     std::cout << "target: " << target << " angle: " << vector.angle << "\n";
 
     // calcula a velocidade de forma a aproveitar ao máximo ângulos menores
-    vector.velocity = vdefault * (1 - pow(vector.angle, 2));
+    vector.velocity = vdefault * (1 - pow(vector.angle, 4));
+    // faz um crop caso o ângulo seja muito grande
+    if(vector.velocity < 0.5)
+        vector.velocity = 0.5;
+}
+Planner::VelocityVector Planner::curved_deviation_control(cv::Point start, cv::Point mid, cv::Point end, double vdefault) {
+    Planner::VelocityVector vector;
+    double a, b, c, baseTheta;
+    cv::Point target, base = start;
+
+    std::cout << "\nStart: " << start << " Mid: " << mid << " End: " << end << "\n";
+
+    // coloca os y pra crescer pra cima
+    start.y = compl_y(start.y);
+    base.y = start.y; // é o mesmo valor
+    mid.y = compl_y(mid.y);
+    end.y = compl_y(end.y);
+
+    // converte os pontos para a base do ponto start
+    baseTheta = canonic_to_robot_base(&start, &mid, &end);
+
+    std::cout << "baseTheta: " << baseTheta << "\nStart: " << start << " Mid: " << mid << " End: " << end << "\n";
+
+    // gera os coeficientes da curva
+    if(find_parabola(&a, &b, &c, start, mid, end)) {
+        std::cout << "a:" << a << " b:" << b << " c: " << c << "\n";
+
+        // encontra o próximo ponto de alvo
+        target.x = start.x + DELTA_X;
+        // aplica a equação
+        target.y = a * pow(target.x, 2) + b * target.x + c;
+
+        std::cout << "Raw Target: " << target <<"\n";
+
+        // desconverte o alvo encontrado
+        target = robot_base_to_canonic(base, baseTheta, target);
+        // desconverte o Y do alvo
+        target.y = compl_y(target.y);
+
+        std::cout << target << "\n";
+    }
+    else {
+        target = end;
+        // desconverte o alvo encontrado
+        target = robot_base_to_canonic(base, baseTheta, target);
+        // desconverte o Y do alvo
+        target.y = compl_y(target.y);
+    }
+
+    // volta o start pra posição que tava antes e desconverte seu Y
+    start = robot_base_to_canonic(base, baseTheta, start);
+    start.y = compl_y(start.y);
+
+    // calcula o angulo do alvo calculado
+    vector.angle = atan2((target.y-start.y),-(target.x-start.x));
+
+    std::cout << "target: " << target << " angle: " << vector.angle << "\n";
+
+    // calcula a velocidade de forma a aproveitar ao máximo ângulos menores
+    vector.velocity = vdefault * (1 - pow(vector.angle, 4));
     // faz um crop caso o ângulo seja muito grande
     if(vector.velocity < 0.5)
         vector.velocity = 0.5;

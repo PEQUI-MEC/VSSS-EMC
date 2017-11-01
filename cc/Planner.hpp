@@ -36,9 +36,9 @@ private:
     std::vector<State> hist;
 
     // recebe pontos de início e fim de trajetória com suas respectivas orientações e retorna pontos da curva correspondente
-    VelocityVector curve_control(cv::Point start, double start_orientation, cv::Point end, double end_orientation);
+    VelocityVector curved_arrival_control(cv::Point start, cv::Point end, cv::Point after_end, double vdefault);
     // recebe três pontos e retorna o vetor que deve ser executado para a curva nesse passo
-    Planner::VelocityVector curve_control(cv::Point start, cv::Point mid, cv::Point end, double vdefault);
+    Planner::VelocityVector curved_deviation_control(cv::Point start, cv::Point mid, cv::Point end, double vdefault);
 
     // gera salva o estado atual no histórico
     void update_hist(State current_state);
@@ -60,7 +60,9 @@ private:
 
     double determinant(double a, double b, double c, double d);
 
-    bool find_curve(double * a, double * b, double * c, cv::Point p1, cv::Point p2, cv::Point p3);
+    bool find_parabola(double * a, double * b, double * c, cv::Point p1, cv::Point p2, cv::Point p3);
+
+    bool solve_eq_system(double * a, double * b, double * c, cv::Point p1, cv::Point p2, double end_slope);
 
 public:
     // criar função de planejamento de trajetória
