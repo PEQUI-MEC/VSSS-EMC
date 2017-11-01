@@ -147,6 +147,7 @@ public:
 		COORD_BOX_ATK_X,
 		COORD_BOX_UP_Y,
 		COORD_BOX_DWN_Y,
+		ABS_BALL_SIZE,
 		ABS_ROBOT_SIZE;
 
 	int corner_atk_limit,
@@ -185,6 +186,7 @@ public:
 		ABS_PLAYING_FIELD_WIDTH = round(1.50*float(width)/1.70);
 		ABS_GOAL_TO_GOAL_WIDTH = width;
 		ABS_ROBOT_SIZE = round(0.08*float(width)/1.70);
+		ABS_BALL_SIZE = round(0.04*float(width)/1.70);
 		COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH/2;
 
 		ABS_FIELD_HEIGHT = height;
@@ -1052,13 +1054,13 @@ public:
 
 	}
 
-	void fixed_lookup(int i) {
-		if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
-			robots[i].cmdType = ORIENTATION;
-			robots[i].targetOrientation = PI/2;
-			// cout << "lookup" << '\n';
-		}
-	}
+	// void fixed_lookup(int i) {
+	// 	if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance/2) {
+	// 		robots[i].cmdType = ORIENTATION;
+	// 		robots[i].targetOrientation = PI/2;
+	// 		// cout << "lookup" << '\n';
+	// 	}
+	// }
 
 	void test_run(int i) {
 		// robots[i].target = robots[i].position;
@@ -1186,9 +1188,16 @@ public:
 			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2) robots[i].target.y = Ball_Est.y;
 			else robots[i].target.y = Ball.y;
 
-			if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
-			if(Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
-			// if(danger_zone_2) robots[i].status = ADVANCING_STATE;
+			if(distance(Ball, Ball_Est) > ABS_ROBOT_SIZE*2 && Ball.x > Ball_Est.x && (Ball.x > COORD_BOX_DEF_X) ) {
+				double m = double(Ball.y - Ball_Est.y)/double(Ball.x - Ball_Est.x);
+				robots[i].target.y = Ball.y - m * (Ball.x) - COORD_GOAL_DEF_FRONT_X;
+			}
+
+			if(robots[i].target.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
+			if(robots[i].target.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
+
+			// if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
+			// if(Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
 
 			if(Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_GOAL_DWN_Y) {
 				robots[i].target.y = COORD_GOAL_DWN_Y + goalie_offset;
@@ -1196,19 +1205,18 @@ public:
 				robots[i].target.y = COORD_GOAL_UP_Y - goalie_offset;
 			}
 
-			fixed_lookup(i);
+			robots[i].vmax = robots[i].vdefault * (distance(robots[i].position, robots[i].target))/ABS_GOAL_SIZE_Y;
+			// cout << "vmax " << robots[i].vmax << " distancia "<< distance(robots[i].position, robots[i].target) << " distancia max " << ABS_GOAL_TO_GOAL_WIDTH/4<<endl;
+			if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
+			if(robots[i].vmax < 0.3) robots[i].vmax = 0.3;
+			// fixed_lookup(i);
+			
+				if(distance(robots[i].position, robots[i].target) < fixed_pos_distance/2 && ()) {
+					robots[i].cmdType = ORIENTATION;
+					robots[i].targetOrientation = PI/2;
 
-			if((robots[i].cmdType == VECTOR || robots[i].cmdType == POSITION)) {
-				robots[i].vmax = robots[i].vdefault * (distance_meters(Ball, Ball_Est)/0.333333)/1.4;
-				// cout << "vmax " << robots[i].vmax << " distancia "<< distance(robots[i].position, robots[i].target) << " distancia max " << ABS_GOAL_TO_GOAL_WIDTH/4<<endl;
-				if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
-				if(robots[i].vmax < 0.3) robots[i].vmax = 0.3;
-
-				if (distance(robots[i].target, robots[i].position) <= fixed_pos_distance) {
-					robots[i].target = robots[i].position;
-					robots[i].vmax = 0;
+				// cout << "lookup" << '\n';
 				}
-			}
 
 			break;
 
