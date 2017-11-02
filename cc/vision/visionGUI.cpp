@@ -195,8 +195,6 @@ void VisionGUI::__create_frm_gmm() {
   HScale_clusters.set_range(1,15);
   HScale_clusters.set_value_pos(Gtk::POS_RIGHT);
   HScale_clusters.set_draw_value();
-  cb_realColor.append("Select Color:");
-  cb_realColor.append("Main");
   grid->attach(HScale_clusters, 1, 0, 2, 1);
   cb_convertType.append("HSV");
   cb_convertType.append("CieLAB");
