@@ -168,11 +168,13 @@ public:
         }
 
         interface.__event_bt_quick_load_clicked();
+        interface.visionGUI.quickLoadGMM();
 
         return true;
     } // start_signal
 
     bool capture_and_show() {
+
         if (!data) return false;
 
         if (frameCounter == 0) {
@@ -198,6 +200,7 @@ public:
         interface.imageView.PID_test_flag = control.PID_test_flag;
         interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
+        interface.imageView.gmm_sample_flag = interface.visionGUI.getSamplesEventFlag();
 
         if(interface.warped) {
             interface.bt_warp.set_active(false);
@@ -211,13 +214,47 @@ public:
             }
         }
 
+        if (interface.imageView.gmm_ready_flag) {
+          interface.visionGUI.gmm.setFrame(imageView);
+          interface.visionGUI.gmm.pushSample(interface.imageView.gmm_clicks);
+          interface.visionGUI.incrementSamples();
+          interface.imageView.gmm_ready_flag = false;
+        }
 
-        interface.visionGUI.vision->run(imageView);
+        if (interface.visionGUI.gmm.getIsTrained() && !interface.visionGUI.getIsHSV()) {
+          interface.visionGUI.gmm.run(imageView);
+          if (interface.visionGUI.gmm.getDoneFlag()) {
+            interface.visionGUI.vision->runGMM(interface.visionGUI.gmm.getAllThresholds());
+          }
 
+          if (interface.visionGUI.getGaussiansFrameFlag()) {
+            interface.imageView.set_data(interface.visionGUI.gmm.getGaussiansFrame().data, width, height);
+            interface.imageView.refresh();
+          } else if (interface.visionGUI.getFinalFrameFlag()) {
+            interface.imageView.set_data(interface.visionGUI.gmm.getFinalFrame().data, width, height);
+            interface.imageView.refresh();
+          } else if (interface.visionGUI.getThresholdFrameFlag()) {
+            interface.imageView.set_data(interface.visionGUI.gmm.getThresholdFrame(interface.visionGUI.getGMMColorIndex()).data, width, height);
+            interface.imageView.refresh();
+          }
+        }
+        else {
+          interface.visionGUI.vision->run(imageView);
+          if (interface.visionGUI.HSV_calib_event_flag) {
+              interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
+              interface.imageView.refresh();
+          }
+        }
 
         if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag)
             {
+              if (interface.visionGUI.getDrawSamples()) {
+                std::vector<cv::Point> points = interface.visionGUI.gmm.getSamplePoints();
+                for (int i = 0; i < points.size(); i=i+2) {
+                  rectangle(imageView, points.at(i), points.at(i+1), cv::Scalar(0,255,255));
+                }
+              }
                 circle(imageView,interface.visionGUI.vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
                 for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
@@ -256,11 +293,6 @@ public:
                     circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
         } // if !draw_info_flag
-        else
-        {
-            interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
-            interface.imageView.refresh();
-        }
 
         updateAllPositions();
 
