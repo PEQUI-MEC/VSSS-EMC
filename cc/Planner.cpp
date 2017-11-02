@@ -18,9 +18,9 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
         // desabilita o campo potencial para esse robô
         robots.at(i).using_pot_field = false;
 
-        // teste do controle por cuva fazendo com que sempe que seja passado um ponto como alvo
-        // ele desenvolva uma curva que passa pelo meio do campo
-        if(true) {
+        // se o alvo desse robo é a bola, chega nela com orientação correta para o gol
+        if(robots[i].target == current_state.objects.at(0)) {
+            std::cout << "going to ball\n";
             Planner::VelocityVector vector;
             // parâmetros para fazer com que o robô sempre chegue em seu alvo alinhado com o gol
             vector = curved_arrival_control(robots.at(i).position, robots.at(i).target, cv::Point(WIDTH, HEIGHT/2), robots.at(i).vdefault);
@@ -29,39 +29,46 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
             // - controle por vetor
             robots[i].cmdType = VECTOR;
             robots[i].transAngle = vector.angle;
-            robots[i].vmax = vector.velocity;
+            //robots[i].vmax = vector.velocity;
         }
-        else {
+        else { // se o alvo não for a bola, verifica se há obstáculos e desvia deles
+            std::cout << "finding deviations\n";
             cv::Point target = robots.at(i).target;
+
             State predicted_state = predict_positions(robots.at(i).vmax);
             // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
-            std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(i + 1), robots.at(i).target);
+            std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(i + 1), target);
             // se há obstáculos
             if(obstacles.size() > 0) {
+                //std::cout << "obstacle(" << i << "): " << obstacles[0].position << "\n";
                 // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
                 cv::Point * deviation_points = find_deviation(robots.at(i).position, target, obstacles.at(0));
-                // calcula pelo menos mais um obstáculo a partir desse ponto para ser possível gerar a curva
-                obstacles = find_obstacles(predicted_state, deviation_points[0], robots.at(i).target);
-                // se ainda há obstáculos
-                if(obstacles.size() > 0) {
-                    cv::Point * sec_deviation_points = find_deviation(deviation_points[0], target, obstacles.at(0));
-                    target = sec_deviation_points[0];
+                // verifica se o ponto de desvio é válido
+                if(deviation_points[0].x < 0 || deviation_points[0].x > WIDTH || deviation_points[0].y < 0 || deviation_points[0].y > HEIGHT) {
+                    deviation_points[0] = deviation_points[1];
+                    if(deviation_points[0].x < 0 || deviation_points[0].x > WIDTH || deviation_points[0].y < 0 || deviation_points[0].y > HEIGHT) {
+                        // desvio inválido
+                        return;
+                    }
+                    else {
+                        target = deviation_points[0];
+                    }
+                }
+                else {
+                    target = deviation_points[0];
                 }
 
-                Planner::VelocityVector vector;
-                vector = curved_deviation_control(robots.at(i).position, deviation_points[0], target, robots.at(i).vdefault);
+                robots[i].cmdType = POSITION;
+                robots[i].target = target;
+
+                //Planner::VelocityVector vector;
+                //vector = curved_deviation_control(robots.at(i).position, deviation_points[0], target, robots.at(i).vdefault);
 
                 // salva o novo passo da trajetória no robô
                 // - controle por vetor
-                robots[i].cmdType = VECTOR;
-                robots[i].transAngle = vector.angle;
-                robots[i].vmax = vector.velocity;
-            }
-            else {
-                // salva o novo passo da trajetória no robô
-                // - controle por pontos de intermédio
-                robots.at(i).cmdType = POSITION;
-                robots.at(i).target = target;
+                //robots[i].cmdType = VECTOR;
+                //robots[i].transAngle = vector.angle;
+                //robots[i].vmax = vector.velocity;
             }
         }
     }
@@ -141,18 +148,21 @@ double Planner::determinant(double a, double b, double c, double d) {
 }
 bool Planner::find_parabola(double * a, double * b, double * c, cv::Point p1, cv::Point p2, cv::Point p3) {
     /*
-    a = y1/((x1-x2)*(x1-x3)) +
+    *a = y1/((x1-x2)*(x1-x3)) +
         y2/((x2-x1)*(x2-x3)) +
         y3/((x3-x1)*(x3-x2));
 
-    b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
+    *b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
         -y2*(x1+x3)/((x2-x1)*(x2-x3))
         -y3*(x1+x2)/((x3-x1)*(x3-x2));
 
-    c = y1*x2*x3/((x1-x2)*(x1-x3))
+    *c = y1*x2*x3/((x1-x2)*(x1-x3))
       + y2*x1*x3/((x2-x1)*(x2-x3))
       + y3*x1*x2/((x3-x1)*(x3-x2));
-    */
+
+      return true;
+
+      */
     double ax = p1.x;
     double ay = p1.y;
     double bx = p2.x;
@@ -404,8 +414,8 @@ cv::Point * Planner::find_deviation(cv::Point start, cv::Point end, Planner::Obs
     angle -= PI/2;
 
     // gera uma reta a partir do obstacle.position
-    deviations[0] = cv::Point(obstacle.position.x + 2*ROBOT_RADIUS*cos(angle), obstacle.position.y + 2*ROBOT_RADIUS*sin(angle));
-    deviations[1] = cv::Point(obstacle.position.x + 2*ROBOT_RADIUS*cos(angle + PI/2), obstacle.position.y + 2*ROBOT_RADIUS*sin(angle + PI/2));
+    deviations[0] = cv::Point(obstacle.position.x + 4*ROBOT_RADIUS*cos(angle), obstacle.position.y + 4*ROBOT_RADIUS*sin(angle));
+    deviations[1] = cv::Point(obstacle.position.x + 4*ROBOT_RADIUS*cos(angle + PI), obstacle.position.y + 4*ROBOT_RADIUS*sin(angle + PI));
 
     // ordena pro desvio mais próximo
     if(distance_to_line(start, end, deviations[0]) > distance_to_line(start, end, deviations[1])) {
