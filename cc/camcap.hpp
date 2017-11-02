@@ -266,10 +266,11 @@ public:
 
         updateAllPositions();
 
+        if(strategyGUI.updating_formation_flag) {
+            updating_formation();
+        }
+
         if(!interface.imageView.PID_test_flag && strategyGUI.formation_flag && !interface.get_start_game_flag()) {
-            if(strategyGUI.updating_formation_flag) {
-                updating_formation();
-            }
             formation_creation();
             // exibe os robos virtuais
             for(int i = 0; i < 3; i++) {
@@ -363,7 +364,7 @@ public:
     void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){
         while (1) {
             if (interface.start_game_flag || interface.imageView.PID_test_flag || strategyGUI.updating_formation_flag) {
-                // transformTargets(robot_list);
+                //transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
             boost::this_thread::sleep(boost::posix_time::milliseconds(250));
@@ -372,25 +373,33 @@ public:
 
     // manda os robôs para a posição e orientação alvo
     void updating_formation() {
-        if(!strategyGUI.updating_formation_flag || !strategyGUI.update_interface_flag) {
-            strategyGUI.updating_formation_flag = false;
+        if(!strategyGUI.updating_formation_flag) {
             return;
         }
+        // se os três robôs estiverem posicionados, desmarca a flag
+        int robots_positioned = 0;
 
         for(int i = 0; i < interface.robot_list.size(); i++) {
             if(interface.visionGUI.vision->calcDistance(interface.robot_list.at(i).position, virtual_robots_positions[i]) > strategyGUI.strategy.fixed_pos_distance) {
                 interface.robot_list.at(i).cmdType = POSITION;
                 interface.robot_list.at(i).target = virtual_robots_positions[i];
                 interface.robot_list.at(i).vmax = MAX_POSITIONING_VEL;
+                //interface.robot_list.at(i).transAngle = atan2(double(interface.robot_list.at(i).position.y - virtual_robots_positions[i].y), - double(interface.robot_list.at(i).position.x - virtual_robots_positions[i].x));
+                std::cout << "position\n";
             }
-            else if(abs(interface.robot_list.at(i).orientation - virtual_robots_orientations[i]) > MAX_THETA_TOLERATION) {
+            else if(abs(interface.robot_list.at(i).orientation - virtual_robots_orientations[i]) > MAX_THETA_TOLERATION * 180/PI) {
+                interface.robot_list.at(i).fixedPos = true;
                 interface.robot_list.at(i).cmdType = ORIENTATION;
                 interface.robot_list.at(i).targetOrientation = virtual_robots_orientations[i];
                 interface.robot_list.at(i).vmax = MAX_POSITIONING_VEL;
+                std::cout << "orientation\n";
             }
             else {
-                strategyGUI.updating_formation_flag = false;
+                robots_positioned++;
             }
+        }
+        if(robots_positioned > 2) {
+            strategyGUI.updating_formation_flag = false;
         }
     }
 

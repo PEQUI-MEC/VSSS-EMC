@@ -97,6 +97,7 @@ private:
 
 			// manda atualizar
 			updating_formation_flag = true;
+			std::cout << "flag set\n";
 
 			txtFile.close();
 		}
@@ -128,7 +129,7 @@ private:
 				formation_flag = false;
 				bt_createFormation.set_active(false);
 				bt_saveFormation.set_sensitive(false);
-				formation_name_entry.set_sensitive(false);	
+				formation_name_entry.set_sensitive(false);
 				// salva as alterações
 				txtFile.close();
 				tmpTxtFile.close();
@@ -150,12 +151,12 @@ private:
 					continue;
 				tmpTxtFile << line << std::endl;
 			}
-			
+
 			// desabilita os botões
 			formation_flag = false;
 			bt_createFormation.set_active(false);
 			bt_saveFormation.set_sensitive(false);
-			formation_name_entry.set_sensitive(false);	
+			formation_name_entry.set_sensitive(false);
 			// salva as alterações
 			txtFile.close();
 			tmpTxtFile.close();
@@ -216,12 +217,12 @@ private:
 				tmpTxtFile << formation_positions[i].x << " " << formation_positions[i].y << " " << formation_orientations[i] << " ";
 			}
 			tmpTxtFile << std::endl;
-			
+
 			// desabilita os botões
 			formation_flag = false;
 			bt_createFormation.set_active(false);
 			bt_saveFormation.set_sensitive(false);
-			formation_name_entry.set_sensitive(false);	
+			formation_name_entry.set_sensitive(false);
 			// salva as alterações
 			txtFile.close();
 			tmpTxtFile.close();
@@ -240,12 +241,12 @@ private:
 				tmpTxtFile << formation_positions[i].x << " " << formation_positions[i].y << " " << formation_orientations[i] << " ";
 			}
 			tmpTxtFile << std::endl;
-			
+
 			// desabilita os botões
 			formation_flag = false;
 			bt_createFormation.set_active(false);
 			bt_saveFormation.set_sensitive(false);
-			formation_name_entry.set_sensitive(false);	
+			formation_name_entry.set_sensitive(false);
 			// salva as alterações
 			tmpTxtFile.close();
 			// agora as alterações não são mais temporárias
@@ -262,7 +263,7 @@ private:
 
 		bt_createFormation.set_active(!formation_flag);
 		bt_saveFormation.set_sensitive(formation_flag);
-		formation_name_entry.set_sensitive(formation_flag);		
+		formation_name_entry.set_sensitive(formation_flag);
 	}
 	void _event_formation_box_changed() {
 		if(formation_box.get_active_row_number() == 0) {
@@ -400,7 +401,7 @@ public:
 		formation_name_entry.set_max_length(30);
 		formation_name_entry.set_width_chars(30);
 		formation_name_entry.set_text(Glib::ustring::format("Formation_name"));
-		bt_saveFormation.set_label("Save");		
+		bt_saveFormation.set_label("Save");
 
 		formation_grid.set_border_width(10);
 		formation_grid.set_column_spacing(5);
