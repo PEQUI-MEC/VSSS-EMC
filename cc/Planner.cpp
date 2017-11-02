@@ -20,7 +20,7 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
 
         // teste do controle por cuva fazendo com que sempe que seja passado um ponto como alvo
         // ele desenvolva uma curva que passa pelo meio do campo
-        if(false) {
+        if(true) {
             Planner::VelocityVector vector;
             // parâmetros para fazer com que o robô sempre chegue em seu alvo alinhado com o gol
             vector = curved_arrival_control(robots.at(i).position, robots.at(i).target, cv::Point(WIDTH, HEIGHT/2), robots.at(i).vdefault);
@@ -50,7 +50,7 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
 
                 Planner::VelocityVector vector;
                 vector = curved_deviation_control(robots.at(i).position, deviation_points[0], target, robots.at(i).vdefault);
-                
+
                 // salva o novo passo da trajetória no robô
                 // - controle por vetor
                 robots[i].cmdType = VECTOR;
