@@ -1208,7 +1208,7 @@ public:
 				robots[i].target.y = COORD_GOAL_UP_Y - goalie_offset;
 			}
 
-			robots[i].vmax = robots[i].vdefault * (distance(robots[i].position, robots[i].target))/ABS_GOAL_SIZE_Y;
+			robots[i].vmax = 2 * robots[i].vdefault * (distance(robots[i].position, robots[i].target))/ABS_GOAL_SIZE_Y;
 			// cout << "vmax " << robots[i].vmax << " distancia "<< distance(robots[i].position, robots[i].target) << " distancia max " << ABS_GOAL_TO_GOAL_WIDTH/4<<endl;
 			if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
 			if(robots[i].vmax < 0.5) robots[i].vmax = 0.5;

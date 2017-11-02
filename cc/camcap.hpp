@@ -356,10 +356,11 @@ public:
     void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){
         while (1) {
             if (interface.start_game_flag || interface.imageView.PID_test_flag) {
+
                 // transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(150));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
         }
     }
 
