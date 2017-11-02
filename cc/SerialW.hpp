@@ -130,10 +130,11 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 			// cout << temp0 << endl;
 			break;
 			case VECTOR:
+			cout << " transAngle Serial " << robot_list[i].ID << " " << robot_list[i].transAngle*180/PI << endl;
 			temp0= double(atan2(sin(robot_list[i].orientation-(-robot_list[i].transAngle)),cos(robot_list[i].orientation-(-robot_list[i].transAngle)))*180/PI);
 			temp1= round(double(robot_list[i].vmax)*100)/100;
 			cmd << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
-			// cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
+			//cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
 			break;
 			default:
 			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.x != -1)
@@ -152,7 +153,7 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 		}
 	}
 	if (!cmd.str().empty()) sendSerial(cmd.str());
-	//std::cout<<cmd.str()<<std::endl;
+	std::cout<<cmd.str()<<std::endl;
 }
 void sendSerial(std::string cmd){
 	if (!Serial_Enabled) return;

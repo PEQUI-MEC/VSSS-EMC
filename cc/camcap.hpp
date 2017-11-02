@@ -312,7 +312,7 @@ public:
         if(interface.start_game_flag) {
             strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
             Ball_Est=strategyGUI.strategy.get_Ball_Est();
-            line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
+            // line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
             circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
             //char buffer[3]; -> não é utilizado
             strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));

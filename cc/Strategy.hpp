@@ -308,7 +308,7 @@ public:
 
 			// danger_zone_1 = false; //só para testes com um robô
 			// danger_zone_2 = false; //só para testes com um robô
-			transition_enabled = false; //só para testes com um robô
+			// transition_enabled = false; //só para testes com um robô
 
 			// cout << "transitions" << endl;
 
@@ -385,6 +385,7 @@ public:
 				fixed_position_check(i);
 				collision_check(i);
 			}
+			// cout << " transAngle " << robots[gk].transAngle*180/PI << endl;
 
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
@@ -1184,13 +1185,15 @@ public:
 
 			case NORMAL_STATE:
 			// robots[i].fixedPos = true;
+			robots[i].cmdType = POSITION;
 			robots[i].target.x = goalie_line;
+
 			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2) robots[i].target.y = Ball_Est.y;
 			else robots[i].target.y = Ball.y;
 
 			if(distance(Ball, Ball_Est) > ABS_ROBOT_SIZE*2 && Ball.x > Ball_Est.x && (Ball.x > COORD_BOX_DEF_X) ) {
 				double m = double(Ball.y - Ball_Est.y)/double(Ball.x - Ball_Est.x);
-				robots[i].target.y = Ball.y - m * (Ball.x) - COORD_GOAL_DEF_FRONT_X;
+				robots[i].target.y = Ball.y - m * (Ball.x - goalie_line);
 			}
 
 			if(robots[i].target.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
@@ -1208,17 +1211,17 @@ public:
 			robots[i].vmax = robots[i].vdefault * (distance(robots[i].position, robots[i].target))/ABS_GOAL_SIZE_Y;
 			// cout << "vmax " << robots[i].vmax << " distancia "<< distance(robots[i].position, robots[i].target) << " distancia max " << ABS_GOAL_TO_GOAL_WIDTH/4<<endl;
 			if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
-			if(robots[i].vmax < 0.3) robots[i].vmax = 0.3;
+			if(robots[i].vmax < 0.5) robots[i].vmax = 0.5;
 			// fixed_lookup(i);
 
 			if(distance(robots[i].position, robots[i].target) < fixed_pos_distance/2) {
 				robots[i].cmdType = ORIENTATION;
 				robots[i].targetOrientation = PI/2;
-				if( tan(robots[i].orientation) > tan(robots[i].targetOrientation - 5*PI/180) && tan(robots[i].orientation) < tan(robots[i].targetOrientation + 5*PI/180) )
-				{
-					robots[i].cmdType = POSITION;
-					robots[i].vmax = 0;
-				}
+				// if( tan(robots[i].orientation) > tan(robots[i].targetOrientation - 5*PI/180) && tan(robots[i].orientation) < tan(robots[i].targetOrientation + 5*PI/180) )
+				// {
+				// 	robots[i].cmdType = POSITION;
+				// 	robots[i].vmax = 0;
+				// }
 			}
 
 			break;
