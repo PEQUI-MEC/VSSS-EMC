@@ -270,6 +270,32 @@ void GMM::clearSamples() {
 // Carrega a GMM de um arquivo
 bool GMM::read(std::string fileName) {
 
+  std::string txtFileName = fileName;
+  txtFileName.replace(txtFileName.size()-5, txtFileName.size(), ".txt");
+
+  std::ifstream file;
+  file.open(txtFileName);
+
+  if (file.is_open()) {
+    std::string line;
+    getline(file, line);
+    clusters = atoi(line.c_str());
+    getline(file, line);
+    convertType = atoi(line.c_str());
+    getline(file, line);
+    closingSize = atoi(line.c_str());
+    getline(file, line);
+    openingSize = atoi(line.c_str());
+    for (int i = 0; i < matchColor.size(); i++) {
+      getline(file, line);
+      matchColor.at(i) = atoi(line.c_str());
+    }
+    file.close();
+  } else {
+    std::cout << "GMM::read: Could not open " << txtFileName << ". Maybe it does not exist." << std::endl;
+    return false;
+  }
+
   cv::FileStorage fs(fileName, cv::FileStorage::READ);
 
   if (fs.isOpened()) {
@@ -299,6 +325,26 @@ bool GMM::read(std::string fileName) {
 
 // Salva a GMM em um arquivo
 bool GMM::write(std::string fileName) {
+
+  std::string txtFileName = fileName;
+  txtFileName.replace(txtFileName.size()-5, txtFileName.size(), ".txt");
+
+  std::ofstream file;
+  file.open(txtFileName);
+
+  if (file.is_open()) {
+    file << clusters <<std::endl;
+    file << convertType <<std::endl;
+    file << closingSize <<std::endl;
+    file << openingSize <<std::endl;
+    for (int i = 0; i < matchColor.size(); i++) {
+      file << matchColor.at(i) <<std::endl;
+    }
+    file.close();
+  } else {
+    std::cout << "GMM::write: Could not open " << txtFileName << ". Maybe it does not exist." << std::endl;
+    return false;
+  }
 
   cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
 
@@ -391,12 +437,24 @@ void GMM::setOpeningSize(int value) {
   openingSize = value;
 }
 
+int GMM::getClosingSize() {
+  return closingSize;
+}
+
+int GMM::getOpeningSize() {
+  return openingSize;
+}
+
 std::vector<cv::Mat> GMM::getAllThresholds() {
   return threshold_frame;
 }
 
 void GMM::setConvertType(int value) {
   convertType = value;
+}
+
+int GMM::getConvertType() {
+  return convertType;
 }
 
 GMM::GMM() : clusters(1), isTrained(false), isDone(false), convertType(0) {

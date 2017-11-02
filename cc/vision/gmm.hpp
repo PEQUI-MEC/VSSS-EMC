@@ -97,6 +97,9 @@ public:
   bool getDoneFlag();
   cv::Mat getThresholdFrame(int color);
   std::vector<cv::Mat> getAllThresholds();
+  int getConvertType();
+  int getClosingSize();
+  int getOpeningSize();
 
   // SET
   void setFrame(cv::Mat frame);

@@ -379,12 +379,21 @@ void VisionGUI::__event_bt_GMM_load_clicked() {
     if (gmm.read(loadWindow.fileName)) {
       rb_GMM_gaussians.set_active(true);
       rb_GMM_gaussians.clicked();
+      HScale_clusters.set_value(gmm.getClusters());
+      HScale_closing.set_value(gmm.getClosingSize());
+      HScale_opening.set_value(gmm.getOpeningSize());
+      cb_convertType.set_active(gmm.getConvertType());
+
     }
   }
 }
 
 void VisionGUI::quickLoadGMM() {
   gmm.read("autoGMM.json");
+  HScale_clusters.set_value(gmm.getClusters());
+  HScale_closing.set_value(gmm.getClosingSize());
+  HScale_opening.set_value(gmm.getOpeningSize());
+  cb_convertType.set_active(gmm.getConvertType());
 }
 
 void VisionGUI::__event_bt_GMM_left_clicked() {

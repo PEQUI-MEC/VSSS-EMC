@@ -1,9 +1,7 @@
-cc/CamCal
 media/**/*.avi
 media/**/*.png
 VSSS
 *.a
 *.o
 *.json
-autosave.txt
-quicksave.txt
+*.txt
