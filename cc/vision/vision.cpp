@@ -11,6 +11,11 @@ void Vision::run(cv::Mat raw_frame) {
   pick_a_tag();
 }
 
+void Vision::runGMM(std::vector<cv::Mat> thresholds) {
+  searchGMMTags(thresholds);
+  pick_a_tag();
+}
+
 void Vision::preProcessing() {
   cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2HSV);
 }
@@ -39,6 +44,36 @@ void Vision::posProcessing(int color) {
   cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
   cv::erode(threshold_frame.at(color),threshold_frame.at(color),erodeElement,cv::Point(-1,-1),erode[color]);
   cv::dilate(threshold_frame.at(color),threshold_frame.at(color),dilateElement,cv::Point(-1,-1),dilate[color]);
+}
+
+void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
+  std::vector< std::vector<cv::Point> > contours;
+  std::vector<cv::Vec4i> hierarchy;
+
+  for (int color = 0; color < TOTAL_COLORS; color++) {
+    tags.at(color).clear();
+
+    cv::Mat tmp;
+    cv::cvtColor(thresholds.at(color), tmp, CV_RGB2GRAY);
+
+    cv::findContours(tmp,contours,hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_NONE);
+
+    for (int i = 0; i < contours.size(); i++) {
+      double area = contourArea(contours[i]);
+      if(area >= areaMin[color]/100) {
+        cv::Moments moment = moments((cv::Mat)contours[i]);
+        tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
+
+        // seta as linhas para as tags principais do pick-a-tag
+        if(color == MAIN) {
+            cv::Vec4f line;
+            cv::fitLine(cv::Mat(contours[i]),line,2,0,0.01,0.01);
+            int tagsInVec = tags.at(color).size() - 1;
+            tags.at(color).at(tagsInVec).setLine(line);
+        }
+      }
+    }
+  }
 }
 
 void Vision::searchTags(int color) {
