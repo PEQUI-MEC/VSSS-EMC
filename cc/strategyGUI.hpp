@@ -97,7 +97,6 @@ private:
 
 			// manda atualizar
 			updating_formation_flag = true;
-			std::cout << "flag set\n";
 
 			txtFile.close();
 		}
