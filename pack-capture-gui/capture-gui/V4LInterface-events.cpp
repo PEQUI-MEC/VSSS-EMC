@@ -589,9 +589,6 @@ namespace capture {
 					for(int i=0; i<3; i++)
 						robot_list.at(i).cmdType = 0; // Position
 		    }
-
-        for(int i=0; i<3; i++)
-          robot_list[i].histWipe();
     }
 
     void V4LInterface::event_robots_function_edit_bt_signal_clicked(){

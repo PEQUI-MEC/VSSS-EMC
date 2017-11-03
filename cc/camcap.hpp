@@ -93,10 +93,6 @@ public:
         interface.ballX = ballPosition.x;
         interface.ballY = ballPosition.y;
 
-        interface.robot_list[0].feedHist(interface.robot_list[0].position);
-        interface.robot_list[1].feedHist(interface.robot_list[1].position);
-        interface.robot_list[2].feedHist(interface.robot_list[2].position);
-
         interface.updateRobotLabels();
         interface.updateFPS(fps_average);
 
@@ -252,14 +248,14 @@ public:
             if (!interface.draw_info_flag)
             {
                 cv::Point aux_point;
-              
+
                 if (interface.visionGUI.getDrawSamples()) {
                     std::vector<cv::Point> points = interface.visionGUI.gmm.getSamplePoints();
                     for (int i = 0; i < points.size(); i=i+2) {
                         rectangle(imageView, points.at(i), points.at(i+1), cv::Scalar(0,255,255));
                     }
                 }
-              
+
                 circle(imageView,interface.visionGUI.vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
                 for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
@@ -550,7 +546,6 @@ public:
             }
         }
         if(Selec_index>-1) {
-            interface.robot_list[Selec_index].histWipe();
             if(sqrt(pow((interface.visionGUI.vision->getBall().x-interface.robot_list[Selec_index].target.x),2)+pow((interface.visionGUI.vision->getBall().y-interface.robot_list[Selec_index].target.y),2))<=7)
                 fixed_ball[Selec_index]=true;
 
