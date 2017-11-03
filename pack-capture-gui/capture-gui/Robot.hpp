@@ -1,8 +1,5 @@
 #ifndef ROBOT_HPP_
 #define ROBOT_HPP_
-#define PI 3.14159265453
-#define MAX_SAMPLES_HIST 25 // REGULA O TEMPO DE DETECÇÃO DA BATIDA
-#define MAX_COLLISIONS 30 // REGULA O TEMPO DE REAÇÃO À BATIDA
 #include "opencv2/opencv.hpp"
 #include "../../cc/vision/tag.hpp"
 
@@ -24,7 +21,7 @@ class Robot
         bool using_pot_field;
         int role;
         int status;
-        
+
 
         Robot() : isOdd(false), orientation(0), orientation2(0),
         cmdType(0), vdefault(0.8), vmax(1.4), fixedPos(false),
