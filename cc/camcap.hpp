@@ -252,14 +252,14 @@ public:
             if (!interface.draw_info_flag)
             {
                 cv::Point aux_point;
-              
+
                 if (interface.visionGUI.getDrawSamples()) {
                     std::vector<cv::Point> points = interface.visionGUI.gmm.getSamplePoints();
                     for (int i = 0; i < points.size(); i=i+2) {
                         rectangle(imageView, points.at(i), points.at(i+1), cv::Scalar(0,255,255));
                     }
                 }
-              
+
                 circle(imageView,interface.visionGUI.vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
                 for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
@@ -321,6 +321,7 @@ public:
                 interface.robot_list[i].target=cv::Point(-1,-1);
             }
             Selec_index=-1;
+            control.PID_test_flag = false;
         }
 
         if(!interface.imageView.PID_test_flag && strategyGUI.formation_flag && !interface.get_start_game_flag()) {
