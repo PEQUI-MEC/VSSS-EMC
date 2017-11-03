@@ -127,7 +127,8 @@ public:
 	bool full_transition = false;
 	bool danger_zone_1 = false;
 	bool danger_zone_2 = false;
-	bool transition_enabled = true;
+	bool full_transition_enabled = true;
+	bool half_transition_enabled = true;
 	bool atk_ball_possession = false;
 
 	int ABS_PLAYING_FIELD_WIDTH,
@@ -324,9 +325,9 @@ public:
 			transition_timeout--;
 			if(transition_timeout < 0) transition_timeout = 0;
 
-			if(half_transition && transition_enabled && transition_timeout == 0) {
+			if(half_transition && half_transition_enabled && transition_timeout == 0) {
 				half_transition = false;
-				transition_enabled = false;
+				half_transition_enabled = false;
 				transition_timeout = 90; //3 segundos
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
@@ -346,9 +347,9 @@ public:
 					}
 				}
 			}
-			if(full_transition && transition_enabled && transition_timeout == 0) {
+			if(full_transition && full_transition_enabled && transition_timeout == 0) {
 				full_transition = false;
-				transition_enabled = false;
+				full_transition_enabled = false;
 				transition_timeout = 90; //3 segundos
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
@@ -435,11 +436,13 @@ public:
 			// cout << "mindcontrol" << endl;
 		}
 
-		if(transition_enabled == false &&
+		//Goalkeeper overmind-------------------
+		if(full_transition_enabled == false &&
 		(robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
-		robots[atk].position.y > COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
-		robots[atk].position.y < COORD_BOX_DWN_Y - ABS_ROBOT_SIZE/2)) {
+		robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
+		robots[atk].position.y > COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) ) {
 
+			robots[gk].fixedPos = true;
 			robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
 
 		}
@@ -483,7 +486,9 @@ public:
 		half_transition = false;
 		full_transition = false;
 		if(Ball.x > COORD_MID_FIELD_X) {
-			transition_enabled = true;
+			full_transition_enabled = true;
+			half_transition_enabled = true;
+
 		}
 		if(Ball.x < robots[atk].position.x && Ball.x > robots[def].position.x) {
 			danger_zone_1 = true;
@@ -998,7 +1003,7 @@ public:
 		if(targets_temp.y < 0) targets_temp.y = 0;
 		if(targets_temp.y > ABS_FIELD_HEIGHT) targets_temp.y = ABS_FIELD_HEIGHT;
 		if(targets_temp.x < 0) targets_temp.x = 0;
-		if(targets_temp.x > ABS_GOAL_TO_GOAL_WIDTH) targets_temp.x = ABS_GOAL_TO_GOAL_WIDTH;
+		if(targets_temp.x > COORD_GOAL_ATK_FRONT_X) targets_temp.x = COORD_GOAL_ATK_FRONT_X;
 
 		robots[i].target = targets_temp;
 		robots[i].transAngle = potField(i, targets_temp, BALL_ONLY_OBS);
@@ -1078,8 +1083,9 @@ public:
 				} else if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5 || Ball.y < ABS_ROBOT_SIZE*1.5) {
 					robots[i].status = SIDEWAYS;
 				}
-
 				pot_field_around(i);
+
+
 			break;
 
 			case SIDEWAYS:

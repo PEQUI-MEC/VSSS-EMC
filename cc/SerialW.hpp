@@ -115,26 +115,30 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 				temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
 				temp2= round(double(robot_list[i].vmax)*100)/100;
 				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+				cout<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+
 			}
 			break;
 			case SPEED:
 			temp0= round(robot_list[i].Vr*100)/100;
 			temp1= round(robot_list[i].Vl*100)/100;
 			cmd<<robot_list[i].ID<<'@'<<temp0<<";"<<temp1<<"#"<< endl;
+			cout<<robot_list[i].ID<<'@'<<temp0<<";"<<temp1<<"#"<< endl;
 			break;
 			case ORIENTATION:
 			temp2 = double(robot_list[i].orientation) - ( - double(robot_list[i].targetOrientation));
 			temp0= temp2*180/PI;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
 			cmd << robot_list[i].ID<<'@'<<"O"<<temp0<<";"<<temp1<<"#"<< endl;
+			cout << robot_list[i].ID<<'@'<<"O"<<temp0<<";"<<temp1<<"#"<< endl;
 			// cout << temp0 << endl;
 			break;
 			case VECTOR:
-			cout << " transAngle Serial " << robot_list[i].ID << " " << robot_list[i].transAngle*180/PI << endl;
+			// cout << " transAngle Serial " << robot_list[i].ID << " " << robot_list[i].transAngle*180/PI << endl;
 			temp0= double(atan2(sin(robot_list[i].orientation-(-robot_list[i].transAngle)),cos(robot_list[i].orientation-(-robot_list[i].transAngle)))*180/PI);
 			temp1= round(double(robot_list[i].vmax)*100)/100;
 			cmd << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
-			//cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
+			cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
 			break;
 			default:
 			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.x != -1)
@@ -149,6 +153,8 @@ void sendCmdToRobots(std::vector<Robot> robot_list){
 				temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
 				temp2= round(double(robot_list[i].vmax)*100)/100;
 				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+				cout<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< endl;
+
 			}
 		}
 	}
