@@ -459,22 +459,37 @@ public:
 		//   " robot.or - m1 angle " << (robots[atk].orientation - atan(m1))*180/PI <<
 		//   " phi " << phi*180/PI << endl;
 
+
+		/**** SITUAÇÕES DE TROCA ****/
+
 		//defender mindcontrol
+		// faz meio que um cruzamento
 		if(Ball.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_DWN_Y &&
-		Ball.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*2) {
+		Ball.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE) {
 			half_transition = true;
+			std::cout << "y1\n";
 		}
-
-
-
+		// se a bola tá atrás do atacante mas tá na frente do defensor
+		// !TODO tirar a redundância, segunda expressão já está verificada no danger_zone_1
 		if(danger_zone_1 && (Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE)) {
 			half_transition = true;
-		} else if(danger_zone_2) {
-			if(Ball.x < COORD_BOX_DEF_X && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y) ) full_transition = true;
-		} else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
+			std::cout << "dg1, antes do ataque\n";
+		}
+		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
+		else if(danger_zone_2) {
+			// se a bola tá dentro dá área apenas
+			if(Ball.x < COORD_BOX_DEF_X && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y) )
+				full_transition = true;
+		}
+		// troca se o atacante tá muito longe da bola
+		else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
 			half_transition = true;
 		}
-
+		// troca se está numa posição de cruzamento
+		else if((robots[atk].position.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_UP_Y) ||
+				(robots[atk].position.y < COORD_GOAL_DWN_Y && Ball.y > COORD_GOAL_DWN_Y)) {
+			half_transition = true;
+		}
 	}
 
 	void set_flags() {
