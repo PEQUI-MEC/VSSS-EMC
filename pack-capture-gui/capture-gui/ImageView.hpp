@@ -19,6 +19,17 @@ namespace capture {
 
 		virtual bool on_button_press_event(GdkEventButton *event){
 
+			if (gmm_sample_flag && event->button == 1) {
+
+				gmm_clicks[gmm_counter][0] = event->x;
+				gmm_clicks[gmm_counter][1] = event->y;
+				if (gmm_counter == 1) {
+					gmm_counter = 0;
+					gmm_ready_flag = true;
+				}
+				else gmm_counter++;
+			}
+
 			if(warp_event_flag){
 				//std::cerr <<"EVENT"<<std::endl;
 				if (event->button == 1) {
@@ -118,6 +129,9 @@ namespace capture {
 		public:
 		unsigned char * data;
 			int width, height, stride;
+
+			int gmm_clicks[2][2];
+
 			int warp_mat[4][2];
 			int adjust_mat[4][2];
 			double tar_pos[2];
@@ -127,6 +141,7 @@ namespace capture {
 
 			int warp_counter =0;
 			int adj_counter =0;
+			int gmm_counter = 0;
 		    bool warp_event_flag = false;
 			bool PID_test_flag = false;
 			bool formation_flag = false;
@@ -134,6 +149,8 @@ namespace capture {
 		    bool hold_warp = false;
 		    bool adjust_rdy = false;
 		    bool auto_calib_flag = false;
+				bool gmm_sample_flag = false;
+				bool gmm_ready_flag = false;
 
 			ImageView() :
 					data(0), width(0), height(0), stride(0) {

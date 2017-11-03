@@ -6,15 +6,15 @@
 class FileChooser : public Gtk::Window
 {
 	// Constructor and destructor
-public:    
+public:
 	FileChooser();
 	virtual					~FileChooser();
-	std::string filename;
+	std::string fileName;
 	int result;
- 
+
 protected:
-	
- 
+
+
 	//Member widgets:
 	Gtk::Button             buttonLoad;
 	Gtk::Button             buttonQuit;
@@ -31,4 +31,3 @@ protected:
 
 
 #endif /* FILECHOOSER_HPP_ */
-
