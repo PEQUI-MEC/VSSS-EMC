@@ -91,7 +91,7 @@ private:
 			}
 			// atualiza interface
 			update_interface_flag = true;
-
+			std::cout << "Begin positioning...\n";
 			// valores disponíveis: formation_positions e formation_orientations
 			// isso é atualizado no camcap
 

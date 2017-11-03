@@ -313,6 +313,7 @@ public:
             strategyGUI.updating_formation_flag = false;
             for(int i = 0; i < interface.robot_list.size(); i++) {
                 interface.robot_list.at(i).cmdType = POSITION;
+                interface.robot_list.at(i).vmax = interface.robot_list.at(i).vdefault;
                 interface.robot_list.at(i).target = cv::Point(-1, -1);
             }
         }
@@ -419,6 +420,7 @@ public:
         }
         if(robots_positioned > 2) {
             strategyGUI.updating_formation_flag = false;
+            std::cout << "Done positioning.\n";
         }
     }
 
@@ -503,7 +505,6 @@ public:
         double dist;
         int old_Selec_index;
         old_Selec_index = Selec_index;
-
         for(int i=0; i<interface.robot_list.size() && i<3; i++) {
             // interface.robot_list[i].cmdType = 0; // position cmd
             dist = sqrt(pow((interface.imageView.robot_pos[0]-interface.robot_list[i].position.x),2)+pow((interface.imageView.robot_pos[1]-interface.robot_list[i].position.y),2));
