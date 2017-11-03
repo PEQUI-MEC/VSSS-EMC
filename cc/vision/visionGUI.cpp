@@ -717,7 +717,7 @@ void VisionGUI::__create_frm_hsv() {
 
   HScale_Amin.set_digits(0);
   HScale_Amin.set_increments(1,1);
-  HScale_Amin.set_range(0,1000);
+  HScale_Amin.set_range(0,200);
   HScale_Amin.set_value_pos(Gtk::POS_TOP);
   HScale_Amin.set_draw_value();
 
@@ -961,7 +961,7 @@ void VisionGUI::init_calib_params()
   int B[5] {3, 3, 3, 3, 3};
   int D[5] = {0, 0, 0, 0, 0};
   int E[5] = {0, 0, 0, 0, 0};
-  int Amin[5] = {500, 500, 500, 500, 500};
+  int Amin[5] = {150, 90, 90, 115, 50};
 
   // Configurar os valores iniciais de calibração
   vision->setCalibParams(H, S, V, Amin, E, D, B);
