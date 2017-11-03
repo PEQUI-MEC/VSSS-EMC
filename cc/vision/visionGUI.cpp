@@ -19,7 +19,7 @@ void VisionGUI::__create_frm_calib_mode() {
 
   frame->set_label("Choose Your Destiny");
 
-  grid->set_border_width(10);
+  grid->set_border_width(5);
   grid->set_column_spacing(10);
   grid->set_row_spacing(5);
 
@@ -518,7 +518,7 @@ void VisionGUI::__create_frm_capture() {
 
   frame->set_label("Video/Image Capture");
 
-  grid->set_border_width(10);
+  grid->set_border_width(5);
   grid->set_column_spacing(10);
   grid->set_row_spacing(5);
 
@@ -595,9 +595,9 @@ void VisionGUI::__create_frm_hsv() {
 
   frame->set_label("HSV Calibration");
 
-  grid->set_border_width(10);
+  grid->set_border_width(5);
   grid->set_column_spacing(15);
-  grid->set_row_spacing(5);
+  grid->set_row_spacing(0);
   grid->set_column_homogeneous(true);
 
   bt_HSV_calib.set_label("HSV Calib.");
