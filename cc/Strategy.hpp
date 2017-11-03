@@ -1153,17 +1153,6 @@ public:
 			break;
 
 			case ADVANCING_STATE:
-				robots[i].target.x = COORD_GOAL_ATK_FRONT_X;
-				if(robots[i].position.y > COORD_GOAL_MID_Y + (COORD_GOAL_UP_Y - COORD_GOAL_MID_Y)/2) {
-					robots[i].target.y = COORD_GOAL_UP_Y;
-				}
-				else if(robots[i].position.y > COORD_GOAL_MID_Y - (COORD_GOAL_MID_Y - COORD_GOAL_DWN_Y)/2) {
-					robots[i].target.y = COORD_GOAL_DWN_Y;
-				}
-				else {
-					robots[i].target.y = COORD_GOAL_MID_Y;
-				}
-				if(!atk_ball_possession) robots[i].status = NORMAL_STATE;
 			break;
 		}
 
@@ -1239,13 +1228,6 @@ public:
 				// }
 			}
 
-			break;
-
-			case ADVANCING_STATE:
-			robots[i].target = Ball;
-			if(robots[i].position.x > COORD_BOX_DEF_X || robots[i].position.y < COORD_BOX_UP_Y || robots[i].position.y > COORD_BOX_DWN_Y) {
-				full_transition = true;
-			}
 			break;
 		}
 	}
