@@ -65,6 +65,8 @@ private:
 
     bool solve_eq_system(double * a, double * b, double * c, cv::Point p1, cv::Point p2, double end_slope);
 
+    bool validate_target(cv::Point target);
+
 public:
     // criar função de planejamento de trajetória
     // controle por curva

@@ -32,6 +32,7 @@ class Robot
         bool spin = false;
         bool fixedPos=false;
         bool using_pot_field = false;
+        bool ignore_planning = false;
         int role=0;
         int status = 0;
         int previous_status =0;

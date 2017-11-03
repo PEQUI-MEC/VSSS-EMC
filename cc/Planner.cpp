@@ -12,7 +12,8 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
     // planeja os alvos de cada robô
     for(int i = 0; i < robots.size(); i++) {
         // só planeja a trajetória de robôs que têm um alvo
-        if(robots.at(i).cmdType != POSITION)
+        // ignora comandos de orientação ou velocidade que não devem ser planejados
+        if(robots.at(i).cmdType != POSITION || robots.at(i).ignore_planning)
             continue;
 
         // desabilita o campo potencial para esse robô
@@ -44,10 +45,11 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
                 // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
                 cv::Point * deviation_points = find_deviation(robots.at(i).position, target, obstacles.at(0));
                 // verifica se o ponto de desvio é válido
-                if(deviation_points[0].x < 0 || deviation_points[0].x > WIDTH || deviation_points[0].y < 0 || deviation_points[0].y > HEIGHT) {
+                if(!validate_target(deviation_points[0])) {
                     deviation_points[0] = deviation_points[1];
-                    if(deviation_points[0].x < 0 || deviation_points[0].x > WIDTH || deviation_points[0].y < 0 || deviation_points[0].y > HEIGHT) {
+                    if(!validate_target(deviation_points[0])) {
                         // desvio inválido
+                        // ignora obstáculos
                         return;
                     }
                     else {
@@ -74,6 +76,11 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
     }
     // atualiza o vetor pra estratégia
     *pRobots = robots;
+}
+
+// verifica se alvo está dentro do campo
+bool Planner::validate_target(cv::Point target) {
+    return target.x > ROBOT_RADIUS && deviation_points[0].x < WIDTH - ROBOT_RADIUS && deviation_points[0].y > ROBOT_RADIUS && deviation_points[0].y < HEIGHT - ROBOT_RADIUS);
 }
 
 // função de inicialização do Planner
