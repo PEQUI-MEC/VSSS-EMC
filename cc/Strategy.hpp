@@ -405,25 +405,6 @@ public:
 
 		double phi = atan((m2-m1)/(1+m2*m1));
 
-		// cout << " Robo1 " << robots[0].role << " Robo2 " << robots[1].role << " Robo3 " << robots[2].role << endl;
-		//
-		// int trocaIndex = Fuzzy_Troca();
-		// switch (trocaIndex) {
-		// 	case 0:
-		// 	// DO NOTHING
-		// 	cout << "não vai troca ninguem!" << endl;
-		// 	break;
-		// 	case 1: // TROCA TUDO
-		// 	full_transition = true;
-		// 	cout << "troca tudo nessa porra" << endl;
-		// 	break;
-		// 	case 2: // TROCA ATKDEF
-		// 	half_transition = true;
-		// 	cout << "troca atk/def" << endl;
-		// 	break;
-		// }
-		// cout << endl;
-
 		if(robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
 		if(atk_mindcontrol) {
@@ -453,12 +434,15 @@ public:
 			atk_mindcontrol = true;
 			// cout << "mindcontrol" << endl;
 		}
-		//  cout << " robot-ball " << distance(robots[atk].position, Ball) <<
-		//   " robot size " << ABS_ROBOT_SIZE <<
-		//   " angulo m1 " << atan(m1)*180/PI  << " robot.or " << robots[atk].orientation*180/PI  <<
-		//   " robot.or - m1 angle " << (robots[atk].orientation - atan(m1))*180/PI <<
-		//   " phi " << phi*180/PI << endl;
 
+		if(transition_enabled == false &&
+		(robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
+		robots[atk].position.y > COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
+		robots[atk].position.y < COORD_BOX_DWN_Y - ABS_ROBOT_SIZE/2)) {
+
+			robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
+
+		}
 
 		/**** SITUAÇÕES DE TROCA ****/
 
@@ -467,13 +451,13 @@ public:
 		if(Ball.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_DWN_Y &&
 		Ball.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE) {
 			half_transition = true;
-			std::cout << "y1\n";
+			// std::cout << "y1\n";
 		}
 		// se a bola tá atrás do atacante mas tá na frente do defensor
 		// !TODO tirar a redundância, segunda expressão já está verificada no danger_zone_1
 		if(danger_zone_1 && (Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE)) {
 			half_transition = true;
-			std::cout << "dg1, antes do ataque\n";
+			// std::cout << "dg1, antes do ataque\n";
 		}
 		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
 		else if(danger_zone_2) {
