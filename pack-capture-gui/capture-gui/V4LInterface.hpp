@@ -21,6 +21,8 @@
 #include <ctime>
 #include <chrono>
 
+#define PI 3.14159265453
+
 namespace capture {
 
 class V4LInterface: public Gtk::VBox {
