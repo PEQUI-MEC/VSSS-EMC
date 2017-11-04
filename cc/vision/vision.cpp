@@ -60,7 +60,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 
     for (int i = 0; i < contours.size(); i++) {
       double area = contourArea(contours[i]);
-      if(area >= areaMin[color]/100) {
+      // if(area >= areaMin[color]) {
         cv::Moments moment = moments((cv::Mat)contours[i]);
         tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
 
@@ -71,7 +71,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
             int tagsInVec = tags.at(color).size() - 1;
             tags.at(color).at(tagsInVec).setLine(line);
         }
-      }
+      // }
     }
   }
 }
@@ -86,7 +86,7 @@ void Vision::searchTags(int color) {
 
   for (int i = 0; i < contours.size(); i++) {
     double area = contourArea(contours[i]);
-    if(area >= areaMin[color]/100) {
+    if(area >= areaMin[color]) {
       cv::Moments moment = moments((cv::Mat)contours[i]);
       tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
 
