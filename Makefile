@@ -3,9 +3,9 @@
 #
 #### TUTORIAL ####
 # Para adicionar novos objetos ao projeto, você deve criar uma nova regra (veja "CRIANDO NOVAS REGRAS") para sua classe
-# Depois disso, adicione a regra como dependência da regra "VSSS" e linke o objeto 
+# Depois disso, adicione a regra como dependência da regra "VSSS" e linke o objeto
 # na compilação do executável adicionando seu "arquivo.o" como argumento
-# 
+#
 ## CRIANDO NOVAS REGRAS ##
 # Uma regra é uma especificação para o make sobre o que fazer com um arquivo.
 # Ela deve respeitar uma sintaxe e identação específica (veja na especificação abaixo).
@@ -15,9 +15,9 @@
 # 	g++ arquivo.cpp -o arquivo.o
 #
 # O nome desta regra deve ser o nome do objeto que será gerado
-# Após o nome e ":", você inclui as dependências (que podem ser outras regras ou arquivos) 
+# Após o nome e ":", você inclui as dependências (que podem ser outras regras ou arquivos)
 # e o arquivo fonte que deverá ser monitorado
-# Na linha de baixo, você escreve os comandos de compilação, ou seja, 
+# Na linha de baixo, você escreve os comandos de compilação, ou seja,
 # o comando que deveria ser executado no terminal para compilar sua classe
 # Os comandos de compilação devem ser identados por um único tab, senão o make não entende sua regra.
 # Você pode utilizar as variáveis abaixo em suas regras de compilação e pode criar novas variáveis,
@@ -30,7 +30,7 @@ FUZZYFLAGS = -c -g -m64 -pipe -Wall -W
 # flags para o pack-capture
 CAPFLAGS = -w -I"pack-capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c
 # isso faz com que o make seja sensível a alterações a cpps e hpps que não são objetos, são só referenciados
-SOURCES = $(shell find . -name "*.cpp") $(shell find . -name "*.hpp")
+SOURCES = $(shell find . -name "*.hpp")
 
 # roda o programa se estiver compilado
 # comentado pois faz com que o make continue rodando em background. para executar, utilize o buildVSSS.sh
@@ -46,7 +46,7 @@ VSSS: welcome cc/vision/gmm.o cc/vision/tag.o cc/vision/vision.o cc/controlGUI.o
 	@echo "\n\n\033[92mAll done. Run 'sh runVSSS.sh' to open VSSS terminal.\033[0m\n"
 
 # mensagem de boas vindas, fica daora
-welcome: 
+welcome:
 	@echo "\n\033[92m|------- VSSS 2017 - PEQUI MECÂNICO -------|\033[0m"
 
 # verifica se algum hpp ou cpp foi alterado e compila a main se precisar

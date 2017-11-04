@@ -195,6 +195,11 @@ public:
             interface.imageView.hold_warp=false;
         }
 
+        if (interface.reset_warp_flag) {
+          interface.imageView.warp_counter = 0;
+          interface.reset_warp_flag = false;
+        }
+
         interface.imageView.PID_test_flag = control.PID_test_flag;
         interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
@@ -249,6 +254,17 @@ public:
             {
                 cv::Point aux_point;
 
+                if (interface.imageView.PID_test_flag) {
+                  for(int i=0; i<interface.robot_list.size(); i++) {
+                      if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
+                          line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
+                      circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
+                  }
+                  if(Selec_index!=-1) {
+                      circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
+                  }
+                }
+
                 if (interface.visionGUI.getDrawSamples()) {
                     std::vector<cv::Point> points = interface.visionGUI.gmm.getSamplePoints();
                     for (int i = 0; i < points.size(); i=i+2) {
@@ -301,16 +317,6 @@ public:
         {
             control.button_PID_Test.set_active(true);
             PID_test();
-
-            if(Selec_index!=-1) {
-                circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
-            }
-
-            for(int i=0; i<interface.robot_list.size(); i++) {
-                if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
-                    line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
-                circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
-            }
         }
         else {
             for(int i=0; i<interface.robot_list.size(); i++) {
