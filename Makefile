@@ -40,9 +40,9 @@ SOURCES = $(shell find . -name "*.hpp")
 
 # isso compila o projeto
 # ele gera primeiro os objetos que são dependências e depois linka tudo
-VSSS: welcome cc/vision/gmm.o cc/vision/tag.o cc/vision/vision.o cc/controlGUI.o cc/filechooser.o cc/vision/visionGUI.o cc/TestFrame.o pack-capture/capture/v4lcap.o pack-capture-gui/capture-gui/V4LInterface-aux.o pack-capture-gui/capture-gui/V4LInterface-events.o cc/Fuzzy/FuzzyController.o cc/Fuzzy/FuzzyFunction.o cc/Fuzzy/Rules.o cc/main.o
+VSSS: welcome cc/vision/gmm.o cc/vision/tag.o cc/vision/vision.o cc/controlGUI.o cc/SerialW.o cc/filechooser.o pack-capture-gui/capture-gui/ImageView.o cc/vision/visionGUI.o cc/TestFrame.o pack-capture/capture/v4lcap.o pack-capture-gui/capture-gui/V4LInterface-aux.o pack-capture-gui/capture-gui/V4LInterface-events.o cc/Fuzzy/FuzzyController.o cc/Fuzzy/FuzzyFunction.o cc/Fuzzy/Rules.o cc/main.o
 	@echo "\n\n\033[92mLinking objects...\033[0m\n"
-	@$(COMPILER) -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/vision.o" "cc/controlGUI.o" "cc/filechooser.o" "cc/vision/visionGUI.o" "cc/vision/tag.o" "cc/vision/gmm.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
+	@$(COMPILER) -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/vision.o" "cc/controlGUI.o" "cc/SerialW.o" "cc/filechooser.o" "pack-capture-gui/capture-gui/ImageView.o" "cc/vision/visionGUI.o" "cc/vision/tag.o" "cc/vision/gmm.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
 	@echo "\n\n\033[92mAll done. Run 'sh runVSSS.sh' to open VSSS terminal.\033[0m\n"
 
 # mensagem de boas vindas, fica daora
@@ -69,6 +69,11 @@ cc/vision/tag.o: cc/vision/tag.cpp
 	@echo "\n\n\033[92mCompiling tag object...\033[0m\n"
 	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
 
+# objeto ImageView
+pack-capture-gui/capture-gui/ImageView.o: pack-capture-gui/capture-gui/ImageView.cpp
+	@echo "\n\n\033[92mCompiling ImageView object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags opencv` "pack-capture-gui/capture-gui/ImageView.cpp" `pkg-config --libs opencv` -o "pack-capture-gui/capture-gui/ImageView.o"
+
 # objeto do GMM
 cc/vision/gmm.o: cc/vision/gmm.cpp
 	@echo "\n\n\033[92mCompiling GMM object...\033[0m\n"
@@ -83,6 +88,11 @@ cc/TestFrame.o: cc/TestFrame.cpp
 cc/controlGUI.o: cc/controlGUI.cpp
 	@echo "\n\n\033[92mCompiling controlGUI object...\033[0m\n"
 	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -c "cc/controlGUI.cpp" -o "cc/controlGUI.o"
+
+# objeto SerialW
+cc/SerialW.o: cc/SerialW.cpp
+	@echo "\n\n\033[92mCompiling SerialW object...\033[0m\n"
+	@$(COMPILER) -c "cc/SerialW.cpp" -o "cc/SerialW.o"
 
 # objeto FileChooser
 cc/filechooser.o: cc/filechooser.cpp
