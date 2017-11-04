@@ -195,6 +195,11 @@ public:
             interface.imageView.hold_warp=false;
         }
 
+        if (interface.reset_warp_flag) {
+          interface.imageView.warp_counter = 0;
+          interface.reset_warp_flag = false;
+        }
+
         interface.imageView.PID_test_flag = control.PID_test_flag;
         interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
