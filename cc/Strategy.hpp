@@ -42,6 +42,7 @@
 #define	ADVANCING_STATE 3
 #define	TRANSITION_STATE 4
 #define	SIDEWAYS 5
+#define DEF_CORNER_STATE 6
 
 
 //potField
@@ -127,8 +128,8 @@ public:
 	bool full_transition = false;
 	bool danger_zone_1 = false;
 	bool danger_zone_2 = false;
-	bool full_transition_enabled = true;
-	bool half_transition_enabled = true;
+	bool full_transition_enabled = false;
+	bool half_transition_enabled = false;
 	bool atk_ball_possession = false;
 
 	int ABS_PLAYING_FIELD_WIDTH,
@@ -278,6 +279,7 @@ public:
 				robots[i].using_pot_field = false;
 				robots[i].vmax = robots[i].vdefault;
 
+
 				get_variables();
 
 				switch (robots[i].role)	{
@@ -416,7 +418,7 @@ public:
 			robots[atk].transAngle = lock_angle;
 			robots[atk].vmax = 1.2;
 			timeout++;
-			if(timeout >= 30) {
+			if(timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 				timeout = 0;
 				atk_mindcontrol = false;
 				robots[atk].vmax = robots[atk].vdefault;
@@ -436,13 +438,22 @@ public:
 			// cout << "mindcontrol" << endl;
 		}
 
+		cout << " full_transition_enabled "  << full_transition_enabled << endl;
+		cout << " cond 1 "  << (robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2) << endl;
+		cout << " cond 2 "  << (robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2) << endl;
+		cout << " cond 3 "  << (robots[atk].position.y > COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << endl;
+		cout << " line "  << (COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << " robot y " << robots[atk].position.y <<endl;
+
+
+
 		//Goalkeeper overmind-------------------
 		if(full_transition_enabled == false &&
 		(robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
 		robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
-		robots[atk].position.y > COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) ) {
+		robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE/2) ) {
 
 			robots[gk].fixedPos = true;
+			cout << " don't " << endl;
 			robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
 
 		}
@@ -457,7 +468,6 @@ public:
 			// std::cout << "y1\n";
 		}
 		// se a bola tá atrás do atacante mas tá na frente do defensor
-		// !TODO tirar a redundância, segunda expressão já está verificada no danger_zone_1
 		if(danger_zone_1 && (Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE)) {
 			half_transition = true;
 			// std::cout << "dg1, antes do ataque\n";
@@ -1079,7 +1089,6 @@ public:
 			case NORMAL_STATE:
 				if(Ball.x > corner_atk_limit && (Ball.y > COORD_GOAL_DWN_Y || Ball.y < COORD_GOAL_UP_Y)) {
 					robots[i].status = CORNER_STATE; // bola no canto
-					// cout << "CORNER_STATE " << endl;
 				} else if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5 || Ball.y < ABS_ROBOT_SIZE*1.5) {
 					robots[i].status = SIDEWAYS;
 				}
