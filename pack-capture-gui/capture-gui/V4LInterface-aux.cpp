@@ -955,7 +955,7 @@ namespace capture
               // Constructor
 
               V4LInterface::V4LInterface() :
-              Gtk::VBox(false, 0) {
+              Gtk::VBox(false, 0), reset_warp_flag(false) {
                 offsetL=0;
                 offsetR=0;
 

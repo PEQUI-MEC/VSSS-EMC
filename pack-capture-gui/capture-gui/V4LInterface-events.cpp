@@ -210,6 +210,7 @@ namespace capture {
 		    bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
 		    bt_load.set_state(Gtk::STATE_INSENSITIVE);
 		    bt_save.set_state(Gtk::STATE_INSENSITIVE);
+				reset_warp_flag = true;
 		    //bt_invert_image.set_state(Gtk::STATE_INSENSITIVE);
 		}
 	}
@@ -239,6 +240,7 @@ namespace capture {
 		offsetR = 0;
 		HScale_offsetL.set_value(0);
 		HScale_offsetR.set_value(0);
+		reset_warp_flag = true;
 	}
 
 	void V4LInterface::__event_bt_invert_image_signal_clicked() {

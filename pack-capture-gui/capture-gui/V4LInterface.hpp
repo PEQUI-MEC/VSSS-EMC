@@ -64,6 +64,8 @@ public:
     Gtk::HBox draw_info_hbox;
     bool draw_info_flag = false;
 
+    bool reset_warp_flag;
+
     Gtk::VBox robots_id_vbox;
     Gtk::HBox robots_id_hbox[4];
     Gtk::Button robots_id_edit_bt;
