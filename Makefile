@@ -48,56 +48,16 @@ VSSS: welcome cc/vision/gmm.o cc/vision/tag.o cc/vision/vision.o cc/controlGUI.o
 # mensagem de boas vindas, fica daora
 welcome:
 	@echo "\n\033[92m|------- VSSS 2017 - PEQUI MECÂNICO -------|\033[0m"
+	@echo "\n\033[92mThis script will build only necessary objects.\033[0m\n"
 
 # verifica se algum hpp ou cpp foi alterado e compila a main se precisar
 cc/main.o: cc/main.cpp $(SOURCES)
 	@echo "\n\n\033[92mCompiling main program...\033[0m\n"
 	@$(COMPILER) -w -I"pack-capture-gui" -I"pack-capture" -O0 -g3 -Wall -c "cc/main.cpp" -o "cc/main.o" `pkg-config gtkmm-3.0 --cflags`
 
-# objeto da visão
-cc/vision/vision.o: cc/vision/vision.cpp
-	@echo "\n\n\033[92mCompiling vision object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/vision.cpp" -o "cc/vision/vision.o" -lboost_thread -lboost_system
 
-# objeto visionGUI
-cc/vision/visionGUI.o: cc/vision/visionGUI.cpp
-	@echo "\n\n\033[92mCompiling visionGUI object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags` "cc/vision/visionGUI.cpp" -o "cc/vision/visionGUI.o"
 
-# objeto das tags
-cc/vision/tag.o: cc/vision/tag.cpp
-	@echo "\n\n\033[92mCompiling tag object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
-
-# objeto ImageView
-pack-capture-gui/capture-gui/ImageView.o: pack-capture-gui/capture-gui/ImageView.cpp
-	@echo "\n\n\033[92mCompiling ImageView object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags opencv` "pack-capture-gui/capture-gui/ImageView.cpp" `pkg-config --libs opencv` -o "pack-capture-gui/capture-gui/ImageView.o"
-
-# objeto do GMM
-cc/vision/gmm.o: cc/vision/gmm.cpp
-	@echo "\n\n\033[92mCompiling GMM object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/gmm.cpp" `pkg-config --libs opencv` -o "cc/vision/gmm.o" -lboost_thread -lboost_system
-
-# objeto do frame de teste
-cc/TestFrame.o: cc/TestFrame.cpp
-	@echo "\n\n\033[92mCompiling test frame object...\033[0m\n"
-	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/TestFrame.cpp" -o "cc/TestFrame.o"
-
-# objeto controlGUI
-cc/controlGUI.o: cc/controlGUI.cpp
-	@echo "\n\n\033[92mCompiling controlGUI object...\033[0m\n"
-	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -c "cc/controlGUI.cpp" -o "cc/controlGUI.o"
-
-# objeto SerialW
-cc/SerialW.o: cc/SerialW.cpp
-	@echo "\n\n\033[92mCompiling SerialW object...\033[0m\n"
-	@$(COMPILER) -c "cc/SerialW.cpp" -o "cc/SerialW.o"
-
-# objeto FileChooser
-cc/filechooser.o: cc/filechooser.cpp
-	@echo "\n\n\033[92mCompiling FileChooser object...\033[0m\n"
-	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/filechooser.cpp" -o "cc/filechooser.o"
+####### CAPTURA #######
 
 # objeto do v4lcap (captura)
 pack-capture/capture/v4lcap.o: pack-capture/capture/v4lcap.cpp
@@ -105,16 +65,34 @@ pack-capture/capture/v4lcap.o: pack-capture/capture/v4lcap.cpp
 	@$(COMPILER) -O0 -g3 -w -c "pack-capture/capture/v4lcap.cpp" -o "pack-capture/capture/v4lcap.o"
 	@ar -r "pack-capture/libpack-capture.a" "pack-capture/capture/v4lcap.o"
 
-# objeto da interface
-pack-capture-gui/capture-gui/V4LInterface-aux.o: pack-capture-gui/capture-gui/V4LInterface-aux.cpp
-	@echo "\n\n\033[92mCompiling interface object...\033[0m\n"
-	@$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
+# objeto ImageView
+pack-capture-gui/capture-gui/ImageView.o: pack-capture-gui/capture-gui/ImageView.cpp
+	@echo "\n\n\033[92mCompiling ImageView object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags opencv` "pack-capture-gui/capture-gui/ImageView.cpp" `pkg-config --libs opencv` -o "pack-capture-gui/capture-gui/ImageView.o"
 
-# objeto de eventos da interface
-pack-capture-gui/capture-gui/V4LInterface-events.o: pack-capture-gui/capture-gui/V4LInterface-events.cpp
-	@echo "\n\n\033[92mCompiling interface events object...\033[0m\n"
-	@$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
-	@ar -r  "pack-capture-gui/libpack-capture-gui.a"  "pack-capture-gui/capture-gui/V4LInterface-aux.o" "pack-capture-gui/capture-gui/V4LInterface-events.o"
+
+
+
+######## VISÃO ########
+
+# objeto da visão
+cc/vision/vision.o: cc/vision/vision.cpp
+	@echo "\n\n\033[92mCompiling vision object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/vision.cpp" -o "cc/vision/vision.o" -lboost_thread -lboost_system
+
+# objeto das tags
+cc/vision/tag.o: cc/vision/tag.cpp
+	@echo "\n\n\033[92mCompiling tag object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
+
+# objeto do GMM
+cc/vision/gmm.o: cc/vision/gmm.cpp
+	@echo "\n\n\033[92mCompiling GMM object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/gmm.cpp" `pkg-config --libs opencv` -o "cc/vision/gmm.o" -lboost_thread -lboost_system
+
+
+
+######## ESTRATÉGIA #######
 
 # objeto do controlador da fuzzy
 cc/Fuzzy/FuzzyController.o: cc/Fuzzy/FuzzyController.cpp
@@ -130,6 +108,52 @@ cc/Fuzzy/FuzzyFunction.o: cc/Fuzzy/FuzzyFunction.cpp
 cc/Fuzzy/Rules.o: cc/Fuzzy/Rules.cpp
 	@echo "\n\n\033[92mCompiling fuzzy rules object...\033[0m\n"
 	@$(COMPILER) $(FUZZYFLAGS) "cc/Fuzzy/Rules.cpp" -o "cc/Fuzzy/Rules.o"
+
+
+
+####### CONTROLE #######
+
+# objeto SerialW
+cc/SerialW.o: cc/SerialW.cpp
+	@echo "\n\n\033[92mCompiling SerialW object...\033[0m\n"
+	@$(COMPILER) -c "cc/SerialW.cpp" -o "cc/SerialW.o"
+
+
+
+####### INTERFACE ######
+
+# objeto visionGUI
+cc/vision/visionGUI.o: cc/vision/visionGUI.cpp
+	@echo "\n\n\033[92mCompiling visionGUI object...\033[0m\n"
+	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags` "cc/vision/visionGUI.cpp" -o "cc/vision/visionGUI.o"
+
+# objeto controlGUI
+cc/controlGUI.o: cc/controlGUI.cpp
+	@echo "\n\n\033[92mCompiling controlGUI object...\033[0m\n"
+	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -c "cc/controlGUI.cpp" -o "cc/controlGUI.o"
+
+# objeto do frame de teste
+cc/TestFrame.o: cc/TestFrame.cpp
+	@echo "\n\n\033[92mCompiling test frame object...\033[0m\n"
+	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/TestFrame.cpp" -o "cc/TestFrame.o"
+
+# objeto FileChooser
+cc/filechooser.o: cc/filechooser.cpp
+	@echo "\n\n\033[92mCompiling FileChooser object...\033[0m\n"
+	@$(COMPILER) `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c "cc/filechooser.cpp" -o "cc/filechooser.o"
+
+# objeto da interface
+pack-capture-gui/capture-gui/V4LInterface-aux.o: pack-capture-gui/capture-gui/V4LInterface-aux.cpp
+	@echo "\n\n\033[92mCompiling interface object...\033[0m\n"
+	@$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-aux.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-aux.o"
+
+# objeto de eventos da interface
+pack-capture-gui/capture-gui/V4LInterface-events.o: pack-capture-gui/capture-gui/V4LInterface-events.cpp
+	@echo "\n\n\033[92mCompiling interface events object...\033[0m\n"
+	@$(COMPILER) $(CAPFLAGS) "pack-capture-gui/capture-gui/V4LInterface-events.cpp" -o "pack-capture-gui/capture-gui/V4LInterface-events.o"
+	@ar -r  "pack-capture-gui/libpack-capture-gui.a"  "pack-capture-gui/capture-gui/V4LInterface-aux.o" "pack-capture-gui/capture-gui/V4LInterface-events.o"
+
+
 
 # regras de limpeza
 # isso apaga todos os objetos compilados e o executável
