@@ -80,7 +80,7 @@ void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Poin
 
 // verifica se alvo está dentro do campo
 bool Planner::validate_target(cv::Point target) {
-    return target.x > ROBOT_RADIUS && deviation_points[0].x < WIDTH - ROBOT_RADIUS && deviation_points[0].y > ROBOT_RADIUS && deviation_points[0].y < HEIGHT - ROBOT_RADIUS);
+    return target.x > ROBOT_RADIUS && target.x < WIDTH - ROBOT_RADIUS && target.y > ROBOT_RADIUS && target.y < HEIGHT - ROBOT_RADIUS;
 }
 
 // função de inicialização do Planner
