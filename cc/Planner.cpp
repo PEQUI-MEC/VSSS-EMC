@@ -1,79 +1,62 @@
 #include "Planner.hpp"
 
 // recalcula os targets dos robôs controlados por posição desviando de obstáculos
-void Planner::plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball) {
+void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this) {
+    if(!use_this || pRobots == NULL ||
+        robot_index < 0 || robot_index >= (*pRobots).size() ||
+        advRobots == NULL || ball == cv::Point(-1, -1)) {
+        // std::cout << "Wrong state. Planning not used.\n";
+        return;
+    }
+
+    // pra ficar mais fácil manipular o vetor
     std::vector<Robot> robots = *pRobots;
 
+    // gera um estado ordenado e organizado
     State current_state = gen_state(*pRobots, advRobots, ball);
 
     // atualiza o histórico para fazer as predições
     update_hist(current_state);
 
-    // planeja os alvos de cada robô
-    for(int i = 0; i < robots.size(); i++) {
-        // só planeja a trajetória de robôs que têm um alvo
-        // ignora comandos de orientação ou velocidade que não devem ser planejados
-        if(robots.at(i).cmdType != POSITION || robots.at(i).ignore_planning)
-            continue;
+    // desabilita o campo potencial para esse robô
+    robots.at(robot_index).using_pot_field = false;
 
-        // desabilita o campo potencial para esse robô
-        robots.at(i).using_pot_field = false;
+    // auxiliar de fallback caso não seja necessário mudar o alvo do robô
+    cv::Point target = robots.at(robot_index).target;
+    std::cout << "(" << robot_index + 1 << ") my position: " << robots.at(robot_index).position << "\n";
+    std::cout << "(" << robot_index + 1 << ") original target: " << target << "\n";
 
-        // se o alvo desse robo é a bola, chega nela com orientação correta para o gol
-        if(robots[i].target == current_state.objects.at(0)) {
-            std::cout << "going to ball\n";
-            Planner::VelocityVector vector;
-            // parâmetros para fazer com que o robô sempre chegue em seu alvo alinhado com o gol
-            vector = curved_arrival_control(robots.at(i).position, robots.at(i).target, cv::Point(WIDTH, HEIGHT/2), robots.at(i).vdefault);
+    // prevê estados futuros
+    State predicted_state = predict_positions(robots.at(robot_index).vmax);
 
-            // salva o novo passo da trajetória no robô
-            // - controle por vetor
-            robots[i].cmdType = VECTOR;
-            robots[i].transAngle = vector.angle;
-            //robots[i].vmax = vector.velocity;
-        }
-        else { // se o alvo não for a bola, verifica se há obstáculos e desvia deles
-            std::cout << "finding deviations\n";
-            cv::Point target = robots.at(i).target;
-
-            State predicted_state = predict_positions(robots.at(i).vmax);
-            // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
-            std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(i + 1), target);
-            // se há obstáculos
-            if(obstacles.size() > 0) {
-                //std::cout << "obstacle(" << i << "): " << obstacles[0].position << "\n";
-                // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
-                cv::Point * deviation_points = find_deviation(robots.at(i).position, target, obstacles.at(0));
-                // verifica se o ponto de desvio é válido
-                if(!validate_target(deviation_points[0])) {
-                    deviation_points[0] = deviation_points[1];
-                    if(!validate_target(deviation_points[0])) {
-                        // desvio inválido
-                        // ignora obstáculos
-                        return;
-                    }
-                    else {
-                        target = deviation_points[0];
-                    }
-                }
-                else {
-                    target = deviation_points[0];
-                }
-
-                robots[i].cmdType = POSITION;
-                robots[i].target = target;
-
-                //Planner::VelocityVector vector;
-                //vector = curved_deviation_control(robots.at(i).position, deviation_points[0], target, robots.at(i).vdefault);
-
-                // salva o novo passo da trajetória no robô
-                // - controle por vetor
-                //robots[i].cmdType = VECTOR;
-                //robots[i].transAngle = vector.angle;
-                //robots[i].vmax = vector.velocity;
+    // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
+    std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target);
+    // se há obstáculos
+    if(obstacles.size() > 0) {
+        std::cout << "(" << robot_index + 1 << ") obstacle: " << obstacles[0].position << "\n";
+        // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
+        cv::Point * deviation_points = find_deviation(robots.at(robot_index).position, target, obstacles.at(0));
+        // verifica se o ponto de desvio é válido
+        if(!validate_target(deviation_points[0])) {
+            deviation_points[0] = deviation_points[1];
+            if(!validate_target(deviation_points[0])) {
+                // desvio inválido
+                // ignora obstáculos
+                return;
+            }
+            else {
+                target = deviation_points[0];
             }
         }
-    }
+        else {
+            target = deviation_points[0];
+        }
+        std::cout << "(" << robot_index + 1 << ") new target: " << target << "\n\n";
+
+        robots.at(robot_index).target = target;
+        robots.at(robot_index).vmax = robots.at(robot_index).vdefault;
+    } // se obstáculos > 0
+
     // atualiza o vetor pra estratégia
     *pRobots = robots;
 }
@@ -105,242 +88,6 @@ Planner::State Planner::gen_state(std::vector<Robot> robots, cv::Point * advRobo
     }
 
     return new_state;
-}
-
-// função que faz a transformação da base canônica para base na qual o robô é a origem
-// retorna a base que foi encontrada
-double Planner::canonic_to_robot_base(cv::Point * origin, cv::Point * mid, cv::Point * target) {
-    // só pra ficar mais fácil de trabalhar
-    cv::Point ori = *origin, mi = *mid, tar = *target;
-    double theta;
-
-    // translada pra origem
-    mi -= ori;
-    tar -= ori;
-    ori -= ori;
-
-    // encontra a base
-    // - encontra a inclinação do eixo
-    theta = atan2(tar.y, tar.x);
-
-    // faz a mudança de base
-    tar = cv::Point(tar.x*cos(-theta) - tar.y*sin(-theta), tar.x*sin(-theta) + tar.y*cos(-theta));
-    mi = cv::Point(mi.x*cos(-theta) - mi.y*sin(-theta), mi.x*sin(-theta) + mi.y*cos(-theta));
-
-    // atualiza os valores a retornar
-    *origin = ori;
-    *mid = mi;
-    *target = tar;
-
-    return theta;
-}
-// função que faz a transformação da base na qual o robô é a origem para a base canônica
-cv::Point Planner::robot_base_to_canonic(cv::Point base, double theta, cv::Point point) {
-    // desfaz a rotação do vetor
-    point = cv::Point(point.x*cos(theta) - point.y*sin(theta), point.x*sin(theta) + point.y*cos(theta));
-    // translada pro ponto original
-    point += base;
-
-    return point;
-}
-
-// na visão, o y cresce pra baixo. faz ele crescer pra cima e vice-versa
-double Planner::compl_y(double y) {
-    return HEIGHT - y;
-}
-
-/* GERAÇÃO DA CURVA */
-double Planner::determinant(double a, double b, double c, double d) {
-    return (a * d) - (b * c);
-}
-bool Planner::find_parabola(double * a, double * b, double * c, cv::Point p1, cv::Point p2, cv::Point p3) {
-    /*
-    *a = y1/((x1-x2)*(x1-x3)) +
-        y2/((x2-x1)*(x2-x3)) +
-        y3/((x3-x1)*(x3-x2));
-
-    *b = -y1*(x2+x3)/((x1-x2)*(x1-x3))
-        -y2*(x1+x3)/((x2-x1)*(x2-x3))
-        -y3*(x1+x2)/((x3-x1)*(x3-x2));
-
-    *c = y1*x2*x3/((x1-x2)*(x1-x3))
-      + y2*x1*x3/((x2-x1)*(x2-x3))
-      + y3*x1*x2/((x3-x1)*(x3-x2));
-
-      return true;
-
-      */
-    double ax = p1.x;
-    double ay = p1.y;
-    double bx = p2.x;
-    double by = p2.y;
-    double cx = p3.x;
-    double cy = p3.y;
-
-    double A1 = (ax * ax) - (bx * bx);
-    double B1 = ax - bx;
-    double C1 = ay - by;
-    double A2 = (bx * bx) - (cx * cx);
-    double B2 = bx - cx;
-    double C2 = by - cy;
-
-    double det = determinant(A1, B1, A2, B2);
-    double deta = determinant(C1, B1, C2, B2);
-    double detb = determinant(A1, C1, A2, C2);
-
-    if(det != 0) {
-        double coefa = deta / det;
-        double coefb = detb / det;
-        double cc1 = coefa * ax;
-        double cc2 = ay - (cc1 * ax);
-        double coefc = cc2 - (coefb * ax);
-
-        *a = coefa;
-        *b = coefb;
-        *c = coefc;
-        return true;
-    } else {
-        // não foi possível encontrar a equação
-        return false;
-    }
-}
-/* CURVA GERADA */
-
-// resolve um sistema de equações de três variáveis e três incógnitas
-bool Planner::solve_eq_system(double * a, double * b, double * c, cv::Point p1, cv::Point p2, double end_slope) {
-    double D = (p1.x*p2.x+pow(p2.x, 2))-(pow(p1.x, 2)+p2.x*p2.x);
-
-    if(D != 0) {
-        *a = ((p2.x*end_slope+p1.y)-(p1.x*end_slope+p2.y))/D;
-        *b = ((pow(p1.x, 2)*end_slope+p2.x*p2.y)-(pow(p2.x, 2)*end_slope+p1.y*p2.x))/D;
-        *c = ((pow(p1.x, 2)*p2.y+p1.x*pow(p2.x, 2)*end_slope+p1.y*p2.x*p2.x)-(pow(p1.x, 2)*p2.x*end_slope+p1.x*p2.x*p2.y+p1.y*pow(p2.x, 2)))/D;
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-Planner::VelocityVector Planner::curved_arrival_control(cv::Point start, cv::Point end, cv::Point after_end, double vdefault) {
-    Planner::VelocityVector vector;
-    double a, b, c, slope, baseTheta;
-    cv::Point target, base = start;
-
-    // coloca os y pra crescer pra cima
-    start.y = compl_y(start.y);
-    base.y = start.y; // são o mesmo valor
-    end.y = compl_y(end.y);
-    after_end.y = compl_y(after_end.y);
-
-    // converte os pontos para a base do ponto start
-    end -= start;
-    after_end -= start;
-    start -= start;
-    baseTheta = atan2(end.y, end.x);
-    end = cv::Point(end.x*cos(-baseTheta) - end.y*sin(-baseTheta), end.x*sin(-baseTheta) + end.y*cos(-baseTheta));
-    after_end = cv::Point(after_end.x*cos(-baseTheta) - after_end.y*sin(-baseTheta), after_end.x*sin(-baseTheta) + after_end.y*cos(-baseTheta));
-
-    // calcula o slope da reta que o robô deve chegar
-    slope = (after_end.y - end.y) / (after_end.x - end.x);
-
-    // verifica se o sistema é resolvível
-    if(solve_eq_system(&a, &b, &c, start, end, slope)) {
-        // encontra o próximo ponto de alvo
-        target.x = start.x + DELTA_X;
-        // aplica a equação
-        target.y = a * pow(target.x, 2) + b * target.x + c;
-
-        std::cout << "Raw Target: " << target <<"\n";
-
-        // desconverte o alvo encontrado
-        target = robot_base_to_canonic(base, baseTheta, target);
-        // desconverte o Y do alvo
-        target.y = compl_y(target.y);
-    } // senão, vai reto mesmo
-    else {
-        target = end;
-        // desconverte o alvo encontrado
-        target = robot_base_to_canonic(base, baseTheta, target);
-        // desconverte o Y do alvo
-        target.y = compl_y(target.y);
-        //std::cout << "Deu não\n";
-    }
-
-    // volta o start pra posição que tava antes e desconverte seu Y
-    start = robot_base_to_canonic(base, baseTheta, start);
-    start.y = compl_y(start.y);
-
-    // calcula o angulo do alvo calculado
-    vector.angle = atan2((target.y-start.y),-(target.x-start.x));
-
-    std::cout << "target: " << target << " angle: " << vector.angle << "\n";
-
-    // calcula a velocidade de forma a aproveitar ao máximo ângulos menores
-    vector.velocity = vdefault * (1 - pow(vector.angle, 4));
-    // faz um crop caso o ângulo seja muito grande
-    if(vector.velocity < 0.5)
-        vector.velocity = 0.5;
-}
-Planner::VelocityVector Planner::curved_deviation_control(cv::Point start, cv::Point mid, cv::Point end, double vdefault) {
-    Planner::VelocityVector vector;
-    double a, b, c, baseTheta;
-    cv::Point target, base = start;
-
-    std::cout << "\nStart: " << start << " Mid: " << mid << " End: " << end << "\n";
-
-    // coloca os y pra crescer pra cima
-    start.y = compl_y(start.y);
-    base.y = start.y; // é o mesmo valor
-    mid.y = compl_y(mid.y);
-    end.y = compl_y(end.y);
-
-    // converte os pontos para a base do ponto start
-    baseTheta = canonic_to_robot_base(&start, &mid, &end);
-
-    std::cout << "baseTheta: " << baseTheta << "\nStart: " << start << " Mid: " << mid << " End: " << end << "\n";
-
-    // gera os coeficientes da curva
-    if(find_parabola(&a, &b, &c, start, mid, end)) {
-        std::cout << "a:" << a << " b:" << b << " c: " << c << "\n";
-
-        // encontra o próximo ponto de alvo
-        target.x = start.x + DELTA_X;
-        // aplica a equação
-        target.y = a * pow(target.x, 2) + b * target.x + c;
-
-        std::cout << "Raw Target: " << target <<"\n";
-
-        // desconverte o alvo encontrado
-        target = robot_base_to_canonic(base, baseTheta, target);
-        // desconverte o Y do alvo
-        target.y = compl_y(target.y);
-
-        std::cout << target << "\n";
-    }
-    else {
-        target = end;
-        // desconverte o alvo encontrado
-        target = robot_base_to_canonic(base, baseTheta, target);
-        // desconverte o Y do alvo
-        target.y = compl_y(target.y);
-    }
-
-    // volta o start pra posição que tava antes e desconverte seu Y
-    start = robot_base_to_canonic(base, baseTheta, start);
-    start.y = compl_y(start.y);
-
-    // calcula o angulo do alvo calculado
-    vector.angle = atan2((target.y-start.y),-(target.x-start.x));
-
-    std::cout << "target: " << target << " angle: " << vector.angle << "\n";
-
-    // calcula a velocidade de forma a aproveitar ao máximo ângulos menores
-    vector.velocity = vdefault * (1 - pow(vector.angle, 4));
-    // faz um crop caso o ângulo seja muito grande
-    if(vector.velocity < 0.5)
-        vector.velocity = 0.5;
-
-    return vector;
 }
 
 // atualiza o histórico de estados
@@ -380,10 +127,10 @@ std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv
             continue;
 
         // verifica se o obstáculo está perto suficiente da reta
-        if((tempDist = distance_to_line(startPos, target, predicted_state.objects.at(i))) < 2 * ROBOT_RADIUS) {
+        if((tempDist = distance_to_line(startPos, target, predicted_state.objects.at(i))) < ROBOT_RADIUS) {
             Obstacle obstacle;
             obstacle.position = predicted_state.objects.at(i);
-            obstacle.distance = tempDist;
+            obstacle.distance = abs(tempDist);
             obstacles.push_back(obstacle);
         }
     }
@@ -425,7 +172,7 @@ cv::Point * Planner::find_deviation(cv::Point start, cv::Point end, Planner::Obs
     deviations[1] = cv::Point(obstacle.position.x + 4*ROBOT_RADIUS*cos(angle + PI), obstacle.position.y + 4*ROBOT_RADIUS*sin(angle + PI));
 
     // ordena pro desvio mais próximo
-    if(distance_to_line(start, end, deviations[0]) > distance_to_line(start, end, deviations[1])) {
+    if(abs(distance_to_line(start, end, deviations[0])) > abs(distance_to_line(start, end, deviations[1]))) {
         cv::Point aux = deviations[0];
         deviations[0] = deviations[1];
         deviations[1] = aux;

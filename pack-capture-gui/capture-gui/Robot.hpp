@@ -19,7 +19,6 @@ class Robot
         float Vl,Vr;  // RPS
         bool fixedPos;
         bool using_pot_field;
-        bool ignore_planning;
         int role;
         int status;
 

@@ -36,11 +36,6 @@ private:
     // histórico de estados: armazena os HIST_SIZE últimos frames
     std::vector<State> hist;
 
-    // recebe pontos de início e fim de trajetória com suas respectivas orientações e retorna pontos da curva correspondente
-    VelocityVector curved_arrival_control(cv::Point start, cv::Point end, cv::Point after_end, double vdefault);
-    // recebe três pontos e retorna o vetor que deve ser executado para a curva nesse passo
-    Planner::VelocityVector curved_deviation_control(cv::Point start, cv::Point mid, cv::Point end, double vdefault);
-
     // gera salva o estado atual no histórico
     void update_hist(State current_state);
 
@@ -54,17 +49,6 @@ private:
 
     cv::Point * find_deviation(cv::Point start, cv::Point end, Obstacle obstacle);
 
-    double canonic_to_robot_base(cv::Point * origin, cv::Point * mid, cv::Point * target);
-    cv::Point robot_base_to_canonic(cv::Point base, double theta, cv::Point point);
-
-    double compl_y(double y);
-
-    double determinant(double a, double b, double c, double d);
-
-    bool find_parabola(double * a, double * b, double * c, cv::Point p1, cv::Point p2, cv::Point p3);
-
-    bool solve_eq_system(double * a, double * b, double * c, cv::Point p1, cv::Point p2, double end_slope);
-
     bool validate_target(cv::Point target);
 
 public:
@@ -72,7 +56,7 @@ public:
     // controle por curva
 
     // recebe um ponteiro para os robôs pois após tudo ser calculado os alvos devem ser atualizados
-    void plan(std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball);
+    void plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this);
 
     void set_constants(int width, int height);
 

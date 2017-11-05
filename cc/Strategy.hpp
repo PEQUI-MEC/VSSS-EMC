@@ -268,9 +268,7 @@ public:
 
 			for(int i =0; i<3; i++) { //pegar posições e índices
 				if(using_planner_flag)
-					robots[i].cmdType = POSITION;
-				else
-					robots[i].cmdType = VECTOR;
+				robots[i].cmdType = VECTOR;
 				robots[i].fixedPos = false;
 				robots[i].using_pot_field = false;
 				robots[i].vmax = robots[i].vdefault;
@@ -371,12 +369,8 @@ public:
 			//
 			// }
 
-			if(using_planner_flag) {
-				planner.plan(&robots, adv, Ball);
-			}
-
 			for(int i =0; i<3; i++) {
-				if(!robots[i].using_pot_field && !robots[i].cmdType == VECTOR) position_to_vector(i);
+				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				// cout << "fixed position checked" << endl;
 				// collision_check(i);
@@ -1116,11 +1110,12 @@ public:
 			case NORMAL_STATE:
 				if(Ball.x > corner_atk_limit) {
 					robots[i].target = cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y);
-					robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y));
+					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y));
 				} else {
 					robots[i].target = cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
-					robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y));
+					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y));
 				}
+				planner.plan(i, &robots, adv, Ball, using_planner_flag);
 				def_wait(i);
 			break;
 

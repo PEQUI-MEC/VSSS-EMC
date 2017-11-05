@@ -576,6 +576,8 @@ public:
                     interface.robot_list[i].Vl = 0 ;
                 }
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
+                    interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
+                    strategyGUI.strategy.planner.plan(i, &interface.robot_list, interface.visionGUI.vision->getAllAdvRobots(), interface.visionGUI.vision->getBall(), strategyGUI.strategy.using_planner_flag);
                     //interface.robot_list[i].goTo(interface.robot_list[i].target,interface.visionGUI.vision->getBall());
                 } else {
                     interface.robot_list[i].Vr = 0 ;
