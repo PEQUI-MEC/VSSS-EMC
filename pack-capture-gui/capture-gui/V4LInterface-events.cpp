@@ -58,7 +58,7 @@ namespace capture {
 		FileChooser loadWindow;
 
 		if (loadWindow.result == Gtk::RESPONSE_OK)
-		    if(!V4LInterface::__core_save(loadWindow.filename.c_str()))
+		    if(!V4LInterface::__core_save(loadWindow.fileName.c_str()))
 			{
 				std::cout<<"Error: could not save."<<std::endl;
 			}
@@ -83,7 +83,7 @@ namespace capture {
 		FileChooser loadWindow;
 
 		if (loadWindow.result == Gtk::RESPONSE_OK)
-			if (!V4LInterface::__core_load(loadWindow.filename.c_str()))
+			if (!V4LInterface::__core_load(loadWindow.fileName.c_str()))
 			{
 			  std::cout << "Error: could not quick load. The requested file could not be opened." << std::endl;
 			}
@@ -150,6 +150,8 @@ namespace capture {
 				HScale_offsetR.set_state(Gtk::STATE_NORMAL);
 				HScale_offsetL.set_state(Gtk::STATE_NORMAL);
 				visionGUI.bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
+				visionGUI.rb_mode_GMM.set_state(Gtk::STATE_NORMAL);
+				visionGUI.rb_mode_HSV.set_state(Gtk::STATE_NORMAL);
 				visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
 				visionGUI.bt_save_picture.set_state(Gtk::STATE_NORMAL);
 				visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
@@ -208,6 +210,7 @@ namespace capture {
 		    bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
 		    bt_load.set_state(Gtk::STATE_INSENSITIVE);
 		    bt_save.set_state(Gtk::STATE_INSENSITIVE);
+				reset_warp_flag = true;
 		    //bt_invert_image.set_state(Gtk::STATE_INSENSITIVE);
 		}
 	}
@@ -237,6 +240,7 @@ namespace capture {
 		offsetR = 0;
 		HScale_offsetL.set_value(0);
 		HScale_offsetR.set_value(0);
+		reset_warp_flag = true;
 	}
 
 	void V4LInterface::__event_bt_invert_image_signal_clicked() {
@@ -587,9 +591,6 @@ namespace capture {
 					for(int i=0; i<3; i++)
 						robot_list.at(i).cmdType = 0; // Position
 		    }
-
-        for(int i=0; i<3; i++)
-          robot_list[i].histWipe();
     }
 
     void V4LInterface::event_robots_function_edit_bt_signal_clicked(){
