@@ -45,7 +45,9 @@ private:
     // encontra os obstáculos entre o ponto de início e de fim
     std::vector<Obstacle> find_obstacles(State predicted_state, cv::Point startPos, cv::Point target);
 
-    double distance_to_line(cv::Point start, cv::Point end, cv::Point mid);
+    double distance(cv::Point p1, cv::Point p2);
+
+    double distance_to_line(cv::Point start, cv::Point end, cv::Point point);
 
     cv::Point * find_deviation(cv::Point start, cv::Point end, Obstacle obstacle);
 
@@ -56,7 +58,7 @@ public:
     // controle por curva
 
     // recebe um ponteiro para os robôs pois após tudo ser calculado os alvos devem ser atualizados
-    void plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this);
+    void plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this, cv::Point * obstacle, cv::Point * deviation1, cv::Point * deviation2);
 
     void set_constants(int width, int height);
 

@@ -1,7 +1,7 @@
 #include "Planner.hpp"
 
 // recalcula os targets dos robôs controlados por posição desviando de obstáculos
-void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this) {
+void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this, cv::Point * obstacle, cv::Point * deviation1, cv::Point * deviation2) {
     if(!use_this || pRobots == NULL ||
         robot_index < 0 || robot_index >= (*pRobots).size() ||
         advRobots == NULL || ball == cv::Point(-1, -1)) {
@@ -23,8 +23,8 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * ad
 
     // auxiliar de fallback caso não seja necessário mudar o alvo do robô
     cv::Point target = robots.at(robot_index).target;
-    std::cout << "(" << robot_index + 1 << ") my position: " << robots.at(robot_index).position << "\n";
-    std::cout << "(" << robot_index + 1 << ") original target: " << target << "\n";
+    //std::cout << "(" << robot_index + 1 << ") my position: " << robots.at(robot_index).position << "\n";
+    //std::cout << "(" << robot_index + 1 << ") original target: " << target << "\n";
 
     // prevê estados futuros
     State predicted_state = predict_positions(robots.at(robot_index).vmax);
@@ -33,7 +33,9 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * ad
     std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target);
     // se há obstáculos
     if(obstacles.size() > 0) {
-        std::cout << "(" << robot_index + 1 << ") obstacle: " << obstacles[0].position << "\n";
+        *obstacle = obstacles[0].position;
+        //std::cout << "(" << robot_index + 1 << ") obstacle: " << obstacles[0].position << "\n";
+
         // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
         cv::Point * deviation_points = find_deviation(robots.at(robot_index).position, target, obstacles.at(0));
         // verifica se o ponto de desvio é válido
@@ -51,7 +53,10 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * ad
         else {
             target = deviation_points[0];
         }
-        std::cout << "(" << robot_index + 1 << ") new target: " << target << "\n\n";
+
+        *deviation1 = deviation_points[0];
+        *deviation2 = deviation_points[1];
+        //std::cout << "(" << robot_index + 1 << ") new target: " << target << "\n\n";
 
         robots.at(robot_index).target = target;
         robots.at(robot_index).vmax = robots.at(robot_index).vdefault;
@@ -104,15 +109,26 @@ Planner::State Planner::predict_positions(double timeAhead) {
     return hist.back();
 }
 
-// calcula a distância entre um ponto e uma reta
-double Planner::distance_to_line(cv::Point start, cv::Point end, cv::Point mid){
-    // translada para a origem
+double Planner::distance(cv::Point p1, cv::Point p2) {
+    return sqrt(pow(p1.x-p2.x,2) + pow(p1.y-p2.y,2));
+}
+// calcula a distância de um ponto pra uma linha, transformando pra origem e rotacionando de forma que D seja equivalente ao Y do ponto transformado
+double Planner::distance_to_line(cv::Point start, cv::Point end, cv::Point point) {
+    double theta;
+
+    // translada pra origem
     end -= start;
-    mid -= start;
+    point -= start;
+    start -= start;
 
-    double area = mid.x*end.y - mid.y*end.x;
+    // encontra a inclinação do eixo
+    theta = atan2(end.y, end.x);
 
-    return area / norm(end);
+    // rotaciona o ponto
+    point = cv::Point(point.x*cos(-theta) - point.y*sin(-theta), point.x*sin(-theta) + point.y*cos(-theta));
+
+    // como o ponto foi rotacionado em torno da origem em direção ao eixo x onde end.y = 0, a altura do ponto corresponde à sua distancia
+    return point.y;
 }
 
 // encontra obstáculos entre dois pontos e retorna um vetor ordenado
@@ -127,7 +143,12 @@ std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv
             continue;
 
         // verifica se o obstáculo está perto suficiente da reta
-        if((tempDist = distance_to_line(startPos, target, predicted_state.objects.at(i))) < ROBOT_RADIUS) {
+        if(abs(tempDist = distance_to_line(startPos, target, predicted_state.objects.at(i))) < 2 * ROBOT_RADIUS) {
+            // se tá perto, verifica ainda se tá realmente na frente
+            if(distance(startPos, target) < distance(predicted_state.objects.at(i), target)) {
+                continue;
+            }
+            //std::cout << "From " << startPos << " to " << target << " there is " << predicted_state.objects.at(i) << " at a " << tempDist << " pixels distance\n";
             Obstacle obstacle;
             obstacle.position = predicted_state.objects.at(i);
             obstacle.distance = abs(tempDist);
@@ -164,12 +185,13 @@ cv::Point * Planner::find_deviation(cv::Point start, cv::Point end, Planner::Obs
     cv::Point * deviations = new cv::Point[2];
 
     // encontra o angulo entre start e end, soma 90 pra encontrar o angulo da perpendicular
-    double angle = atan2(double(start.y - end.y), - double(start.x - end.x));
-    angle -= PI/2;
+    double angle = -atan2(double(end.y - start.y), - double(end.x - start.x));
+
+    angle += PI/2;
 
     // gera uma reta a partir do obstacle.position
     deviations[0] = cv::Point(obstacle.position.x + 4*ROBOT_RADIUS*cos(angle), obstacle.position.y + 4*ROBOT_RADIUS*sin(angle));
-    deviations[1] = cv::Point(obstacle.position.x + 4*ROBOT_RADIUS*cos(angle + PI), obstacle.position.y + 4*ROBOT_RADIUS*sin(angle + PI));
+    deviations[1] = cv::Point(obstacle.position.x - 4*ROBOT_RADIUS*cos(angle), obstacle.position.y - 4*ROBOT_RADIUS*sin(angle));
 
     // ordena pro desvio mais próximo
     if(abs(distance_to_line(start, end, deviations[0])) > abs(distance_to_line(start, end, deviations[1]))) {

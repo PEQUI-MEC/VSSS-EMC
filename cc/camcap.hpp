@@ -76,6 +76,11 @@ public:
     boost::thread_group threshold_threads;
     sigc::connection con;
 
+    /* PARA TESTE */
+    cv::Point obstacle;
+    cv::Point deviation1;
+    cv::Point deviation2;
+
     void updateAllPositions()
     {
         Robot robot;
@@ -256,9 +261,22 @@ public:
 
                 if (interface.imageView.PID_test_flag) {
                   for(int i=0; i<interface.robot_list.size(); i++) {
-                      if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1)
+                      if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
+                          // linha branca no alvo sendo executado
                           line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
-                      circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(255,255,255), 2);
+                          // linha roxa no alvo final
+                          line(imageView, interface.robot_list[i].position, cv::Point(interface.imageView.tar_pos[0], interface.imageView.tar_pos[1]), cv::Scalar(255,0,255),2);
+                      }
+                      // círculo branco no alvo sendo executado
+                      circle(imageView,interface.robot_list[i].target, 9, cv::Scalar(255,255,255), 2);
+                      // círculo roxo no alvo final
+                      circle(imageView,cv::Point(interface.imageView.tar_pos[0], interface.imageView.tar_pos[1]), 7, cv::Scalar(255,0,255), 2);
+                      // círculo vermelho no obstáculo
+                      circle(imageView,obstacle, 17, cv::Scalar(255,0,0), 2);
+                      // círculo verde nos desvios
+                      circle(imageView,deviation1, 7, cv::Scalar(0,255,0), 2);
+                      circle(imageView,deviation2, 7, cv::Scalar(0,255,0), 2);
+
                   }
                   if(Selec_index!=-1) {
                       circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
@@ -577,7 +595,7 @@ public:
                 }
                 if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
                     interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
-                    strategyGUI.strategy.planner.plan(i, &interface.robot_list, interface.visionGUI.vision->getAllAdvRobots(), interface.visionGUI.vision->getBall(), strategyGUI.strategy.using_planner_flag);
+                    strategyGUI.strategy.planner.plan(i, &interface.robot_list, interface.visionGUI.vision->getAllAdvRobots(), interface.visionGUI.vision->getBall(), strategyGUI.strategy.using_planner_flag, &obstacle, &deviation1, &deviation2);
                     //interface.robot_list[i].goTo(interface.robot_list[i].target,interface.visionGUI.vision->getBall());
                 } else {
                     interface.robot_list[i].Vr = 0 ;
