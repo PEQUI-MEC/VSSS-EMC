@@ -45,7 +45,7 @@ private:
     State gen_state(std::vector<Robot> robots, cv::Point * advRobots, cv::Point ball);
 
     // encontra os obstáculos entre o ponto de início e de fim
-    std::vector<Obstacle> find_obstacles(State predicted_state, cv::Point startPos, cv::Point target);
+    std::vector<Obstacle> find_obstacles(State predicted_state, cv::Point startPos, cv::Point target, int start_index);
 
     double distance(cv::Point p1, cv::Point p2);
 
