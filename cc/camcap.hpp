@@ -32,14 +32,11 @@
 #include <fstream>
 #include "CPUTimer.cpp"
 
-#define MAX_THETA_TOLERATION 5
+#define MAX_THETA_TOLERATION 3
 #define MAX_POSITIONING_VEL 0.1
 
 
-class CamCap:
-
-
-public Gtk::HBox {
+class CamCap: public Gtk::HBox {
 public:
     int width, height;
     int Selec_index=-1;
@@ -449,7 +446,7 @@ public:
         int robots_positioned = 0;
         //std::cout << "\niteration id#" << rand() << "\n";
         for(int i = 0; i < interface.robot_list.size(); i++) {
-            if(distance(interface.robot_list.at(i).position, virtual_robots_positions[i]) > strategyGUI.strategy.fixed_pos_distance / 2) {
+            if(distance(interface.robot_list.at(i).position, virtual_robots_positions[i]) > strategyGUI.strategy.fixed_pos_distance / 4) {
                 //interface.robot_list.at(i).cmdType = VECTOR;
                 //interface.robot_list.at(i).transAngle = atan2(double(interface.robot_list.at(i).position.y - virtual_robots_positions[i].y), - double(interface.robot_list.at(i).position.x - virtual_robots_positions[i].x));
                 interface.robot_list.at(i).vmax = MAX_POSITIONING_VEL;
@@ -507,7 +504,7 @@ public:
         // segundo clique
         if(virtual_robot_selected > -1) {
             if(interface.imageView.look_pos[0] >= 0) {
-                float x1, x2, y1, y2;
+                float x1, x2, y1, y2;robots.at(i).position.x < target.x - ROBOT_RADIUS*2
                 x1 = virtual_robots_positions[virtual_robot_selected].x;
                 y1 = virtual_robots_positions[virtual_robot_selected].y;
                 x2 = interface.imageView.look_pos[0];
