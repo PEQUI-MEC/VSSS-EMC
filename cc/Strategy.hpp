@@ -352,6 +352,7 @@ public:
 			if(full_transition && full_transition_enabled && transition_timeout == 0) {
 				full_transition = false;
 				full_transition_enabled = false;
+				half_transition_enabled = false;
 				transition_timeout = 90; //3 segundos
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
