@@ -577,6 +577,8 @@ public:
                 interface.robot_list[Selec_index].target=interface.visionGUI.vision->getBall();
             else
                 interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
+
+            interface.robot_list[Selec_index].vmax = interface.robot_list[Selec_index].vdefault;
         }
 
 
