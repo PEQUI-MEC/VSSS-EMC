@@ -482,11 +482,6 @@ public:
 		else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
 			half_transition = true;
 		}
-		// troca se está numa posição de cruzamento
-		else if((robots[atk].position.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_UP_Y) ||
-				(robots[atk].position.y < COORD_GOAL_DWN_Y && Ball.y > COORD_GOAL_DWN_Y)) {
-			half_transition = true;
-		}
 	}
 
 	void set_flags() {
