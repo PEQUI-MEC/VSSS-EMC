@@ -251,7 +251,7 @@ void Vision::pick_a_tag() {
     // ADV ROBOTS
     for (int i = 0; i < MAX_ADV; i++) {
         if(i < tags.at(ADV).size())
-            advRobots[i] = tags.at(ADV.at(i).position;
+            advRobots[i] = tags.at(ADV).at(i).position;
         else
             advRobots[i] = cv::Point(-1, -1);
     }
