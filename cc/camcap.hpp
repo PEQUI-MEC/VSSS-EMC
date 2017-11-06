@@ -589,10 +589,11 @@ public:
                     interface.robot_list[i].target = cv::Point(-1,-1);
                     interface.imageView.tar_pos[0]=-1;
                     interface.imageView.tar_pos[1]=-1;
-                    interface.robot_list[i].Vr = 0 ;
-                    interface.robot_list[i].Vl = 0 ;
+                    interface.robot_list[i].Vr = 0;
+                    interface.robot_list[i].Vl = 0;
+                    interface.robot_list[i].vmax = 0;
                 }
-                if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
+                if(interface.robot_list[i].target.x != -1 && interface.robot_list[i].target.y != -1) {
                     interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
                     strategyGUI.strategy.planner.plan(i, &interface.robot_list);
                     interface.robot_list[i].cmdType = VECTOR;
@@ -601,7 +602,6 @@ public:
                 } else {
                     interface.robot_list[i].Vr = 0;
                     interface.robot_list[i].Vl = 0;
-                    interface.robot_list[i].vmax = 0;
                 }
             }
         }
