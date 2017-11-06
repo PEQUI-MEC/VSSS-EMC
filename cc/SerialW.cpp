@@ -127,7 +127,7 @@ void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 		}
 	}
 	if (!cmd.str().empty()) sendSerial(cmd.str());
-	std::cout<<cmd.str()<<std::endl;
+	//std::cout<<cmd.str()<<std::endl;
 }
 
 void SerialW::sendSerial(std::string cmd){

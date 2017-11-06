@@ -599,8 +599,9 @@ public:
                     interface.robot_list[i].transAngle = atan2(double(interface.robot_list[i].position.y - interface.robot_list[i].target.y), - double(interface.robot_list[i].position.x - interface.robot_list[i].target.x));
                     //interface.robot_list[i].goTo(interface.robot_list[i].target,interface.visionGUI.vision->getBall());
                 } else {
-                    interface.robot_list[i].Vr = 0 ;
-                    interface.robot_list[i].Vl = 0 ;
+                    interface.robot_list[i].Vr = 0;
+                    interface.robot_list[i].Vl = 0;
+                    interface.robot_list[i].vmax = 0;
                 }
             }
         }
