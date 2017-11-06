@@ -32,6 +32,8 @@ class ControlGUI: public Gtk::VBox
 public:
 	SerialW s;
 
+	const static int TOTAL_ROBOTS = 6;
+
 	TestFrame testFrame;
 
 	bool Serial_Enabled;
@@ -61,12 +63,11 @@ public:
 
 	Gtk::Grid status_grid;
 	Gtk::Frame status_fm;
-	Gtk::Image status_img[5];
-	Gtk::Label number_lb[5];
-	Gtk::Label robots_lb[5];
-	Gtk::Label status_lb[5];
+	Gtk::Image status_img[TOTAL_ROBOTS];
+	Gtk::Label robots_lb[TOTAL_ROBOTS];
+	Gtk::Label status_lb[TOTAL_ROBOTS];
 	Gtk::Label lastUpdate_lb;
-	Gtk::ProgressBar battery_bar[5];
+	Gtk::ProgressBar battery_bar[TOTAL_ROBOTS];
 
 	Gtk::Frame pid_fm;
 	Gtk::VBox pid_vbox;
@@ -108,18 +109,11 @@ public:
 
 	void _update_cb_serial();
 
-	void _create_pid_frame();
-
 	void _create_status_frame();
 
 	// Função para verificar se os valores digitados nos campos
 	// de PID são válidos: apenas números e um único ponto
 	bool checkPIDvalues();
-
-	void _event_pid_edit_bt_clicked();
-
-	void _event_pid_send_bt_clicked();
-
 };
 
 
