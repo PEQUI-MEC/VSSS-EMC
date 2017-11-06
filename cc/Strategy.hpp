@@ -438,11 +438,11 @@ public:
 			// cout << "mindcontrol" << endl;
 		}
 
-		cout << " full_transition_enabled "  << full_transition_enabled << endl;
-		cout << " cond 1 "  << (robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2) << endl;
-		cout << " cond 2 "  << (robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2) << endl;
-		cout << " cond 3 "  << (robots[atk].position.y > COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << endl;
-		cout << " line "  << (COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << " robot y " << robots[atk].position.y <<endl;
+		// cout << " full_transition_enabled "  << full_transition_enabled << endl;
+		// cout << " cond 1 "  << (robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2) << endl;
+		// cout << " cond 2 "  << (robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2) << endl;
+		// cout << " cond 3 "  << (robots[atk].position.y > COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << endl;
+		// cout << " line "  << (COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << " robot y " << robots[atk].position.y <<endl;
 
 
 
@@ -453,7 +453,7 @@ public:
 		robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE/2) ) {
 
 			robots[gk].fixedPos = true;
-			cout << " don't " << endl;
+			// cout << " don't " << endl;
 			robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
 
 		}
