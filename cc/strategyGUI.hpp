@@ -374,7 +374,7 @@ public:
 	}
 
 	void configureTestFrame() {
-		std::string labels[5] = {"Goalie Line", "Name 2", "Name 3", "Name 4", "Name 5"};
+		std::string labels[5] = {"Goalie Line", "Goalie Offset", "Name 3", "Name 4", "Name 5"};
 		double min[5] = {0, 0, 0, 0, 0};
 		double max[5] = {160, 100, 100, 100, 100};
 		double currentValue[5] = {0, 10, 20, 30, 40};
