@@ -19,7 +19,7 @@ void VisionGUI::__create_frm_calib_mode() {
 
   frame->set_label("Choose Your Destiny");
 
-  grid->set_border_width(10);
+  grid->set_border_width(5);
   grid->set_column_spacing(10);
   grid->set_row_spacing(5);
 
@@ -518,7 +518,7 @@ void VisionGUI::__create_frm_capture() {
 
   frame->set_label("Video/Image Capture");
 
-  grid->set_border_width(10);
+  grid->set_border_width(5);
   grid->set_column_spacing(10);
   grid->set_row_spacing(5);
 
@@ -595,9 +595,9 @@ void VisionGUI::__create_frm_hsv() {
 
   frame->set_label("HSV Calibration");
 
-  grid->set_border_width(10);
+  grid->set_border_width(5);
   grid->set_column_spacing(15);
-  grid->set_row_spacing(5);
+  grid->set_row_spacing(0);
   grid->set_column_homogeneous(true);
 
   bt_HSV_calib.set_label("HSV Calib.");
@@ -717,7 +717,7 @@ void VisionGUI::__create_frm_hsv() {
 
   HScale_Amin.set_digits(0);
   HScale_Amin.set_increments(1,1);
-  HScale_Amin.set_range(0,1000);
+  HScale_Amin.set_range(0,200);
   HScale_Amin.set_value_pos(Gtk::POS_TOP);
   HScale_Amin.set_draw_value();
 
@@ -961,7 +961,7 @@ void VisionGUI::init_calib_params()
   int B[5] {3, 3, 3, 3, 3};
   int D[5] = {0, 0, 0, 0, 0};
   int E[5] = {0, 0, 0, 0, 0};
-  int Amin[5] = {500, 500, 500, 500, 500};
+  int Amin[5] = {150, 90, 90, 115, 50};
 
   // Configurar os valores iniciais de calibração
   vision->setCalibParams(H, S, V, Amin, E, D, B);

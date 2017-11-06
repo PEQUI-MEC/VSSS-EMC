@@ -60,7 +60,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 
     for (int i = 0; i < contours.size(); i++) {
       double area = contourArea(contours[i]);
-      if(area >= areaMin[color]/100) {
+      // if(area >= areaMin[color]) {
         cv::Moments moment = moments((cv::Mat)contours[i]);
         tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
 
@@ -71,7 +71,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
             int tagsInVec = tags.at(color).size() - 1;
             tags.at(color).at(tagsInVec).setLine(line);
         }
-      }
+      // }
     }
   }
 }
@@ -86,7 +86,7 @@ void Vision::searchTags(int color) {
 
   for (int i = 0; i < contours.size(); i++) {
     double area = contourArea(contours[i]);
-    if(area >= areaMin[color]/100) {
+    if(area >= areaMin[color]) {
       cv::Moments moment = moments((cv::Mat)contours[i]);
       tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
 
@@ -128,7 +128,7 @@ void Vision::findElements() {
           minDistIndex1[0] = j;
           minDistIndex1[1] = k;
           if(j==PINK)
-          robot.pink=true;
+          robot.isOdd=true;
 
         } else if(distance < minDistRef[1]) {
           minDistRef[1] = distance;
@@ -164,7 +164,7 @@ void Vision::findElements() {
     cos(robot.orientation2-robot.orientation+3.1415));
 
     // Dá nome aos bois (robôs)
-    if(robot.pink){
+    if(robot.isOdd){
       robot_list.at(2).position = robot.position; // colocar em um vetor
       robot_list.at(2).secundary = robot.secundary; // colocar em um vetor
       robot_list.at(2).orientation =  robot.orientation;
@@ -194,7 +194,7 @@ void Vision::findElements() {
 /// Seleciona um conjunto de tags para representar cada robô
 /// </summary>
 /// <description>
-/// P.S.: Aqui eu uso a flag 'pink' para representar quando um robô tem as duas bolas laterais.
+/// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
 /// </description>
 void Vision::pick_a_tag() {
     int dist, tmpSide;
@@ -220,7 +220,7 @@ void Vision::pick_a_tag() {
             if(tmpSide = inSphere(&robot, &tempTags, tags.at(GREEN).at(j).position)) {
                 // identifica se já tem mais de uma tag
                 if(tempTags.size() > 1) {
-                    robot.pink = true;
+                    robot.isOdd = true;
                 }
                 tags.at(GREEN).at(j).left = (tmpSide > 0) ? true : false;
                 // calculos feitos, joga tag no vetor
@@ -230,7 +230,7 @@ void Vision::pick_a_tag() {
 
 
         // Dá nome aos bois (robôs)
-        if(robot.pink){ // pink representa que este tem as duas bolas
+        if(robot.isOdd){ // isOdd representa que este tem as duas bolas
             robot_list.at(2).position = robot.position; // colocar em um vetor
             robot_list.at(2).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(2).orientation =  robot.orientation;
