@@ -23,7 +23,13 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
     State predicted_state = predict_positions(robots.at(robot_index).vmax);
 
     // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
-    std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target);
+
+    // se o alvo é a bola e seu x é maior, desvia da bola, senão, vai na bola mesmo
+    if(target == predicted_state.objects.at(0) && robots.at(i).position.x < target.x - ROBOT_RADIUS*2)
+        std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 1);
+    else
+        std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 0);
+
     // se há obstáculos
     if(obstacles.size() > 0) {
         //std::cout << "(" << robot_index + 1 << ") obstacle: " << obstacles[0].position << "\n";
@@ -132,12 +138,12 @@ double Planner::distance_to_line(cv::Point start, cv::Point end, cv::Point point
 
 // encontra obstáculos entre dois pontos e retorna um vetor ordenado
 // os obstáculos mais próximos do ponto de início vêm primeiro
-std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv::Point startPos, cv::Point target) {
+std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv::Point startPos, cv::Point target, int start_index) {
     std::vector<Obstacle> obstacles;
     double tempDist;
 
     // para cada objeto na pista, verifica se este é um obstáculo
-    for(int i = 0; i < predicted_state.objects.size(); i++) {
+    for(int i = start_index; i < predicted_state.objects.size(); i++) {
         if(predicted_state.objects.at(i) == startPos)
             continue;
 
