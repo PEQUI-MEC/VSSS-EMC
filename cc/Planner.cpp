@@ -151,7 +151,7 @@ std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv
         // verifica se o obstáculo está perto suficiente da reta
         if(abs(tempDist = distance_to_line(startPos, target, predicted_state.objects.at(i))) < 2 * ROBOT_RADIUS) {
             // se tá perto, verifica ainda se tá realmente na frente
-            if(distance(startPos, target) < distance(predicted_state.objects.at(i), target)) {
+            if(distance(startPos, target) < distance(predicted_state.objects.at(i), target) || distance(startPos, target) < distance(startPos, predicted_state.objects.at(i))) {
                 continue;
             }
             //std::cout << "From " << startPos << " to " << target << " there is " << predicted_state.objects.at(i) << " at a " << tempDist << " pixels distance\n";

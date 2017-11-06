@@ -249,8 +249,11 @@ void Vision::pick_a_tag() {
     } // OUR ROBOTS
 
     // ADV ROBOTS
-    for (int i = 0; i < tags.at(ADV).size() && i < MAX_ADV; i++) {
-        advRobots[i] = tags.at(ADV).at(i).position;
+    for (int i = 0; i < MAX_ADV; i++) {
+        if(i < tags.at(ADV).size())
+            advRobots[i] = tags.at(ADV.at(i).position;
+        else
+            advRobots[i] = cv::Point(-1, -1);
     }
 
     // BALL POSITION
