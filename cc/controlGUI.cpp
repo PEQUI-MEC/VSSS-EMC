@@ -266,7 +266,7 @@ void ControlGUI::_send_test(){
         break;
 
         case 0:
-        cmd.append("A");
+        cmd.append("A@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
@@ -274,7 +274,7 @@ void ControlGUI::_send_test(){
         break;
 
         case 1:
-        cmd.append("B");
+        cmd.append("B@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
@@ -282,7 +282,7 @@ void ControlGUI::_send_test(){
         break;
 
         case 2:
-        cmd.append("C");
+        cmd.append("C@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
@@ -290,7 +290,7 @@ void ControlGUI::_send_test(){
         break;
 
         case 3:
-        cmd.append("D");
+        cmd.append("D@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
@@ -298,7 +298,7 @@ void ControlGUI::_send_test(){
         break;
 
         case 4:
-        cmd.append("E");
+        cmd.append("E@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
@@ -306,7 +306,7 @@ void ControlGUI::_send_test(){
         break;
 
         case 5:
-        cmd.append("F");
+        cmd.append("F@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
@@ -314,37 +314,37 @@ void ControlGUI::_send_test(){
         break;
 
         case 6:
-        cmd.append("A");
+        cmd.append("A@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
         cmd.append("#");
 
-        cmd.append("B");
+        cmd.append("B@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
         cmd.append("#");
 
-        cmd.append("C");
+        cmd.append("C@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
         cmd.append("#");
 
-        cmd.append("D");
+        cmd.append("D@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
         cmd.append("#");
 
-        cmd.append("E");
+        cmd.append("E@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
         cmd.append("#");
 
-        cmd.append("F");
+        cmd.append("F@");
         cmd.append(Tbox_V1.get_text());
         cmd.append(";");
         cmd.append(Tbox_V2.get_text());
