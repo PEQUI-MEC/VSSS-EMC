@@ -547,7 +547,6 @@ public:
 	}
 
 	void position_to_vector(int i) {
-		robots.at(i).cmdType = VECTOR;
 		robots[i].transAngle = atan2(double(robots[i].position.y - robots[i].target.y), - double(robots[i].position.x - robots[i].target.x));
 	}
 

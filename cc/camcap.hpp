@@ -427,7 +427,7 @@ public:
                 //transformTargets(robot_list);
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(150));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(300));
         }
     }
 
