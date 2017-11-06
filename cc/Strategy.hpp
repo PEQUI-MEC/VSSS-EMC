@@ -1115,7 +1115,7 @@ public:
 					robots[i].target = cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y));
 				}
-				//planner.plan(i, &robots, adv, Ball, using_planner_flag);
+				planner.plan(i, &robots);
 				def_wait(i);
 			break;
 

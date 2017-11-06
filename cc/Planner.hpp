@@ -35,6 +35,8 @@ private:
     int WIDTH, HEIGHT;
     // histórico de estados: armazena os HIST_SIZE últimos frames
     std::vector<State> hist;
+    // planner habilitado?
+    bool use_this = true;
 
     // gera salva o estado atual no histórico
     void update_hist(State current_state);
@@ -58,9 +60,11 @@ public:
     // controle por curva
 
     // recebe um ponteiro para os robôs pois após tudo ser calculado os alvos devem ser atualizados
-    void plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this, cv::Point * obstacle, cv::Point * deviation1, cv::Point * deviation2);
+    void plan(int robot_index, std::vector<Robot> * pRobots);
 
     void set_constants(int width, int height);
+
+    void update_planner(std::vector<Robot> robots, cv::Point * advRobots, cv::Point ball, bool use_this);
 
     State predict_positions(double timeAhead);
 };

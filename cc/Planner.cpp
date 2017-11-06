@@ -1,22 +1,15 @@
 #include "Planner.hpp"
 
 // recalcula os targets dos robôs controlados por posição desviando de obstáculos
-void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * advRobots, cv::Point ball, bool use_this, cv::Point * obstacle, cv::Point * deviation1, cv::Point * deviation2) {
-    if(!use_this || pRobots == NULL ||
-        robot_index < 0 || robot_index >= (*pRobots).size() ||
-        advRobots == NULL || ball == cv::Point(-1, -1)) {
+void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
+    if(!use_this || pRobots == NULL || hist.size() <= 0 ||
+        robot_index < 0 || robot_index >= (*pRobots).size()) {
         // std::cout << "Wrong state. Planning not used.\n";
         return;
     }
 
     // pra ficar mais fácil manipular o vetor
     std::vector<Robot> robots = *pRobots;
-
-    // gera um estado ordenado e organizado
-    State current_state = gen_state(*pRobots, advRobots, ball);
-
-    // atualiza o histórico para fazer as predições
-    update_hist(current_state);
 
     // desabilita o campo potencial para esse robô
     robots.at(robot_index).using_pot_field = false;
@@ -33,7 +26,6 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * ad
     std::vector<Obstacle> obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target);
     // se há obstáculos
     if(obstacles.size() > 0) {
-        *obstacle = obstacles[0].position;
         //std::cout << "(" << robot_index + 1 << ") obstacle: " << obstacles[0].position << "\n";
 
         // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
@@ -54,16 +46,23 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots, cv::Point * ad
             target = deviation_points[0];
         }
 
-        *deviation1 = deviation_points[0];
-        *deviation2 = deviation_points[1];
         //std::cout << "(" << robot_index + 1 << ") new target: " << target << "\n\n";
 
         robots.at(robot_index).target = target;
-        robots.at(robot_index).vmax = robots.at(robot_index).vdefault;
     } // se obstáculos > 0
 
     // atualiza o vetor pra estratégia
     *pRobots = robots;
+}
+
+void Planner::update_planner(std::vector<Robot> robots, cv::Point * advRobots, cv::Point ball, bool use_this) {
+    this->use_this = use_this;
+
+    // gera um estado ordenado e organizado
+    State current_state = gen_state(robots, advRobots, ball);
+    
+    // atualiza o histórico para fazer as predições
+    update_hist(current_state);
 }
 
 // verifica se alvo está dentro do campo
