@@ -858,7 +858,7 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 
   Img_id=Img_id+1;
 
-  if(Img_id>4) Img_id = 0;
+  if(Img_id>3) Img_id = 0;
   HScale_Hmin.set_value(vision->getHue(Img_id, 0));
   HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
@@ -880,13 +880,13 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
   case 1:
       HSV_label.set_text("Green");
       break;
+  // case 2:
+  //     HSV_label.set_text("Pink");
+  //     break;
   case 2:
-      HSV_label.set_text("Pink");
-      break;
-  case 3:
       HSV_label.set_text("Ball");
       break;
-  case 4:
+  case 3:
       HSV_label.set_text("Opp.");
       break;
   }
@@ -895,7 +895,7 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 void VisionGUI::__event_bt_left_HSV_calib_clicked() {
 
   Img_id=Img_id-1;
-  if(Img_id<0) Img_id = 4;
+  if(Img_id<0) Img_id = 3;
   HScale_Hmin.set_value(vision->getHue(Img_id, 0));
   HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
@@ -917,13 +917,13 @@ void VisionGUI::__event_bt_left_HSV_calib_clicked() {
   case 1:
       HSV_label.set_text("Green");
       break;
+  // case 2:
+  //     HSV_label.set_text("Pink");
+  //     break;
   case 2:
-      HSV_label.set_text("Pink");
-      break;
-  case 3:
       HSV_label.set_text("Ball");
       break;
-  case 4:
+  case 3:
       HSV_label.set_text("Opp.");
       break;
   }
