@@ -260,7 +260,7 @@ public:
         }
 
         if(!interface.visionGUI.HSV_calib_event_flag) {
-            if (!interface.draw_info_flag)
+            if (!interface.draw_info_flag && !interface.visionGUI.getIsSplitView())
             {
                 cv::Point aux_point;
 

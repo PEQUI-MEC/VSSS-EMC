@@ -828,7 +828,6 @@ void VisionGUI::__event_bt_switchMainAdv_clicked() {
 }
 
 void VisionGUI::HScale_Hmin_value_changed() {
-  std::cout << "Hue: " << Img_id << std::endl;
   vision->setHue(Img_id, 0, HScale_Hmin.get_value());
 }
 
@@ -841,7 +840,6 @@ void VisionGUI::HScale_Vmin_value_changed() {
 }
 
 void VisionGUI::HScale_Hmax_value_changed() {
-  std::cout << "Hue: " << Img_id << std::endl;
   vision->setHue(Img_id, 1, HScale_Hmax.get_value());
 }
 
