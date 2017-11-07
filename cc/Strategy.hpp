@@ -53,7 +53,7 @@
 #define NO_OBS 3
 
 
-
+#define THETA_TOLERATION 3
 
 
 class Strategy
@@ -491,6 +491,12 @@ public:
 		else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
 			half_transition = true;
 		}
+
+		/*if(distance(robots[atk].position, target) > distance(robots[def].position, target) &&
+			(abs(robots[atk].orientation - robots[def].orientation) < THETA_TOLERATION*PI/180) ||
+			(abs(robots[atk].orientation - robots[def].orientation) > PI - THETA_TOLERATION*PI/180)) {
+			half_transition = true;
+		}*/
 	}
 
 	void set_flags() {
@@ -1198,11 +1204,25 @@ public:
 
 			case NORMAL_STATE:
 				if(Ball.x > corner_atk_limit) {
-					robots[i].target = cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y);
-					robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
-				} else {
-					robots[i].target = cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
-					robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y), BALL_IS_OBS);
+					int y_pos = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
+					robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/2, y_pos);
+					//robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
+
+					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
+				}
+				else if(Ball.x > COORD_MID_FIELD_X) {
+					robots[i].target = cv::Point(COORD_MID_FIELD_X - COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
+					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
+				}
+				else {
+					int x_pos = COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2;
+					int ballTarget = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
+					double m = (Ball.y - ballTarget) / (Ball.x - ABS_ROBOT_SIZE);
+					int y_proj = Ball.y - m * (Ball.x - x_pos);
+					robots[i].target = cv::Point(x_pos, y_proj);
+
+					//robots[i].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2, COORD_GOAL_MID_Y);
+					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
 				def_wait(i);
 				planner.plan(i, &robots);
@@ -1262,7 +1282,7 @@ public:
 				// 	robots[i].vmax = 0;
 				// }
 			}
-			robots[i].ignore_obstacles = true;
+
 			break;
 		}
 	}
