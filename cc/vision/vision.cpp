@@ -290,6 +290,40 @@ double Vision::calcDistance(cv::Point p1, cv::Point p2) {
   return sqrt(pow(p1.x-p2.x,2) + pow(p1.y-p2.y,2));
 }
 
+void Vision::switchMainWithAdv() {
+  int tmp;
+
+  for (int i = MIN; i <= MAX; i++) {
+    tmp = hue[MAIN][i];
+    hue[MAIN][i] = hue[ADV][i];
+    hue[ADV][i] = tmp;
+
+    tmp = saturation[MAIN][i];
+    saturation[MAIN][i] = saturation[ADV][i];
+    saturation[ADV][i] = tmp;
+
+    tmp = value[MAIN][i];
+    value[MAIN][i] = value[ADV][i];
+    value[ADV][i] = tmp;
+  }
+
+  tmp = areaMin[MAIN];
+  areaMin[MAIN] = areaMin[ADV];
+  areaMin[ADV] = tmp;
+
+  tmp = erode[MAIN];
+  erode[MAIN] = erode[ADV];
+  erode[ADV] = tmp;
+
+  tmp = dilate[MAIN];
+  dilate[MAIN] = dilate[ADV];
+  dilate[ADV] = tmp;
+
+  tmp = blur[MAIN];
+  blur[MAIN] = blur[ADV];
+  blur[ADV] = tmp;
+}
+
 void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5])
 {
   for (int i = 0; i < 5; i++)

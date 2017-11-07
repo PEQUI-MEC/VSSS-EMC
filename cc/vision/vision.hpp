@@ -91,6 +91,8 @@ public:
   bool isRecording();
   void savePicture(std::string in_name);
 
+  void switchMainWithAdv();
+
   cv::Point getBall();
   Robot getRobot(int index);
   cv::Point getRobotPos(int index);
