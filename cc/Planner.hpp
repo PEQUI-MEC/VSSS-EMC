@@ -4,7 +4,6 @@
 #include <vector>
 #include "opencv2/opencv.hpp"
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
-#include "Strategy.hpp" // pelas constantes
 
 #define PI 3.14159265453
 #define HIST_SIZE 3
@@ -30,7 +29,7 @@ private:
     } State;
     typedef struct _velocityVector {
         double angle;
-        float velocity;hist.back().objects.at(i).position
+        float velocity;
     } VelocityVector;
 
     // constantes
@@ -69,8 +68,6 @@ public:
     void update_planner(std::vector<Robot> robots, cv::Point * advRobots, cv::Point ball, bool use_this);
 
     State predict_positions(double timeAhead);
-
-    cv::Point change_target(cv::Point target);
 };
 
 #endif /* TAG_HPP_ */

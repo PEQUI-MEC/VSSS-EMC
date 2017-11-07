@@ -67,7 +67,7 @@ void Planner::update_planner(std::vector<Robot> robots, cv::Point * advRobots, c
 
     // gera um estado ordenado e organizado
     State current_state = gen_state(robots, advRobots, ball);
-    
+
     // atualiza o histórico para fazer as predições
     update_hist(current_state);
 }
@@ -77,6 +77,7 @@ bool Planner::validate_target(cv::Point target) {
     return target.x > ROBOT_RADIUS && target.x < WIDTH - ROBOT_RADIUS && target.y > ROBOT_RADIUS && target.y < HEIGHT - ROBOT_RADIUS;
 }
 // evita faltas atualizando o alvo dos robôs
+/*
 cv::Point Planner::change_target(cv::Point target) {
     // verifica se tem robô na área
     bool areaOccupied = false;
@@ -90,7 +91,7 @@ cv::Point Planner::change_target(cv::Point target) {
     if(areaOccupied)
         target.x = COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2;
     return target;
-}
+}*/
 
 // função de inicialização do Planner
 void Planner::set_constants(int width, int height) {
