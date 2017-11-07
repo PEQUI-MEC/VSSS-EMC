@@ -22,11 +22,11 @@ private:
   // Constants
   static const int MAIN = 0;
   static const int GREEN = 1;
-  static const int PINK = 2;
-  static const int BALL = 3;
-  static const int ADV = 4;
+  // static const int PINK = 2;
+  static const int BALL = 2;
+  static const int ADV = 3;
   static const int MAX_ADV = 3;
-  static const int TOTAL_COLORS = 5;
+  static const int TOTAL_COLORS = 4;
   static const int MIN = 0;
   static const int MAX = 1;
 
@@ -72,7 +72,7 @@ private:
   void searchTags(int color);
   void searchGMMTags(std::vector<cv::Mat> thresholds);
   void findTags();
-  void findElements();
+  // void findElements();
   void pick_a_tag();
   int inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secondary);
 
