@@ -1170,7 +1170,8 @@ public:
 					robots[i].target = cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y);
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y));
 				} else {
-					robots[i].target = cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
+					int y_def = COORD_GOAL_MID_Y + (robots[def].y - COORD_GOAL_MID_Y) * 0.5;
+					robots[i].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2, y_def);
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y));
 				}
 				planner.plan(i, &robots);
@@ -1196,16 +1197,20 @@ public:
 			robots[i].cmdType = POSITION;
 			robots[i].target.x = goalie_line;
 
-			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2) robots[i].target.y = Ball_Est.y;
-			else robots[i].target.y = Ball.y;
+			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2) 
+				robots[i].target.y = Ball_Est.y;
+			else 
+				robots[i].target.y = Ball.y;
 
 			if(distance(Ball, Ball_Est) > ABS_ROBOT_SIZE*2 && Ball.x > Ball_Est.x && (Ball.x > COORD_BOX_DEF_X) ) {
 				double m = double(Ball.y - Ball_Est.y)/double(Ball.x - Ball_Est.x);
 				robots[i].target.y = Ball.y - m * (Ball.x - goalie_line);
 			}
 
-			if(robots[i].target.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
-			if(robots[i].target.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
+			if(robots[i].target.y > COORD_GOAL_DWN_Y) 
+				robots[i].target.y = COORD_GOAL_DWN_Y;
+			if(robots[i].target.y < COORD_GOAL_UP_Y) 
+				robots[i].target.y = COORD_GOAL_UP_Y;
 
 			// if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
 			// if(Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
