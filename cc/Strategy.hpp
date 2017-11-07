@@ -1199,6 +1199,7 @@ public:
 					robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
 				def_wait(i);
+				planner.plan(i, &robots);
 			break;
 
 			case STEP_BACK:
