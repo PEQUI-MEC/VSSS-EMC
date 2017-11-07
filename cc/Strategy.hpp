@@ -132,7 +132,8 @@ public:
 	bool full_transition = false;
 	bool danger_zone_1 = false;
 	bool danger_zone_2 = false;
-	bool transition_enabled = false;
+	bool half_transition_enabled = false;
+	bool full_transition_enabled = false;
 	bool atk_ball_possession = false;
 
 	int ABS_PLAYING_FIELD_WIDTH,
@@ -332,9 +333,9 @@ public:
 			transition_timeout--;
 			if(transition_timeout < 0) transition_timeout = 0;
 
-			if(half_transition && transition_enabled && transition_timeout == 0) {
+			if(half_transition && half_transition_enabled && transition_timeout == 0) {
 				half_transition = false;
-				transition_enabled = false;
+				half_transition_enabled = false;
 				transition_timeout = 90; //3 segundos
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
@@ -354,9 +355,9 @@ public:
 					}
 				}
 			}
-			if(full_transition && transition_enabled && transition_timeout == 0) {
+			if(full_transition && full_transition_enabled && transition_timeout == 0) {
 				full_transition = false;
-				transition_enabled = false;
+				full_transition_enabled = false;
 				transition_timeout = 90; //3 segundos
 				for(int i =0; i<3; i++) {
 					robots[i].status = NORMAL_STATE;
@@ -452,7 +453,7 @@ public:
 
 
 		//Goalkeeper overmind-------------------
-		if(transition_enabled == false &&
+		if(full_transition_enabled == false &&
 		(robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
 		robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
 		robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE/2) ) {
@@ -468,7 +469,7 @@ public:
 		//defender mindcontrol
 		// faz meio que um cruzamento
 		if(Ball_Est.y > COORD_GOAL_UP_Y && Ball_Est.y < COORD_GOAL_DWN_Y &&
-		Ball_Est.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE) {
+		Ball_Est.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
 			// std::cout << "y1\n";
 		}
@@ -479,8 +480,7 @@ public:
 		}
 		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
 		else if(danger_zone_2) {
-			// se a bola tá dentro dá área apenas
-			if(Ball.x < COORD_BOX_DEF_X && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y) )
+			if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y) )
 				full_transition = true;
 		}
 		// troca se o atacante tá muito longe da bola
@@ -495,8 +495,11 @@ public:
 		atk_ball_possession = false;
 		half_transition = false;
 		full_transition = false;
-		if(Ball.x > COORD_MID_FIELD_X/2) {
-			transition_enabled = true;
+		if(Ball.x > COORD_MID_FIELD_X) {
+			full_transition_enabled = true;
+			half_transition_enabled = true;
+		} else {
+			half_transition = false;
 		}
 		if(Ball.x < robots[atk].position.x && Ball.x > robots[def].position.x) {
 			danger_zone_1 = true;
