@@ -98,6 +98,7 @@ public:
   cv::Point getRobotPos(int index);
   cv::Point getAdvRobot(int index);
   cv::Point* getAllAdvRobots();
+  cv::Mat getSplitFrame();
 
   int getRobotListSize();
   int getAdvListSize();

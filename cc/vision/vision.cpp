@@ -137,7 +137,7 @@ void Vision::searchTags(int color) {
 //         }
 //       }
 //     }
-// 
+//
 //     // Posição do robô
 //     robot.position = tags.at(MAIN).at(i).position;
 //
@@ -322,6 +322,32 @@ void Vision::switchMainWithAdv() {
   tmp = blur[MAIN];
   blur[MAIN] = blur[ADV];
   blur[ADV] = tmp;
+}
+
+cv::Mat Vision::getSplitFrame() {
+  cv::Mat output, horizontal[2], vertical[2];
+
+  for (int index = 0; index < 3; index++) {
+    cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
+  }
+
+  cv::pyrDown(in_frame, vertical[0]);
+  cv::pyrDown(threshold_frame.at(0), vertical[1]);
+
+  cv::hconcat(vertical, 2, horizontal[0]);
+
+  cv::pyrDown(threshold_frame.at(1), vertical[0]);
+  cv::pyrDown(threshold_frame.at(2), vertical[1]);
+
+  cv::hconcat(vertical, 2, horizontal[1]);
+
+  cv::vconcat(horizontal, 2, output);
+
+  cv::imwrite("teste.png", output);
+
+  cv::cvtColor(output, output, cv::COLOR_HSV2RGB);
+
+  return output;
 }
 
 void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5])

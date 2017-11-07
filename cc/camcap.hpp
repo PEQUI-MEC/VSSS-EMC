@@ -243,7 +243,11 @@ public:
         }
         else {
           interface.visionGUI.vision->run(imageView);
-          if (interface.visionGUI.HSV_calib_event_flag) {
+          if (interface.visionGUI.getIsSplitView()) {
+            interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().data, width, height);
+            interface.imageView.refresh();
+          }
+          else if (interface.visionGUI.HSV_calib_event_flag) {
               interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
               interface.imageView.refresh();
           }

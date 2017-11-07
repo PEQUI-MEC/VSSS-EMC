@@ -499,6 +499,55 @@ bool VisionGUI::getSamplesEventFlag() {
   return samplesEventFlag;
 }
 
+void VisionGUI::__create_frm_split_view() {
+  Gtk::VBox * vbox;
+  Gtk::Grid * grid;
+  Gtk::Label * label;
+  Gtk::Frame * frame;
+
+  vbox = new Gtk::VBox();
+  grid = new Gtk::Grid();
+  frame = new Gtk::Frame();
+
+  pack_start(*frame, false, false, 5);
+
+  frame->add(*vbox);
+  vbox->pack_start(*grid, false, true, 5);
+  vbox->set_halign(Gtk::ALIGN_CENTER);
+  vbox->set_valign(Gtk::ALIGN_CENTER);
+
+  frame->set_label("Split View");
+
+  grid->set_border_width(5);
+  grid->set_column_spacing(10);
+  grid->set_row_spacing(5);
+
+  label = new Gtk::Label("Select Mode: ");
+  grid->attach(*label, 0, 0, 1, 1);
+  rb_original_view.set_label("Original");
+  grid->attach(rb_original_view, 1, 0, 1, 1);
+  rb_split_view.set_label("Split");
+  rb_split_view.join_group(rb_original_view);
+  grid->attach(rb_split_view, 2, 0, 1, 1);
+
+  rb_original_view.set_state(Gtk::STATE_INSENSITIVE);
+  rb_split_view.set_state(Gtk::STATE_INSENSITIVE);
+
+  rb_original_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
+  rb_split_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
+}
+
+void VisionGUI::__event_rb_split_mode_clicked() {
+  if (rb_split_view.get_active())
+    isSplitView = true;
+  else
+    isSplitView = false;
+}
+
+bool VisionGUI::getIsSplitView() {
+  return isSplitView;
+}
+
 void VisionGUI::__create_frm_capture() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
@@ -779,6 +828,7 @@ void VisionGUI::__event_bt_switchMainAdv_clicked() {
 }
 
 void VisionGUI::HScale_Hmin_value_changed() {
+  std::cout << "Hue: " << Img_id << std::endl;
   vision->setHue(Img_id, 0, HScale_Hmin.get_value());
 }
 
@@ -791,6 +841,7 @@ void VisionGUI::HScale_Vmin_value_changed() {
 }
 
 void VisionGUI::HScale_Hmax_value_changed() {
+  std::cout << "Hue: " << Img_id << std::endl;
   vision->setHue(Img_id, 1, HScale_Hmax.get_value());
 }
 
@@ -1025,14 +1076,16 @@ VisionGUI::VisionGUI() :
   vidIndex(0), picIndex(0), samplesEventFlag(false),
   originalFrame_flag(true), totalSamples(0),
   gaussiansFrame_flag(false), finalFrame_flag(false),
-  thresholdFrame_flag(false), colorIndex(0), isHSV(true) {
+  thresholdFrame_flag(false), colorIndex(0), isHSV(true),
+  isSplitView(false) {
 
   vision = new Vision(640, 480);
 
-  __create_frm_calib_mode();
+  // __create_frm_calib_mode();
   __create_frm_capture();
+  __create_frm_split_view();
   __create_frm_hsv();
-  __create_frm_gmm();
+  // __create_frm_gmm();
 
   init_calib_params();
 }
