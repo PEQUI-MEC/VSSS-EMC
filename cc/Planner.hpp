@@ -10,6 +10,7 @@
 #define HIST_SIZE 3
 #define DELTA_X 3
 #define ROBOT_RADIUS 17
+#define DEVIATION_DELTA 6
 
 #define POSITION 0
 #define SPEED 1

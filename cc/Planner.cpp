@@ -211,8 +211,8 @@ cv::Point * Planner::find_deviation(cv::Point start, cv::Point end, Planner::Obs
     angle += PI/2;
 
     // gera uma reta a partir do obstacle.position
-    deviations[0] = cv::Point(obstacle.position.x + 4*ROBOT_RADIUS*cos(angle), obstacle.position.y + 4*ROBOT_RADIUS*sin(angle));
-    deviations[1] = cv::Point(obstacle.position.x - 4*ROBOT_RADIUS*cos(angle), obstacle.position.y - 4*ROBOT_RADIUS*sin(angle));
+    deviations[0] = cv::Point(obstacle.position.x + DEVIATION_DELTA*ROBOT_RADIUS*cos(angle), obstacle.position.y + DEVIATION_DELTA*ROBOT_RADIUS*sin(angle));
+    deviations[1] = cv::Point(obstacle.position.x - DEVIATION_DELTA*ROBOT_RADIUS*cos(angle), obstacle.position.y - DEVIATION_DELTA*ROBOT_RADIUS*sin(angle));
 
     // ordena pro desvio mais próximo
     if(abs(distance_to_line(start, end, deviations[0])) > abs(distance_to_line(start, end, deviations[1]))) {
