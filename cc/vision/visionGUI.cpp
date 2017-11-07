@@ -931,6 +931,48 @@ void VisionGUI::__event_bt_HSV_calib_pressed() {
   }
 }
 
+void VisionGUI::selectFrame(int sector) {
+  switch (sector) {
+    case 0:
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    break;
+
+    case 1:
+    Img_id = 3;
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    __event_bt_right_HSV_calib_clicked();
+    if (!bt_HSV_calib.get_active()) {
+      bt_HSV_calib.set_active(true);
+      __event_bt_HSV_calib_pressed();
+    }
+    break;
+    case 2:
+    Img_id = 0;
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    __event_bt_right_HSV_calib_clicked();
+    if (!bt_HSV_calib.get_active()) {
+      bt_HSV_calib.set_active(true);
+      __event_bt_HSV_calib_pressed();
+    }
+    break;
+    case 3:
+    Img_id = 1;
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    __event_bt_right_HSV_calib_clicked();
+    if (!bt_HSV_calib.get_active()) {
+      bt_HSV_calib.set_active(true);
+      __event_bt_HSV_calib_pressed();
+    }
+    break;
+    default:
+    break;
+  }
+}
+
 
 void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 

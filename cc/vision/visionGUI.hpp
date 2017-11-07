@@ -43,6 +43,8 @@ public:
   VisionGUI();
   ~VisionGUI();
 
+  void selectFrame(int sector);
+
   void incrementSamples();
   void decrementSamples();
 

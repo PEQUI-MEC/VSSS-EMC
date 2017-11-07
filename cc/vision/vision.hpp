@@ -33,6 +33,7 @@ private:
   // Frames
   cv::Mat in_frame, hsv_frame;
   std::vector<cv::Mat>threshold_frame;
+  cv::Mat splitFrame;
 
   // Robots
   std::vector<Robot> robot_list;

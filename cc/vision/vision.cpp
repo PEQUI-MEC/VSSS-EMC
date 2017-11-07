@@ -325,7 +325,7 @@ void Vision::switchMainWithAdv() {
 }
 
 cv::Mat Vision::getSplitFrame() {
-  cv::Mat output, horizontal[2], vertical[2];
+  cv::Mat horizontal[2], vertical[2];
 
   for (int index = 0; index < 3; index++) {
     cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
@@ -341,13 +341,11 @@ cv::Mat Vision::getSplitFrame() {
 
   cv::hconcat(vertical, 2, horizontal[1]);
 
-  cv::vconcat(horizontal, 2, output);
+  cv::vconcat(horizontal, 2, splitFrame);
 
-  cv::imwrite("teste.png", output);
+  cv::imwrite("teste.png", splitFrame);
 
-  cv::cvtColor(output, output, cv::COLOR_HSV2RGB);
-
-  return output;
+  return splitFrame;
 }
 
 void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5])
