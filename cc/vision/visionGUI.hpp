@@ -17,6 +17,8 @@ public:
 
   bool HSV_calib_event_flag;
 
+  Gtk::RadioButton rb_original_view, rb_split_view;
+
   Gtk::Scale HScale_Hmin;
   Gtk::Scale HScale_Smin;
   Gtk::Scale HScale_Vmin;
@@ -41,6 +43,8 @@ public:
   VisionGUI();
   ~VisionGUI();
 
+  void selectFrame(int sector);
+
   void incrementSamples();
   void decrementSamples();
 
@@ -57,11 +61,15 @@ public:
   bool getThresholdFrameFlag();
   int getGMMColorIndex();
   bool getIsHSV();
+  bool getIsSplitView();
 
 private:
 
   // Frame Calibration Mode
   bool isHSV;
+
+  // Frame Split View
+  bool isSplitView;
 
   // Frame Capture
   int picIndex, vidIndex;
@@ -70,6 +78,7 @@ private:
   Gtk::Label HSV_label;
   Gtk::Button bt_HSV_left;
   Gtk::Button bt_HSV_right;
+  Gtk::Button bt_switchMainAdv;
 
   // Frame GMM
   Gtk::Button bt_GMM_save, bt_GMM_load;
@@ -97,6 +106,7 @@ private:
   void __event_bt_HSV_calib_pressed();
   void __event_bt_right_HSV_calib_clicked();
   void __event_bt_left_HSV_calib_clicked();
+  void __event_bt_switchMainAdv_clicked();
 
   void __event_bt_GMM_save_clicked();
   void __event_bt_GMM_load_clicked();
@@ -116,6 +126,8 @@ private:
 
   void __event_rb_mode_clicked();
 
+  void __event_rb_split_mode_clicked();
+
   void bt_save_picture_clicked();
   void bt_record_video_pressed();
 
@@ -123,6 +135,7 @@ private:
   void __create_frm_hsv();
   void __create_frm_capture();
   void __create_frm_gmm();
+  void __create_frm_split_view();
 
   void HScale_Hmin_value_changed();
   void HScale_Smin_value_changed();

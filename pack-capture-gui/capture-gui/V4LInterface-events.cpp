@@ -149,6 +149,8 @@ namespace capture {
 		    bt_load.set_state(Gtk::STATE_NORMAL);
 				HScale_offsetR.set_state(Gtk::STATE_NORMAL);
 				HScale_offsetL.set_state(Gtk::STATE_NORMAL);
+				visionGUI.rb_split_view.set_state(Gtk::STATE_NORMAL);
+				visionGUI.rb_original_view.set_state(Gtk::STATE_NORMAL);
 				visionGUI.bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
 				visionGUI.rb_mode_GMM.set_state(Gtk::STATE_NORMAL);
 				visionGUI.rb_mode_HSV.set_state(Gtk::STATE_NORMAL);
@@ -694,7 +696,7 @@ namespace capture {
 			// !BEGIN_HSV
 			std::cout<<"Saving HSV calibs..."<<std::endl;
 			// salva sempre 42 linhas linhas
-			for(int i=0; i<5; i++) {
+			for(int i=0; i<4; i++) {
 			  txtFile <<visionGUI.vision->getHue(i, 0)<<std::endl<<visionGUI.vision->getHue(i, 1)<<std::endl;
 			  txtFile <<visionGUI.vision->getSaturation(i, 0)<<std::endl<<visionGUI.vision->getSaturation(i, 1)<<std::endl;
 			  txtFile <<visionGUI.vision->getValue(i, 0)<<std::endl<<visionGUI.vision->getValue(i, 1)<<std::endl;
@@ -805,7 +807,7 @@ namespace capture {
 
 			// !BEGIN_HSV
 			std::cout<<"Loading HSV calibs..."<<std::endl;
-			for(int i=0; i<5; i++) {
+			for(int i=0; i<4; i++) {
 			  getline(txtFile, line);
 			  visionGUI.vision->setHue(i, 0, atoi(line.c_str()));
 			  getline(txtFile, line);

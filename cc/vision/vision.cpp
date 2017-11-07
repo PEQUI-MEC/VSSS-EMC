@@ -101,93 +101,93 @@ void Vision::searchTags(int color) {
   }
 }
 
-void Vision::findElements() {
-  int dist;
-  double idAngle;
-
-
-  // OUR ROBOTS
-  for (int i = 0; i < tags.at(MAIN).size() && i<3; i++) {
-    Robot robot;
-    int minDistRef[2] = {9999,9999};
-    int minDistIndex1[2] = {-1,-1};
-    int minDistIndex2[2] = {-1,-1};
-
-    // Para cada tag principal, verifica quais são as secundárias correspondentes
-    for(int j = GREEN; j <= PINK; j++) {
-      for(int k = 0; k < tags.at(j).size(); k++) {
-
-        int distance = calcDistance(tags.at(MAIN).at(i).position,tags.at(j).at(k).position);
-
-        if(distance <= minDistRef[0]) {
-          minDistRef[1] = minDistRef[0];
-          minDistIndex2[0] = minDistIndex1[0];
-          minDistIndex2[1] = minDistIndex1[1];
-
-          minDistRef[0] = distance;
-          minDistIndex1[0] = j;
-          minDistIndex1[1] = k;
-          if(j==PINK)
-          robot.isOdd=true;
-
-        } else if(distance < minDistRef[1]) {
-          minDistRef[1] = distance;
-          minDistIndex2[0] = j;
-          minDistIndex2[1] = k;
-        }
-      }
-    }
-
-    // Posição do robô
-    robot.position = tags.at(MAIN).at(i).position;
-
-    // Secundárias do robô
-    try {
-      if (tags.at(minDistIndex1[0]).at(minDistIndex1[1]).area < tags.at(minDistIndex2[0]).at(minDistIndex2[1]).area) {
-        robot.secundary = tags.at(minDistIndex2[0]).at(minDistIndex2[1]).position;
-        robot.ternary = tags.at(minDistIndex1[0]).at(minDistIndex1[1]).position;
-      } else {
-        robot.secundary = tags.at(minDistIndex1[0]).at(minDistIndex1[1]).position;
-        robot.ternary = tags.at(minDistIndex2[0]).at(minDistIndex2[1]).position;
-      }
-    }
-    catch (const std::out_of_range& oor) {
-      continue; // Não calibrado
-    }
-
-    // Cálculo da orientação das tags secundária e ternária em relação a tag principal
-    robot.orientation = atan2((robot.secundary.y-robot.position.y)*1.3/height,(robot.secundary.x-robot.position.x)*1.5/width);
-    robot.orientation2 = atan2((robot.ternary.y-robot.position.y)*1.3/height,(robot.ternary.x-robot.position.x)*1.5/width);
-
-    // Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
-    idAngle = atan2(sin(robot.orientation2-robot.orientation+3.1415),
-    cos(robot.orientation2-robot.orientation+3.1415));
-
-    // Dá nome aos bois (robôs)
-    if(robot.isOdd){
-      robot_list.at(2).position = robot.position; // colocar em um vetor
-      robot_list.at(2).secundary = robot.secundary; // colocar em um vetor
-      robot_list.at(2).orientation =  robot.orientation;
-    }else  if(idAngle>0) {
-      robot_list.at(0).position = robot.position; // colocar em um vetor
-      robot_list.at(0).secundary = robot.secundary; // colocar em um vetor
-      robot_list.at(0).orientation =  robot.orientation;
-    }else {
-      robot_list.at(1).position = robot.position; // colocar em um vetor
-      robot_list.at(1).secundary = robot.secundary; // colocar em um vetor
-      robot_list.at(1).orientation =  robot.orientation;
-    }
-  }
-
-  // ADV ROBOTS
-  for (int i = 0; i < tags.at(ADV).size() && i < MAX_ADV; i++) {
-    advRobots[i] = tags.at(ADV).at(i).position;
-  }
-
-  // BALL POSITION
-  if (!tags.at(BALL).empty())
-    ball = tags.at(BALL).at(0).position;
-}
+// void Vision::findElements() {
+//   int dist;
+//   double idAngle;
+//
+//
+//   // OUR ROBOTS
+//   for (int i = 0; i < tags.at(MAIN).size() && i<3; i++) {
+//     Robot robot;
+//     int minDistRef[2] = {9999,9999};
+//     int minDistIndex1[2] = {-1,-1};
+//     int minDistIndex2[2] = {-1,-1};
+//
+//     // Para cada tag principal, verifica quais são as secundárias correspondentes
+//     for(int j = GREEN; j <= PINK; j++) {
+//       for(int k = 0; k < tags.at(j).size(); k++) {
+//
+//         int distance = calcDistance(tags.at(MAIN).at(i).position,tags.at(j).at(k).position);
+//
+//         if(distance <= minDistRef[0]) {
+//           minDistRef[1] = minDistRef[0];
+//           minDistIndex2[0] = minDistIndex1[0];
+//           minDistIndex2[1] = minDistIndex1[1];
+//
+//           minDistRef[0] = distance;
+//           minDistIndex1[0] = j;
+//           minDistIndex1[1] = k;
+//           if(j==PINK)
+//           robot.isOdd=true;
+//
+//         } else if(distance < minDistRef[1]) {
+//           minDistRef[1] = distance;
+//           minDistIndex2[0] = j;
+//           minDistIndex2[1] = k;
+//         }
+//       }
+//     }
+//
+//     // Posição do robô
+//     robot.position = tags.at(MAIN).at(i).position;
+//
+//     // Secundárias do robô
+//     try {
+//       if (tags.at(minDistIndex1[0]).at(minDistIndex1[1]).area < tags.at(minDistIndex2[0]).at(minDistIndex2[1]).area) {
+//         robot.secundary = tags.at(minDistIndex2[0]).at(minDistIndex2[1]).position;
+//         robot.ternary = tags.at(minDistIndex1[0]).at(minDistIndex1[1]).position;
+//       } else {
+//         robot.secundary = tags.at(minDistIndex1[0]).at(minDistIndex1[1]).position;
+//         robot.ternary = tags.at(minDistIndex2[0]).at(minDistIndex2[1]).position;
+//       }
+//     }
+//     catch (const std::out_of_range& oor) {
+//       continue; // Não calibrado
+//     }
+//
+//     // Cálculo da orientação das tags secundária e ternária em relação a tag principal
+//     robot.orientation = atan2((robot.secundary.y-robot.position.y)*1.3/height,(robot.secundary.x-robot.position.x)*1.5/width);
+//     robot.orientation2 = atan2((robot.ternary.y-robot.position.y)*1.3/height,(robot.ternary.x-robot.position.x)*1.5/width);
+//
+//     // Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
+//     idAngle = atan2(sin(robot.orientation2-robot.orientation+3.1415),
+//     cos(robot.orientation2-robot.orientation+3.1415));
+//
+//     // Dá nome aos bois (robôs)
+//     if(robot.isOdd){
+//       robot_list.at(2).position = robot.position; // colocar em um vetor
+//       robot_list.at(2).secundary = robot.secundary; // colocar em um vetor
+//       robot_list.at(2).orientation =  robot.orientation;
+//     }else  if(idAngle>0) {
+//       robot_list.at(0).position = robot.position; // colocar em um vetor
+//       robot_list.at(0).secundary = robot.secundary; // colocar em um vetor
+//       robot_list.at(0).orientation =  robot.orientation;
+//     }else {
+//       robot_list.at(1).position = robot.position; // colocar em um vetor
+//       robot_list.at(1).secundary = robot.secundary; // colocar em um vetor
+//       robot_list.at(1).orientation =  robot.orientation;
+//     }
+//   }
+//
+//   // ADV ROBOTS
+//   for (int i = 0; i < tags.at(ADV).size() && i < MAX_ADV; i++) {
+//     advRobots[i] = tags.at(ADV).at(i).position;
+//   }
+//
+//   // BALL POSITION
+//   if (!tags.at(BALL).empty())
+//     ball = tags.at(BALL).at(0).position;
+// }
 
 
 /// <summary>
@@ -291,6 +291,64 @@ int Vision::inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secon
 
 double Vision::calcDistance(cv::Point p1, cv::Point p2) {
   return sqrt(pow(p1.x-p2.x,2) + pow(p1.y-p2.y,2));
+}
+
+void Vision::switchMainWithAdv() {
+  int tmp;
+
+  for (int i = MIN; i <= MAX; i++) {
+    tmp = hue[MAIN][i];
+    hue[MAIN][i] = hue[ADV][i];
+    hue[ADV][i] = tmp;
+
+    tmp = saturation[MAIN][i];
+    saturation[MAIN][i] = saturation[ADV][i];
+    saturation[ADV][i] = tmp;
+
+    tmp = value[MAIN][i];
+    value[MAIN][i] = value[ADV][i];
+    value[ADV][i] = tmp;
+  }
+
+  tmp = areaMin[MAIN];
+  areaMin[MAIN] = areaMin[ADV];
+  areaMin[ADV] = tmp;
+
+  tmp = erode[MAIN];
+  erode[MAIN] = erode[ADV];
+  erode[ADV] = tmp;
+
+  tmp = dilate[MAIN];
+  dilate[MAIN] = dilate[ADV];
+  dilate[ADV] = tmp;
+
+  tmp = blur[MAIN];
+  blur[MAIN] = blur[ADV];
+  blur[ADV] = tmp;
+}
+
+cv::Mat Vision::getSplitFrame() {
+  cv::Mat horizontal[2], vertical[2];
+
+  for (int index = 0; index < 3; index++) {
+    cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
+  }
+
+  cv::pyrDown(in_frame, vertical[0]);
+  cv::pyrDown(threshold_frame.at(0), vertical[1]);
+
+  cv::hconcat(vertical, 2, horizontal[0]);
+
+  cv::pyrDown(threshold_frame.at(1), vertical[0]);
+  cv::pyrDown(threshold_frame.at(2), vertical[1]);
+
+  cv::hconcat(vertical, 2, horizontal[1]);
+
+  cv::vconcat(horizontal, 2, splitFrame);
+
+  cv::imwrite("teste.png", splitFrame);
+
+  return splitFrame;
 }
 
 void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5])

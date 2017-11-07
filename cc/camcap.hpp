@@ -202,10 +202,16 @@ public:
           interface.reset_warp_flag = false;
         }
 
+        interface.imageView.split_flag = interface.visionGUI.getIsSplitView();
         interface.imageView.PID_test_flag = control.PID_test_flag;
         interface.imageView.formation_flag = strategyGUI.formation_flag;
         interface.imageView.adjust_event_flag = interface.adjust_event_flag;
         interface.imageView.gmm_sample_flag = interface.visionGUI.getSamplesEventFlag();
+
+        if (interface.imageView.sector != -1) {
+          interface.visionGUI.selectFrame(interface.imageView.sector);
+          interface.imageView.sector = -1;
+        }
 
         if(interface.warped) {
             interface.bt_warp.set_active(false);
@@ -245,14 +251,18 @@ public:
         }
         else {
           interface.visionGUI.vision->run(imageView);
-          if (interface.visionGUI.HSV_calib_event_flag) {
+          if (interface.visionGUI.getIsSplitView()) {
+            interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);
+            interface.imageView.refresh();
+          }
+          else if (interface.visionGUI.HSV_calib_event_flag) {
               interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data, width, height);
               interface.imageView.refresh();
           }
         }
 
         if(!interface.visionGUI.HSV_calib_event_flag) {
-            if (!interface.draw_info_flag)
+            if (!interface.draw_info_flag && !interface.visionGUI.getIsSplitView())
             {
                 cv::Point aux_point;
 

@@ -499,6 +499,55 @@ bool VisionGUI::getSamplesEventFlag() {
   return samplesEventFlag;
 }
 
+void VisionGUI::__create_frm_split_view() {
+  Gtk::VBox * vbox;
+  Gtk::Grid * grid;
+  Gtk::Label * label;
+  Gtk::Frame * frame;
+
+  vbox = new Gtk::VBox();
+  grid = new Gtk::Grid();
+  frame = new Gtk::Frame();
+
+  pack_start(*frame, false, false, 5);
+
+  frame->add(*vbox);
+  vbox->pack_start(*grid, false, true, 5);
+  vbox->set_halign(Gtk::ALIGN_CENTER);
+  vbox->set_valign(Gtk::ALIGN_CENTER);
+
+  frame->set_label("Split View");
+
+  grid->set_border_width(5);
+  grid->set_column_spacing(10);
+  grid->set_row_spacing(5);
+
+  label = new Gtk::Label("Select Mode: ");
+  grid->attach(*label, 0, 0, 1, 1);
+  rb_original_view.set_label("Original");
+  grid->attach(rb_original_view, 1, 0, 1, 1);
+  rb_split_view.set_label("Split");
+  rb_split_view.join_group(rb_original_view);
+  grid->attach(rb_split_view, 2, 0, 1, 1);
+
+  rb_original_view.set_state(Gtk::STATE_INSENSITIVE);
+  rb_split_view.set_state(Gtk::STATE_INSENSITIVE);
+
+  rb_original_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
+  rb_split_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
+}
+
+void VisionGUI::__event_rb_split_mode_clicked() {
+  if (rb_split_view.get_active())
+    isSplitView = true;
+  else
+    isSplitView = false;
+}
+
+bool VisionGUI::getIsSplitView() {
+  return isSplitView;
+}
+
 void VisionGUI::__create_frm_capture() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
@@ -598,54 +647,64 @@ void VisionGUI::__create_frm_hsv() {
   grid->set_border_width(5);
   grid->set_column_spacing(15);
   grid->set_row_spacing(0);
-  grid->set_column_homogeneous(true);
+  // grid->set_column_homogeneous(true);
 
   bt_HSV_calib.set_label("HSV Calib.");
-  grid->attach(bt_HSV_calib, 0, 0, 2, 1);
+  grid->attach(bt_HSV_calib, 0, 0, 1, 1);
 
   bt_HSV_left.set_label(" < ");
-  grid->attach(bt_HSV_left, 3, 0, 1, 1);
+  grid->attach(bt_HSV_left, 2, 0, 1, 1);
   HSV_label.set_text("Main");
-  grid->attach(HSV_label, 4, 0, 1, 1);
+  grid->attach(HSV_label, 3, 0, 1, 1);
   bt_HSV_right.set_label(" > ");
-  grid->attach(bt_HSV_right, 5, 0, 1, 1);
+  grid->attach(bt_HSV_right, 4, 0, 1, 1);
+
+  bt_switchMainAdv.set_label("Main <-> Adv");
+  grid->attach(bt_switchMainAdv, 6, 0, 1, 1);
+
+  grid = new Gtk::Grid();
+  grid->set_border_width(5);
+  grid->set_column_spacing(15);
+  grid->set_row_spacing(0);
+  grid->set_column_homogeneous(true);
+  vbox->pack_start(*grid, false, true, 5);
 
   label = new Gtk::Label("Hmin:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0, 1, 1, 1);
+  grid->attach(*label, 0, 0, 1, 1);
 
   HScale_Hmin.set_digits(0);
   HScale_Hmin.set_increments(1,1);
   HScale_Hmin.set_range(0,255);
   HScale_Hmin.set_value_pos(Gtk::POS_TOP);
   HScale_Hmin.set_draw_value();
-  grid->attach(HScale_Hmin, 1, 1, 2, 1);
+  grid->attach(HScale_Hmin, 1, 0, 2, 1);
 
   label = new Gtk::Label("Hmax:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 1, 1, 1);
+  grid->attach(*label, 3, 0, 1, 1);
 
   HScale_Hmax.set_digits(0);
   HScale_Hmax.set_increments(1,1);
   HScale_Hmax.set_range(0,180);
   HScale_Hmax.set_value_pos(Gtk::POS_TOP);
   HScale_Hmax.set_draw_value();
-  grid->attach(HScale_Hmax, 4, 1, 2, 1);
+  grid->attach(HScale_Hmax, 4, 0, 2, 1);
 
   label = new Gtk::Label("Smin:");
   label->set_alignment(1.0, 1.0);
-   grid->attach(*label, 0, 2, 1, 1);
+   grid->attach(*label, 0, 1, 1, 1);
 
   HScale_Smin.set_digits(0);
   HScale_Smin.set_increments(1,1);
   HScale_Smin.set_range(0,255);
   HScale_Smin.set_value_pos(Gtk::POS_TOP);
   HScale_Smin.set_draw_value();
-  grid->attach(HScale_Smin, 1, 2, 2, 1);
+  grid->attach(HScale_Smin, 1, 1, 2, 1);
 
   label = new Gtk::Label("Smax:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 2, 1, 1);
+  grid->attach(*label, 3, 1, 1, 1);
 
   HScale_Smax.set_digits(0);
   HScale_Smax.set_increments(1,1);
@@ -653,22 +712,22 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Smax.set_value_pos(Gtk::POS_TOP);
   HScale_Smax.set_draw_value();
 
-  grid->attach(HScale_Smax,4, 2, 2, 1);
+  grid->attach(HScale_Smax,4, 1, 2, 1);
 
   label = new Gtk::Label("Vmin:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0, 3, 1, 1);
+  grid->attach(*label, 0, 2, 1, 1);
 
   HScale_Vmin.set_digits(0);
   HScale_Vmin.set_increments(1,1);
   HScale_Vmin.set_range(0,255);
   HScale_Vmin.set_value_pos(Gtk::POS_TOP);
   HScale_Vmin.set_draw_value();
-  grid->attach(HScale_Vmin, 1, 3, 2, 1);
+  grid->attach(HScale_Vmin, 1, 2, 2, 1);
 
   label = new Gtk::Label("Vmax:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 3, 1, 1);
+  grid->attach(*label, 3, 2, 1, 1);
 
   HScale_Vmax.set_digits(0);
   HScale_Vmax.set_increments(1,1);
@@ -676,44 +735,44 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Vmax.set_value_pos(Gtk::POS_TOP);
   HScale_Vmax.set_draw_value();
 
-  grid->attach(HScale_Vmax, 4, 3, 2, 1);
+  grid->attach(HScale_Vmax, 4, 2, 2, 1);
 
   label = new Gtk::Label("Erode:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0,4, 1, 1);
+  grid->attach(*label, 0, 3, 1, 1);
 
   HScale_Erode.set_digits(0);
   HScale_Erode.set_increments(1,1);
   HScale_Erode.set_range(0,50);
   HScale_Erode.set_value_pos(Gtk::POS_TOP);
   HScale_Erode.set_draw_value();
-  grid->attach(HScale_Erode, 1, 4, 2, 1);
+  grid->attach(HScale_Erode, 1, 3, 2, 1);
 
   label = new Gtk::Label("Dilate:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 4, 1, 1);
+  grid->attach(*label, 3, 3, 1, 1);
 
   HScale_Dilate.set_digits(0);
   HScale_Dilate.set_increments(1,1);
   HScale_Dilate.set_range(0,50);
   HScale_Dilate.set_value_pos(Gtk::POS_TOP);
   HScale_Dilate.set_draw_value();
-  grid->attach(HScale_Dilate, 4, 4, 2, 1);
+  grid->attach(HScale_Dilate, 4, 3, 2, 1);
 
   label = new Gtk::Label("Blur:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0, 5, 1, 1);
+  grid->attach(*label, 0, 4, 1, 1);
 
   HScale_Blur.set_digits(0);
   HScale_Blur.set_increments(2,2);
   HScale_Blur.set_range(3,9);
   HScale_Blur.set_value_pos(Gtk::POS_TOP);
   HScale_Blur.set_draw_value();
-  grid->attach(HScale_Blur, 1, 5, 2, 1);
+  grid->attach(HScale_Blur, 1, 4, 2, 1);
 
   label = new Gtk::Label("Amin:");
   label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 5, 1, 1);
+  grid->attach(*label, 3, 4, 1, 1);
 
   HScale_Amin.set_digits(0);
   HScale_Amin.set_increments(1,1);
@@ -721,9 +780,10 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Amin.set_value_pos(Gtk::POS_TOP);
   HScale_Amin.set_draw_value();
 
-  grid->attach(HScale_Amin, 4, 5, 2, 1);
+  grid->attach(HScale_Amin, 4, 4, 2, 1);
 
   bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+  bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
@@ -740,7 +800,7 @@ void VisionGUI::__create_frm_hsv() {
   bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_HSV_calib_pressed));
   bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_HSV_calib_clicked));
   bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_left_HSV_calib_clicked));
-
+  bt_switchMainAdv.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_switchMainAdv_clicked));
   HScale_Hmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmin_value_changed));
   HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmax_value_changed));
   HScale_Smin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smin_value_changed));
@@ -751,6 +811,20 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Dilate_value_changed));
   HScale_Blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Blur_value_changed));
   HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Amin_value_changed));
+}
+
+void VisionGUI::__event_bt_switchMainAdv_clicked() {
+  vision->switchMainWithAdv();
+  HScale_Hmin.set_value(vision->getHue(Img_id, 0));
+  HScale_Hmax.set_value(vision->getHue(Img_id, 1));
+  HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
+  HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
+  HScale_Vmin.set_value(vision->getValue(Img_id, 0));
+  HScale_Vmax.set_value(vision->getValue(Img_id, 1));
+  HScale_Amin.set_value(vision->getAmin(Img_id));
+  HScale_Blur.set_value(vision->getBlur(Img_id));
+  HScale_Erode.set_value(vision->getErode(Img_id));
+  HScale_Dilate.set_value(vision->getDilate(Img_id));
 }
 
 void VisionGUI::HScale_Hmin_value_changed() {
@@ -836,20 +910,64 @@ void VisionGUI::__event_bt_HSV_calib_pressed() {
     HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
     bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
     bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+    bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
   } else {
     HSV_calib_event_flag=true;
-    HScale_Hmin.set_state(Gtk::STATE_ACTIVE);
-    HScale_Smin.set_state(Gtk::STATE_ACTIVE);
-    HScale_Vmin.set_state(Gtk::STATE_ACTIVE);
-    HScale_Hmax.set_state(Gtk::STATE_ACTIVE);
-    HScale_Smax.set_state(Gtk::STATE_ACTIVE);
-    HScale_Vmax.set_state(Gtk::STATE_ACTIVE);
-    HScale_Dilate.set_state(Gtk::STATE_ACTIVE);
-    HScale_Erode.set_state(Gtk::STATE_ACTIVE);
-    HScale_Blur.set_state(Gtk::STATE_ACTIVE);
-    HScale_Amin.set_state(Gtk::STATE_ACTIVE);
-    bt_HSV_right.set_state(Gtk::STATE_ACTIVE);
-    bt_HSV_left.set_state(Gtk::STATE_ACTIVE);
+    HScale_Hmin.set_state(Gtk::STATE_NORMAL);
+    HScale_Smin.set_state(Gtk::STATE_NORMAL);
+    HScale_Vmin.set_state(Gtk::STATE_NORMAL);
+    HScale_Hmax.set_state(Gtk::STATE_NORMAL);
+    HScale_Smax.set_state(Gtk::STATE_NORMAL);
+    HScale_Vmax.set_state(Gtk::STATE_NORMAL);
+    HScale_Dilate.set_state(Gtk::STATE_NORMAL);
+    HScale_Erode.set_state(Gtk::STATE_NORMAL);
+    HScale_Blur.set_state(Gtk::STATE_NORMAL);
+    HScale_Amin.set_state(Gtk::STATE_NORMAL);
+    bt_HSV_right.set_state(Gtk::STATE_NORMAL);
+    bt_HSV_left.set_state(Gtk::STATE_NORMAL);
+    bt_switchMainAdv.set_state(Gtk::STATE_NORMAL);
+  }
+}
+
+void VisionGUI::selectFrame(int sector) {
+  switch (sector) {
+    case 0:
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    break;
+
+    case 1:
+    Img_id = 3;
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    __event_bt_right_HSV_calib_clicked();
+    if (!bt_HSV_calib.get_active()) {
+      bt_HSV_calib.set_active(true);
+      __event_bt_HSV_calib_pressed();
+    }
+    break;
+    case 2:
+    Img_id = 0;
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    __event_bt_right_HSV_calib_clicked();
+    if (!bt_HSV_calib.get_active()) {
+      bt_HSV_calib.set_active(true);
+      __event_bt_HSV_calib_pressed();
+    }
+    break;
+    case 3:
+    Img_id = 1;
+    rb_original_view.set_active(true);
+    __event_rb_split_mode_clicked();
+    __event_bt_right_HSV_calib_clicked();
+    if (!bt_HSV_calib.get_active()) {
+      bt_HSV_calib.set_active(true);
+      __event_bt_HSV_calib_pressed();
+    }
+    break;
+    default:
+    break;
   }
 }
 
@@ -858,7 +976,7 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 
   Img_id=Img_id+1;
 
-  if(Img_id>4) Img_id = 0;
+  if(Img_id>3) Img_id = 0;
   HScale_Hmin.set_value(vision->getHue(Img_id, 0));
   HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
@@ -880,13 +998,13 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
   case 1:
       HSV_label.set_text("Green");
       break;
+  // case 2:
+  //     HSV_label.set_text("Pink");
+  //     break;
   case 2:
-      HSV_label.set_text("Pink");
-      break;
-  case 3:
       HSV_label.set_text("Ball");
       break;
-  case 4:
+  case 3:
       HSV_label.set_text("Opp.");
       break;
   }
@@ -895,7 +1013,7 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 void VisionGUI::__event_bt_left_HSV_calib_clicked() {
 
   Img_id=Img_id-1;
-  if(Img_id<0) Img_id = 4;
+  if(Img_id<0) Img_id = 3;
   HScale_Hmin.set_value(vision->getHue(Img_id, 0));
   HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
@@ -917,13 +1035,13 @@ void VisionGUI::__event_bt_left_HSV_calib_clicked() {
   case 1:
       HSV_label.set_text("Green");
       break;
+  // case 2:
+  //     HSV_label.set_text("Pink");
+  //     break;
   case 2:
-      HSV_label.set_text("Pink");
-      break;
-  case 3:
       HSV_label.set_text("Ball");
       break;
-  case 4:
+  case 3:
       HSV_label.set_text("Opp.");
       break;
   }
@@ -998,14 +1116,16 @@ VisionGUI::VisionGUI() :
   vidIndex(0), picIndex(0), samplesEventFlag(false),
   originalFrame_flag(true), totalSamples(0),
   gaussiansFrame_flag(false), finalFrame_flag(false),
-  thresholdFrame_flag(false), colorIndex(0), isHSV(true) {
+  thresholdFrame_flag(false), colorIndex(0), isHSV(true),
+  isSplitView(false) {
 
   vision = new Vision(640, 480);
 
-  __create_frm_calib_mode();
+  // __create_frm_calib_mode();
   __create_frm_capture();
+  __create_frm_split_view();
   __create_frm_hsv();
-  __create_frm_gmm();
+  // __create_frm_gmm();
 
   init_calib_params();
 }
