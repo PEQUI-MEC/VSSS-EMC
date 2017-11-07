@@ -88,7 +88,6 @@ void Vision::searchTags(int color) {
     double area = contourArea(contours[i]);
     if(area >= areaMin[color]) {
       cv::Moments moment = moments((cv::Mat)contours[i]);
-      tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
 
       // seta as linhas para as tags principais do pick-a-tag
       if(color == MAIN) {
@@ -96,6 +95,21 @@ void Vision::searchTags(int color) {
           cv::fitLine(cv::Mat(contours[i]),line,2,0,0.01,0.01);
           int tagsInVec = tags.at(color).size() - 1;
           tags.at(color).at(tagsInVec).setLine(line);
+
+          tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
+      } else if(color == ADV) {
+          if(tags.at(color).size() == 3) {
+              // pega o menor índice
+              int menor = 0;
+              for(int j = 1; j < 3; j++) {
+                  if(tags.at(color).at(j).area < tags.at(color).at(menor).area)
+                    menor = j;
+              }
+              if(area > tags.at(color).at(menor).area)
+                tags.at(color).at(menor) = Tag(cv::Point(moment.m10/area, moment.m01/area), area);
+          }
+      } else {
+          tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
       }
     }
   }
