@@ -250,6 +250,7 @@ public:
 		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
 		BALL_RADIUS = 100;
 		//não usando
+		planner.set_constants(width, height);
 	}
 
 	double distance(cv::Point A, cv::Point B) {
@@ -283,6 +284,7 @@ public:
 				robots[i].cmdType = VECTOR;
 				robots[i].fixedPos = false;
 				robots[i].using_pot_field = false;
+				robots[i].ignore_obstacles = false;
 				robots[i].vmax = robots[i].vdefault;
 
 
@@ -393,6 +395,7 @@ public:
 				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				collision_check(i);
+				planner.plan(i, &robots);
 			}
 			// cout << " transAngle " << robots[gk].transAngle*180/PI << endl;
 
@@ -422,7 +425,8 @@ public:
 			// if(abs(robots[atk].orientation) > 90) robots[atk].transAngle = 180;
 			// else robots[atk].transAngle = 0;
 			robots[atk].transAngle = lock_angle;
-			robots[atk].vmax = 1.2;
+			robots[atk].vmax = 1.4;
+			robots[atk].ignore_obstacles = true;
 			timeout++;
 			if(timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 				timeout = 0;
@@ -1186,7 +1190,6 @@ public:
 				crop_targets(i);
 			break;
 		}
-
 	}
 
 	void def_routine(int i) {
@@ -1259,7 +1262,7 @@ public:
 				// 	robots[i].vmax = 0;
 				// }
 			}
-
+			robots[i].ignore_obstacles = true;
 			break;
 		}
 	}

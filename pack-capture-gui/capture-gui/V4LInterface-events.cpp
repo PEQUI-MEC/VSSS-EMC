@@ -566,36 +566,38 @@ namespace capture {
             start_game_flag = true;
             start_game_bt.set_image(red_button_pressed);
 
-						robot_list[0].status = 0;
-						robot_list[1].status = 0;
-						robot_list[2].status = 0;
+			robot_list[0].status = 0;
+			robot_list[1].status = 0;
+			robot_list[2].status = 0;
 
-						std::string dateString;
-						time_t tt;
-						std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-						tt = std::chrono::system_clock::to_time_t ( now );
-						dateString.append(std::string(ctime(&tt)).substr(0,24));
+			std::string dateString;
+			time_t tt;
+			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+			tt = std::chrono::system_clock::to_time_t ( now );
+			dateString.append(std::string(ctime(&tt)).substr(0,24));
 
-						if (visionGUI.vision->isRecording()) {
-							visionGUI.vision->finishVideo();
-							visionGUI.bt_record_video.set_label("REC");
-						}
-						visionGUI.bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
-						visionGUI.en_video_name.set_state(Gtk::STATE_INSENSITIVE);
-						visionGUI.en_video_name.set_text(dateString);
-						visionGUI.vision->startNewVideo(dateString);
+			if (visionGUI.vision->isRecording()) {
+				visionGUI.vision->finishVideo();
+				visionGUI.bt_record_video.set_label("REC");
+			}
+			visionGUI.bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
+			visionGUI.en_video_name.set_state(Gtk::STATE_INSENSITIVE);
+			visionGUI.en_video_name.set_text(dateString);
+			visionGUI.vision->startNewVideo(dateString);
         }
         else
         {
-					visionGUI.vision->finishVideo();
-					visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
-					visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
-					visionGUI.en_video_name.set_text("");
-          start_game_flag = false;
-          start_game_bt.set_image(red_button_released);
-					for(int i=0; i<3; i++)
-						robot_list.at(i).cmdType = 0; // Position
-		    }
+			visionGUI.vision->finishVideo();
+			visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
+			visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
+			visionGUI.en_video_name.set_text("");
+		    start_game_flag = false;
+		    start_game_bt.set_image(red_button_released);
+			for(int i=0; i<3; i++) {
+				robot_list.at(i).cmdType = 0; // Position
+				robot_list.at(i).vmax = 0;
+			}
+		}
     }
 
     void V4LInterface::event_robots_function_edit_bt_signal_clicked(){
