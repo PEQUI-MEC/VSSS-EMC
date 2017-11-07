@@ -81,11 +81,6 @@ cc/vision/vision.o: cc/vision/vision.cpp
 	@echo "\n\n\033[92mCompiling vision object...\033[0m\n"
 	@$(COMPILER) -c `pkg-config --cflags opencv` "cc/vision/vision.cpp" -o "cc/vision/vision.o" -lboost_thread -lboost_system
 
-# objeto visionGUI
-cc/vision/visionGUI.o: cc/vision/visionGUI.cpp
-	@echo "\n\n\033[92mCompiling visionGUI object...\033[0m\n"
-	@$(COMPILER) -c `pkg-config gtkmm-3.0 --cflags` "cc/vision/visionGUI.cpp" -o "cc/vision/visionGUI.o"
-
 # objeto das tags
 cc/vision/tag.o: cc/vision/tag.cpp
 	@echo "\n\n\033[92mCompiling tag object...\033[0m\n"
