@@ -435,6 +435,9 @@ public:
         while (1) {
             if (interface.get_start_game_flag() || interface.imageView.PID_test_flag || strategyGUI.updating_formation_flag) {
                 //transformTargets(robot_list);
+                robot_list[0].position = robot_kf_est[0];
+                robot_list[1].position = robot_kf_est[1];
+                robot_list[2].position = robot_kf_est[2];
                 control.s.sendCmdToRobots(robot_list);
             }
             boost::this_thread::sleep(boost::posix_time::milliseconds(250));
