@@ -273,6 +273,12 @@ private:
 		bt_loadFormation.set_sensitive(true);
 		bt_deleteFormation.set_sensitive(true);
 	}
+	void _event_set_penalty_behavior() {
+		// !TODO setar flag e alterar estado do botão
+		// flag = !flag;
+		// bt_penaltyBehavior.set_active(!flag);
+	}
+
 	/// formation.txt:
 	///	Nº de formações
 	/// formation_name r1x r1y r1o r2x r2y r2o r3x r3y r3o
@@ -363,9 +369,14 @@ public:
 	cv::Point formation_positions[3]; // é atualizado só se a flag estiver ativada
 	float formation_orientations[3]; // é atualizado só se a flag estiver ativada
 
+	Gtk::Frame behavior_fm;
+	Gtk::Grid behavior_grid;
+	Gtk::ToggleButton bt_penaltyBehavior;
+
 	StrategyGUI()
 	{
 		createFormationFrame();
+		createBehaviorsFrame();
 		pack_start(strategy.testFrame, false, true, 5);
 		configureTestFrame();
 		//createMenuFrame();
@@ -373,8 +384,24 @@ public:
 		//createInfoImageFrame();
 	}
 
+	void createBehaviorsFrame() {
+		pack_start(behavior_fm, false, true, 5);
+		behavior_fm.add(behavior_grid);
+		behavior_fm.set_label("Behaviors");
+		behavior_grid.set_halign(Gtk::ALIGN_CENTER);
+
+		bt_penaltyBehavior.set_label("Penalty");
+
+		behavior_grid.set_border_width(10);
+		behavior_grid.set_column_spacing(5);
+
+		behavior_grid.attach(bt_penaltyBehavior, 0, 0, 1, 1);
+
+		bt_penaltyBehavior.signal_pressed().connect(sigc::mem_fun(*this, &StrategyGUI::_event_set_penalty_behavior));
+	}
+
 	void configureTestFrame() {
-		std::string labels[5] = {"Goalie Line", "Name 2", "Name 3", "Name 4", "Name 5"};
+		std::string labels[5] = {"Goalie Line", "Goalie Offset", "Name 3", "Name 4", "Name 5"};
 		double min[5] = {0, 0, 0, 0, 0};
 		double max[5] = {160, 100, 100, 100, 100};
 		double currentValue[5] = {0, 10, 20, 30, 40};
