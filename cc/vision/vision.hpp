@@ -33,6 +33,7 @@ private:
   // Frames
   cv::Mat in_frame, hsv_frame;
   std::vector<cv::Mat>threshold_frame;
+  cv::Mat splitFrame;
 
   // Robots
   std::vector<Robot> robot_list;
@@ -98,6 +99,7 @@ public:
   cv::Point getRobotPos(int index);
   cv::Point getAdvRobot(int index);
   cv::Point* getAllAdvRobots();
+  cv::Mat getSplitFrame();
 
   int getRobotListSize();
   int getAdvListSize();

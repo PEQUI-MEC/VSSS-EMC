@@ -47,6 +47,8 @@ namespace capture {
 	    bool auto_calib_flag = false;
 		bool gmm_sample_flag = false;
 		bool gmm_ready_flag = false;
+		bool split_flag = false;
+		int sector = -1;
 
 		ImageView();
 

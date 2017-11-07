@@ -15,6 +15,13 @@ namespace capture {
         	else gmm_counter++;
         }
 
+        if (split_flag) {
+          if (event->x <= width/2 && event->y <= height/2) sector = 0;
+          else if (event->x <= width/2 && event->y > height/2) sector = 2;
+          else if (event->x > width/2 && event->y <= height/2) sector = 1;
+          else if (event->x > width/2 && event->y > height/2) sector = 3;
+        }
+
         if(warp_event_flag){
         	//std::cerr <<"EVENT"<<std::endl;
         	if (event->button == 1) {
