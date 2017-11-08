@@ -41,7 +41,8 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
         if(!validate_target(deviation_points[0])) {
             if(!validate_target(deviation_points[1])) {
                 // desvios inválidos
-                target = crop_target(deviation_points[0]);
+                //target = crop_target(deviation_points[0]);
+                return;
             }
             else {
                 // segundo desvio é válido
@@ -70,45 +71,6 @@ void Planner::update_planner(std::vector<Robot> robots, cv::Point * advRobots, c
 
     // atualiza o histórico para fazer as predições
     update_hist(current_state);
-}
-
-cv::Point Planner::best_shot_target(int robot_index) {
-    cv::Point target;
-
-    State predicted_state = predict_positions(0); // !TODO pensar num tempo bom de previsão
-    
-    target.x = COORD_GOAL_ATK_FRONT_X;
-    target.y = predicted_state.objects.at(robot_index + 1).y > COORD_GOAL_MID_Y ? COORD_BOX_UP_Y : COORD_BOX_DWN_Y;
-
-    // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
-    std::vector<Obstacle> obstacles;
-
-    // encontra obstáculos na trajetória ignorando a bola
-    obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 1);
-
-    // se há obstáculos
-    if(obstacles.size() > 0) {
-        // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
-        cv::Point * deviation_points = find_deviation(predicted_state.objects.at(robot_index + 1), target, obstacles.at(0));
-        // verifica se o ponto de desvio é válido
-        if(!validate_shot_target(deviation_points[0])) {
-            if(!validate_shot_target(deviation_points[1])) {
-                // desvios inválidos
-                target = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
-            }
-            else {
-                // segundo desvio é válido
-                target.y = deviation_points[1].y;
-            }
-        }
-        else {
-            // melhor desvio é válido
-            target.y = deviation_points[0].y;
-        }
-
-    }
-
-    return target;
 }
 
 // dá um crop no alvo caso não tenha outra possibilidade

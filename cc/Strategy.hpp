@@ -389,7 +389,6 @@ public:
 			) {
 
 			if(!atk_mindcontrol) {
-				//cv::Point kickTarget = planner.best_shot_target(atk);
 				lock_angle = atan2(double(robots[atk].position.y - COORD_GOAL_MID_Y), - double(robots[atk].position.x - COORD_GOAL_ATK_FRONT_X));
 			}
 
