@@ -61,6 +61,8 @@ private:
 
     cv::Point crop_target(cv::Point target);
 
+    cv::Point * find_kick_deviation(cv::Point start, cv::Point end, Planner::Obstacle obstacle);
+
 public:
     // criar função de planejamento de trajetória
     // controle por curva

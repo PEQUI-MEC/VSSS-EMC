@@ -89,7 +89,7 @@ cv::Point Planner::best_shot_target(int robot_index) {
     // se há obstáculos
     if(obstacles.size() > 0) {
         // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
-        cv::Point * deviation_points = find_deviation(robots.at(robot_index).position, target, obstacles.at(0));
+        cv::Point * deviation_points = find_deviation(predicted_state.objects.at(robot_index + 1), target, obstacles.at(0));
         // verifica se o ponto de desvio é válido
         if(!validate_shot_target(deviation_points[0])) {
             if(!validate_shot_target(deviation_points[1])) {
