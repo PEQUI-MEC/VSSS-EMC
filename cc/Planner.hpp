@@ -4,6 +4,7 @@
 #include <vector>
 #include "opencv2/opencv.hpp"
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
+#include "Constants.hpp"
 
 #define PI 3.14159265453
 #define HIST_SIZE 3
@@ -16,6 +17,8 @@
 #define ORIENTATION 2
 #define VECTOR 3
 #define VECTORRAW 4
+
+using namespace CONST;
 
 class Planner {
 private:
@@ -32,8 +35,6 @@ private:
         float velocity;
     } VelocityVector;
 
-    // constantes
-    int WIDTH, HEIGHT;
     // histórico de estados: armazena os HIST_SIZE últimos frames
     std::vector<State> hist;
     // planner habilitado?
@@ -56,6 +57,10 @@ private:
 
     bool validate_target(cv::Point target);
 
+    bool validate_shot_target(cv::Point target);
+
+    cv::Point crop_target(cv::Point target);
+
 public:
     // criar função de planejamento de trajetória
     // controle por curva
@@ -63,11 +68,11 @@ public:
     // recebe um ponteiro para os robôs pois após tudo ser calculado os alvos devem ser atualizados
     void plan(int robot_index, std::vector<Robot> * pRobots);
 
-    void set_constants(int width, int height);
-
     void update_planner(std::vector<Robot> robots, cv::Point * advRobots, cv::Point ball, bool use_this);
 
     State predict_positions(double timeAhead);
+
+    cv::Point best_shot_target(int robot_index);
 };
 
 #endif /* TAG_HPP_ */

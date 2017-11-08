@@ -31,10 +31,10 @@
 #include <math.h>
 #include <fstream>
 #include "CPUTimer.cpp"
+#include "Constants.hpp"
 
 #define MAX_THETA_TOLERATION 3
 #define MAX_POSITIONING_VEL 0.1
-
 
 class CamCap: public Gtk::HBox {
 public:
@@ -459,7 +459,7 @@ public:
         int robots_positioned = 0;
         //std::cout << "\niteration id#" << rand() << "\n";
         for(int i = 0; i < interface.robot_list.size(); i++) {
-            if(distance(interface.robot_list.at(i).position, virtual_robots_positions[i]) > strategyGUI.strategy.fixed_pos_distance / 4) {
+            if(distance(interface.robot_list.at(i).position, virtual_robots_positions[i]) > CONST::fixed_pos_distance / 4) {
                 //interface.robot_list.at(i).cmdType = VECTOR;
                 //interface.robot_list.at(i).transAngle = atan2(double(interface.robot_list.at(i).position.y - virtual_robots_positions[i].y), - double(interface.robot_list.at(i).position.x - virtual_robots_positions[i].x));
                 interface.robot_list.at(i).vmax = MAX_POSITIONING_VEL;
