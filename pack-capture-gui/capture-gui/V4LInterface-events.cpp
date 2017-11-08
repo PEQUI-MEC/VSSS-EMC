@@ -794,8 +794,9 @@ namespace capture {
 			  getline(txtFile, line);
 			  double value = atof(line.c_str());
 			  //std::cout << "ATOF " << atof(line.c_str()) << std::endl;
-			  robots_speed_hscale[i].set_value(value);
-			  robot_list[i].vmax = (float) value;
+			  robots_speed_hscale[i].set_value((double) value);
+			  robot_list[i].vmax = (double) value;
+				robot_list[i].vdefault = (double) value;
 
 			  robots_speed_progressBar[i].set_fraction(robots_speed_hscale[i].get_value()/6);
 			  std::ostringstream strs;
