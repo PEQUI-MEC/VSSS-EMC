@@ -219,7 +219,7 @@ public:
 		possession_distance = ABS_ROBOT_SIZE;
 		collision_radius = ABS_ROBOT_SIZE/2;
 		fixed_pos_distance = ABS_ROBOT_SIZE;
-		max_approach = ABS_ROBOT_SIZE*2;
+		max_approach = ABS_ROBOT_SIZE*2.5;
 		max_collision_count = 30;
 		acceleration = 0.8;
 		goalie_line = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE/2;
@@ -292,7 +292,7 @@ public:
 				switch (robots[i].role)	{
 				case GOALKEEPER:
 					Goalkeeper = robots[i].position;
-					robots[i].vdefault = 0.5;
+					//robots[i].vdefault = 0.5;
 					gk = i;
 		      	break;
 
@@ -439,7 +439,7 @@ public:
 			) {
 
 			if(!atk_mindcontrol) {
-				lock_angle = atan2(double(robots[atk].position.y - Ball.y), - double(robots[atk].position.x - Ball.x));
+				lock_angle = atan2(double(robots[atk].position.y - COORD_GOAL_MID_Y), - double(robots[atk].position.x - COORD_GOAL_ATK_FRONT_X));
 			}
 
 			atk_mindcontrol = true;
@@ -452,19 +452,19 @@ public:
 		// cout << " cond 3 "  << (robots[atk].position.y > COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << endl;
 		// cout << " line "  << (COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << " robot y " << robots[atk].position.y <<endl;
 
-		//Goalkeeper overmind-------------------
-		// if(full_transition_enabled == false &&
-		// (Ball.x < ) &&
-		// (robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
-		// robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
-		// robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE/2) ) {
-		//
-		// 	robots[gk].fixedPos = true;
-		// 	// cout << " don't " << endl;
-		// 	robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
-		//	position_to_vector(i);
-		// 	fixed_position_check(i);
-		// }
+		// Goalkeeper overmind-------------------
+		if(full_transition_enabled == false &&
+			(Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_BOX_UP_Y && Ball.y < COORD_BOX_DWN_Y) &&
+			(robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
+			robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
+			robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE/2) ) {
+
+			robots[gk].fixedPos = true;
+			// cout << " don't " << endl;
+			robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
+			position_to_vector(gk);
+			fixed_position_check(gk);
+		}
 
 		/**** SITUAÇÕES DE TROCA ****/
 
@@ -1225,18 +1225,18 @@ public:
 			case NORMAL_STATE:
 				if(Ball.x > corner_atk_limit) {
 					int y_pos = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
-					robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/2, y_pos);
+					robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4, y_pos);
 					//robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
 
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
 				else if(Ball.x > COORD_MID_FIELD_X) {
-					robots[i].target = cv::Point(COORD_MID_FIELD_X - COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
+					robots[i].target = cv::Point(COORD_MID_FIELD_X - COORD_MID_FIELD_X/4, COORD_GOAL_MID_Y);
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
 				else {
 					// fixa uma posição em x
-					int x_pos = COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2;
+					int x_pos = COORD_BOX_DEF_X + ABS_ROBOT_SIZE;
 
 					int ballTarget = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
 					double m = double(Ball.y - ballTarget) / double(Ball.x - ABS_ROBOT_SIZE);
