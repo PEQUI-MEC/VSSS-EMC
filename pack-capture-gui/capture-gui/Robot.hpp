@@ -19,9 +19,9 @@ class Robot
         float Vl,Vr;  // RPS
         bool fixedPos;
         bool using_pot_field;
+        bool ignore_obstacles = false;
         int role;
         int status;
-
 
         Robot() : isOdd(false), orientation(0), orientation2(0),
         cmdType(0), vdefault(0.8), vmax(1.4), fixedPos(false),
