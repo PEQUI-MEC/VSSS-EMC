@@ -178,6 +178,7 @@ public:
 	bool action3 = false;
 	bool kick = false;
 	bool atk_mindcontrol = false;
+	bool def_mindcontrol = false;
 
 
 	Strategy()
@@ -292,7 +293,7 @@ public:
 				switch (robots[i].role)	{
 				case GOALKEEPER:
 					Goalkeeper = robots[i].position;
-					//robots[i].vdefault = 0.5;
+					// robots[i].vdefault = 0.5;
 					gk = i;
 		      	break;
 
@@ -446,6 +447,27 @@ public:
 			// cout << "mindcontrol" << endl;
 		}
 
+		//Defender Overmind-------------------------
+		if(def_mindcontrol) {
+
+			cv::Point v = cv::Point(Ball.x - Ball_Est.x, Ball.y - Ball_Est.y);
+			double module = sqrt(pow(v.x,2) + pow(v.y,2));
+			double approach = distance(Ball, Ball_Est) * (distance(Ball, robots[atk].position)/(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4));
+			robots[atk].target.x = double(Ball.x - double(v.x/module) * approach);
+			robots[atk].target.y = double(Ball.y - double(v.y/module) * approach);
+			cout << "approach " << approach << " proporção de distâncias " << distance(Ball, robots[atk].position)/(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4) << endl;
+			robots[atk].cmdType = VECTOR;
+			position_to_vector(atk);
+			robots[atk].vmax = 1.4;
+			robots[atk].ignore_obstacles = true;
+			timeout++;
+			if(timeout >= 30 || Ball.x < robots[atk].position.x) {
+				timeout = 0;
+				def_mindcontrol = false;
+				robots[atk].vmax = robots[atk].vdefault;
+			}
+		}
+
 		// cout << " full_transition_enabled "  << full_transition_enabled << endl;
 		// cout << " cond 1 "  << (robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2) << endl;
 		// cout << " cond 2 "  << (robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2) << endl;
@@ -473,6 +495,7 @@ public:
 		if(Ball_Est.y > COORD_GOAL_UP_Y && Ball_Est.y < COORD_GOAL_DWN_Y &&
 		Ball_Est.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
+			def_mindcontrol = true;
 			// std::cout << "y1\n";
 		}
 		// se a bola tá atrás do atacante mas tá na frente do defensor
@@ -517,9 +540,9 @@ public:
 			full_transition_enabled = true;
 			half_transition_enabled = true;
 		} else {
-			half_transition = false;
+			half_transition_enabled = false;
 		}
-		if(Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE && Ball.x > robots[def].position.x) {
+		if(Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE*2 && Ball.x > robots[def].position.x) {
 			danger_zone_1 = true;
 		} else if (Ball.x < robots[atk].position.x && Ball.x < robots[def].position.x) {
 			danger_zone_2 = true;
