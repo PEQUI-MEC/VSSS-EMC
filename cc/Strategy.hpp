@@ -317,7 +317,8 @@ public:
 
 			// danger_zone_1 = false; //só para testes com um robô
 			// danger_zone_2 = false; //só para testes com um robô
-			//transition_enabled = false; //só para testes com um robô
+			half_transition_enabled = false; //só para testes com um robô
+			full_transition_enabled = false; //só para testes com um robô
 
 			// cout << "transitions" << endl;
 
@@ -896,16 +897,16 @@ public:
 		else return 1.0;
 	}
 
-	void spin_left(int i) {
+	void spin_left(int i, double speed=0.8) {
 		robots[i].cmdType = SPEED;
-		robots[i].vmax = robots[i].vdefault;
+		robots[i].vmax = speed;
 		robots[i].Vr = robots[i].vmax;
 		robots[i].Vl = - robots[i].vmax;
 	}
 
-	void spin_right(int i) {
+	void spin_right(int i, double speed=0.8) {
 		robots[i].cmdType = SPEED;
-		robots[i].vmax = robots[i].vdefault;
+		robots[i].vmax = speed;
 		robots[i].Vr = - robots[i].vmax;
 		robots[i].Vl = robots[i].vmax;
 	}
@@ -1221,43 +1222,81 @@ public:
 
 			case NORMAL_STATE:
 			// robots[i].fixedPos = true;
-			robots[i].cmdType = POSITION;
+			// robots[i].cmdType = POSITION;
 			robots[i].target.x = goalie_line;
+			//bola no atk
+			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2)
+				robots[i].target.y = Ball_Est.y;
+			else  //bola na def
+				robots[i].target.y = Ball.y;
+				//if bola com velocidade && vindo pra defesa && fora da area
 
-			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2) robots[i].target.y = Ball_Est.y;
-			else robots[i].target.y = Ball.y;
-
-			if(distance(Ball, Ball_Est) > ABS_ROBOT_SIZE*2 && Ball.x > Ball_Est.x && (Ball.x > COORD_BOX_DEF_X) ) {
+			if(distance(Ball, Ball_Est) > ABS_ROBOT_SIZE && Ball.x > Ball_Est.x && (Ball.x > COORD_BOX_DEF_X) ) {
 				double m = double(Ball.y - Ball_Est.y)/double(Ball.x - Ball_Est.x);
 				robots[i].target.y = Ball.y - m * (Ball.x - goalie_line);
+				if (robots[i].vmax <= 0.8) robots[i].vmax = 0.8;
 			}
 
 			if(robots[i].target.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
+
 			if(robots[i].target.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
 
-			// if(Ball.y > COORD_GOAL_DWN_Y) robots[i].target.y = COORD_GOAL_DWN_Y;
-			// if(Ball.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
 
 			if(Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_GOAL_DWN_Y) {
+				// if bola no corner inferior do gol
 				robots[i].target.y = COORD_GOAL_DWN_Y + goalie_offset;
 			} else if (Ball.x < COORD_BOX_DEF_X && Ball.y < COORD_GOAL_UP_Y){
+				// if bola no corner superior do gol
 				robots[i].target.y = COORD_GOAL_UP_Y - goalie_offset;
 			}
+
+			// if (Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_BOX_UP_Y && Ball.y < COORD_GOAL_DWN_Y) {
+			// 	robots[i].target = Ball;
+			// }
 
 			robots[i].vmax = 2 * robots[i].vdefault * (distance(robots[i].position, robots[i].target))/ABS_GOAL_SIZE_Y;
 			// cout << "vmax " << robots[i].vmax << " distancia "<< distance(robots[i].position, robots[i].target) << " distancia max " << ABS_GOAL_TO_GOAL_WIDTH/4<<endl;
 			if(robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
-			if(robots[i].vmax < 0.5) robots[i].vmax = 0.5;
+			if(robots[i].vmax < 0.35) robots[i].vmax = 0.35;
 			// fixed_lookup(i);
 
-			if(distance(robots[i].position, robots[i].target) < fixed_pos_distance/2) {
+
+
+			if (distance(robots[i].position, Ball) < ABS_ROBOT_SIZE) {
+				if (Ball.y <= COORD_GOAL_UP_Y) {
+					spin_right(i, 0.8);
+				} else if(Ball.y >= COORD_GOAL_DWN_Y){
+					spin_left(i, 0.8);
+				}
+			}
+
+
+			if(abs(Ball.x - robots[i].position.x) <= ABS_ROBOT_SIZE && Ball.y < COORD_BOX_DWN_Y && Ball.y > COORD_BOX_UP_Y) {
+				if (Ball.y <= robots[i].position.y) {
+					robots[i].target.y = 0;
+					robots[i].target.x = goalie_line + ABS_ROBOT_SIZE/2;
+					robots[i].vmax = 0.9;
+				} else {
+					robots[i].target.y = 480;
+					robots[i].target.x = goalie_line + ABS_ROBOT_SIZE/2;
+					robots[i].vmax = 0.9;
+				}
+			}
+
+			if(distance(robots[i].position, robots[i].target) < ABS_ROBOT_SIZE*3/4) {
+				// robots[i].cmdType = POSITION;
+				// robots[i].target = robots[i].position;
 				robots[i].cmdType = ORIENTATION;
 				robots[i].targetOrientation = PI/2;
 				// if( tan(robots[i].orientation) > tan(robots[i].targetOrientation - 5*PI/180) && tan(robots[i].orientation) < tan(robots[i].targetOrientation + 5*PI/180) )
 				// {
 				// 	robots[i].cmdType = POSITION;
-				// 	robots[i].vmax = 0;
+					robots[i].vmax = robots[i].vdefault;
 				// }
+			}
+
+			if(abs(robots[i].target.x - robots[i].position.x) < fixed_pos_distance/2 && abs(robots[i].position.x - goalie_line) < fixed_pos_distance/2) {
+				robots[i].target.x = robots[i].position.x;
 			}
 
 			break;

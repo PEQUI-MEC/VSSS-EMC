@@ -100,12 +100,14 @@ void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 			case ORIENTATION:
 			temp2 = double(robot_list[i].orientation) - ( - double(robot_list[i].targetOrientation));
 			temp0= temp2*180/PI;
+			temp0 = round(temp0*100)/100;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
 			cmd << robot_list[i].ID<<'@'<<"O"<<temp0<<";"<<temp1<<"#"<< std::endl;
 			//std::cout << cmd.str() << std::endl;
 			break;
 			case VECTOR:
 			temp0= double(atan2(sin(robot_list[i].orientation-(-robot_list[i].transAngle)),cos(robot_list[i].orientation-(-robot_list[i].transAngle)))*180/PI);
+			temp0 = round(temp0*100)/100;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
 			cmd << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< std::endl;
 			// cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
