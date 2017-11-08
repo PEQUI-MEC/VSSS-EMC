@@ -74,10 +74,39 @@ void Planner::update_planner(std::vector<Robot> robots, cv::Point * advRobots, c
 
 cv::Point Planner::best_shot_target(int robot_index) {
     cv::Point target;
+
     State predicted_state = predict_positions(0); // !TODO pensar num tempo bom de previsão
 
-    target.y = predicted_state.objects.at(robot_index).y > height/2 ? COORD_BOX_UP_Y : COORD_BOX_DWN_Y;
     target.x = COORD_GOAL_ATK_FRONT_X;
+    target.y = predicted_state.objects.at(robot_index + 1).y > COORD_GOAL_MID_Y ? COORD_BOX_UP_Y : COORD_BOX_DWN_Y;
+
+    // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
+    std::vector<Obstacle> obstacles;
+
+    // encontra obstáculos na trajetória ignorando a bola
+    obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 1);
+
+    // se há obstáculos
+    if(obstacles.size() > 0) {
+        // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
+        cv::Point * deviation_points = find_deviation(robots.at(robot_index).position, target, obstacles.at(0));
+        // verifica se o ponto de desvio é válido
+        if(!validate_shot_target(deviation_points[0])) {
+            if(!validate_shot_target(deviation_points[1])) {
+                // desvios inválidos
+                target = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
+            }
+            else {
+                // segundo desvio é válido
+                target.y = deviation_points[1].y;
+            }
+        }
+        else {
+            // melhor desvio é válido
+            target.y = deviation_points[0].y;
+        }
+
+    }
 
     return target;
 }
@@ -226,6 +255,29 @@ cv::Point * Planner::find_deviation(cv::Point start, cv::Point end, Planner::Obs
 
     // ordena pro desvio mais próximo
     if(abs(distance_to_line(start, end, deviations[0])) > abs(distance_to_line(start, end, deviations[1]))) {
+        cv::Point aux = deviations[0];
+        deviations[0] = deviations[1];
+        deviations[1] = aux;
+    }
+
+    return deviations;
+}
+
+// encontra desvios no chute pro gol
+cv::Point * Planner::find_kick_deviation(cv::Point start, cv::Point end, Planner::Obstacle obstacle) {
+    cv::Point * deviations = new cv::Point[2];
+
+    // encontra o angulo entre start e end, soma 90 pra encontrar o angulo da perpendicular
+    double angle = -atan2(double(end.y - start.y), - double(end.x - start.x));
+
+    angle += PI/2;
+
+    // gera uma reta a partir do obstacle.position
+    deviations[0] = cv::Point(obstacle.position.x + ABS_ROBOT_SIZE*cos(angle), obstacle.position.y + ABS_ROBOT_SIZE*sin(angle));
+    deviations[1] = cv::Point(obstacle.position.x - ABS_ROBOT_SIZE*cos(angle), obstacle.position.y - ABS_ROBOT_SIZE*sin(angle));
+
+    // ordena pro desvio mais distante pois é mais difícil do goleiro defender
+    if(abs(distance_to_line(start, end, deviations[0])) < abs(distance_to_line(start, end, deviations[1]))) {
         cv::Point aux = deviations[0];
         deviations[0] = deviations[1];
         deviations[1] = aux;
