@@ -2,9 +2,9 @@
 
 // recalcula os targets dos robôs controlados por posição desviando de obstáculos
 void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
-    if(!use_this || pRobots == NULL || hist.size() <= 0 ||
+    if(!use_this || pRobots == NULL ||
         robot_index < 0 || robot_index >= (*pRobots).size()) {
-        // std::cout << "Wrong state. Planning not used.\n";
+        //std::cout << "Wrong state. Planning not used.\n";
         return;
     }
 
@@ -128,7 +128,11 @@ void Planner::update_hist(State current_state) {
 // prevê posições futuras baseadas no tempo
 // !TODO ainda não leva em consideração nada da física e nem usa o tempo
 Planner::State Planner::predict_positions(double timeAhead) {
-    return hist.back();
+    State ret_state;
+    if(hist.size() > 0)
+        return hist.back();
+    else
+        return ret_state;
 }
 
 double Planner::distance(cv::Point p1, cv::Point p2) {
