@@ -101,6 +101,8 @@ public:
 
 	FuzzyController controller;
 
+	int frames_blocked;
+
 	Planner planner;
 	bool using_planner_flag = true;
 
@@ -110,15 +112,18 @@ public:
 	bool danger_zone_2 = false;
 	bool half_transition_enabled = false;
 	bool full_transition_enabled = false;
+	bool transition_mindcontrol_enabled = true;
 	bool atk_ball_possession = false;
 
 	int t = 0;
 	int timeout = 0;
 	int transition_timeout = 0;
+	int transition_overmind_timeout = 0;
 	bool action1 = false;
 	bool action2 = false;
 	bool action3 = false;
 	bool kick = false;
+	bool transition_mindcontrol = false;
 	bool atk_mindcontrol = false;
 	bool def_mindcontrol = false;
 
@@ -266,6 +271,7 @@ public:
 			// danger_zone_2 = false; //só para testes com um robô
 			// half_transition_enabled = false; //só para testes com um robô
 			// full_transition_enabled = false; //só para testes com um robô
+			// transition_mindcontrol_enabled = false;
 
 			// cout << "transitions" << endl;
 
@@ -289,57 +295,103 @@ public:
 			transition_timeout--;
 			if(transition_timeout < 0) transition_timeout = 0;
 
-			if(half_transition && half_transition_enabled && transition_timeout == 0) {
-				// cout << " half " << endl;
+			if(transition_mindcontrol && transition_mindcontrol_enabled) {
+				transition_mindcontrol = false; // reseta a flag
 
-				half_transition = false;
-				half_transition_enabled = false;
-				transition_timeout = 90; //3 segundos
-				for(int i =0; i<3; i++) {
-					robots[i].status = NORMAL_STATE;
-					switch (robots[i].role) {
-						case GOALKEEPER:
-						break;
-						case DEFENDER:
-						robots[i].role = ATTACKER;
-						robots[i].vmax = robots[i].vdefault;
+				double tmp_distance;
+
+				// pega a menor distância pra bola
+				double minor_distance = distance(robots[0].position, Ball);
+				atk = 0;
+
+				for(int i = 1; i < robots.size(); i++) {
+					if((tmp_distance = distance(robots[i].position, Ball)) < minor_distance) {
+						minor_distance = tmp_distance;
 						atk = i;
-						break;
-						case ATTACKER:
-						robots[i].role = DEFENDER;
-						robots[i].vmax = robots[i].vdefault;
-						def = i;
-						break;
 					}
 				}
-			}
-			if(full_transition && full_transition_enabled && transition_timeout == 0) {
-				// cout << " full " << endl;
+				// seta o atacante
+				set_role(atk, ATTACKER);
 
-				full_transition = false;
-				full_transition_enabled = false;
-				transition_timeout = 90; //3 segundos
-				for(int i =0; i<3; i++) {
-					robots[i].status = NORMAL_STATE;
-					switch (robots[i].role) {
-						case GOALKEEPER:
-						robots[i].role = ATTACKER;
-						robots[i].vmax = robots[i].vdefault;
-						atk = i;
-						break;
-						case DEFENDER:
-						robots[i].role = GOALKEEPER;
-						robots[i].vmax = robots[i].vdefault;
+
+				// pega a menor distância pro gol
+				minor_distance = distance(robots[0].position, cv::Point(0, COORD_GOAL_MID_Y));
+				gk = 0;
+				for(int i = 1; i < robots.size(); i++) {
+					if(i == atk)
+						continue;
+					if((tmp_distance = distance(robots[i].position, cv::Point(0, COORD_GOAL_MID_Y))) < minor_distance) {
+						minor_distance = tmp_distance;
 						gk = i;
-						break;
-						case ATTACKER:
-						robots[i].role = DEFENDER;
-						robots[i].vmax = robots[i].vdefault;
-						def = i;
-						break;
+					}
+				}
+				// seta o goleiro
+				set_role(gk, GOALKEEPER);
+
+				// seta o robô restante pra defensor
+				def = 0;
+				for(int i = 0; i < robots.size(); i++) {
+					if(i == atk || i == gk)
+						continue;
+					def = i;
+				}
+				// seta o defensor
+				set_role(def, DEFENDER);
+			}
+			else {
+				if(half_transition && half_transition_enabled && transition_timeout == 0) {
+					// cout << " half " << endl;
+
+					half_transition = false;
+					half_transition_enabled = false;
+					transition_timeout = 90; //3 segundos
+					for(int i =0; i<3; i++) {
+						robots[i].status = NORMAL_STATE;
+						switch (robots[i].role) {
+							case GOALKEEPER:
+							break;
+							case DEFENDER:
+							robots[i].role = ATTACKER;
+							robots[i].vmax = robots[i].vdefault;
+							atk = i;
+							break;
+							case ATTACKER:
+							robots[i].role = DEFENDER;
+							robots[i].vmax = robots[i].vdefault;
+							def = i;
+							break;
+						}
+					}
+				}
+				if(full_transition && full_transition_enabled && transition_timeout == 0) {
+					// cout << " full " << endl;
+
+					full_transition = false;
+					full_transition_enabled = false;
+					transition_timeout = 90; //3 segundos
+					for(int i =0; i<3; i++) {
+						robots[i].status = NORMAL_STATE;
+						switch (robots[i].role) {
+							case GOALKEEPER:
+							robots[i].role = ATTACKER;
+							robots[i].vmax = robots[i].vdefault;
+							atk = i;
+							break;
+							case DEFENDER:
+							robots[i].role = GOALKEEPER;
+							robots[i].vmax = robots[i].vdefault;
+							gk = i;
+							break;
+							case ATTACKER:
+							robots[i].role = DEFENDER;
+							robots[i].vmax = robots[i].vdefault;
+							def = i;
+							break;
+						}
 					}
 				}
 			}
+
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
 		// cout << "passou ponteiro" << endl;
@@ -439,9 +491,13 @@ public:
 
 		/**** SITUAÇÕES DE TROCA ****/
 
-		//defender mindcontrol
+		// troca se está travado
+		if(cock_blocked()) {
+			// verifica distancias e seta roles
+			transition_mindcontrol = true;
+		}
 		// faz meio que um cruzamento
-		if(Ball_Est.y > COORD_GOAL_UP_Y && Ball_Est.y < COORD_GOAL_DWN_Y &&
+		else if(Ball_Est.y > COORD_GOAL_UP_Y && Ball_Est.y < COORD_GOAL_DWN_Y &&
 		Ball_Est.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
 			def_mindcontrol = true;
@@ -449,7 +505,7 @@ public:
 			// std::cout << "y1\n";
 		}
 		// se a bola tá bem atrás do atacante mas tá na frente do defensor
-		if(danger_zone_1 && Ball.x < robots[atk].position.x - transition_y_distance && robots[atk].status != CORNER_STATE) {
+		else if(danger_zone_1 && Ball.x < robots[atk].position.x - transition_y_distance && robots[atk].status != CORNER_STATE) {
 			half_transition = true;
 			// cout << " if 2 " << endl;
 
@@ -473,15 +529,6 @@ public:
 			cout << " if 4 " << endl;
 
 		}*/
-		// troca se a troca foi feita errada
-		else if(distance(robots[atk].position, robots[def].position) < ABS_ROBOT_SIZE*2 &&
-		 	distance(robots[atk].position, robots[atk].target) > distance(robots[def].position, robots[atk].target) &&
-			((abs(robots[atk].orientation - robots[def].orientation) < THETA_TOLERATION*PI/180) ||
-			(abs(robots[atk].orientation - robots[def].orientation) > PI - THETA_TOLERATION*PI/180))) {
-			half_transition = true;
-			// cout << " if 5 " << endl;
-
-		}
 		// troca caso o angulo do defensor pro gol for bom
 		else if((abs(phiDef)*180/PI < 20) &&
 			(Ball.x > robots[def].position.x ) /*&&
@@ -554,6 +601,44 @@ public:
 			collision_count[i] = 0;
 		}
 		// cout << " past " << past_position[i] << " count "<< collision_count[i] << endl;
+	}
+
+	bool cock_blocked() {
+		bool at_least_one_blocked = false;
+
+		// decrementa o timer se tiver
+		if(transition_overmind_timeout > 0) {
+			transition_overmind_timeout--;
+			return false;
+		}
+
+		// verifica se os robôs estão colidindo e incrementa o tempo
+		for(int i = 0; i < robots.size(); i++) {
+			for(int j = i + 1; j < robots.size(); j++) {
+				if(distance(robots[i].position, robots[j].position) < ABS_ROBOT_SIZE * 1.5) {
+					at_least_one_blocked = true;
+				}
+			}
+		}
+
+		if(!at_least_one_blocked) {
+			frames_blocked = 0;
+		}
+		else {
+			frames_blocked++;
+			if(frames_blocked > 15) {
+				transition_overmind_timeout = 60; // dois segundos
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void set_role(int i, int role) {
+		robots[i].status = NORMAL_STATE;
+		robots[i].role = role;
+		robots[i].vmax = robots[i].vdefault;
 	}
 
 	bool is_near(int i, cv::Point point) {
