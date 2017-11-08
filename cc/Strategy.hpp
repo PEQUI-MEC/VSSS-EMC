@@ -417,6 +417,11 @@ public:
 
 		double phi = atan((m2-m1)/(1+m2*m1));
 
+		// para o defensor também
+		double mBallGoal = double(goal.y - Ball_Est.y)/double(goal.x - Ball_Est.x);
+		double mDefBall = double(robots[def].position.y - Ball_Est.y)/double(robots[def].position.x - Ball_Est.x);
+		double phiDef = atan((mDefBall-mBallGoal)/(1+mDefBall*mBallGoal));
+
 		if(robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
 		if(atk_mindcontrol) {
@@ -436,10 +441,11 @@ public:
 		}
 
 		if((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE*2) && (phi*180/PI < 20) && (Ball.x > robots[atk].position.x ) &&
-		((((robots[atk].orientation - atan(m1))*180/PI) < 20 && ((robots[atk].orientation - atan(m1))*180/PI) > -20) ||
-		(((robots[atk].orientation - atan(m1))*180/PI) < -165 || ((robots[atk].orientation - atan(m1))*180/PI) > 165) )
-		// 	(robots[atk].orientation > atan(mdwn) && robots[atk].orientation < atan(mup))
-	 	) {
+			((((robots[atk].orientation - atan(m1))*180/PI) < 20 && ((robots[atk].orientation - atan(m1))*180/PI) > -20) ||
+			(((robots[atk].orientation - atan(m1))*180/PI) < -165 || ((robots[atk].orientation - atan(m1))*180/PI) > 165) )
+			// 	(robots[atk].orientation > atan(mdwn) && robots[atk].orientation < atan(mup))
+			) {
+
 			if(!atk_mindcontrol) {
 				lock_angle = atan2(double(robots[atk].position.y - Ball.y), - double(robots[atk].position.x - Ball.x));
 			}
@@ -478,25 +484,34 @@ public:
 			// std::cout << "y1\n";
 		}
 		// se a bola tá atrás do atacante mas tá na frente do defensor
-		if(danger_zone_1 && (Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE)) {
+		if(danger_zone_1) {
 			half_transition = true;
 			// std::cout << "dg1, antes do ataque\n";
 		}
 		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
 		else if(danger_zone_2) {
-			if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y) )
+			if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y))
 				full_transition = true;
+			else if(!offensive_adv()) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
+				full_transition = true;
+			}
 		}
 		// troca se o atacante tá muito longe da bola
 		else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
 			half_transition = true;
 		}
-
-		/*if(distance(robots[atk].position, target) > distance(robots[def].position, target) &&
-			(abs(robots[atk].orientation - robots[def].orientation) < THETA_TOLERATION*PI/180) ||
-			(abs(robots[atk].orientation - robots[def].orientation) > PI - THETA_TOLERATION*PI/180)) {
+		// troca se a troca foi feita errada
+		else if(distance(robots[atk].position, robots[atk].target) > distance(robots[def].position, robots[atk].target) &&
+			((abs(robots[atk].orientation - robots[def].orientation) < THETA_TOLERATION*PI/180) ||
+			(abs(robots[atk].orientation - robots[def].orientation) > PI - THETA_TOLERATION*PI/180))) {
 			half_transition = true;
-		}*/
+		}
+		// troca caso o angulo do defensor pro gol for bom
+		else if((phiDef*180/PI < 20) && (Ball.x > robots[def].position.x ) &&
+			((((robots[def].orientation - atan(mBallGoal))*180/PI) < 20 && ((robots[def].orientation - atan(mBallGoal))*180/PI) > -20) ||
+			(((robots[def].orientation - atan(mBallGoal))*180/PI) < -165 || ((robots[def].orientation - atan(mBallGoal))*180/PI) > 165))) {
+			half_transition = true;
+		}
 	}
 
 	void set_flags() {
@@ -511,7 +526,7 @@ public:
 		} else {
 			half_transition = false;
 		}
-		if(Ball.x < robots[atk].position.x && Ball.x > robots[def].position.x) {
+		if(Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE && Ball.x > robots[def].position.x) {
 			danger_zone_1 = true;
 		} else if (Ball.x < robots[atk].position.x && Ball.x < robots[def].position.x) {
 			danger_zone_2 = true;
@@ -530,6 +545,18 @@ public:
 				robots[i].vmax = 0;
 			}
 		}
+	}
+
+	bool offensive_adv() {
+		bool isDangerous = false;
+		for(int i = 0; i < 3; i++) {
+			// se o adversário mais próximo da bola está a pelo menos duas vezes a distância de nosso gk a bola, não é perigoso
+			if(distance(adv[i], Ball) < distance(robots[gk].position, Ball) * 2) {
+				isDangerous = true;
+				break;
+			}
+		}
+		return isDangerous;
 	}
 
 	void collision_check(int i) {
