@@ -1217,16 +1217,16 @@ public:
 				if(Ball.x > corner_atk_limit) {
 					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
-							if((Ball.x > robots[i].position.x || Ball.y < robots[i].position.y) && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_clockwise(i); // giro que leva a bola ao gol
-							else robots[i].target = Ball; //!!! testar pode dar ruim com a troca
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_clockwise(i); // giro que leva a bola ao gol
+							else robots[i].target = Ball; // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
 						} else {
 							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_anti_clockwise(i); // giro para faze-la entrar
 							else robots[i].target = Ball;
 						}
 					} else {
 						if(Ball.y > COORD_GOAL_DWN_Y) {
-							if((Ball.x > robots[i].position.x || Ball.y > robots[i].position.y) && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_anti_clockwise(i);
-							else robots[i].target = Ball;
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_anti_clockwise(i);
+							else robots[i].target = Ball; // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
 						} else {
 							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_clockwise(i); // giro para faze-la entrar
 							else robots[i].target = Ball;
