@@ -76,7 +76,7 @@ cv::Point Planner::best_shot_target(int robot_index) {
     cv::Point target;
 
     State predicted_state = predict_positions(0); // !TODO pensar num tempo bom de previsão
-
+    
     target.x = COORD_GOAL_ATK_FRONT_X;
     target.y = predicted_state.objects.at(robot_index + 1).y > COORD_GOAL_MID_Y ? COORD_BOX_UP_Y : COORD_BOX_DWN_Y;
 

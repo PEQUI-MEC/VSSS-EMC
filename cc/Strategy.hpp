@@ -193,7 +193,7 @@ public:
         // Parametros do Defensor na defesa
         DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
 		BALL_RADIUS = 100;
-		
+
 
 		fuzzy_init();
 	}
@@ -290,7 +290,7 @@ public:
 			if(transition_timeout < 0) transition_timeout = 0;
 
 			if(half_transition && half_transition_enabled && transition_timeout == 0) {
-				cout << " half " << endl;
+				// cout << " half " << endl;
 
 				half_transition = false;
 				half_transition_enabled = false;
@@ -314,7 +314,7 @@ public:
 				}
 			}
 			if(full_transition && full_transition_enabled && transition_timeout == 0) {
-				cout << " full " << endl;
+				// cout << " full " << endl;
 
 				full_transition = false;
 				full_transition_enabled = false;
@@ -389,8 +389,8 @@ public:
 			) {
 
 			if(!atk_mindcontrol) {
-				cv::Point kickTarget = planner.best_shot_target(atk);
-				lock_angle = atan2(double(robots[atk].position.y - kickTarget.y), - double(robots[atk].position.x - kickTarget.x));
+				//cv::Point kickTarget = planner.best_shot_target(atk);
+				lock_angle = atan2(double(robots[atk].position.y - COORD_GOAL_MID_Y), - double(robots[atk].position.x - COORD_GOAL_ATK_FRONT_X));
 			}
 
 			atk_mindcontrol = true;
@@ -501,7 +501,7 @@ public:
 		atk_ball_possession = false;
 		half_transition = false;
 		full_transition = false;
-		if(Ball.x > COORD_MID_FIELD_X) {
+		if(Ball.x > COORD_MID_FIELD_X/3) {
 			full_transition_enabled = true;
 			half_transition_enabled = true;
 		} else {
@@ -1101,6 +1101,14 @@ public:
 		}
 	}
 
+	void smart_ball(int i, int max_distance) {
+		cv::Point v = cv::Point(Ball.x - Ball_Est.x, Ball.y - Ball_Est.y);
+		double vector_module = sqrt(pow(v.x,2) + pow(v.y,2));
+		double approach = distance(Ball, Ball_Est) * (distance(Ball, robots[atk].position)/(max_distance));
+		robots[i].target.x = double(Ball.x - double(v.x/vector_module) * approach);
+		robots[i].target.y = double(Ball.y - double(v.y/vector_module) * approach);
+	}
+
 	void test_run(int i) {
 		// robots[i].target = robots[i].position;
 		// fixed_lookup(i);
@@ -1129,6 +1137,7 @@ public:
 					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
 						robots[i].target = Ball;
 					} else if(Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE/2){
+						// smart_ball(i, COORD_GOAL_MID_Y);
 						robots[i].target = Ball;
 					} else {
 						spin_anti_clockwise(i);
@@ -1141,6 +1150,7 @@ public:
 					if(distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
 						robots[i].target = Ball;
 					} else if(Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE/2){
+						// smart_ball(i, COORD_GOAL_MID_Y);
 						robots[i].target = Ball;
 					} else {
 						spin_clockwise(i);
@@ -1180,21 +1190,26 @@ public:
 
 			case DEF_CORNER_STATE:
 				robots[i].fixedPos = true;
+				robots[i].ignore_obstacles = true;
 				if(Ball.x < def_corner_line) {
 					if(Ball.y > COORD_GOAL_MID_Y) {
 						robots[i].target.x = goalie_line;
 						robots[i].target.y = COORD_BOX_DWN_Y + ABS_ROBOT_SIZE;
 						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y > robots[i].position.y) spin_anti_clockwise(i);
 						//if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
+						if(is_near(i, robots[i].target) && Ball.y > robots[i].position.y) {
+							robots[i].target = Ball;
+						}
 					} else {
 						robots[i].target.x = goalie_line;
 						robots[i].target.y = COORD_BOX_UP_Y - ABS_ROBOT_SIZE;
 						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y < robots[i].position.y) spin_clockwise(i);
 						//if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
+						if(is_near(i, robots[i].target) && Ball.y < robots[i].position.y) {
+							robots[i].target = Ball;
+						}
 					}
-					if(is_near(i, robots[i].target) && Ball.y > robots[i].position.y) {
-						robots[i].target = Ball;
-					}
+
 				} else {
 					robots[i].status = NORMAL_STATE;
 				}
