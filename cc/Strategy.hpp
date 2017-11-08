@@ -460,7 +460,7 @@ public:
 			double approach = distance(Ball, Ball_Est) * (distance(Ball, robots[atk].position)/(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4));
 			robots[atk].target.x = double(Ball.x - double(v.x/module) * approach);
 			robots[atk].target.y = double(Ball.y - double(v.y/module) * approach);
-			cout << "approach " << approach << " proporção de distâncias " << distance(Ball, robots[atk].position)/(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4) << endl;
+			// cout << "approach " << approach << " proporção de distâncias " << distance(Ball, robots[atk].position)/(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4) << endl;
 			robots[atk].cmdType = VECTOR;
 			position_to_vector(atk);
 			robots[atk].vmax = 1.4;
@@ -501,13 +501,13 @@ public:
 		Ball_Est.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
 			def_mindcontrol = true;
-			cout << " if 1 " << endl;
+			// cout << " if 1 " << endl;
 			// std::cout << "y1\n";
 		}
-		// se a bola tá atrás do atacante mas tá na frente do defensor
-		if(danger_zone_1 && robots[atk].status != CORNER_STATE) {
+		// se a bola tá bem atrás do atacante mas tá na frente do defensor
+		if(danger_zone_1 && Ball.x < robots[atk].position.x - transition_y_distance && robots[atk].status != CORNER_STATE) {
 			half_transition = true;
-			cout << " if 2 " << endl;
+			// cout << " if 2 " << endl;
 
 			// std::cout << "dg1, antes do ataque\n";
 		}
@@ -515,36 +515,37 @@ public:
 		else if(danger_zone_2) {
 			if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y)){
 				full_transition = true;
-				cout << " if 3.1 " << endl;
+				// cout << " if 3.1 " << endl;
 			}
 			else if(!offensive_adv()) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
 				full_transition = true;
-				cout << " if 3.2 " << endl;
+				// cout << " if 3.2 " << endl;
 
 			}
 		}
 		// troca se o atacante tá muito longe da bola
-		else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
+		/*else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
 			half_transition = true;
 			cout << " if 4 " << endl;
 
-		}
+		}*/
 		// troca se a troca foi feita errada
 		else if(distance(robots[atk].position, robots[def].position) < ABS_ROBOT_SIZE*2 &&
 		 	distance(robots[atk].position, robots[atk].target) > distance(robots[def].position, robots[atk].target) &&
 			((abs(robots[atk].orientation - robots[def].orientation) < THETA_TOLERATION*PI/180) ||
 			(abs(robots[atk].orientation - robots[def].orientation) > PI - THETA_TOLERATION*PI/180))) {
 			half_transition = true;
-			cout << " if 5 " << endl;
+			// cout << " if 5 " << endl;
 
 		}
 		// troca caso o angulo do defensor pro gol for bom
 		else if((abs(phiDef)*180/PI < 20) &&
-			(Ball.x > robots[def].position.x ) &&
+			(Ball.x > robots[def].position.x ) /*&&
 			( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
-			(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))) {
+			(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))
+		*/) {
 			half_transition = true;
-			cout << " if 6 " << endl;
+			// cout << " if 6 " << endl;
 
 		}
 	}
@@ -586,7 +587,7 @@ public:
 		bool isDangerous = false;
 		for(int i = 0; i < 3; i++) {
 			// se o adversário mais próximo da bola está a pelo menos duas vezes a distância de nosso gk a bola, não é perigoso
-			if(distance(adv[i], Ball) < distance(robots[gk].position, Ball) * 2) {
+			if(distance(adv[i], Ball) < distance(robots[gk].position, Ball) * 1.3) {
 				isDangerous = true;
 				break;
 			}
@@ -612,7 +613,7 @@ public:
 	}
 
 	bool is_near(int i, cv::Point point) {
-		return distance(robots[i].position, point) < ABS_ROBOT_SIZE;
+		return distance(robots[i].position, point) < fixed_pos_distance;
 	}
 
 	void position_to_vector(int i) {
@@ -1189,7 +1190,7 @@ public:
 						robots[i].target = Ball;
 					} else if(Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE/2){
 						robots[i].target = Ball;
-					} else{
+					} else {
 						spin_anti_clockwise(i);
 					}
 					if(Ball.x < robots[i].position.x) {
@@ -1201,7 +1202,7 @@ public:
 						robots[i].target = Ball;
 					} else if(Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE/2){
 						robots[i].target = Ball;
-					} else{
+					} else {
 						spin_clockwise(i);
 					}
 					if(Ball.x < robots[i].position.x) {
@@ -1251,6 +1252,9 @@ public:
 						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y < robots[i].position.y) spin_clockwise(i);
 						//if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
 					}
+					if(is_near(i, robots[i].target) && Ball.y > robots[i].position.y) {
+						robots[i].target = Ball;
+					}
 				} else {
 					robots[i].status = NORMAL_STATE;
 				}
@@ -1264,14 +1268,14 @@ public:
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
-				if(Ball.x > corner_atk_limit) {
+				if(Ball_Est.x > corner_atk_limit) {
 					int y_pos = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
 					robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4, y_pos);
 					//robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
 
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
-				else if(Ball.x > COORD_MID_FIELD_X) {
+				else if(Ball_Est.x > COORD_MID_FIELD_X) {
 					robots[i].target = cv::Point(COORD_MID_FIELD_X - COORD_MID_FIELD_X/4, COORD_GOAL_MID_Y);
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
