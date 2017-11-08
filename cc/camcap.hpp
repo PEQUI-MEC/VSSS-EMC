@@ -608,7 +608,7 @@ public:
                 }
                 if(interface.robot_list[i].target.x != -1 && interface.robot_list[i].target.y != -1) {
                     interface.robot_list[Selec_index].target = cv::Point(interface.imageView.tar_pos[0],interface.imageView.tar_pos[1]);
-                    strategyGUI.strategy.planner.plan(i, &interface.robot_list);
+                    //strategyGUI.strategy.planner.plan(i, &interface.robot_list);
                     interface.robot_list[Selec_index].vmax = interface.robot_list[Selec_index].vdefault;
                     interface.robot_list[i].cmdType = VECTOR;
                     interface.robot_list[i].transAngle = atan2(double(interface.robot_list[i].position.y - interface.robot_list[i].target.y), - double(interface.robot_list[i].position.x - interface.robot_list[i].target.x));

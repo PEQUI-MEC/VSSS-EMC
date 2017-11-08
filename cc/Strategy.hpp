@@ -325,12 +325,20 @@ public:
 			// cout << "transitions" << endl;
 
 			gk_routine(gk);
-			def_routine(def);
+			// def_routine(def);
+			def_past_routine(def);
 			atk_routine(atk);
 			// test_run(gk);
 
 			// opp_gk_routine(opp);
 
+			for(int i =0; i<3; i++) {
+				if(!robots[i].using_pot_field) position_to_vector(i);
+				fixed_position_check(i);
+				collision_check(i);
+				//planner.plan(i, &robots);
+			}
+			// cout << " transAngle " << robots[gk].transAngle*180/PI << endl;
 			overmind();
 
 			transition_timeout--;
@@ -383,23 +391,6 @@ public:
 					}
 				}
 			}
-
-			// cout << "Ball Speed -> " << distance_meters(Ball, Ball_Est)/0.3333333333  << " m/s" << endl;
-			// timeout++;
-			// if(timeout >= 15) {
-			// 	timeout = 0;
-			// 	// cout << "Ball Est -> " <<  Ball_Est.x << " " << Ball_Est.y << " Ball -> " << Ball.x << " " << Ball.y << endl;
-			//
-			// }
-
-			for(int i =0; i<3; i++) {
-				if(!robots[i].using_pot_field) position_to_vector(i);
-				fixed_position_check(i);
-				collision_check(i);
-				planner.plan(i, &robots);
-			}
-			// cout << " transAngle " << robots[gk].transAngle*180/PI << endl;
-
 		// devolve o vetor de robots com as alterações
 		*pRobots = robots;
 		// cout << "passou ponteiro" << endl;
@@ -448,7 +439,7 @@ public:
 			) {
 
 			if(!atk_mindcontrol) {
-				lock_angle = atan2(double(robots[atk].position.y - Ball.y), - double(robots[atk].position.x - Ball.x));
+				lock_angle = atan2(double(robots[atk].position.y - Ball_Est.y), - double(robots[atk].position.x - Ball_Est.x));
 			}
 
 			atk_mindcontrol = true;
@@ -464,16 +455,18 @@ public:
 
 
 		//Goalkeeper overmind-------------------
-		if(full_transition_enabled == false &&
-		(robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
-		robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
-		robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE/2) ) {
-
-			robots[gk].fixedPos = true;
-			// cout << " don't " << endl;
-			robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
-
-		}
+		// if(full_transition_enabled == false &&
+		// (Ball.x < ) &&
+		// (robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE/2 &&
+		// robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2 &&
+		// robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE/2) ) {
+		//
+		// 	robots[gk].fixedPos = true;
+		// 	// cout << " don't " << endl;
+		// 	robots[gk].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE*1.5, COORD_GOAL_MID_Y);
+		//	position_to_vector(i);
+		// 	fixed_position_check(i);
+		// }
 
 		/**** SITUAÇÕES DE TROCA ****/
 
@@ -502,7 +495,8 @@ public:
 			half_transition = true;
 		}
 		// troca se a troca foi feita errada
-		else if(distance(robots[atk].position, robots[atk].target) > distance(robots[def].position, robots[atk].target) &&
+		else if(distance(robots[atk].position, robots[def].position) < ABS_ROBOT_SIZE*2 &&
+		 	distance(robots[atk].position, robots[atk].target) > distance(robots[def].position, robots[atk].target) &&
 			((abs(robots[atk].orientation - robots[def].orientation) < THETA_TOLERATION*PI/180) ||
 			(abs(robots[atk].orientation - robots[def].orientation) > PI - THETA_TOLERATION*PI/180))) {
 			half_transition = true;
@@ -1243,10 +1237,19 @@ public:
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
 				else {
+					// fixa uma posição em x
 					int x_pos = COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2;
+
 					int ballTarget = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
-					double m = (Ball.y - ballTarget) / (Ball.x - ABS_ROBOT_SIZE);
+					double m = double(Ball.y - ballTarget) / double(Ball.x - ABS_ROBOT_SIZE);
 					int y_proj = Ball.y - m * (Ball.x - x_pos);
+
+					// faz o crop do alvo se ele for muito discrepante (se a bola se aproximar muito do gol)
+					if(y_proj > COORD_GOAL_DWN_Y)
+						y_proj = COORD_GOAL_DWN_Y;
+					else if(y_proj < COORD_GOAL_UP_Y)
+						y_proj = COORD_GOAL_UP_Y;
+
 					robots[i].target = cv::Point(x_pos, y_proj);
 
 					//robots[i].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2, COORD_GOAL_MID_Y);
@@ -1349,6 +1352,17 @@ public:
 				robots[i].target.x = robots[i].position.x;
 			}
 
+			break;
+		}
+	}
+
+	void def_past_routine(int i) {
+
+		switch (robots[i].status) {
+			case NORMAL_STATE:
+				robots[i].fixedPos = true;
+				robots[i].target.x = COORD_BOX_DEF_X + ABS_ROBOT_SIZE;
+				robots[i].target.y = Ball.y;
 			break;
 		}
 	}
