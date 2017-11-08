@@ -20,7 +20,7 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
     //std::cout << "(" << robot_index + 1 << ") original target: " << target << "\n";
 
     // prevê estados futuros
-    State predicted_state = predict_positions(robots.at(robot_index).vmax);
+    State predicted_state = predict_positions(0); // !TODO pensar num tempo bom de previsão
 
     // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
     std::vector<Obstacle> obstacles;
@@ -39,17 +39,17 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
         cv::Point * deviation_points = find_deviation(robots.at(robot_index).position, target, obstacles.at(0));
         // verifica se o ponto de desvio é válido
         if(!validate_target(deviation_points[0])) {
-            deviation_points[0] = deviation_points[1];
-            if(!validate_target(deviation_points[0])) {
-                // desvio inválido
-                // ignora obstáculos
-                return;
+            if(!validate_target(deviation_points[1])) {
+                // desvios inválidos
+                target = crop_target(deviation_points[0]);
             }
             else {
-                target = deviation_points[0];
+                // segundo desvio é válido
+                target = deviation_points[1];
             }
         }
         else {
+            // melhor desvio é válido
             target = deviation_points[0];
         }
 
@@ -72,31 +72,36 @@ void Planner::update_planner(std::vector<Robot> robots, cv::Point * advRobots, c
     update_hist(current_state);
 }
 
+cv::Point Planner::best_shot_target(int robot_index) {
+    cv::Point target;
+    State predicted_state = predict_positions(0); // !TODO pensar num tempo bom de previsão
+
+    target.y = predicted_state.objects.at(robot_index).y > height/2 ? COORD_BOX_UP_Y : COORD_BOX_DWN_Y;
+    target.x = COORD_GOAL_ATK_FRONT_X;
+
+    return target;
+}
+
+// dá um crop no alvo caso não tenha outra possibilidade
+cv::Point Planner::crop_target(cv::Point target) {
+    if(target.y < 0) target.y = 0;
+    if(target.y > ABS_FIELD_HEIGHT) target.y = ABS_FIELD_HEIGHT;
+    if(target.x < 0) target.x = 0;
+    if(target.x > COORD_GOAL_ATK_FRONT_X) target.x = COORD_GOAL_ATK_FRONT_X;
+
+    if (target.x < COORD_BOX_DEF_X && target.y > COORD_BOX_UP_Y && target.y < COORD_GOAL_DWN_Y) {
+        target.x = def_corner_line;
+    }
+}
+
+// verifica se alvo está dentro do gol
+bool Planner::validate_shot_target(cv::Point target) {
+    return target.y > COORD_BOX_UP_Y + ABS_ROBOT_SIZE/2 && target.y < COORD_BOX_DWN_Y - ABS_ROBOT_SIZE/2;
+}
+
 // verifica se alvo está dentro do campo
 bool Planner::validate_target(cv::Point target) {
-    return target.x > ROBOT_RADIUS && target.x < WIDTH - ROBOT_RADIUS && target.y > ROBOT_RADIUS && target.y < HEIGHT - ROBOT_RADIUS;
-}
-// evita faltas atualizando o alvo dos robôs
-/*
-cv::Point Planner::change_target(cv::Point target) {
-    // verifica se tem robô na área
-    bool areaOccupied = false;
-    for(int i = 1; i < 4; i++) {
-        cv::Point tempRobot = hist.back().objects.at(i).position;
-        if(tempRobot.x < COORD_BOX_DEF_X && tempRobot.y < COORD_GOAL_DWN_Y && tempRobot.y > COORD_GOAL_UP_Y) {
-            areaOccupied = true;
-            break;
-        }
-    }
-    if(areaOccupied)
-        target.x = COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2;
-    return target;
-}*/
-
-// função de inicialização do Planner
-void Planner::set_constants(int width, int height) {
-    WIDTH = width;
-    HEIGHT = height;
+    return target.x > ROBOT_RADIUS && target.x < width - ROBOT_RADIUS && target.y > ROBOT_RADIUS && target.y < height - ROBOT_RADIUS;
 }
 
 // gera um estado a partir dos pontos

@@ -9,6 +9,7 @@
 #include <math.h>
 #include "TestFrame.hpp"
 #include "Planner.hpp"
+#include "Constants.hpp"
 
 #define PREDICAO_NUM_SAMPLES 15
 // Parametros para atacante sem bola
@@ -56,6 +57,8 @@
 #define THETA_TOLERATION 3
 
 
+using namespace CONST;
+
 class Strategy
 {
 public:
@@ -73,33 +76,6 @@ public:
 	cv::Point Ball_Est;
 	cv::Point target = cv::Point(-1,-1);
 	cv::Point targetlock = cv::Point(-1,-1);
-	int height, width;
-	int COMPRIMENTO_CAMPO_TOTAL;
-	int COMPRIMENTO_PISTA;
-	int LARGURA_CAMPO 	;
-	int TAMANHO_GOL  	;
-	int TAMANHO_AREA  	;
-	bool GOAL_DANGER_ZONE = false;
-	bool ADV_NA_AREA = false;
-	int BANHEIRA		;
-	int DIVISAO_AREAS	;
-	int OFFSET_BANHEIRA	;
-	int MEIO_GOL_X		;
-	int MEIO_GOL_Y		;
-	int MAX_GOL_Y		;
-	int MIN_GOL_Y		;
-	int LINHA_ZAGA		;
-	int LIMITE_AREA_X	;
-	// Parametros para atacante sem bola
-	int OFFSET_RATIO	;
-	int CONE_RATIO		;
-	int COUNT_DECISION  ;
-	int MAX_DECISION_COUNT;
-	int TARGET_LOCK_COUNT;
-	int MAX_TARGET_LOCK_COUNT;
-	// Parametros do Defensor na defesa
-	int DESLOCAMENTO_ZAGA_ATAQUE	;
-	int BALL_RADIUS;
 
 	double pot_thetaX = 0;
 	double pot_thetaY = 0;
@@ -136,40 +112,6 @@ public:
 	bool full_transition_enabled = false;
 	bool atk_ball_possession = false;
 
-	int ABS_PLAYING_FIELD_WIDTH,
-		ABS_GOAL_TO_GOAL_WIDTH,
-		COORD_MID_FIELD_X,
-		ABS_FIELD_HEIGHT,
-		ABS_GOAL_SIZE_Y,
-		ABS_GOAL_SIZE_X,
-		COORD_GOAL_DEF_FRONT_X,
-		COORD_GOAL_ATK_FRONT_X,
-		COORD_GOAL_MID_Y,
-		COORD_GOAL_UP_Y,
-		COORD_GOAL_DWN_Y,
-		ABS_BOX_SIZE_Y,
-		ABS_BOX_SIZE_X,
-		COORD_BOX_DEF_X,
-		COORD_BOX_ATK_X,
-		COORD_BOX_UP_Y,
-		COORD_BOX_DWN_Y,
-		ABS_BALL_SIZE,
-		ABS_ROBOT_SIZE;
-
-	int corner_atk_limit,
-		def_corner_line,
-		def_line,
-		possession_distance,
-		max_approach,
-		fixed_pos_distance,
-		collision_radius,
-		max_collision_count,
-		goalie_line,
-		goalie_offset,
-		transition_back_radius,
-		transition_y_distance,
-		acceleration;
-
 	int t = 0;
 	int timeout = 0;
 	int transition_timeout = 0;
@@ -189,69 +131,71 @@ public:
 
 	void set_constants(int w, int h) {
 		width = w;
-		height = h;
+        height = h;
 
-		ABS_PLAYING_FIELD_WIDTH = round(1.50*float(width)/1.70);
-		ABS_GOAL_TO_GOAL_WIDTH = width;
-		ABS_ROBOT_SIZE = round(0.08*float(width)/1.70);
-		ABS_BALL_SIZE = round(0.04*float(width)/1.70);
-		COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH/2;
+		GOAL_DANGER_ZONE = false,
+		ADV_NA_AREA = false;
 
-		ABS_FIELD_HEIGHT = height;
-		ABS_GOAL_SIZE_Y = round(0.40*float(height)/1.30);
-		ABS_GOAL_SIZE_X = round(0.10*float(width)/1.70);
-		COORD_GOAL_DEF_FRONT_X = ABS_GOAL_SIZE_X;
-		COORD_GOAL_ATK_FRONT_X = ABS_GOAL_TO_GOAL_WIDTH - ABS_GOAL_SIZE_X;
-		COORD_GOAL_MID_Y = ABS_FIELD_HEIGHT/2;
-		COORD_GOAL_UP_Y = ABS_FIELD_HEIGHT/2 - ABS_GOAL_SIZE_Y/2;
-		COORD_GOAL_DWN_Y = ABS_FIELD_HEIGHT/2 + ABS_GOAL_SIZE_Y/2;
+        ABS_PLAYING_FIELD_WIDTH = round(1.50*float(width)/1.70);
+        ABS_GOAL_TO_GOAL_WIDTH = width;
+        ABS_ROBOT_SIZE = round(0.08*float(width)/1.70);
+        ABS_BALL_SIZE = round(0.04*float(width)/1.70);
+        COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH/2;
 
-		ABS_BOX_SIZE_Y = round(0.70*float(height)/1.30);
-		ABS_BOX_SIZE_X = round(0.15*float(width)/1.70);
-		COORD_BOX_DEF_X = ABS_GOAL_SIZE_X + ABS_BOX_SIZE_X;
-		COORD_BOX_ATK_X = ABS_GOAL_TO_GOAL_WIDTH - (ABS_GOAL_SIZE_X + ABS_BOX_SIZE_X);
-		COORD_BOX_UP_Y = round((ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
-		COORD_BOX_DWN_Y = round(ABS_BOX_SIZE_Y + (ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
+        ABS_FIELD_HEIGHT = height;
+        ABS_GOAL_SIZE_Y = round(0.40*float(height)/1.30);
+        ABS_GOAL_SIZE_X = round(0.10*float(width)/1.70);
+        COORD_GOAL_DEF_FRONT_X = ABS_GOAL_SIZE_X;
+        COORD_GOAL_ATK_FRONT_X = ABS_GOAL_TO_GOAL_WIDTH - ABS_GOAL_SIZE_X;
+        COORD_GOAL_MID_Y = ABS_FIELD_HEIGHT/2;
+        COORD_GOAL_UP_Y = ABS_FIELD_HEIGHT/2 - ABS_GOAL_SIZE_Y/2;
+        COORD_GOAL_DWN_Y = ABS_FIELD_HEIGHT/2 + ABS_GOAL_SIZE_Y/2;
 
-		//variáveis ajustáveis
-		corner_atk_limit = COORD_BOX_ATK_X - ABS_ROBOT_SIZE;
-		def_corner_line = COORD_BOX_DEF_X;
-		def_line = ABS_GOAL_TO_GOAL_WIDTH/3;
-		possession_distance = ABS_ROBOT_SIZE;
-		collision_radius = ABS_ROBOT_SIZE/2;
-		fixed_pos_distance = ABS_ROBOT_SIZE;
-		max_approach = ABS_ROBOT_SIZE*2.5;
-		max_collision_count = 30;
-		acceleration = 0.8;
-		goalie_line = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE/2;
-		goalie_offset = ABS_ROBOT_SIZE;
-		transition_back_radius = ABS_ROBOT_SIZE*3;
-		transition_y_distance = ABS_ROBOT_SIZE*4;
+        ABS_BOX_SIZE_Y = round(0.70*float(height)/1.30);
+        ABS_BOX_SIZE_X = round(0.15*float(width)/1.70);
+        COORD_BOX_DEF_X = ABS_GOAL_SIZE_X + ABS_BOX_SIZE_X;
+        COORD_BOX_ATK_X = ABS_GOAL_TO_GOAL_WIDTH - (ABS_GOAL_SIZE_X + ABS_BOX_SIZE_X);
+        COORD_BOX_UP_Y = round((ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
+        COORD_BOX_DWN_Y = round(ABS_BOX_SIZE_Y + (ABS_FIELD_HEIGHT - ABS_BOX_SIZE_Y)/2);
+
+        //variáveis ajustáveis
+        corner_atk_limit = COORD_BOX_ATK_X - ABS_ROBOT_SIZE;
+        def_corner_line = COORD_BOX_DEF_X;
+        def_line = ABS_GOAL_TO_GOAL_WIDTH/3;
+        possession_distance = ABS_ROBOT_SIZE;
+        collision_radius = ABS_ROBOT_SIZE/2;
+        fixed_pos_distance = ABS_ROBOT_SIZE;
+        max_approach = ABS_ROBOT_SIZE*2.5;
+        max_collision_count = 30;
+        acceleration = 0.8;
+        goalie_line = COORD_GOAL_DEF_FRONT_X + ABS_ROBOT_SIZE/2;
+        goalie_offset = ABS_ROBOT_SIZE;
+        transition_back_radius = ABS_ROBOT_SIZE*3;
+        transition_y_distance = ABS_ROBOT_SIZE*4;
+
+        //não usando
+        BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
+        DIVISAO_AREAS	=	round((0.50*COMPRIMENTO_CAMPO_TOTAL) - 10); // O valor negativo é um offset para não ficar exatamente no meio.
+        OFFSET_BANHEIRA	=	round(0.20*float(width)/1.70);
+        MEIO_GOL_X		=	round(COMPRIMENTO_CAMPO_TOTAL-round(0.05*float(width)/1.70));
+        MEIO_GOL_Y		=	round(LARGURA_CAMPO/2);
+        MAX_GOL_Y		=	round(MEIO_GOL_Y + TAMANHO_GOL/2);
+        MIN_GOL_Y		=	round(MEIO_GOL_Y - TAMANHO_GOL/2);
+        LINHA_ZAGA		=	round(0.30*COMPRIMENTO_CAMPO_TOTAL);
+
+        // Parametros para atacante sem bola
+        OFFSET_RATIO	=	round(0.12*float(width)/1.70);
+        CONE_RATIO		=	round(0.8*float(width)/1.70);
+        MAX_DECISION_COUNT = 10;
+        COUNT_DECISION = MAX_DECISION_COUNT;
+        TARGET_LOCK_COUNT = 10;
+        MAX_TARGET_LOCK_COUNT = 10;
+        // Parametros do Defensor na defesa
+        DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
+		BALL_RADIUS = 100;
+		
 
 		fuzzy_init();
-
-		//não usando
-		BANHEIRA		=	round((0.50*COMPRIMENTO_CAMPO_TOTAL))+round(0.16*float(width)/1.70);
-		DIVISAO_AREAS	=	round((0.50*COMPRIMENTO_CAMPO_TOTAL) - 10); // O valor negativo é um offset para não ficar exatamente no meio.
-		OFFSET_BANHEIRA	=	round(0.20*float(width)/1.70);
-		MEIO_GOL_X		=	round(COMPRIMENTO_CAMPO_TOTAL-round(0.05*float(width)/1.70));
-		MEIO_GOL_Y		=	round(LARGURA_CAMPO/2);
-		MAX_GOL_Y		=	round(MEIO_GOL_Y + TAMANHO_GOL/2);
-		MIN_GOL_Y		=	round(MEIO_GOL_Y - TAMANHO_GOL/2);
-		LINHA_ZAGA		=	round(0.30*COMPRIMENTO_CAMPO_TOTAL);
-
-		// Parametros para atacante sem bola
-		OFFSET_RATIO	=	round(0.12*float(width)/1.70);
-		CONE_RATIO		=	round(0.8*float(width)/1.70);
-		MAX_DECISION_COUNT = 10;
-		COUNT_DECISION = MAX_DECISION_COUNT;
-		TARGET_LOCK_COUNT = 10;
-		MAX_TARGET_LOCK_COUNT = 10;
-		// Parametros do Defensor na defesa
-		DESLOCAMENTO_ZAGA_ATAQUE	=	round(1.3*float(width)/1.70);
-		BALL_RADIUS = 100;
-		//não usando
-		planner.set_constants(width, height);
 	}
 
 	double distance(cv::Point A, cv::Point B) {
@@ -1131,13 +1075,8 @@ public:
 		if(robots[i].target.x < 0) robots[i].target.x = 0;
 		if(robots[i].target.x > COORD_GOAL_ATK_FRONT_X) robots[i].target.x = COORD_GOAL_ATK_FRONT_X;
 
-		if (robots[i].target.x < COORD_BOX_DEF_X && robots[i].target.y > COORD_BOX_UP_Y && robots[i].target.y < COORD_GOAL_MID_Y) {
+		if (robots[i].target.x < COORD_BOX_DEF_X && robots[i].target.y > COORD_BOX_UP_Y && robots[i].target.y < COORD_GOAL_DWN_Y) {
 			robots[i].target.x = def_corner_line;
-			robots[i].target.y = COORD_BOX_UP_Y;
-		}
-		if (robots[i].target.x < COORD_BOX_DEF_X && robots[i].target.y < COORD_GOAL_DWN_Y && robots[i].target.y > COORD_GOAL_MID_Y) {
-			robots[i].target.x = def_corner_line;
-			robots[i].target.y = COORD_BOX_DWN_Y;
 		}
 	}
 
