@@ -280,6 +280,8 @@ public:
 			adv = advRobots;
 			// cout << "vector copied" << endl;
 
+			get_variables();
+
 			for(int i =0; i<3; i++) { //pegar posições e índices
 				robots[i].cmdType = VECTOR;
 				robots[i].fixedPos = false;
@@ -287,12 +289,10 @@ public:
 				robots[i].ignore_obstacles = false;
 				robots[i].vmax = robots[i].vdefault;
 
-
-				get_variables();
-
 				switch (robots[i].role)	{
 				case GOALKEEPER:
 					Goalkeeper = robots[i].position;
+					robots[i].vdefault = 0.5;
 					gk = i;
 		      	break;
 
@@ -319,24 +319,24 @@ public:
 
 			// danger_zone_1 = false; //só para testes com um robô
 			// danger_zone_2 = false; //só para testes com um robô
-			half_transition_enabled = false; //só para testes com um robô
-			full_transition_enabled = false; //só para testes com um robô
+			// half_transition_enabled = false; //só para testes com um robô
+			// full_transition_enabled = false; //só para testes com um robô
 
 			// cout << "transitions" << endl;
 
 			gk_routine(gk);
-			// def_routine(def);
-			def_past_routine(def);
+			def_routine(def);
+			// def_past_routine(def);
 			atk_routine(atk);
 			// test_run(gk);
 
 			// opp_gk_routine(opp);
 
 			for(int i =0; i<3; i++) {
+				planner.plan(i, &robots);
 				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				collision_check(i);
-				//planner.plan(i, &robots);
 			}
 			// cout << " transAngle " << robots[gk].transAngle*180/PI << endl;
 			overmind();
@@ -439,7 +439,7 @@ public:
 			) {
 
 			if(!atk_mindcontrol) {
-				lock_angle = atan2(double(robots[atk].position.y - Ball_Est.y), - double(robots[atk].position.x - Ball_Est.x));
+				lock_angle = atan2(double(robots[atk].position.y - Ball.y), - double(robots[atk].position.x - Ball.x));
 			}
 
 			atk_mindcontrol = true;
@@ -451,8 +451,6 @@ public:
 		// cout << " cond 2 "  << (robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE/2) << endl;
 		// cout << " cond 3 "  << (robots[atk].position.y > COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << endl;
 		// cout << " line "  << (COORD_GOAL_UP_Y - ABS_ROBOT_SIZE/2) << " robot y " << robots[atk].position.y <<endl;
-
-
 
 		//Goalkeeper overmind-------------------
 		// if(full_transition_enabled == false &&
@@ -1208,8 +1206,8 @@ public:
 					} else {
 						robots[i].target.x = goalie_line;
 						robots[i].target.y = COORD_BOX_UP_Y - ABS_ROBOT_SIZE;
-						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y > robots[i].position.y) spin_right(i);
-						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y < robots[i].position.y) spin_left(i);
+						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y > robots[i].position.y) spin_left(i);
+						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y < robots[i].position.y) spin_right(i);
 						if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
 					}
 				} else {
@@ -1276,6 +1274,7 @@ public:
 			case NORMAL_STATE:
 			// robots[i].fixedPos = true;
 			// robots[i].cmdType = POSITION;
+			robots[i].ignore_obstacles = true;
 			robots[i].target.x = goalie_line;
 			//bola no atk
 			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2)

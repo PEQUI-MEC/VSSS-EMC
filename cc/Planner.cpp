@@ -3,7 +3,7 @@
 // recalcula os targets dos robôs controlados por posição desviando de obstáculos
 void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
     if(!use_this || pRobots == NULL ||
-        robot_index < 0 || robot_index >= (*pRobots).size()) {
+        robot_index < 0 || robot_index >= (*pRobots).size() || (*pRobots).at(robot_index).ignore_obstacles) {
         //std::cout << "Wrong state. Planning not used.\n";
         return;
     }
@@ -26,7 +26,7 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
     std::vector<Obstacle> obstacles;
 
     // se o alvo é a bola e seu x é maior, desvia da bola, senão, vai na bola mesmo
-    if(target == predicted_state.objects.at(0) && robots.at(robot_index).position.x < target.x - ROBOT_RADIUS*2)
+    if(target == predicted_state.objects.at(0) && robots.at(robot_index).position.x < target.x - ROBOT_RADIUS)
         obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 1);
     else
         obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 0);
