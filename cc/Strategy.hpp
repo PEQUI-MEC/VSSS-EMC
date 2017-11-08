@@ -346,6 +346,8 @@ public:
 			if(transition_timeout < 0) transition_timeout = 0;
 
 			if(half_transition && half_transition_enabled && transition_timeout == 0) {
+				cout << " half " << endl;
+
 				half_transition = false;
 				half_transition_enabled = false;
 				transition_timeout = 90; //3 segundos
@@ -368,6 +370,8 @@ public:
 				}
 			}
 			if(full_transition && full_transition_enabled && transition_timeout == 0) {
+				cout << " full " << endl;
+
 				full_transition = false;
 				full_transition_enabled = false;
 				transition_timeout = 90; //3 segundos
@@ -411,9 +415,10 @@ public:
 		double phi = atan((m2-m1)/(1+m2*m1));
 
 		// para o defensor também
-		double mBallGoal = double(goal.y - Ball_Est.y)/double(goal.x - Ball_Est.x);
-		double mDefBall = double(robots[def].position.y - Ball_Est.y)/double(robots[def].position.x - Ball_Est.x);
-		double phiDef = atan((mDefBall-mBallGoal)/(1+mDefBall*mBallGoal));
+		double ballGoal = double(goal.y - Ball_Est.y)/double(goal.x - Ball_Est.x);
+		double defBall = double(robots[def].position.y - Ball_Est.y)/double(robots[def].position.x - Ball_Est.x);
+		double phiDef = atan((defBall-ballGoal)/(1+defBall*ballGoal));
+		// cout << phiDef*180/PI << " phiDef" <<endl;
 
 		if(robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
@@ -433,7 +438,7 @@ public:
 			}
 		}
 
-		if((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE*2) && (phi*180/PI < 20) && (Ball.x > robots[atk].position.x ) &&
+		if((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE*2) && (abs(phi)*180/PI < 20) && (Ball.x > robots[atk].position.x ) &&
 			((((robots[atk].orientation - atan(m1))*180/PI) < 20 && ((robots[atk].orientation - atan(m1))*180/PI) > -20) ||
 			(((robots[atk].orientation - atan(m1))*180/PI) < -165 || ((robots[atk].orientation - atan(m1))*180/PI) > 165) )
 			// 	(robots[atk].orientation > atan(mdwn) && robots[atk].orientation < atan(mup))
@@ -496,24 +501,33 @@ public:
 		Ball_Est.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
 			def_mindcontrol = true;
+			cout << " if 1 " << endl;
 			// std::cout << "y1\n";
 		}
 		// se a bola tá atrás do atacante mas tá na frente do defensor
-		if(danger_zone_1) {
+		if(danger_zone_1 && robots[atk].status != CORNER_STATE) {
 			half_transition = true;
+			cout << " if 2 " << endl;
+
 			// std::cout << "dg1, antes do ataque\n";
 		}
 		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
 		else if(danger_zone_2) {
-			if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y))
+			if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y)){
 				full_transition = true;
+				cout << " if 3.1 " << endl;
+			}
 			else if(!offensive_adv()) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
 				full_transition = true;
+				cout << " if 3.2 " << endl;
+
 			}
 		}
 		// troca se o atacante tá muito longe da bola
 		else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
 			half_transition = true;
+			cout << " if 4 " << endl;
+
 		}
 		// troca se a troca foi feita errada
 		else if(distance(robots[atk].position, robots[def].position) < ABS_ROBOT_SIZE*2 &&
@@ -521,12 +535,17 @@ public:
 			((abs(robots[atk].orientation - robots[def].orientation) < THETA_TOLERATION*PI/180) ||
 			(abs(robots[atk].orientation - robots[def].orientation) > PI - THETA_TOLERATION*PI/180))) {
 			half_transition = true;
+			cout << " if 5 " << endl;
+
 		}
 		// troca caso o angulo do defensor pro gol for bom
-		else if((phiDef*180/PI < 20) && (Ball.x > robots[def].position.x ) &&
-			((((robots[def].orientation - atan(mBallGoal))*180/PI) < 20 && ((robots[def].orientation - atan(mBallGoal))*180/PI) > -20) ||
-			(((robots[def].orientation - atan(mBallGoal))*180/PI) < -165 || ((robots[def].orientation - atan(mBallGoal))*180/PI) > 165))) {
+		else if((abs(phiDef)*180/PI < 20) &&
+			(Ball.x > robots[def].position.x ) &&
+			( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
+			(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))) {
 			half_transition = true;
+			cout << " if 6 " << endl;
+
 		}
 	}
 
@@ -1158,6 +1177,7 @@ public:
 				} else if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5 || Ball.y < ABS_ROBOT_SIZE*1.5) {
 					robots[i].status = SIDEWAYS;
 				}
+				robots[i].ignore_obstacles = true;
 				pot_field_around(i);
 				crop_targets(i);
 
@@ -1298,9 +1318,9 @@ public:
 			robots[i].ignore_obstacles = true;
 			robots[i].target.x = goalie_line;
 			//bola no atk
-			if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2)
-				robots[i].target.y = Ball_Est.y;
-			else  //bola na def
+			// if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2)
+			// 	robots[i].target.y = Ball_Est.y;
+			// else  //bola na def
 				robots[i].target.y = Ball.y;
 				//if bola com velocidade && vindo pra defesa && fora da area
 
