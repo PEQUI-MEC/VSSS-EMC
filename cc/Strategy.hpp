@@ -8,7 +8,6 @@
 #include "SerialW.hpp"
 #include <math.h>
 #include "TestFrame.hpp"
-#include "Planner.hpp"
 #include "Constants.hpp"
 
 #define PREDICAO_NUM_SAMPLES 15
@@ -102,9 +101,6 @@ public:
 	FuzzyController controller;
 
 	int frames_blocked;
-
-	Planner planner;
-	bool using_planner_flag = false;
 
 	bool half_transition = false;
 	bool full_transition = false;
@@ -236,8 +232,6 @@ public:
 				robots[i].cmdType = VECTOR;
 				robots[i].fixedPos = false;
 				robots[i].using_pot_field = false;
-				robots[i].ignore_obstacles = false;
-				robots[i].ignore_adv = false;
 				robots[i].vmax = robots[i].vdefault;
 
 				switch (robots[i].role)	{
@@ -285,8 +279,6 @@ public:
 			// opp_gk_routine(opp);
 
 			for(int i =0; i<3; i++) {
-				planner.plan(i, &robots);
-				//cout << " ignore ("<<i<<") " << robots[i].ignore_obstacles << endl;
 				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				collision_check(i);
@@ -426,7 +418,6 @@ public:
 			// else robots[atk].transAngle = 0;
 			robots[atk].transAngle = lock_angle;
 			robots[atk].vmax = 1.4;
-			robots[atk].ignore_obstacles = true;
 			timeout++;
 			if(timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 				timeout = 0;
@@ -461,7 +452,6 @@ public:
 			robots[atk].cmdType = VECTOR;
 			position_to_vector(atk);
 			robots[atk].vmax = 1.4;
-			robots[atk].ignore_obstacles = true;
 			timeout++;
 			if(timeout >= 30 || Ball.x < robots[atk].position.x) {
 				timeout = 0;
@@ -1222,7 +1212,6 @@ public:
 				} else if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5 || Ball.y < ABS_ROBOT_SIZE*1.5) {
 					robots[i].status = SIDEWAYS;
 				}
-				robots[i].ignore_adv = true;
 				pot_field_around(i);
 				crop_targets(i);
 
@@ -1286,7 +1275,6 @@ public:
 
 			case DEF_CORNER_STATE:
 				robots[i].fixedPos = true;
-				robots[i].ignore_obstacles = true;
 				if(Ball.x < def_corner_line) {
 					if(Ball.y > COORD_GOAL_MID_Y) {
 						robots[i].target.x = goalie_line;
@@ -1350,7 +1338,6 @@ public:
 					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y), BALL_IS_OBS);
 				}
 				def_wait(i);
-				planner.plan(i, &robots);
 			break;
 
 			case STEP_BACK:
@@ -1370,7 +1357,6 @@ public:
 			case NORMAL_STATE:
 			// robots[i].fixedPos = true;
 			robots[i].cmdType = POSITION;
-			robots[i].ignore_obstacles = false; // desvia da bola se ele passar dela pra não fazer gol contra
 			robots[i].target.x = goalie_line;
 			//bola no atk
 			// if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2)
