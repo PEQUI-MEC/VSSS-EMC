@@ -298,26 +298,22 @@ public:
 			if(transition_mindcontrol && transition_mindcontrol_enabled) {
 				transition_mindcontrol = false; // reseta a flag
 
-				double tmp_distance;
+				double tmp_distance, minor_distance;
 
 				// pega a menor distância pra bola
-				double minor_distance = distance(robots[0].position, Ball);
 				atk = 0;
-
-				for(int i = 1; i < robots.size(); i++) {
+				minor_distance = distance(robots[atk].position, Ball);
+				for(int i = atk + 1; i < robots.size(); i++) {
 					if((tmp_distance = distance(robots[i].position, Ball)) < minor_distance) {
 						minor_distance = tmp_distance;
 						atk = i;
 					}
 				}
-				// seta o atacante
-				set_role(atk, ATTACKER);
-
 
 				// pega a menor distância pro gol
-				minor_distance = distance(robots[0].position, cv::Point(0, COORD_GOAL_MID_Y));
-				gk = 0;
-				for(int i = 1; i < robots.size(); i++) {
+				gk = (atk == 0 ? 1 : 0);
+				minor_distance = distance(robots[gk].position, cv::Point(0, COORD_GOAL_MID_Y));
+				for(int i = gk + 1; i < robots.size(); i++) {
 					if(i == atk)
 						continue;
 					if((tmp_distance = distance(robots[i].position, cv::Point(0, COORD_GOAL_MID_Y))) < minor_distance) {
@@ -325,16 +321,19 @@ public:
 						gk = i;
 					}
 				}
-				// seta o goleiro
-				set_role(gk, GOALKEEPER);
-
+				
 				// seta o robô restante pra defensor
-				def = 0;
+				// não precisa inicializar pois é sempre setado no for
 				for(int i = 0; i < robots.size(); i++) {
 					if(i == atk || i == gk)
 						continue;
 					def = i;
 				}
+
+				// seta o atacante
+				set_role(atk, ATTACKER);
+				// seta o goleiro
+				set_role(gk, GOALKEEPER);
 				// seta o defensor
 				set_role(def, DEFENDER);
 			}
