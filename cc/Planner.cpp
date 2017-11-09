@@ -16,24 +16,26 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
 
     // auxiliar de fallback caso não seja necessário mudar o alvo do robô
     cv::Point target = robots.at(robot_index).target;
-    //std::cout << "(" << robot_index + 1 << ") my position: " << robots.at(robot_index).position << "\n";
-    //std::cout << "(" << robot_index + 1 << ") original target: " << target << "\n";
+    //std::cout << "(" << robot_index + 4 << ") my position: " << robots.at(robot_index).position << "\n";
+    //std::cout << "(" << robot_index + 4 << ") original target: " << target << "\n";
 
     // prevê estados futuros
     State predicted_state = predict_positions(0); // !TODO pensar num tempo bom de previsão
 
-    // encontra os obstáculos na trajetória; i+1 pois o vetor de estados começa com a bola
+    // encontra os obstáculos na trajetória; i+4 pois o vetor de estados começa com a bola e com os adv
     std::vector<Obstacle> obstacles;
 
     // se o alvo é a bola e seu x é maior, desvia da bola, senão, vai na bola mesmo
-    if(target == predicted_state.objects.at(0) && robots.at(robot_index).position.x < target.x)
-        obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 1);
-    else
-        obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 1), target, 0);
+    if(target == predicted_state.objects.at(0) && robots.at(robot_index).position.x < target.x) {
+        obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 4), target, true, robots.at(robot_index).ignore_adv);
+    }
+    else {
+        obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 4), target, false, false);
+    }
 
     // se há obstáculos
     if(obstacles.size() > 0) {
-        //std::cout << "(" << robot_index + 1 << ") obstacle: " << obstacles[0].position << "\n";
+        //std::cout << "(" << robot_index + 4 << ") obstacle: " << obstacles[0].position << "\n";
 
         // tem tamanho 2, o robô pode desviar pra direita ou para esquerda
         cv::Point * deviation_points = find_deviation(robots.at(robot_index).position, target, obstacles.at(0));
@@ -54,7 +56,7 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
             target = deviation_points[0];
         }
 
-        //std::cout << "(" << robot_index + 1 << ") new target: " << target << "\n\n";
+        //std::cout << "(" << robot_index + 4 << ") new target: " << target << "\n\n";
 
         robots.at(robot_index).target = target;
     } // se obstáculos > 0
@@ -101,13 +103,13 @@ Planner::State Planner::gen_state(std::vector<Robot> robots, cv::Point * advRobo
 
     new_state.objects.push_back(ball);
     for(int i = 0; i < 3; i++) {
+        new_state.objects.push_back(advRobots[i]);
+    }
+    for(int i = 0; i < 3; i++) {
         if(i >= robots.size())
             new_state.objects.push_back(cv::Point(-1, -1));
         else
             new_state.objects.push_back(robots.at(i).position);
-    }
-    for(int i = 0; i < 3; i++) {
-        new_state.objects.push_back(advRobots[i]);
     }
 
     return new_state;
@@ -155,13 +157,14 @@ double Planner::distance_to_line(cv::Point start, cv::Point end, cv::Point point
 
 // encontra obstáculos entre dois pontos e retorna um vetor ordenado
 // os obstáculos mais próximos do ponto de início vêm primeiro
-std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv::Point startPos, cv::Point target, int start_index) {
+std::vector<Planner::Obstacle> Planner::find_obstacles(State predicted_state, cv::Point startPos, cv::Point target, bool ignore_ball, bool ignore_adv) {
     std::vector<Obstacle> obstacles;
     double tempDist;
+    int start_index = ignore_ball ? 1 : 0;
 
     // para cada objeto na pista, verifica se este é um obstáculo
     for(int i = start_index; i < predicted_state.objects.size(); i++) {
-        if(predicted_state.objects.at(i) == startPos)
+        if((ignore_adv && i > 0 && i < 4) || predicted_state.objects.at(i) == startPos)
             continue;
 
         // verifica se o obstáculo está perto suficiente da reta

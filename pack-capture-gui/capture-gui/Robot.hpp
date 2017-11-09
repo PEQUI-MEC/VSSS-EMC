@@ -20,6 +20,7 @@ class Robot
         bool fixedPos;
         bool using_pot_field;
         bool ignore_obstacles = false;
+        bool ignore_adv = false;
         int role;
         int status;
 

@@ -237,6 +237,7 @@ public:
 				robots[i].fixedPos = false;
 				robots[i].using_pot_field = false;
 				robots[i].ignore_obstacles = false;
+				robots[i].ignore_adv = false;
 				robots[i].vmax = robots[i].vdefault;
 
 				switch (robots[i].role)	{
@@ -1218,7 +1219,7 @@ public:
 				} else if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5 || Ball.y < ABS_ROBOT_SIZE*1.5) {
 					robots[i].status = SIDEWAYS;
 				}
-				robots[i].ignore_obstacles = true;
+				robots[i].ignore_adv = true;
 				pot_field_around(i);
 				crop_targets(i);
 
