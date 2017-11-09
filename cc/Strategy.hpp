@@ -286,6 +286,7 @@ public:
 
 			for(int i =0; i<3; i++) {
 				planner.plan(i, &robots);
+				//cout << " ignore ("<<i<<") " << robots[i].ignore_obstacles << endl;
 				if(!robots[i].using_pot_field) position_to_vector(i);
 				fixed_position_check(i);
 				collision_check(i);
@@ -298,7 +299,7 @@ public:
 
 			if(transition_mindcontrol && transition_mindcontrol_enabled) {
 				transition_mindcontrol = false; // reseta a flag
-
+				//cout<< " transition if " <<endl;
 				double tmp_distance, minor_distance;
 
 				// pega a menor distância pra bola
@@ -322,7 +323,7 @@ public:
 						gk = i;
 					}
 				}
-				
+
 				// seta o robô restante pra defensor
 				// não precisa inicializar pois é sempre setado no for
 				for(int i = 0; i < robots.size(); i++) {
@@ -530,15 +531,15 @@ public:
 
 		}*/
 		// troca caso o angulo do defensor pro gol for bom
-		else if((abs(phiDef)*180/PI < 20) &&
-			(Ball.x > robots[def].position.x ) /*&&
-			( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
-			(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))
-		*/) {
-			half_transition = true;
-			// cout << " if 6 " << endl;
-
-		}
+		// else if((abs(phiDef)*180/PI < 20) &&
+		// 	(Ball.x > robots[def].position.x ) /*&&
+		// 	( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
+		// 	(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))
+		// */) {
+		// 	half_transition = true;
+		// 	// cout << " if 6 " << endl;
+		//
+		// }
 	}
 
 	void set_flags() {
@@ -1367,7 +1368,7 @@ public:
 			case NORMAL_STATE:
 			// robots[i].fixedPos = true;
 			robots[i].cmdType = POSITION;
-			robots[i].ignore_obstacles = true;
+			robots[i].ignore_obstacles = false; // desvia da bola se ele passar dela pra não fazer gol contra
 			robots[i].target.x = goalie_line;
 			//bola no atk
 			// if (Ball.x > ABS_GOAL_TO_GOAL_WIDTH/2)
@@ -1429,9 +1430,15 @@ public:
 					spin_anti_clockwise(i, 0.8);
 				}
 			}
-
-
-			if(abs(Ball.x - robots[i].position.x) <= ABS_ROBOT_SIZE && Ball.y < COORD_BOX_DWN_Y && Ball.y > COORD_BOX_UP_Y) {
+			if (distance(robots[i].position, Ball) < ABS_ROBOT_SIZE) {
+				if (Ball.y <= robots[i].position.y) {
+					spin_clockwise(i, 0.8);
+				} else if(Ball.y >= robots[i].position.y){
+					spin_anti_clockwise(i, 0.8);
+				}
+			}
+			// chute pra tirar a bola da defesa
+			/*if(abs(Ball.x - robots[i].position.x) <= ABS_ROBOT_SIZE && Ball.y < COORD_BOX_DWN_Y && Ball.y > COORD_BOX_UP_Y) {
 				if (Ball.y <= robots[i].position.y) {
 					robots[i].target.y = 0;
 					robots[i].target.x = goalie_line + ABS_ROBOT_SIZE/2;
@@ -1441,7 +1448,7 @@ public:
 					robots[i].target.x = goalie_line + ABS_ROBOT_SIZE/2;
 					robots[i].vmax = 0.9;
 				}
-			}
+			}*/
 
 			if(distance(robots[i].position, robots[i].target) < ABS_ROBOT_SIZE*3/4) {
 				// robots[i].cmdType = POSITION;

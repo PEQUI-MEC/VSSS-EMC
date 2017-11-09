@@ -26,7 +26,7 @@ void Planner::plan(int robot_index, std::vector<Robot> * pRobots) {
     std::vector<Obstacle> obstacles;
 
     // se o alvo é a bola e seu x é maior, desvia da bola, senão, vai na bola mesmo
-    if(target == predicted_state.objects.at(0) && robots.at(robot_index).position.x < target.x) {
+    if(target == predicted_state.objects.at(0) && robots.at(robot_index).position.x < target.x + ABS_ROBOT_SIZE*1.5) {
         obstacles = find_obstacles(predicted_state, predicted_state.objects.at(robot_index + 4), target, true, robots.at(robot_index).ignore_adv);
     }
     else {

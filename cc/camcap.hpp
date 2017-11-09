@@ -440,7 +440,7 @@ public:
                 robot_list[2].position = robot_kf_est[2];
                 control.s.sendCmdToRobots(robot_list);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(250));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(200));
         }
     }
 
@@ -466,6 +466,7 @@ public:
 
                 interface.robot_list.at(i).cmdType = POSITION;
                 interface.robot_list.at(i).target = virtual_robots_positions[i];
+                strategyGUI.strategy.planner.plan(i, &interface.robot_list);
 
                 //std::cout << "robot " << i+1 << " updating position.\n";
             }

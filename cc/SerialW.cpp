@@ -212,13 +212,13 @@ void SerialW::sendAPISerial(std::string cmd) {
 	}
 	msg[cmd.size()+8] = checksum;
 	for (size_t i = 0; i < 9+cmd.size(); i++) {
-		printf("%02x ",msg[i]);
+		// printf("%02x ",msg[i]);
 		/* code */
 	}
 
 
 	int result = write(USB, msg, 9+cmd.size());
-	std::cout << "size = " << 9+cmd.size() << std::endl;
+	// std::cout << "size = " << 9+cmd.size() << std::endl;
 	free(msg);
 
 }
