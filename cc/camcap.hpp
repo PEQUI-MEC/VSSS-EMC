@@ -86,14 +86,14 @@ public:
         for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
         {
             robot = interface.visionGUI.vision->getRobot(i);
-            interface.robot_list[i].position = robot.position;
+            interface.robot_list[i].position = robot_kf_est[i];
             interface.robot_list[i].orientation = robot.orientation;
             interface.robot_list[i].secundary = robot.secundary;
         }
 
         ballPosition = interface.visionGUI.vision->getBall();
-        interface.ballX = ballPosition.x;
-        interface.ballY = ballPosition.y;
+        interface.ballX = Ball_kf_est.x;
+        interface.ballY = Ball_kf_est.y;
 
         interface.updateRobotLabels();
         interface.updateFPS(fps_average);
@@ -264,6 +264,11 @@ public:
         if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag && !interface.visionGUI.getIsSplitView())
             {
+
+                //goalie line
+                circle(imageView,cv::Point(CONST::goalie_line, 1), 1, cv::Scalar(255,0,0), 2);
+                circle(imageView,cv::Point(CONST::goalie_line, height-1), 1, cv::Scalar(255,0,0), 2);
+
                 cv::Point aux_point;
 
                 if (interface.imageView.PID_test_flag) {
