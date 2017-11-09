@@ -531,15 +531,17 @@ public:
 
 		}*/
 		// troca caso o angulo do defensor pro gol for bom
-		// else if((abs(phiDef)*180/PI < 20) &&
-		// 	(Ball.x > robots[def].position.x ) /*&&
-		// 	( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
-		// 	(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))
-		// */) {
-		// 	half_transition = true;
-		// 	// cout << " if 6 " << endl;
-		//
-		// }
+		else if((abs(phiDef)*180/PI < 20) &&
+			(Ball.x > robots[def].position.x) &&
+			distance(robots[def].position, Ball) < distance(robots[atk].position, Ball)
+			/*&&
+			( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
+			(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))
+			*/) {
+
+			half_transition = true;
+			// cout << " if 6 " << endl;
+		}
 	}
 
 	void set_flags() {
