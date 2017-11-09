@@ -490,7 +490,7 @@ public:
 			transition_mindcontrol = true;
 		}
 		// faz meio que um cruzamento
-		else if(Ball.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_DWN_Y &&
+		else if(Ball_Est.y > COORD_GOAL_UP_Y && Ball_Est.y < COORD_GOAL_DWN_Y &&
 		Ball.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
 			def_mindcontrol = true;
@@ -1395,10 +1395,18 @@ public:
 					int y_proj = Ball.y - m * (Ball.x - x_pos);
 
 					// faz o crop do alvo se ele for muito discrepante (se a bola se aproximar muito do gol)
-					if(y_proj > ABS_FIELD_HEIGHT)
-						y_proj = ABS_FIELD_HEIGHT;
-					else if(y_proj < 0)
-						y_proj = 0;
+					if(Ball.x < x_pos) {
+						if(y_proj > COORD_GOAL_DWN_Y)
+							y_proj = COORD_GOAL_DWN_Y + 3*ABS_ROBOT_SIZE;
+						else if(y_proj < COORD_GOAL_UP_Y)
+							y_proj = COORD_GOAL_UP_Y - 3*ABS_ROBOT_SIZE;
+					}
+					else {
+						if(y_proj > ABS_FIELD_HEIGHT)
+							y_proj = ABS_FIELD_HEIGHT;
+						else if(y_proj < 0)
+							y_proj = 0;
+					}
 
 					robots[i].target = cv::Point(x_pos, y_proj);
 

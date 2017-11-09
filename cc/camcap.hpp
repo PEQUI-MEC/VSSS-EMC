@@ -261,6 +261,8 @@ public:
           }
         }
 
+        updateAllPositions();
+
         if(!interface.visionGUI.HSV_calib_event_flag) {
             if (!interface.draw_info_flag && !interface.visionGUI.getIsSplitView())
             {
@@ -340,8 +342,6 @@ public:
                     circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
             } // if !interface.draw_info_flag
         } // if !draw_info_flag
-
-        updateAllPositions();
 
         if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
         {
