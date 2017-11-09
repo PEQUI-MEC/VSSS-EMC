@@ -38,7 +38,7 @@ public:
 
 	void sendSerial(std::string cmd);
 
-	void sendAPISerial(Robot robot, std::string cmd);
+	void sendAPISerial(std::string cmd);
 
 	void sendAPISerialText(std::string cmd);
 

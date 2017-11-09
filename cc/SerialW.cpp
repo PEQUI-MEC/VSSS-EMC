@@ -89,27 +89,27 @@ void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 				temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
 				temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
 				temp2= round(double(robot_list[i].vmax)*100)/100;
-				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< std::endl;
+				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#";
 			}
 			break;
 			case SPEED:
 			temp0= round(robot_list[i].Vr*100)/100;
 			temp1= round(robot_list[i].Vl*100)/100;
-			cmd<<robot_list[i].ID<<'@'<<temp0<<";"<<temp1<<"#"<< std::endl;
+			cmd<<robot_list[i].ID<<'@'<<temp0<<";"<<temp1<<"#";
 			break;
 			case ORIENTATION:
 			temp2 = double(robot_list[i].orientation) - ( - double(robot_list[i].targetOrientation));
 			temp0= temp2*180/PI;
 			temp0 = round(temp0*100)/100;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
-			cmd << robot_list[i].ID<<'@'<<"O"<<temp0<<";"<<temp1<<"#"<< std::endl;
+			cmd << robot_list[i].ID<<'@'<<"O"<<temp0<<";"<<temp1<<"#";
 			//std::cout << cmd.str() << std::endl;
 			break;
 			case VECTOR:
 			temp0= double(atan2(sin(robot_list[i].orientation-(-robot_list[i].transAngle)),cos(robot_list[i].orientation-(-robot_list[i].transAngle)))*180/PI);
 			temp0 = round(temp0*100)/100;
 			temp1= round(double(robot_list[i].vmax)*100)/100;
-			cmd << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< std::endl;
+			cmd << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#";
 			// cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
 			break;
 			default:
@@ -124,11 +124,12 @@ void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 				temp0= round(double(robot_list[i].transTarget.x)*(150.0/640.0)*100)/100;
 				temp1= round(double(robot_list[i].transTarget.y)*(130.0/480.0)*100)/100;
 				temp2= round(double(robot_list[i].vmax)*100)/100;
-				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< std::endl;
+				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#";
 			}
 		}
-		if (!cmd.str().empty()) sendAPISerial(robot_list[i], cmd.str());
 	}
+	if (!cmd.str().empty()) sendAPISerial(cmd.str().c_str());
+	// std::cout << cmd.str().c_str() << std::endl;
 }
 
 void SerialW::sendSerial(std::string cmd){
@@ -151,7 +152,7 @@ void SerialW::sendAPISerialText(std::string cmd) {
 	uint8_t frame_type = 0x01;
 	uint8_t frame_id = 0x01;
 	uint8_t option = 0x00;
-	uint16_t address = uint16_t(cmd[0] + (cmd[0]<<8));
+	uint16_t address = 0x4444;
 	uint16_t lenght = uint16_t(5+cmd.size());
 
 	std::vector<uint8_t> hex_message = stringToInt(cmd);
@@ -170,27 +171,27 @@ void SerialW::sendAPISerialText(std::string cmd) {
 	for (size_t i = 0; i < cmd.size(); i++) {
 			msg[i+8] = (uint8_t) cmd[i];
 	}
-	msg[cmd.size()+8] = checksum;
-	for (size_t i = 0; i < 9+cmd.size(); i++) {
-		printf("%02x ",msg[i]);
-		/* code */
-	}
+	// msg[cmd.size()+8] = checksum;
+	// for (size_t i = 0; i < 9+cmd.size(); i++) {
+	// 	printf("%02x ",msg[i]);
+	// 	/* code */
+	// }
 
 
 	int result = write(USB, msg, 9+cmd.size());
-	std::cout << "size = " << 9+cmd.size() << std::endl;
+	// std::cout << "size = " << 9+cmd.size() << std::endl;
 	free(msg);
 
 }
 
-void SerialW::sendAPISerial(Robot robot, std::string cmd) {
+void SerialW::sendAPISerial(std::string cmd) {
 	if (!Serial_Enabled) return;
-	if (cmd[0] != robot.ID) return;
+	//  if (cmd[0] != robot.ID) return;
 	uint8_t start_delimiter = 0x7E;
 	uint8_t frame_type = 0x01;
 	uint8_t frame_id = 0x01;
 	uint8_t option = 0x00;
-	uint16_t address = uint16_t(robot.ID + (robot.ID<<8));
+	uint16_t address = 0x4444;
 	uint16_t lenght = uint16_t(5+cmd.size());
 
 	std::vector<uint8_t> hex_message = stringToInt(cmd);
