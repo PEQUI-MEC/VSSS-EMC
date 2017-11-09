@@ -61,15 +61,15 @@ int SerialW::start(std::string serial){
 	return USB;
 }
 
-void SerialW::sendToRobot(Robot r){
-	if (!Serial_Enabled) return;
-	std::stringstream cmd;
-	double temp0= floor(r.Vr*100)/100;
-	double temp1= floor(r.Vl*100)/100;
-	cmd<<r.ID<<'@'<< temp0<<";"<<temp1<<"#";
-	sendSerial(cmd.str());
-	//std::cout<<cmd.str()<<std::endl;
-}
+// void SerialW::sendAPIToRobot(std::string msg){
+// 	if (!Serial_Enabled) return;
+// 	std::stringstream cmd;
+// 	double temp0= floor(r.Vr*100)/100;
+// 	double temp1= floor(r.Vl*100)/100;
+// 	cmd<<r.ID<<'@'<< temp0<<";"<<temp1<<"#";
+// 	sendAPISerial(r, cmd.str());
+// 	// std::cout<<cmd.str()<<std::endl;
+// }
 
 void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 	if (!Serial_Enabled) return;
@@ -127,14 +127,108 @@ void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 				cmd<<robot_list[i].ID<<'@'<<"P"<<temp0<<";"<<temp1<<";"<<temp2<<"#"<< std::endl;
 			}
 		}
+		if (!cmd.str().empty()) sendAPISerial(robot_list[i], cmd.str());
 	}
-	if (!cmd.str().empty()) sendSerial(cmd.str());
-	//std::cout<<cmd.str()<<std::endl;
 }
 
 void SerialW::sendSerial(std::string cmd){
 	if (!Serial_Enabled) return;
 	int result = write(USB, cmd.c_str(), cmd.size());
+}
+
+std::vector<uint8_t> stringToInt(std::string cmd) {
+	std::vector<uint8_t> vec;
+	// data
+	for (int i = 0; i < cmd.size(); i++) {
+		vec.push_back(uint8_t(cmd[i]));
+	}
+	return vec;
+}
+
+void SerialW::sendAPISerialText(std::string cmd) {
+	if (!Serial_Enabled) return;
+	uint8_t start_delimiter = 0x7E;
+	uint8_t frame_type = 0x01;
+	uint8_t frame_id = 0x01;
+	uint8_t option = 0x00;
+	uint16_t address = uint16_t(cmd[0] + (cmd[0]<<8));
+	uint16_t lenght = uint16_t(5+cmd.size());
+
+	std::vector<uint8_t> hex_message = stringToInt(cmd);
+
+	uint8_t checksum = generateChecksum(frame_type, frame_id, address, option, cmd);
+
+	uint8_t *msg = (uint8_t *) malloc(9+cmd.size());
+	msg[0] = start_delimiter;
+	msg[1] = uint8_t(lenght >> 8);
+	msg[2] = uint8_t(lenght);
+	msg[3] = frame_type;
+	msg[4] = frame_id;
+	msg[5] = uint8_t(address >> 8);
+	msg[6] = uint8_t(address);
+	msg[7] = option;
+	for (size_t i = 0; i < cmd.size(); i++) {
+			msg[i+8] = (uint8_t) cmd[i];
+	}
+	msg[cmd.size()+8] = checksum;
+	for (size_t i = 0; i < 9+cmd.size(); i++) {
+		printf("%02x ",msg[i]);
+		/* code */
+	}
+
+
+	int result = write(USB, msg, 9+cmd.size());
+	std::cout << "size = " << 9+cmd.size() << std::endl;
+	free(msg);
+
+}
+
+void SerialW::sendAPISerial(Robot robot, std::string cmd) {
+	if (!Serial_Enabled) return;
+	if (cmd[0] != robot.ID) return;
+	uint8_t start_delimiter = 0x7E;
+	uint8_t frame_type = 0x01;
+	uint8_t frame_id = 0x01;
+	uint8_t option = 0x00;
+	uint16_t address = uint16_t(robot.ID + (robot.ID<<8));
+	uint16_t lenght = uint16_t(5+cmd.size());
+
+	std::vector<uint8_t> hex_message = stringToInt(cmd);
+
+	uint8_t checksum = generateChecksum(frame_type, frame_id, address, option, cmd);
+
+	uint8_t *msg = (uint8_t *) malloc(9+cmd.size());
+	msg[0] = start_delimiter;
+	msg[1] = uint8_t(lenght >> 8);
+	msg[2] = uint8_t(lenght);
+	msg[3] = frame_type;
+	msg[4] = frame_id;
+	msg[5] = uint8_t(address >> 8);
+	msg[6] = uint8_t(address);
+	msg[7] = option;
+	for (size_t i = 0; i < cmd.size(); i++) {
+			msg[i+8] = (uint8_t) cmd[i];
+	}
+	msg[cmd.size()+8] = checksum;
+	for (size_t i = 0; i < 9+cmd.size(); i++) {
+		printf("%02x ",msg[i]);
+		/* code */
+	}
+
+
+	int result = write(USB, msg, 9+cmd.size());
+	std::cout << "size = " << 9+cmd.size() << std::endl;
+	free(msg);
+
+}
+
+uint8_t SerialW::generateChecksum(uint8_t type, uint8_t id, uint16_t address, uint8_t option, std::string cmd) {
+	uint8_t check = 0xFF - type - id - (uint8_t) address - uint8_t(address >> 8) - option;
+	for (size_t i = 0; i < cmd.size(); i++) {
+			check -= (uint8_t) cmd[i];
+	}
+
+	return check;
 }
 
 int SerialW::readSerial(char* buf, int size){
