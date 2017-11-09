@@ -54,7 +54,7 @@ namespace CONST {
             // Parametros do Defensor na defesa
             DESLOCAMENTO_ZAGA_ATAQUE,
             BALL_RADIUS,
-    
+
             corner_atk_limit,
             def_corner_line,
             def_line,
