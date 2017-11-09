@@ -1016,10 +1016,26 @@ public:
 
 	void def_wait(int i) {
 		robots[i].fixedPos = true;
-		if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
+		if(Ball_Est.x > Ball.x && distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
 			robots[i].cmdType = ORIENTATION;
 			robots[i].targetOrientation = look_at_ball(i);
 		}
+	}
+
+	cv::Point adv_atk_pos() {
+		cv::Point atk;
+		double minor_distance = 99999999, tmp_distance;
+		for(int i = 0; i < 3; i++) {
+			if(adv[i] != cv::Point(-1, -1) && (tmp_distance = distance(adv[i], Ball)) < minor_distance) {
+				atk = adv[i];
+				minor_distance = tmp_distance;
+			}
+		}
+
+		if(minor_distance == 99999999)
+			atk = cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y);
+
+		return atk;
 	}
 
 	void fuzzy_init() {
@@ -1277,20 +1293,22 @@ public:
 				robots[i].fixedPos = true;
 				if(Ball.x < def_corner_line) {
 					if(Ball.y > COORD_GOAL_MID_Y) {
-						robots[i].target.x = goalie_line;
-						robots[i].target.y = COORD_BOX_DWN_Y + ABS_ROBOT_SIZE;
-						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y > robots[i].position.y) spin_anti_clockwise(i);
-						//if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
-						if(is_near(i, robots[i].target) && Ball.y > robots[i].position.y) {
+						if(Ball.y > robots[i].position.y) {
 							robots[i].target = Ball;
+							if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE*1.2) 
+								spin_anti_clockwise(i);
+						}
+						else {
+							robots[i].target = adv_atk_pos();
 						}
 					} else {
-						robots[i].target.x = goalie_line;
-						robots[i].target.y = COORD_BOX_UP_Y - ABS_ROBOT_SIZE;
-						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y < robots[i].position.y) spin_clockwise(i);
-						//if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
-						if(is_near(i, robots[i].target) && Ball.y < robots[i].position.y) {
+						if(Ball.y < robots[i].position.y) {
 							robots[i].target = Ball;
+							if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE*1.2) 
+								spin_clockwise(i);
+						}
+						else {
+							robots[i].target = adv_atk_pos();
 						}
 					}
 
@@ -1308,6 +1326,7 @@ public:
 
 			case NORMAL_STATE:
 				if(Ball_Est.x > corner_atk_limit) {
+					// adianta pra cruzar
 					int y_pos = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
 					robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4, y_pos);
 					//robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
@@ -1334,8 +1353,15 @@ public:
 
 					robots[i].target = cv::Point(x_pos, y_proj);
 
-					//robots[i].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2, COORD_GOAL_MID_Y);
-					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y), BALL_IS_OBS);
+					if(distance(robots[i].position, robots[i].target) < ABS_ROBOT_SIZE*3/4) {
+						robots[i].cmdType = ORIENTATION;
+						robots[i].targetOrientation = PI/2;
+						robots[i].vmax = robots[i].vdefault;
+					}
+		
+					if(abs(robots[i].target.x - robots[i].position.x) < fixed_pos_distance/2 && abs(robots[i].position.x - x_pos) < fixed_pos_distance/2) {
+						robots[i].target.x = robots[i].position.x;
+					}
 				}
 				def_wait(i);
 			break;
