@@ -211,6 +211,8 @@ public:
 	}
 
 	void get_variables() {
+		float vel_factor =  1 + distance(Ball, Ball_Est) / (COORD_MID_FIELD_X);
+		max_approach = ABS_ROBOT_SIZE * 2.5 * vel_factor;
 		goalie_line = testFrame.getValue(0); // index da barrinha
 		goalie_offset = testFrame.getValue(1); // index da barrinha
 	}
