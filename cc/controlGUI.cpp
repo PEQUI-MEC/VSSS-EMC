@@ -104,7 +104,7 @@ void ControlGUI::configureTestFrame() {
 void ControlGUI::_send_command(){
     std::string cmd;
     cmd.append(send_cmd_box.get_text());
-    s.sendSerial(cmd);
+    s.sendAPISerialText(cmd);
 }
 
 void ControlGUI::_PID_Test(){
@@ -171,7 +171,7 @@ void ControlGUI::_robot_status(){
 
     // update robot status
     for (int i = 0; i < TOTAL_ROBOTS; i++) {
-        s.sendSerial(cmd[i]);
+        // s.sendSerial(cmd[i]);
         usleep(100000);
         if(s.readSerial(buf[i],sizeof buf[i]) == 1) {
             handleBatteryMsg(buf[i], i);
@@ -198,6 +198,8 @@ void ControlGUI::_start_serial(){
     } else{
         std::cout<<serial<<" - Error"<<std::endl;
     }
+
+
 
     bt_Serial_Start.set_state(Gtk::STATE_INSENSITIVE);
     cb_serial.set_state(Gtk::STATE_INSENSITIVE);
@@ -353,7 +355,7 @@ void ControlGUI::_send_test(){
 
         break;
     }
-    s.sendSerial(cmd);
+    // s.sendSerial(cmd);
 }
 
 void ControlGUI::_update_cb_serial(){
