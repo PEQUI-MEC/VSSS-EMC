@@ -104,7 +104,7 @@ public:
 	int frames_blocked;
 
 	Planner planner;
-	bool using_planner_flag = true;
+	bool using_planner_flag = false;
 
 	bool half_transition = false;
 	bool full_transition = false;
@@ -442,7 +442,7 @@ public:
 			) {
 
 			if(!atk_mindcontrol) {
-				lock_angle = atan2(double(robots[atk].position.y - COORD_GOAL_MID_Y), - double(robots[atk].position.x - COORD_GOAL_ATK_FRONT_X));
+				lock_angle = atan2(double(robots[atk].position.y - Ball.y), - double(robots[atk].position.x - Ball.x));
 			}
 
 			atk_mindcontrol = true;
@@ -498,8 +498,8 @@ public:
 			transition_mindcontrol = true;
 		}
 		// faz meio que um cruzamento
-		else if(Ball_Est.y > COORD_GOAL_UP_Y && Ball_Est.y < COORD_GOAL_DWN_Y &&
-		Ball_Est.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
+		else if(Ball.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_DWN_Y &&
+		Ball.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
 			def_mindcontrol = true;
 			// cout << " if 1 " << endl;
@@ -514,11 +514,11 @@ public:
 		}
 		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
 		else if(danger_zone_2) {
-			if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y)){
+			/*if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y)){
 				full_transition = true;
 				// cout << " if 3.1 " << endl;
 			}
-			else if(!offensive_adv()) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
+			else */if(Ball.x < COORD_MID_FIELD_X/2 && !offensive_adv() && Ball.x > robots[def].position.x) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
 				full_transition = true;
 				// cout << " if 3.2 " << endl;
 
@@ -581,7 +581,7 @@ public:
 		bool isDangerous = false;
 		for(int i = 0; i < 3; i++) {
 			// se o adversário mais próximo da bola está a pelo menos duas vezes a distância de nosso gk a bola, não é perigoso
-			if(distance(adv[i], Ball) < distance(robots[gk].position, Ball) * 1.3) {
+			if(distance(adv[i], Ball) < distance(robots[gk].position, Ball) * 2) {
 				isDangerous = true;
 				break;
 			}
