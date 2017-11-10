@@ -950,6 +950,13 @@ namespace capture
                 draw_info_hbox.pack_start(draw_info_checkbox, false, true, 5);
                 draw_info_checkbox.set_label("Disable Drawing");
                 draw_info_checkbox.set_can_focus(false);
+
+                robots_pos_buttons_vbox.pack_start(arrows_checkbox_fm, false, true, 5);
+                arrows_checkbox_fm.add(draw_arrows_hbox);
+                draw_arrows_hbox.set_halign(Gtk::ALIGN_CENTER);
+                draw_arrows_hbox.pack_start(draw_arrows_checkbox, false, true, 5);
+                draw_arrows_checkbox.set_label("Disable Arrows");
+                draw_arrows_checkbox.set_can_focus(false);
               }
 
               // Constructor
@@ -1065,6 +1072,7 @@ namespace capture
                 cb_frame_interval_signal = cb_frame_interval.signal_changed().connect(sigc::mem_fun(*this, &V4LInterface::__event_cb_frame_interval_changed));
 
                 draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_draw_info_checkbox_signal_clicked));
+                draw_arrows_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_draw_arrows_checkbox_signal_clicked));
 
               }
             }

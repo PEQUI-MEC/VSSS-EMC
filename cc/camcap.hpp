@@ -264,7 +264,7 @@ public:
         updateAllPositions();
 
         if(!interface.visionGUI.HSV_calib_event_flag) {
-            if (!interface.draw_info_flag && !interface.visionGUI.getIsSplitView())
+            if (interface.draw_info_flag && !interface.visionGUI.getIsSplitView())
             {
 
                 //goalie line
@@ -360,8 +360,8 @@ public:
                   circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
                 }
 
-            } // if !interface.draw_info_flag
-        } // if !draw_info_flag
+            } // if interface.draw_info_flag
+        } // if draw_info_flag
 
         if(interface.imageView.PID_test_flag && !interface.get_start_game_flag())
         {
@@ -450,15 +450,17 @@ public:
 
     void arrowedLine(cv::Mat img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color,
         int thickness=1, int line_type=8, int shift=0, double tipLength=0.1){
-       const double tipSize = norm(pt1-pt2)*tipLength;
-       line(img, pt1, pt2, color, thickness, line_type, shift);
-       const double angle = atan2( (double) pt1.y - pt2.y, (double) pt1.x - pt2.x );
-       cv::Point p(cvRound(pt2.x + tipSize * cos(angle + CV_PI / 4)),
-       cvRound(pt2.y + tipSize * sin(angle + CV_PI / 4)));
-       line(img, p, pt2, color, thickness, line_type, shift);
-       p.x = cvRound(pt2.x + tipSize * cos(angle - CV_PI / 4));
-       p.y = cvRound(pt2.y + tipSize * sin(angle - CV_PI / 4));
-       line(img, p, pt2, color, thickness, line_type, shift);
+          if (interface.draw_arrows_flag) {
+            const double tipSize = norm(pt1-pt2)*tipLength;
+            line(img, pt1, pt2, color, thickness, line_type, shift);
+            const double angle = atan2( (double) pt1.y - pt2.y, (double) pt1.x - pt2.x );
+            cv::Point p(cvRound(pt2.x + tipSize * cos(angle + CV_PI / 4)),
+            cvRound(pt2.y + tipSize * sin(angle + CV_PI / 4)));
+            line(img, p, pt2, color, thickness, line_type, shift);
+            p.x = cvRound(pt2.x + tipSize * cos(angle - CV_PI / 4));
+            p.y = cvRound(pt2.y + tipSize * sin(angle - CV_PI / 4));
+            line(img, p, pt2, color, thickness, line_type, shift);
+          }
    }
 
     void sendCmdToRobots(std::vector<Robot>&robot_list, bool &xbeeIsConnected){

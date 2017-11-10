@@ -470,6 +470,10 @@ namespace capture {
 		draw_info_flag = !draw_info_flag;
 	}
 
+	void V4LInterface::event_draw_arrows_checkbox_signal_clicked(){
+		draw_arrows_flag = !draw_arrows_flag;
+	}
+
 	void V4LInterface::event_robots_id_edit_bt_signal_pressed(){
         if (!robots_id_edit_flag)
         {

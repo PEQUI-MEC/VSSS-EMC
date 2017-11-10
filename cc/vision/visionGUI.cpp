@@ -662,6 +662,9 @@ void VisionGUI::__create_frm_hsv() {
   bt_switchMainAdv.set_label("Main <-> Adv");
   grid->attach(bt_switchMainAdv, 6, 0, 1, 1);
 
+  bt_resetHSV.set_label("Reset");
+  grid->attach(bt_resetHSV, 7, 0, 1, 1);
+
   grid = new Gtk::Grid();
   grid->set_border_width(5);
   grid->set_column_spacing(15);
@@ -784,6 +787,7 @@ void VisionGUI::__create_frm_hsv() {
 
   bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
   bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
+  bt_resetHSV.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
@@ -801,6 +805,7 @@ void VisionGUI::__create_frm_hsv() {
   bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_HSV_calib_clicked));
   bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_left_HSV_calib_clicked));
   bt_switchMainAdv.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_switchMainAdv_clicked));
+  bt_resetHSV.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_resetHSV_clicked));
   HScale_Hmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmin_value_changed));
   HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmax_value_changed));
   HScale_Smin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smin_value_changed));
@@ -811,6 +816,11 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Dilate_value_changed));
   HScale_Blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Blur_value_changed));
   HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Amin_value_changed));
+
+}
+
+void VisionGUI::__event_bt_resetHSV_clicked() {
+  init_calib_params();
 }
 
 void VisionGUI::__event_bt_switchMainAdv_clicked() {
@@ -911,6 +921,7 @@ void VisionGUI::__event_bt_HSV_calib_pressed() {
     bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
     bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
     bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
+    bt_resetHSV.set_state(Gtk::STATE_INSENSITIVE);
   } else {
     HSV_calib_event_flag=true;
     HScale_Hmin.set_state(Gtk::STATE_NORMAL);
@@ -926,6 +937,7 @@ void VisionGUI::__event_bt_HSV_calib_pressed() {
     bt_HSV_right.set_state(Gtk::STATE_NORMAL);
     bt_HSV_left.set_state(Gtk::STATE_NORMAL);
     bt_switchMainAdv.set_state(Gtk::STATE_NORMAL);
+    bt_resetHSV.set_state(Gtk::STATE_NORMAL);
   }
 }
 
@@ -1079,16 +1091,22 @@ void VisionGUI::init_calib_params()
   int B[5] {3, 3, 3, 3, 3};
   int D[5] = {0, 0, 0, 0, 0};
   int E[5] = {0, 0, 0, 0, 0};
-  int Amin[5] = {150, 90, 90, 115, 50};
+  int Amin[5] = {20, 20, 20, 20, 20};
 
   // Configurar os valores iniciais de calibração
   vision->setCalibParams(H, S, V, Amin, E, D, B);
 
   // Corrigir os valores mostrados na interface
+  HScale_Hmin.set_value(H[0][0]);
   HScale_Hmax.set_value(H[0][1]);
+  HScale_Smin.set_value(S[0][0]);
   HScale_Smax.set_value(S[0][1]);
+  HScale_Vmin.set_value(V[0][0]);
   HScale_Vmax.set_value(V[0][1]);
   HScale_Amin.set_value(Amin[0]);
+  HScale_Blur.set_value(B[0]);
+  HScale_Erode.set_value(E[0]);
+  HScale_Dilate.set_value(D[0]);
 }
 
 void VisionGUI::setFrameSize(int inWidth, int inHeight) {
