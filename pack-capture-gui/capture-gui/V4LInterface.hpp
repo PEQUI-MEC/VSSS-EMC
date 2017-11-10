@@ -57,12 +57,16 @@ public:
     Gtk::Frame robots_pos_fm;
     Gtk::Frame robots_buttons_fm;
     Gtk::Frame robots_checkbox_fm;
+    Gtk::Frame arrows_checkbox_fm;
     Gtk::VBox robots_pos_buttons_vbox;
     Gtk::HBox fps_hbox;
     Gtk::Label *fps_label;
     Gtk::CheckButton draw_info_checkbox;
+    Gtk::CheckButton draw_arrows_checkbox;
     Gtk::HBox draw_info_hbox;
-    bool draw_info_flag = false;
+    Gtk::HBox draw_arrows_hbox;
+    bool draw_info_flag = true;
+    bool draw_arrows_flag = true;
 
     bool reset_warp_flag;
 
@@ -148,6 +152,7 @@ public:
     void update_speed_progressBars();
     void update_robot_functions();
     void event_draw_info_checkbox_signal_clicked();
+    void event_draw_arrows_checkbox_signal_clicked();
     void createPositionsAndButtonsFrame();
     void createFunctionsFrame();
 

@@ -743,7 +743,7 @@ namespace capture
                 robots_speed_done_bt.set_label("Done");
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[0], false, true, 5);
 
-                label = new Gtk::Label("Robot 1:");
+                label = new Gtk::Label("GLK:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[0].set_digits(1);
                 robots_speed_hscale[0].set_increments(0.1,1);
@@ -765,7 +765,7 @@ namespace capture
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].vmax);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
-                label = new Gtk::Label("Robot 2:");
+                label = new Gtk::Label("DEF:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[1].set_digits(1);
                 robots_speed_hscale[1].set_increments(0.1,1);
@@ -787,7 +787,7 @@ namespace capture
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].vmax);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
 
-                label = new Gtk::Label("Robot 3:");
+                label = new Gtk::Label("ATK:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[2].set_digits(1);
                 robots_speed_hscale[2].set_increments(0.1,1);
@@ -950,6 +950,13 @@ namespace capture
                 draw_info_hbox.pack_start(draw_info_checkbox, false, true, 5);
                 draw_info_checkbox.set_label("Disable Drawing");
                 draw_info_checkbox.set_can_focus(false);
+
+                robots_pos_buttons_vbox.pack_start(arrows_checkbox_fm, false, true, 5);
+                arrows_checkbox_fm.add(draw_arrows_hbox);
+                draw_arrows_hbox.set_halign(Gtk::ALIGN_CENTER);
+                draw_arrows_hbox.pack_start(draw_arrows_checkbox, false, true, 5);
+                draw_arrows_checkbox.set_label("Disable Arrows");
+                draw_arrows_checkbox.set_can_focus(false);
               }
 
               // Constructor
@@ -1065,6 +1072,7 @@ namespace capture
                 cb_frame_interval_signal = cb_frame_interval.signal_changed().connect(sigc::mem_fun(*this, &V4LInterface::__event_cb_frame_interval_changed));
 
                 draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_draw_info_checkbox_signal_clicked));
+                draw_arrows_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &capture::V4LInterface::event_draw_arrows_checkbox_signal_clicked));
 
               }
             }

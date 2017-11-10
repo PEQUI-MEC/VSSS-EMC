@@ -79,6 +79,7 @@ private:
   Gtk::Button bt_HSV_left;
   Gtk::Button bt_HSV_right;
   Gtk::Button bt_switchMainAdv;
+  Gtk::Button bt_resetHSV;
 
   // Frame GMM
   Gtk::Button bt_GMM_save, bt_GMM_load;
@@ -107,6 +108,7 @@ private:
   void __event_bt_right_HSV_calib_clicked();
   void __event_bt_left_HSV_calib_clicked();
   void __event_bt_switchMainAdv_clicked();
+  void __event_bt_resetHSV_clicked();
 
   void __event_bt_GMM_save_clicked();
   void __event_bt_GMM_load_clicked();

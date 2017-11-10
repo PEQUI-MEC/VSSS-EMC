@@ -212,6 +212,8 @@ public:
 	}
 
 	void get_variables() {
+		float vel_factor =  1 + distance(Ball, Ball_Est) / (COORD_MID_FIELD_X);
+		max_approach = ABS_ROBOT_SIZE * 2.5 * vel_factor;
 		goalie_line = testFrame.getValue(0); // index da barrinha
 		goalie_offset = testFrame.getValue(1); // index da barrinha
 	}
@@ -489,32 +491,43 @@ public:
 			transition_mindcontrol = true;
 		}
 		// faz meio que um cruzamento
-		else if(Ball.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_DWN_Y &&
+		else if(Ball_Est.y > COORD_GOAL_UP_Y && Ball_Est.y < COORD_GOAL_DWN_Y &&
 		Ball.x > corner_atk_limit && distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE*1.5) {
 			half_transition = true;
 			def_mindcontrol = true;
 			// cout << " if 1 " << endl;
 			// std::cout << "y1\n";
 		}
+		// se a bola está na projeção de chute reto e está longe do atacante e atrás dele
+		else if((danger_zone_1 || abs(Ball.y - robots[atk].position.y) > transition_y_distance) &&
+		Ball.y > COORD_GOAL_UP_Y && Ball.y < COORD_GOAL_DWN_Y) {
+			half_transition = true;
+		}
 		// se a bola tá bem atrás do atacante mas tá na frente do defensor
-		else if(danger_zone_1 && Ball.x < robots[atk].position.x - transition_y_distance && robots[atk].status != CORNER_STATE) {
+		else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance && robots[atk].status != CORNER_STATE) {
 			half_transition = true;
 			// cout << " if 2 " << endl;
-
-			// std::cout << "dg1, antes do ataque\n";
+		}
+		// troca se a bola tá no corner
+		else if(robots[atk].status == DEF_CORNER_STATE && distance(Ball, robots[atk].position) > distance(Ball, robots[def].position)) {
+			half_transition = true;
+		}
+		// troca se bola mais perto do defensor e este tem a posse de bola
+		else if(distance(robots[def].position, Ball) < distance(robots[atk].position, Ball) && distance(robots[def].position, Ball) < 2*ABS_ROBOT_SIZE && Ball.x > robots[def].position.x) {
+			half_transition = true;
 		}
 		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
-		else if(danger_zone_2) {
-			/*if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y)){
-				full_transition = true;
-				// cout << " if 3.1 " << endl;
-			}
-			else */if(Ball.x < COORD_MID_FIELD_X/2 && !offensive_adv() && Ball.x > robots[def].position.x) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
-				full_transition = true;
-				// cout << " if 3.2 " << endl;
-
-			}
-		}
+		// else if(danger_zone_2) {
+		// 	/*if(Ball.x < COORD_MID_FIELD_X/2 && (Ball.y < COORD_GOAL_UP_Y || Ball.y > COORD_GOAL_DWN_Y)){
+		// 		full_transition = true;
+		// 		// cout << " if 3.1 " << endl;
+		// 	}
+		// 	else */if(Ball.x < COORD_MID_FIELD_X/2 && !offensive_adv() && Ball.x > robots[def].position.x) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
+		// 		full_transition = true;
+		// 		// cout << " if 3.2 " << endl;
+		//
+		// 	}
+		// }
 		// troca se o atacante tá muito longe da bola
 		/*else if(abs(Ball.y - robots[atk].position.y) > transition_y_distance) {
 			half_transition = true;
@@ -522,17 +535,17 @@ public:
 
 		}*/
 		// troca caso o angulo do defensor pro gol for bom
-		else if((abs(phiDef)*180/PI < 20) &&
-			(Ball.x > robots[def].position.x) &&
-			distance(robots[def].position, Ball) < distance(robots[atk].position, Ball)
-			/*&&
-			( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
-			(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))
-			*/) {
-
-			half_transition = true;
-			// cout << " if 6 " << endl;
-		}
+		// else if((abs(phiDef)*180/PI < 20) &&
+		// 	(Ball.x > robots[def].position.x) &&
+		// 	distance(robots[def].position, Ball) < distance(robots[atk].position, Ball)
+		// 	/*&&
+		// 	( ( ((robots[def].orientation - atan(ballGoal))*180/PI) < 20 && ((robots[def].orientation - atan(ballGoal))*180/PI) > -20) ||
+		// 	(((robots[def].orientation - atan(ballGoal))*180/PI) < -165 || ((robots[def].orientation - atan(ballGoal))*180/PI) > 165))
+		// 	*/) {
+		//
+		// 	half_transition = true;
+		// 	// cout << " if 6 " << endl;
+		// }
 	}
 
 	void set_flags() {
@@ -1017,10 +1030,26 @@ public:
 
 	void def_wait(int i) {
 		robots[i].fixedPos = true;
-		if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
+		if(Ball_Est.x > Ball.x && distance(robots[i].position, robots[i].target) <= fixed_pos_distance) {
 			robots[i].cmdType = ORIENTATION;
 			robots[i].targetOrientation = look_at_ball(i);
 		}
+	}
+
+	cv::Point adv_atk_pos() {
+		cv::Point atk;
+		double minor_distance = 99999999, tmp_distance;
+		for(int i = 0; i < 3; i++) {
+			if(adv[i] != cv::Point(-1, -1) && (tmp_distance = distance(adv[i], Ball)) < minor_distance) {
+				atk = adv[i];
+				minor_distance = tmp_distance;
+			}
+		}
+
+		if(minor_distance == 99999999)
+			atk = cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y);
+
+		return atk;
 	}
 
 	void fuzzy_init() {
@@ -1177,6 +1206,20 @@ public:
 
 	}
 
+	void gotta_catch_the_ball_2(int i) {
+		if(Ball.x < robots[i].position.x) {
+			if(Ball.y > robots[i].position.y) {
+				robots[i].target.x = Ball.x - max_approach*1.5;
+				robots[i].target.y = Ball.y - max_approach/2;
+			} else {
+				robots[i].target.x = Ball.x - max_approach*1.5;
+				robots[i].target.y = Ball.y + max_approach/2;
+			}
+		} else {
+			robots[i].target = Ball;
+		}
+	}
+
 	void crop_targets(int i) {
 		if(robots[i].target.y < 0) robots[i].target.y = 0;
 		if(robots[i].target.y > ABS_FIELD_HEIGHT) robots[i].target.y = ABS_FIELD_HEIGHT;
@@ -1213,7 +1256,8 @@ public:
 				} else if(Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE*1.5 || Ball.y < ABS_ROBOT_SIZE*1.5) {
 					robots[i].status = SIDEWAYS;
 				}
-				pot_field_around(i);
+				gotta_catch_the_ball_2(i);
+				// pot_field_around(i);
 				crop_targets(i);
 
 			break;
@@ -1228,7 +1272,7 @@ public:
 					} else {
 						spin_anti_clockwise(i);
 					}
-					if(Ball.x < robots[i].position.x) {
+					if(Ball_Est.x < robots[i].position.x) {
 						robots[i].target.x = Ball.x - max_approach;
 						robots[i].target.y = Ball.y - max_approach/2;
 					}
@@ -1241,7 +1285,7 @@ public:
 					} else {
 						spin_clockwise(i);
 					}
-					if(Ball.x < robots[i].position.x) {
+					if(Ball_Est.x < robots[i].position.x) {
 						robots[i].target.x = Ball.x - max_approach;
 						robots[i].target.y = Ball.y + max_approach/2;
 					}
@@ -1254,19 +1298,32 @@ public:
 				if(Ball.x > corner_atk_limit) {
 					if(Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 						if(Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
-							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_clockwise(i); // giro que leva a bola ao gol
-							else robots[i].target = Ball; // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
-						} else {
-							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_anti_clockwise(i); // giro para faze-la entrar
-							else robots[i].target = Ball;
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+								spin_clockwise(i); // giro que leva a bola ao gol
+							else
+								robots[i].target = Ball; // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
+						} else if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) {
+							if(Ball.y > robots[i].position.y)
+								spin_anti_clockwise(i); // giro para faze-la entrar
+							else
+								spin_clockwise(i); // giro pra jogar ela pra onde tem mais gol de sobra
+						}
+						else {
+							robots[i].target = Ball;
 						}
 					} else {
 						if(Ball.y > COORD_GOAL_DWN_Y) {
-							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_anti_clockwise(i);
-							else robots[i].target = Ball; // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
+							if(Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+								spin_anti_clockwise(i);
+							else
+								robots[i].target = Ball; // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
+						} else if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) {
+							if(Ball.y > robots[i].position.y)
+								spin_clockwise(i); // giro para faze-la entrar
+							else
+								spin_anti_clockwise(i); // giro pra jogar ela pra onde tem mais gol de sobra
 						} else {
-							if(Ball.y > robots[i].position.y && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) spin_clockwise(i); // giro para faze-la entrar
-							else robots[i].target = Ball;
+							robots[i].target = Ball;
 						}
 					}
 				} else {
@@ -1276,22 +1333,32 @@ public:
 
 			case DEF_CORNER_STATE:
 				robots[i].fixedPos = true;
+				// verifica se a bola tá no corner
 				if(Ball.x < def_corner_line) {
-					if(Ball.y > COORD_GOAL_MID_Y) {
-						robots[i].target.x = goalie_line;
-						robots[i].target.y = COORD_BOX_DWN_Y + ABS_ROBOT_SIZE;
-						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y > robots[i].position.y) spin_anti_clockwise(i);
-						//if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
-						if(is_near(i, robots[i].target) && Ball.y > robots[i].position.y) {
+					cv::Point adv_atk;
+					// verifica se a bola está pra cima ou pra baixo, pra saber pra onde girar
+					if(Ball.y > COORD_GOAL_MID_Y) { // se a bola tá pra baixo
+						if(Ball.y > robots[i].position.y) {
 							robots[i].target = Ball;
+							if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE*1.2)
+								spin_anti_clockwise(i);
 						}
-					} else {
-						robots[i].target.x = goalie_line;
-						robots[i].target.y = COORD_BOX_UP_Y - ABS_ROBOT_SIZE;
-						if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE && Ball.y < robots[i].position.y) spin_clockwise(i);
-						//if(distance(robots[i].position, robots[i].target) <= fixed_pos_distance) robots[i].target = Ball;
-						if(is_near(i, robots[i].target) && Ball.y < robots[i].position.y) {
+						// senão, se o robô deles tá sem a posse de bola, vindo por baixo, e o robô adversário tá pra trás da bola, trava o robô adversário enquanto o nosso volta
+						else if((adv_atk = adv_atk_pos()).y > Ball.y && adv_atk.x > robots[i].position.x){
+							//robots[i].target = adv_atk_pos();
+						}
+					} else { // se a bola ta pra cima
+						// se a bola tá pra cima do robo
+						if(Ball.y < robots[i].position.y) {
+							// vai na bola
 							robots[i].target = Ball;
+							// se prendeu a bola na parede, gira pra jogar a bola pra frente
+							if(distance(Ball, robots[i].position) < ABS_ROBOT_SIZE*1.2)
+								spin_clockwise(i);
+						}
+						// senão, se o robô deles tá sem a posse de bola, vindo por baixo, e o robô adversário tá pra trás da bola, trava o robô adversário enquanto o nosso volta
+						else if((adv_atk = adv_atk_pos()).y > Ball.y && adv_atk.x > robots[i].position.x){
+							//robots[i].target = adv_atk_pos();
 						}
 					}
 
@@ -1459,9 +1526,7 @@ public:
 
 		switch (robots[i].status) {
 			case NORMAL_STATE:
-				robots[i].fixedPos = true;
-				robots[i].target.x = COORD_BOX_DEF_X + ABS_ROBOT_SIZE;
-				robots[i].target.y = Ball.y;
+
 			break;
 		}
 	}
