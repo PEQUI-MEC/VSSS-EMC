@@ -743,7 +743,7 @@ namespace capture
                 robots_speed_done_bt.set_label("Done");
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[0], false, true, 5);
 
-                label = new Gtk::Label("Goalkeeper:");
+                label = new Gtk::Label("GLK:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[0].set_digits(1);
                 robots_speed_hscale[0].set_increments(0.1,1);
@@ -765,7 +765,7 @@ namespace capture
                 robots_speed_progressBar[0].set_fraction( (double) robot_list[0].vmax);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
-                label = new Gtk::Label("Defense:");
+                label = new Gtk::Label("DEF:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[1].set_digits(1);
                 robots_speed_hscale[1].set_increments(0.1,1);
@@ -787,7 +787,7 @@ namespace capture
                 robots_speed_progressBar[1].set_fraction( (double) robot_list[1].vmax);
                 robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
 
-                label = new Gtk::Label("Attack:");
+                label = new Gtk::Label("ATK:");
                 //label->set_yalign(1.0);
                 robots_speed_hscale[2].set_digits(1);
                 robots_speed_hscale[2].set_increments(0.1,1);

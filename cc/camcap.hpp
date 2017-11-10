@@ -268,7 +268,9 @@ public:
             {
 
                 //goalie line
+                if (isPointInsideFrame(cv::Point(CONST::goalie_line, 1)))
                 circle(imageView,cv::Point(CONST::goalie_line, 1), 1, cv::Scalar(255,0,0), 2);
+                if (isPointInsideFrame(cv::Point(CONST::goalie_line, height-1)))
                 circle(imageView,cv::Point(CONST::goalie_line, height-1), 1, cv::Scalar(255,0,0), 2);
 
                 cv::Point aux_point;
@@ -277,22 +279,30 @@ public:
                   for(int i=0; i<interface.robot_list.size(); i++) {
                       if(interface.robot_list[i].target.x!=-1&&interface.robot_list[i].target.y!=-1) {
                           // linha branca no alvo sendo executado
+                          if (isPointInsideFrame(interface.robot_list[i].position, interface.robot_list[i].target))
                           line(imageView, interface.robot_list[i].position,interface.robot_list[i].target, cv::Scalar(255,255,255),2);
                           // linha roxa no alvo final
+                          if (isPointInsideFrame(interface.robot_list[i].position, cv::Point(interface.imageView.tar_pos[0], interface.imageView.tar_pos[1])))
                           line(imageView, interface.robot_list[i].position, cv::Point(interface.imageView.tar_pos[0], interface.imageView.tar_pos[1]), cv::Scalar(255,0,255),2);
                       }
                       // círculo branco no alvo sendo executado
+                      if (isPointInsideFrame(interface.robot_list[i].target))
                       circle(imageView,interface.robot_list[i].target, 9, cv::Scalar(255,255,255), 2);
                       // círculo roxo no alvo final
+                      if (isPointInsideFrame(cv::Point(interface.imageView.tar_pos[0], interface.imageView.tar_pos[1])))
                       circle(imageView,cv::Point(interface.imageView.tar_pos[0], interface.imageView.tar_pos[1]), 7, cv::Scalar(255,0,255), 2);
                       // círculo vermelho no obstáculo
+                      if (isPointInsideFrame(obstacle))
                       circle(imageView,obstacle, 17, cv::Scalar(255,0,0), 2);
                       // círculo verde nos desvios
+                      if (isPointInsideFrame(deviation1))
                       circle(imageView,deviation1, 7, cv::Scalar(0,255,0), 2);
+                      if (isPointInsideFrame(deviation2))
                       circle(imageView,deviation2, 7, cv::Scalar(0,255,0), 2);
 
                   }
                   if(Selec_index!=-1) {
+                    if (isPointInsideFrame(interface.robot_list[Selec_index].position))
                       circle(imageView,interface.robot_list[Selec_index].position, 17, cv::Scalar(255,255,255), 2);
                   }
                 }
@@ -300,46 +310,56 @@ public:
                 if (interface.visionGUI.getDrawSamples()) {
                     std::vector<cv::Point> points = interface.visionGUI.gmm.getSamplePoints();
                     for (int i = 0; i < points.size(); i=i+2) {
+                        if (isPointInsideFrame(points.at(i), points.at(i+1)))
                         rectangle(imageView, points.at(i), points.at(i+1), cv::Scalar(0,255,255));
                     }
                 }
-
+                if (isPointInsideFrame(interface.visionGUI.vision->getBall()))
                 circle(imageView,interface.visionGUI.vision->getBall(), 7, cv::Scalar(255,255,255), 2);
 
                 for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++)
                 {
                     // robo 1
+                    if (isPointInsideFrame(interface.visionGUI.vision->getRobot(i).position, interface.visionGUI.vision->getRobot(i).secundary))
                     line(imageView, interface.visionGUI.vision->getRobot(i).position, interface.visionGUI.vision->getRobot(i).secundary,cv::Scalar(255,255,0), 2);
                     //line(imageView,interface.robot_list[0].position,interface.robot_list[0].ternary,cv::Scalar(100,255,0), 2);
-                    putText(imageView, std::to_string(i+1),cv::Point(interface.visionGUI.vision->getRobot(i).position.x-5,interface.visionGUI.vision->getRobot(i).position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
-                    circle(imageView, interface.visionGUI.vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
+                    if (isPointInsideFrame(interface.visionGUI.vision->getRobot(i).position)) {
+                      putText(imageView, std::to_string(i+1),cv::Point(interface.visionGUI.vision->getRobot(i).position.x-5,interface.visionGUI.vision->getRobot(i).position.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(255,255,0),2);
+                      circle(imageView, interface.visionGUI.vision->getRobot(i).position, 15, cv::Scalar(255,255,0), 2);
+                      // vetor que todos os robos estão executando
+                      aux_point.x = round(100*cos(interface.robot_list[i].transAngle));
+                      aux_point.y = - round(100*sin(interface.robot_list[i].transAngle));
+                      aux_point += interface.robot_list[i].position;
+                      arrowedLine(imageView,interface.robot_list[i].position, aux_point,cv::Scalar(255,0,0),2);
+                    }
+
                     // linha da pick-a
-                    if(interface.visionGUI.vision->getRobot(i).rearPoint != cv::Point(-1,-1))
+                    if(interface.visionGUI.vision->getRobot(i).rearPoint != cv::Point(-1,-1) && isPointInsideFrame(interface.visionGUI.vision->getRobot(i).secundary, interface.visionGUI.vision->getRobot(i).rearPoint))
                         line(imageView, interface.visionGUI.vision->getRobot(i).secundary,interface.visionGUI.vision->getRobot(i).rearPoint,cv::Scalar(255,0,0), 2);
 
 
-                    // vetor que todos os robos estão executando
-                    aux_point.x = round(100*cos(interface.robot_list[i].transAngle));
-                    aux_point.y = - round(100*sin(interface.robot_list[i].transAngle));
-                    aux_point += interface.robot_list[i].position;
-                    arrowedLine(imageView,interface.robot_list[i].position, aux_point,cv::Scalar(255,0,0),2);
+
                 }
 
                 for(int i=0;i<5;i++){
                     aux_point.x = round(100*cos(strategyGUI.strategy.pot_angle[i]));
                     aux_point.y = - round(100*sin(strategyGUI.strategy.pot_angle[i]));
                     aux_point += interface.robot_list[2].position;
-                    if(strategyGUI.strategy.pot_magnitude[i]!=0){
-                        arrowedLine(imageView,interface.robot_list[2].position, aux_point, cv::Scalar(0,255,0));
+                    if(strategyGUI.strategy.pot_magnitude[i]!=0 && isPointInsideFrame(interface.robot_list[2].position, aux_point)) {
+                      arrowedLine(imageView,interface.robot_list[2].position, aux_point, cv::Scalar(0,255,0));
                     }
                 }
                 aux_point.x = round(100*cos(strategyGUI.strategy.pot_goalTheta));
                 aux_point.y = - round(100*sin(strategyGUI.strategy.pot_goalTheta));
                 aux_point += interface.robot_list[2].position;
-                arrowedLine(imageView,interface.robot_list[2].position, aux_point, cv::Scalar(255,255,0));
+                if (isPointInsideFrame(interface.robot_list[2].position, aux_point))
+                arrowedLine(imageView, interface.robot_list[2].position, aux_point, cv::Scalar(255,255,0));
 
-                for(int i=0; i<interface.visionGUI.vision->getAdvListSize(); i++)
-                    circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
+                for(int i=0; i<interface.visionGUI.vision->getAdvListSize(); i++) {
+                  if (isPointInsideFrame(interface.visionGUI.vision->getAdvRobot(i)))
+                  circle(imageView,interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0,0,255), 2);
+                }
+
             } // if !interface.draw_info_flag
         } // if !draw_info_flag
 
@@ -363,16 +383,19 @@ public:
             formation_creation();
             // exibe os robos virtuais
             for(int i = 0; i < 3; i++) {
-                if(virtual_robot_selected == i) {
+                if(virtual_robot_selected == i && isPointInsideFrame(virtual_robots_positions[i])) {
                     circle(imageView,virtual_robots_positions[i], 20, cv::Scalar(0,255,100), 3);
                 }
                 // posição
+                if (isPointInsideFrame(virtual_robots_positions[i]))
                 circle(imageView,virtual_robots_positions[i], 17, cv::Scalar(0,255,0), 2);
                 // orientação
                 cv::Point aux_point = cv::Point(virtual_robots_positions[i].x + 30*cos(virtual_robots_orientations[i]), virtual_robots_positions[i].y + 30*sin(virtual_robots_orientations[i]));
-                arrowedLine(imageView,virtual_robots_positions[i], aux_point,cv::Scalar(0,255,0),2);
-                // identificação
-                putText(imageView, std::to_string(i+1),virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
+                if (isPointInsideFrame(virtual_robots_positions[i],aux_point)) {
+                  arrowedLine(imageView,virtual_robots_positions[i], aux_point,cv::Scalar(0,255,0),2);
+                  // identificação
+                  putText(imageView, std::to_string(i+1), virtual_robots_positions[i] + cv::Point(-14,10),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(0,255,0),2);
+                }
             }
         }
         else if(strategyGUI.updating_formation_flag) {
@@ -394,13 +417,16 @@ public:
             strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
             Ball_Est=strategyGUI.strategy.get_Ball_Est();
             // line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
+            if (isPointInsideFrame(Ball_Est))
             circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
             //char buffer[3]; -> não é utilizado
             // line(imageView,cv::Point(strategyGUI.strategy.COORD_BOX_DEF_X,strategyGUI.strategy.COORD_BOX_UP_Y - strategyGUI.strategy.ABS_ROBOT_SIZE/2),cv::Point(strategyGUI.strategy.COORD_GOAL_DEF_FRONT_X,strategyGUI.strategy.COORD_BOX_UP_Y- strategyGUI.strategy.ABS_ROBOT_SIZE/2),cv::Scalar(255,140,0), 2);
             strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
             for(int i =0; i<3; i++) {
+              if (isPointInsideFrame(interface.robot_list[i].target)) {
                 circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
                 putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
+              }
             } // for
 
             interface.update_speed_progressBars();
@@ -672,6 +698,24 @@ public:
             }
         }
     } // warp_transform
+
+
+    bool isPointInsideFrame(cv::Point point) {
+      if (point.x < 0 || point.x > width || point.y < 0 || point.y > height) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    bool isPointInsideFrame(cv::Point p1, cv::Point p2) {
+      if (p1.x < 0 || p1.x > width || p1.y < 0 || p1.y > height ||
+      p2.x < 0 || p2.x > width || p2.y < 0 || p2.y > height) {
+        return false;
+      } else {
+        return true;
+      }
+    }
 
     CamCap() : data(0), width(0), height(0), frameCounter(0) {
         fixed_ball[0]=false;
