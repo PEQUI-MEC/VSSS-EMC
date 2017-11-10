@@ -1307,46 +1307,9 @@ public:
 		switch (robots[i].status) {
 
 			case NORMAL_STATE:
-				if(Ball_Est.x > corner_atk_limit) {
-					int y_pos = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
-					robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/4, y_pos);
-					//robots[i].target = cv::Point(COORD_MID_FIELD_X + COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y);
-
-					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
-				}
-				else if(Ball_Est.x > COORD_MID_FIELD_X) {
-					robots[i].target = cv::Point(COORD_MID_FIELD_X - COORD_MID_FIELD_X/4, COORD_GOAL_MID_Y);
-					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X, COORD_GOAL_MID_Y), BALL_IS_OBS);
-				}
-				else {
-					// fixa uma posição em x
-					int x_pos = COORD_BOX_DEF_X + ABS_ROBOT_SIZE;
-
-					int ballTarget = Ball.y > COORD_GOAL_MID_Y ? COORD_GOAL_UP_Y : COORD_GOAL_DWN_Y;
-					double m = double(Ball.y - ballTarget) / double(Ball.x - ABS_ROBOT_SIZE);
-					int y_proj = Ball.y - m * (Ball.x - x_pos);
-
-					// faz o crop do alvo se ele for muito discrepante (se a bola se aproximar muito do gol)
-					if(y_proj > COORD_GOAL_DWN_Y)
-						y_proj = COORD_GOAL_DWN_Y;
-					else if(y_proj < COORD_GOAL_UP_Y)
-						y_proj = COORD_GOAL_UP_Y;
-
-					robots[i].target = cv::Point(x_pos, y_proj);
-
-					//robots[i].target = cv::Point(COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 2, COORD_GOAL_MID_Y);
-					//robots[i].transAngle = potField(i, cv::Point(COORD_MID_FIELD_X/2, COORD_GOAL_MID_Y), BALL_IS_OBS);
-				}
-				def_wait(i);
-			break;
-
-			case STEP_BACK:
 
 			break;
 
-			case TRANSITION_STATE:
-
-			break;
 		}
 	}
 
@@ -1391,13 +1354,13 @@ public:
 			if(robots[i].target.y < COORD_GOAL_UP_Y) robots[i].target.y = COORD_GOAL_UP_Y;
 
 
-			// if(Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_GOAL_DWN_Y) {
-			// 	// if bola no corner inferior do gol
-			// 	robots[i].target.y = COORD_GOAL_DWN_Y + goalie_offset;
-			// } else if (Ball.x < COORD_BOX_DEF_X && Ball.y < COORD_GOAL_UP_Y){
-			// 	// if bola no corner superior do gol
-			// 	robots[i].target.y = COORD_GOAL_UP_Y - goalie_offset;
-			// }
+			if(Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_GOAL_DWN_Y) {
+				// if bola no corner inferior do gol
+				robots[i].target.y = COORD_GOAL_DWN_Y + goalie_offset;
+			} else if (Ball.x < COORD_BOX_DEF_X && Ball.y < COORD_GOAL_UP_Y){
+				// if bola no corner superior do gol
+				robots[i].target.y = COORD_GOAL_UP_Y - goalie_offset;
+			}
 
 			// if (Ball.x < COORD_BOX_DEF_X && Ball.y > COORD_BOX_UP_Y && Ball.y < COORD_GOAL_DWN_Y) {
 			// 	robots[i].target = Ball;
