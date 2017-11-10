@@ -204,20 +204,23 @@ void SerialW::sendAPISerial(std::string cmd) {
 	msg[2] = uint8_t(lenght);
 	msg[3] = frame_type;
 	msg[4] = frame_id;
-	msg[5] = uint8_t(address >> 8);
-	msg[6] = uint8_t(address);
-	msg[7] = option;
+	int result = write(USB, msg, 5);
+	std::cout << "resultado: " << result << std::endl;
+	msg[0] = uint8_t(address >> 8);
+	msg[1] = uint8_t(address);
+	msg[2] = option;
+	result = write(USB, msg, 3);
+	std::cout << "resultado: " << result << std::endl;
 	for (size_t i = 0; i < cmd.size(); i++) {
-			msg[i+8] = (uint8_t) cmd[i];
+			msg[i] = (uint8_t) cmd[i];
 	}
-	msg[cmd.size()+8] = checksum;
+	msg[cmd.size()] = checksum;
+	result = write(USB, msg, 1+cmd.size());
+	std::cout << "resultado: " << result << std::endl;
 	for (size_t i = 0; i < 9+cmd.size(); i++) {
 		// printf("%02x ",msg[i]);
 		/* code */
 	}
-
-
-	int result = write(USB, msg, 9+cmd.size());
 	// std::cout << "size = " << 9+cmd.size() << std::endl;
 	free(msg);
 
