@@ -483,7 +483,14 @@ public:
 		/**** SITUAÇÕES DE TROCA ****/
 
 		// troca se está travado
-		if(cock_blocked()) {
+		if (robots[gk].position.x >= COORD_MID_FIELD_X) {
+			if(!atk_mindcontrol) {
+				lock_angle = atan2(double(robots[atk].position.y - Ball.y), - double(robots[atk].position.x - Ball.x));
+			}
+			atk_mindcontrol = true;
+
+		}
+		else if(cock_blocked()) {
 			// verifica distancias e seta roles
 			transition_mindcontrol = true;
 		}
@@ -1441,13 +1448,13 @@ public:
 			if(distance(robots[i].position, robots[i].target) < ABS_ROBOT_SIZE*3/4) {
 				// robots[i].cmdType = POSITION;
 				// robots[i].target = robots[i].position;
-				robots[i].cmdType = ORIENTATION;
-				robots[i].targetOrientation = PI/2;
-				// if( tan(robots[i].orientation) > tan(robots[i].targetOrientation - 5*PI/180) && tan(robots[i].orientation) < tan(robots[i].targetOrientation + 5*PI/180) )
-				// {
-				// 	robots[i].cmdType = POSITION;
-					robots[i].vmax = robots[i].vdefault;
-				// }
+				// robots[i].cmdType = ORIENTATION;
+				// robots[i].targetOrientation = PI/2;
+				// // if( tan(robots[i].orientation) > tan(robots[i].targetOrientation - 5*PI/180) && tan(robots[i].orientation) < tan(robots[i].targetOrientation + 5*PI/180) )
+				// // {
+				// // 	robots[i].cmdType = POSITION;
+					robots[i].vmax = 0;
+				// // }
 			}
 
 			if(abs(robots[i].target.x - robots[i].position.x) < fixed_pos_distance/2 && abs(robots[i].position.x - goalie_line) < fixed_pos_distance/2) {
