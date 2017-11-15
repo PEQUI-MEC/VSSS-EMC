@@ -2,21 +2,30 @@
 
 void GMM::run(cv::Mat frame) {
   inFrame = frame.clone();
-
-  for (int i = 0; i < TOTAL_THREADS; i++) {
-    threads.add_thread(new boost::thread(&GMM::classify, this, i));
-  }
-  threads.join_all();
-
-  cv::Mat emptyMat;
-  gaussiansFrame = emptyMat;
-  cv::vconcat(partialFrames, TOTAL_THREADS, gaussiansFrame);
-
-  paint();
+  // cv::pyrDown(inFrame, inFrame);
+  // cv::pyrDown(inFrame, inFrame);
+  gaussiansFrame = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
 
   if (isDone) {
+    for (int i = 0; i < TOTAL_WINDOWS; i++) {
+      threads.add_thread(new boost::thread(&GMM::classifyWindows, this, i));
+      // classify(i);
+    }
+    threads.join_all();
+    paintWindows();
     setAllThresholds();
     posProcessing();
+  } else {
+    for (int i = 0; i < TOTAL_THREADS; i++) {
+      threads.add_thread(new boost::thread(&GMM::classify, this, i));
+    }
+    threads.join_all();
+
+    cv::Mat emptyMat;
+    gaussiansFrame = emptyMat;
+    cv::vconcat(partialFrames, TOTAL_THREADS, gaussiansFrame);
+
+    paint();
   }
 }
 
@@ -68,52 +77,113 @@ cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
   return out;
 }
 
+
+void GMM::classifyWindows(int index) {
+  cv::Mat input = predictWindows(index);
+  int x = windowsList.at(index).getX();
+  int y = windowsList.at(index).getY();
+  for (int i = 0; i < windowsList.at(index).getSize(); i++) {
+    y = windowsList.at(index).getY();
+    x++;
+    for (int j = 0; j < windowsList.at(index).getSize(); j++) {
+      int label = input.at<float>(i,j);
+      gaussiansFrame.at<cv::Vec3b>(x, y)[0] = colors[label][0];
+      gaussiansFrame.at<cv::Vec3b>(x, y)[1] = colors[label][1];
+      gaussiansFrame.at<cv::Vec3b>(x, y)[2] = colors[label][2];
+      y++;
+    }
+  }
+}
+
 // Classifica cada pixel quanto a cor de sua gaussiana
 void GMM::classify(int index) {
   cv::Mat input = predict(index);
 
   int rows = input.rows;
   int cols = input.cols;
+  partialFrames[index] = cv::Mat::zeros(rows, cols, CV_8UC3);
+  for (int x = 0; x < rows; x++) {
+    for (int y = 0; y < cols; y++) {
+      int label = input.at<float>(x,y);
+      partialFrames[index].at<cv::Vec3b>(x, y)[0] = colors[label][0];
+      partialFrames[index].at<cv::Vec3b>(x, y)[1] = colors[label][1];
+      partialFrames[index].at<cv::Vec3b>(x, y)[2] = colors[label][2];
+    }
+  }
+}
 
-	partialFrames[index] = cv::Mat::zeros(rows, cols, CV_8UC3);
-
-	for (int x = 0; x < rows; x++) {
-		for (int y = 0; y < cols; y++) {
-			int label = input.at<float>(x,y);
-			partialFrames[index].at<cv::Vec3b>(x, y)[0] = colors[label][0];
-			partialFrames[index].at<cv::Vec3b>(x, y)[1] = colors[label][1];
-			partialFrames[index].at<cv::Vec3b>(x, y)[2] = colors[label][2];
-		}
-	}
+void GMM::paintWindows() {
+  finalFrame = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
+  preThreshold = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
+  for (int k = 0; k < windowsList.size(); k++) {
+    int x = windowsList.at(k).getX();
+    for (int i = 0; i < windowsList.at(k).getSize(); i++) {
+      int y = windowsList.at(k).getY();
+      for (int j = 0; j < windowsList.at(k).getSize(); j++) {
+        int label = partialPredicts[k].at<float>(i,j);
+        finalFrame.at<cv::Vec3b>(x, y)[0] = colors[matchColor.at(label)][0];
+        finalFrame.at<cv::Vec3b>(x, y)[1] = colors[matchColor.at(label)][1];
+        finalFrame.at<cv::Vec3b>(x, y)[2] = colors[matchColor.at(label)][2];
+        preThreshold.at<cv::Vec3b>(x, y)[0] = matchColor.at(label);
+        preThreshold.at<cv::Vec3b>(x, y)[1] = matchColor.at(label);
+        preThreshold.at<cv::Vec3b>(x, y)[2] = matchColor.at(label);
+        y++;
+      }
+      x++;
+    }
+  }
 }
 
 // Pinta os pixels das gaussianas em suas cores reais
 // Prepara o preThreshold para a futura separação dos thresholds de cada cor
 void GMM::paint() {
-  cv::Mat predictFrame;
-
+  // std::cout << "GMM 5.2.1" << std::endl;
   cv::vconcat(partialPredicts, TOTAL_THREADS, predictFrame);
+  // std::cout << "GMM 5.2.2" << std::endl;
+  finalFrame = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
+  preThreshold = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
+  // std::cout << "GMM 5.2.3" << std::endl;
+  for (int x = 0; x < predictFrame.rows; x++) {
+    for (int y = 0; y < predictFrame.cols; y++) {
+      int label = predictFrame.at<float>(x,y);
+      finalFrame.at<cv::Vec3b>(x, y)[0] = colors[matchColor.at(label)][0];
+      finalFrame.at<cv::Vec3b>(x, y)[1] = colors[matchColor.at(label)][1];
+      finalFrame.at<cv::Vec3b>(x, y)[2] = colors[matchColor.at(label)][2];
+      preThreshold.at<cv::Vec3b>(x, y)[0] = matchColor.at(label);
+      preThreshold.at<cv::Vec3b>(x, y)[1] = matchColor.at(label);
+      preThreshold.at<cv::Vec3b>(x, y)[2] = matchColor.at(label);
+    }
+  }
+}
 
-	finalFrame = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
-	preThreshold = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
+cv::Mat GMM::predictWindows(int index) {
+  cv::Mat input = formatFrameForEM(index);
 
-	for (int x = 0; x < predictFrame.rows; x++) {
-		for (int y = 0; y < predictFrame.cols; y++) {
-			int label = predictFrame.at<float>(x,y);
-			finalFrame.at<cv::Vec3b>(x, y)[0] = colors[matchColor.at(label)][0];
-			finalFrame.at<cv::Vec3b>(x, y)[1] = colors[matchColor.at(label)][1];
-			finalFrame.at<cv::Vec3b>(x, y)[2] = colors[matchColor.at(label)][2];
-			preThreshold.at<cv::Vec3b>(x, y)[0] = matchColor.at(label);
-			preThreshold.at<cv::Vec3b>(x, y)[1] = matchColor.at(label);
-			preThreshold.at<cv::Vec3b>(x, y)[2] = matchColor.at(label);
-		}
-	}
+  int windowSize = windowsList.at(index).getSize();
+
+  partialPredicts[index] = cv::Mat(windowSize, windowSize, CV_32F);
+  int pixelIndex = 0;
+
+  cv::Mat results;
+
+  for (int i = 0; i < windowSize; i++) {
+    for (int j = 0; j < windowSize; j++) {
+
+      double result = em->predict2(input.row(pixelIndex), results)[1];
+
+      partialPredicts[index].at<float>(i, j) = result;
+
+      pixelIndex++;
+    }
+  }
+  return partialPredicts[index];
 }
 
 // Associa cada pixel com uma gaussiana do modelo
-cv::Mat GMM::predict(int threadIndex) {
-  cv::Mat input = formatFrameForEM(threadIndex);
-  partialPredicts[threadIndex] = cv::Mat(inFrame.rows/TOTAL_THREADS, inFrame.cols, CV_32F);
+cv::Mat GMM::predict(int index) {
+  cv::Mat input = formatFrameForEM(index);
+
+  partialPredicts[index] = cv::Mat(inFrame.rows/TOTAL_THREADS, inFrame.cols, CV_32F);
   int pixelIndex = 0;
 
   cv::Mat results;
@@ -123,27 +193,43 @@ cv::Mat GMM::predict(int threadIndex) {
 
       double result = em->predict2(input.row(pixelIndex), results)[1];
 
-      partialPredicts[threadIndex].at<float>(i, j) = result;
+      partialPredicts[index].at<float>(i, j) = result;
 
       pixelIndex++;
     }
   }
+  return partialPredicts[index];
 
-  return partialPredicts[threadIndex];
 }
 
 // Formata o Frame para o tipo de variável requerido pelo EM
 cv::Mat GMM::formatFrameForEM(int index) {
   if (inFrame.empty()) return cv::Mat::zeros(1, 1, CV_32F);
 
-  int cols = inFrame.cols;
-  int rows = inFrame.rows/TOTAL_THREADS;
-
   cv::Rect roi;
-  roi.x = 0;
-  roi.y = index*rows;
-  roi.width = cols;
-  roi.height = rows;
+
+  if (isDone) {
+    int cols = windowsList.at(index).getSize();
+    int rows = windowsList.at(index).getSize();
+
+
+    roi.x = windowsList.at(index).getX();
+    roi.y = windowsList.at(index).getY();
+    roi.width = cols;
+    roi.height = rows;
+
+  } else {
+    int cols = inFrame.cols;
+    int rows = inFrame.rows/TOTAL_THREADS;
+
+    roi.x = 0;
+    roi.y = index*rows;
+    roi.width = cols;
+    roi.height = rows;
+
+  }
+
+
 
   cv::Mat dst = inFrame(roi);
 
@@ -380,15 +466,24 @@ int GMM::getClusters() {
 }
 
 cv::Mat GMM::getGaussiansFrame() {
-  return gaussiansFrame;
+  cv::Mat output = gaussiansFrame.clone();
+  // cv::pyrUp(output, output);
+  // cv::pyrUp(output, output);
+  return output;
 }
 
 cv::Mat GMM::getFinalFrame() {
-  return finalFrame;
+  cv::Mat output = finalFrame.clone();
+  // cv::pyrUp(output, output);
+  // cv::pyrUp(output, output);
+  return output;
 }
 
 cv::Mat GMM::getPreThresholdFrame() {
-  return preThreshold;
+  cv::Mat output = preThreshold.clone();
+  // cv::pyrUp(output, output);
+  // cv::pyrUp(output, output);
+  return output;
 }
 
 bool GMM::getIsTrained() {
@@ -402,8 +497,9 @@ void GMM::setMatchColor(int gaussian, int color) {
 bool GMM::getDoneFlag() {
   return isDone;
 }
-void GMM::setDone() {
-  isDone = true;
+void GMM::setDone(bool flag) {
+  if (flag == true) write("autoGMM.json");
+  isDone = flag;
 }
 
 // Usa o preThreshold para fazer um threshold para cada cor
@@ -413,16 +509,24 @@ void GMM::setAllThresholds() {
     threshold_frame.at(i) = cv::Mat::zeros(preThreshold.rows, preThreshold.cols, CV_8UC3);
   }
 
-  for (int x = 0; x < preThreshold.rows; x++) {
-    for (int y = 0; y < preThreshold.cols; y++) {
-      int label = preThreshold.at<cv::Vec3b>(x,y)[0];
-      if (label < TOTAL_COLORS) {
-        threshold_frame.at(label).at<cv::Vec3b>(x, y)[0] = 255;
-        threshold_frame.at(label).at<cv::Vec3b>(x, y)[1] = 255;
-        threshold_frame.at(label).at<cv::Vec3b>(x, y)[2] = 255;
+  for (int k = 0; k < windowsList.size(); k++) {
+    int x = windowsList.at(k).getX();
+    for (int i = 0; i < windowsList.at(k).getSize(); i++) {
+      int y = windowsList.at(k).getY();
+      for (int j = 0; j < windowsList.at(k).getSize(); j++) {
+        int label = preThreshold.at<cv::Vec3b>(x, y)[0];
+        if (label < TOTAL_COLORS) {
+          threshold_frame.at(label).at<cv::Vec3b>(x, y)[0] = 255;
+          threshold_frame.at(label).at<cv::Vec3b>(x, y)[1] = 255;
+          threshold_frame.at(label).at<cv::Vec3b>(x, y)[2] = 255;
+        }
+        y++;
       }
+      x++;
     }
   }
+
+
 }
 
 cv::Mat GMM::getThresholdFrame(int color) {
@@ -457,12 +561,18 @@ int GMM::getConvertType() {
   return convertType;
 }
 
-GMM::GMM() : clusters(1), isTrained(false), isDone(false), convertType(0) {
+GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false), convertType(0) {
   em = cv::ml::EM::create();
 
   cv::Mat mat;
   for (int i = 0; i < TOTAL_COLORS; i++) {
     threshold_frame.push_back(mat);
+  }
+
+  for (int i = 0; i < TOTAL_WINDOWS; i++) {
+    VisionROI roi(width, height, 40, i);
+    roi.setPosition(i*40,i*40);
+    windowsList.push_back(roi);
   }
 }
 
