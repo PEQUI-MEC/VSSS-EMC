@@ -8,13 +8,14 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
+#include "visionROI.hpp"
 
 class GMM
 {
 
 private:
   // Frames
-  cv::Mat inFrame, gaussiansFrame, finalFrame, preThreshold;
+  cv::Mat inFrame, predictFrame, gaussiansFrame, finalFrame, preThreshold;
   std::vector<cv::Mat>threshold_frame;
   std::vector<cv::Point> samplePoints;
   std::vector<cv::Mat> samples;
@@ -27,14 +28,17 @@ private:
   bool isTrained;
   bool isDone;
 
+  // Vision ROI
+  const static int TOTAL_WINDOWS = 8;
+  cv::Mat partialPredicts[TOTAL_WINDOWS];
+  cv::Mat partialFrames[TOTAL_WINDOWS];
+
   // Pos-Processing
   int closingSize, openingSize;
 
   // Multi-thread
-  const static int TOTAL_COLORS = 5;
+  const static int TOTAL_COLORS = 4;
   const static int TOTAL_THREADS = 8;
-  cv::Mat partialFrames[TOTAL_THREADS];
-  cv::Mat partialPredicts[TOTAL_THREADS];
   boost::thread_group threads;
 
   // Convert Type
@@ -46,10 +50,10 @@ private:
   const std::vector<cv::Vec3b> colors = {
 		{239, 255, 22}, // yellow
 		{0, 255, 0}, // green
-		{255, 0, 195}, // pink
 		{247, 83, 46}, // orange
 		{39, 56, 137}, // blue
 		{0, 0, 0}, // black
+    {255, 0, 195}, // pink
 		{255, 255, 255}, // white
 		{255, 0, 0}, // red
 		{75, 12, 102}, // purple
@@ -61,12 +65,15 @@ private:
 		{89, 89, 89} // dark grey
   };
   std::vector<int> matchColor = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
   };
 
   void classify(int index);
+  void classifyWindows(int index);
   void paint();
+  void paintWindows();
   cv::Mat predict(int index);
+  cv::Mat predictWindows(int index);
   cv::Mat crop(cv::Point p1, cv::Point p2);
   cv::Mat formatSamplesForEM();
   cv::Mat formatFrameForEM(int index);
@@ -74,7 +81,7 @@ private:
   void posProcessing();
 
 public:
-  GMM();
+  GMM(int width, int height);
   ~GMM();
 
   // Expectation Maximization
@@ -85,6 +92,9 @@ public:
   bool write(std::string fileName);
   int train();
   void run(cv::Mat frame);
+
+  // VisionROI
+  std::vector<VisionROI> windowsList;
 
   // GET
   int getSamplesSize();
@@ -104,7 +114,7 @@ public:
   // SET
   void setFrame(cv::Mat frame);
   void setClusters(int k);
-  void setDone();
+  void setDone(bool flag);
   void setMatchColor(int gaussian, int color);
   void setOpeningSize(int value);
   void setClosingSize(int value);

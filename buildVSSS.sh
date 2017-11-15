@@ -23,6 +23,10 @@ g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/vision.cpp" -o "cc/vis
 echo "\n\n\033[92mCompiling tag object...\033[0m\n"
 g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/tag.cpp" `pkg-config --libs opencv` -o "cc/vision/tag.o"
 
+# objeto visionGUI
+echo "\n\n\033[92mCompiling visionROI object...\033[0m\n"
+g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/visionROI.cpp" `pkg-config --libs opencv` -o "cc/vision/visionROI.o"
+
 # objeto do GMM
 echo "\n\n\033[92mCompiling GMM object...\033[0m\n"
 g++ -std=c++11 -c `pkg-config --cflags opencv` "cc/vision/gmm.cpp" `pkg-config --libs opencv` -o "cc/vision/gmm.o" -lboost_thread -lboost_system
@@ -87,6 +91,6 @@ g++ -std=c++11 -w -I"pack-capture-gui" -I"pack-capture" -O0 -g3 -Wall -c "cc/mai
 
 ####### LINKAGEM ######
 echo "\n\n\033[92mLinking objects...\033[0m\n"
-g++ -std=c++11 -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/vision.o" "cc/controlGUI.o" "cc/SerialW.o" "cc/filechooser.o" "pack-capture-gui/capture-gui/ImageView.o" "cc/vision/visionGUI.o" "cc/vision/tag.o" "cc/vision/gmm.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
+g++ -std=c++11 -w -L"pack-capture" -L"pack-capture-gui" -L"/usr/local/lib" -L"/lib64" -o "VSSS"  "cc/main.o" "cc/vision/visionROI.o" "cc/vision/vision.o" "cc/controlGUI.o" "cc/SerialW.o" "cc/filechooser.o" "pack-capture-gui/capture-gui/ImageView.o" "cc/vision/visionGUI.o" "cc/vision/tag.o" "cc/vision/gmm.o" "cc/TestFrame.o" "cc/Fuzzy/FuzzyController.o" "cc/Fuzzy/FuzzyFunction.o" "cc/Fuzzy/Rules.o" -lpack-capture-gui -lpack-capture -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system `pkg-config gtkmm-3.0 libv4l2 libv4lconvert --libs`
 
 echo "\n\n\033[92mAll done. Run 'sh runVSSS.sh' to open VSSS terminal.\033[0m\n"

@@ -343,8 +343,6 @@ cv::Mat Vision::getSplitFrame() {
 
   cv::vconcat(horizontal, 2, splitFrame);
 
-  cv::imwrite("teste.png", splitFrame);
-
   return splitFrame;
 }
 

@@ -10,7 +10,7 @@ class VisionGUI: public Gtk::VBox
 {
 public:
   Vision *vision;
-  GMM gmm;
+  GMM *gmm;
   Gtk::ToggleButton bt_HSV_calib;
 
   int Img_id;
@@ -93,10 +93,10 @@ private:
   int totalSamples;
   int colorIndex;
   const std::vector<std::string> realColors {
-    "Main", "Green", "Pink", "Ball", "Opponent"
+    "Main", "Green", "Ball", "Opponent"
   };
   const std::vector<std::string> gaussianColors {
-    "Yellow", "Green", "Pink", "Orange", "Blue", "Black", "White", "Red",
+    "Yellow", "Green", "Orange", "Blue", "Black", "Pink", "White", "Red",
     "Purple", "Brown", "Silver", "Cyan", "Dark Green","Baby Pink", "Dark Grey"
   };
   bool samplesEventFlag;

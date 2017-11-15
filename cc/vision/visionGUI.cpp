@@ -42,7 +42,7 @@ void VisionGUI::__create_frm_calib_mode() {
 void VisionGUI::__event_rb_mode_clicked() {
   if (rb_mode_GMM.get_active()) {
     isHSV = false;
-    if (gmm.getIsTrained()) bt_GMM_save.set_state(Gtk::STATE_NORMAL);
+    if (gmm->getIsTrained()) bt_GMM_save.set_state(Gtk::STATE_NORMAL);
     bt_GMM_load.set_state(Gtk::STATE_NORMAL);
     bt_collectSamples.set_state(Gtk::STATE_NORMAL);
     bt_popSample.set_state(Gtk::STATE_NORMAL);
@@ -59,7 +59,7 @@ void VisionGUI::__event_rb_mode_clicked() {
     rb_GMM_original.set_state(Gtk::STATE_NORMAL);
     rb_GMM_gaussians.set_state(Gtk::STATE_NORMAL);
     rb_GMM_final.set_state(Gtk::STATE_NORMAL);
-    if (gmm.getDoneFlag()) rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+    if (gmm->getDoneFlag()) rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
     bt_GMM_left.set_state(Gtk::STATE_NORMAL);
     bt_GMM_right.set_state(Gtk::STATE_NORMAL);
     bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
@@ -242,7 +242,7 @@ void VisionGUI::__create_frm_gmm() {
   hbox->set_halign(Gtk::ALIGN_CENTER);
   hbox->set_valign(Gtk::ALIGN_CENTER);
   cb_gaussianColor.append("Select Gaus.:");
-  for (int i = 0; i < gmm.getClusters(); i++) {
+  for (int i = 0; i < gmm->getClusters(); i++) {
     cb_gaussianColor.append(gaussianColors.at(i));
   }
   cb_gaussianColor.set_active(0);
@@ -250,7 +250,6 @@ void VisionGUI::__create_frm_gmm() {
   cb_realColor.append("Select Color:");
   cb_realColor.append("Main");
   cb_realColor.append("Green");
-  cb_realColor.append("Pink");
   cb_realColor.append("Ball");
   cb_realColor.append("Opponent");
   cb_realColor.append("Background");
@@ -334,7 +333,7 @@ void VisionGUI::__create_frm_gmm() {
 }
 
 void VisionGUI::__event_cb_convertType_signal_changed() {
-  gmm.setConvertType(cb_convertType.get_active_row_number());
+  gmm->setConvertType(cb_convertType.get_active_row_number());
 }
 
 bool VisionGUI::getDrawSamples() {
@@ -358,17 +357,17 @@ bool VisionGUI::getThresholdFrameFlag() {
 }
 
 void VisionGUI::HScale_closing_value_changed() {
-  gmm.setClosingSize(HScale_closing.get_value());
+  gmm->setClosingSize(HScale_closing.get_value());
 }
 
 void VisionGUI::HScale_opening_value_changed() {
-  gmm.setOpeningSize(HScale_opening.get_value());
+  gmm->setOpeningSize(HScale_opening.get_value());
 }
 
 void VisionGUI::__event_bt_GMM_save_clicked() {
   FileChooser saveWindow;
 
-  if (saveWindow.result == Gtk::RESPONSE_OK) gmm.write(saveWindow.fileName);
+  if (saveWindow.result == Gtk::RESPONSE_OK) gmm->write(saveWindow.fileName);
 
 }
 
@@ -376,24 +375,24 @@ void VisionGUI::__event_bt_GMM_load_clicked() {
   FileChooser loadWindow;
 
   if (loadWindow.result == Gtk::RESPONSE_OK) {
-    if (gmm.read(loadWindow.fileName)) {
+    if (gmm->read(loadWindow.fileName)) {
       rb_GMM_gaussians.set_active(true);
       rb_GMM_gaussians.clicked();
-      HScale_clusters.set_value(gmm.getClusters());
-      HScale_closing.set_value(gmm.getClosingSize());
-      HScale_opening.set_value(gmm.getOpeningSize());
-      cb_convertType.set_active(gmm.getConvertType());
+      HScale_clusters.set_value(gmm->getClusters());
+      HScale_closing.set_value(gmm->getClosingSize());
+      HScale_opening.set_value(gmm->getOpeningSize());
+      cb_convertType.set_active(gmm->getConvertType());
 
     }
   }
 }
 
 void VisionGUI::quickLoadGMM() {
-  gmm.read("autoGMM.json");
-  HScale_clusters.set_value(gmm.getClusters());
-  HScale_closing.set_value(gmm.getClosingSize());
-  HScale_opening.set_value(gmm.getOpeningSize());
-  cb_convertType.set_active(gmm.getConvertType());
+  gmm->read("autoGMM.json");
+  HScale_clusters.set_value(gmm->getClusters());
+  HScale_closing.set_value(gmm->getClosingSize());
+  HScale_opening.set_value(gmm->getOpeningSize());
+  cb_convertType.set_active(gmm->getConvertType());
 }
 
 void VisionGUI::__event_bt_GMM_left_clicked() {
@@ -437,27 +436,34 @@ void VisionGUI::__event_rb_GMM_frame_clicked() {
 void VisionGUI::__event_bt_GMM_match_clicked() {
   int gaussian = cb_gaussianColor.get_active_row_number();
   int color = cb_realColor.get_active_row_number();
-  if (gaussian >= 0 && color >= 0) gmm.setMatchColor(gaussian-1, color-1);
+  if (gaussian >= 0 && color >= 0) gmm->setMatchColor(gaussian-1, color-1);
 }
 
 void VisionGUI::__event_bt_GMM_done_clicked() {
-  gmm.setDone();
-  rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+  if (gmm->getDoneFlag() == false) {
+    gmm->setDone(true);
+    bt_GMM_done.set_label("Reset");
+    rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+  } else {
+    gmm->setDone(false);
+    bt_GMM_done.set_label("Done");
+    rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
+  }
 }
 
 void VisionGUI::HScale_clusters_value_changed() {
-  gmm.setClusters(HScale_clusters.get_value());
+  gmm->setClusters(HScale_clusters.get_value());
 
   cb_gaussianColor.remove_all();
   cb_gaussianColor.append("Select Gaussian:");
   cb_gaussianColor.set_active(0);
-  for (int i = 0; i < gmm.getClusters(); i++) {
+  for (int i = 0; i < gmm->getClusters(); i++) {
     cb_gaussianColor.append(gaussianColors.at(i));
   }
 }
 
 void VisionGUI::__event_bt_trainGMM_clicked() {
-  int res = gmm.train();
+  int res = gmm->train();
   if (res == 0) {
     rb_GMM_gaussians.set_active(true);
     rb_GMM_gaussians.clicked();
@@ -483,13 +489,13 @@ void VisionGUI::__event_bt_collectSamples_pressed() {
 }
 
 void VisionGUI::__event_bt_popSample_clicked() {
-  gmm.popSample();
+  gmm->popSample();
   decrementSamples();
-  std::cout << "GMM sample popped. Total left: " << gmm.getSamplesSize() << std::endl;
+  std::cout << "GMM sample popped. Total left: " << gmm->getSamplesSize() << std::endl;
 }
 
 void VisionGUI::__event_bt_clearSamples_clicked() {
-  gmm.clearSamples();
+  gmm->clearSamples();
   totalSamples = 0;
   bt_popSample.set_label("Pop (0)");
   std::cout << "GMM samples cleared." << std::endl;
@@ -1120,12 +1126,13 @@ VisionGUI::VisionGUI() :
   isSplitView(false) {
 
   vision = new Vision(640, 480);
+  gmm = new GMM(640, 480);
 
-  // __create_frm_calib_mode();
+  __create_frm_calib_mode();
   __create_frm_capture();
-  __create_frm_split_view();
+  // __create_frm_split_view();
   __create_frm_hsv();
-  // __create_frm_gmm();
+  __create_frm_gmm();
 
   init_calib_params();
 }
