@@ -9,6 +9,10 @@
 #include <fcntl.h>
 #include <errno.h>      // Error number definitions
 #include <termios.h>    // POSIX terminal control definitions
+#include <sstream>
+#include <iostream>
+#include <bitset>
+#include <boost/format.hpp>
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
 
 #define POSITION 0
@@ -33,6 +37,14 @@ public:
 	void sendCmdToRobots(std::vector<Robot> robot_list);
 
 	void sendSerial(std::string cmd);
+
+	void sendAPISerial(std::string cmd);
+
+	void sendAPISerialText(std::string cmd);
+
+	// void sendAPIToRobot(std::string msg);
+
+	uint8_t generateChecksum(uint8_t type, uint8_t id, uint16_t address, uint8_t option, std::string cmd);
 
 	int readSerial(char* buf, int size);
 };
