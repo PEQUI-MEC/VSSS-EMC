@@ -11,9 +11,9 @@ void Vision::run(cv::Mat raw_frame) {
   pick_a_tag();
 }
 
-void Vision::runGMM(std::vector<cv::Mat> thresholds) {
+void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> &windowsList) {
   searchGMMTags(thresholds);
-  pick_a_tag();
+  pick_a_tag(windowsList);
 }
 
 void Vision::preProcessing() {
@@ -191,6 +191,94 @@ void Vision::searchTags(int color) {
 
 
 /// <summary>
+/// Seleciona um conjunto de tags para representar cada robô. Adaptado aos ROIs utilizados pelo GMM
+/// </summary>
+/// <description>
+/// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
+/// </description>
+void Vision::pick_a_tag(std::vector<VisionROI> &windowsList) {
+    int dist, tmpSide;
+
+    // Define inicialmente que o objeto de cada janela não foi encontrado
+    for (int i = 0; i < windowsList.size(); i++) {
+      windowsList.at(i).setIsLost(true);
+    }
+
+    // OUR ROBOTS
+    for (int i = 0; i < tags.at(MAIN).size() && i<3; i++) {
+        // cria um robô temporário para armazenar nossas descobertas
+        Robot robot;
+        std::vector<Tag> tempTags;
+
+        // Posição do robô
+        robot.position = tags.at(MAIN).at(i).position;
+
+        // Cálculo da orientação de acordo com os pontos rear e front
+        robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y-robot.position.y)*1.3/height,(tags.at(MAIN).at(i).frontPoint.x-robot.position.x)*1.5/width);
+
+        // Armazena a tag
+        tempTags.push_back(tags.at(MAIN).at(i));
+
+        // Para cada tag principal, verifica quais são as secundárias correspondentes
+        for(int j = 0; j < tags.at(GREEN).size(); j++) {
+            // já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
+            if(tmpSide = inSphere(&robot, &tempTags, tags.at(GREEN).at(j).position)) {
+                // identifica se já tem mais de uma tag
+                if(tempTags.size() > 1) {
+                    robot.isOdd = true;
+                }
+                tags.at(GREEN).at(j).left = (tmpSide > 0) ? true : false;
+                // calculos feitos, joga tag no vetor
+                tempTags.push_back(tags.at(GREEN).at(j));
+            }
+        }
+
+
+        // Dá nome aos bois (robôs)
+        if(robot.isOdd){ // isOdd representa que este tem as duas bolas
+            robot_list.at(2).position = robot.position; // colocar em um vetor
+            robot_list.at(2).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
+            robot_list.at(2).orientation =  robot.orientation;
+            robot_list.at(2).rearPoint = tempTags.at(0).rearPoint;
+            windowsList.at(2).setIsLost(false);
+            windowsList.at(2).setCenter(robot.position);
+        } else if(tempTags.size() > 1 && tempTags.at(1).left) {
+            robot_list.at(0).position = robot.position; // colocar em um vetor
+            robot_list.at(0).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
+            robot_list.at(0).orientation = robot.orientation;
+            robot_list.at(0).rearPoint = tempTags.at(0).rearPoint;
+            windowsList.at(0).setIsLost(false);
+            windowsList.at(0).setCenter(robot.position);
+        } else {
+            robot_list.at(1).position = robot.position; // colocar em um vetor
+            robot_list.at(1).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
+            robot_list.at(1).orientation =  robot.orientation;
+            robot_list.at(1).rearPoint = tempTags.at(0).rearPoint;
+            windowsList.at(1).setIsLost(false);
+            windowsList.at(1).setCenter(robot.position);
+        }
+    } // OUR ROBOTS
+
+    // ADV ROBOTS
+    for (int i = 0; i < tags.at(ADV).size() && i < MAX_ADV; i++) {
+        advRobots[i] = tags.at(ADV).at(i).position;
+        windowsList.at(4+i).setIsLost(false);
+        windowsList.at(4+i).setCenter(advRobots[i]);
+    }
+
+    // BALL POSITION
+    if (!tags[BALL].empty()) {
+      ball = tags.at(BALL).at(0).position;
+      windowsList.at(3).setIsLost(false);
+      windowsList.at(3).setCenter(ball);
+    }
+
+    // Janela extra não sendo utilizada. TO-DO: reduzir uma janela no GMM
+    windowsList.at(7).setIsLost(false);
+    windowsList.at(7).setCenter(width/2, height/2);
+}
+
+/// <summary>
 /// Seleciona um conjunto de tags para representar cada robô
 /// </summary>
 /// <description>
@@ -254,8 +342,10 @@ void Vision::pick_a_tag() {
     }
 
     // BALL POSITION
-    if (!tags[BALL].empty())
-        ball = tags.at(BALL).at(0).position;
+    if (!tags[BALL].empty()) {
+      ball = tags.at(BALL).at(0).position;
+    }
+
 }
 
 /// <summary>

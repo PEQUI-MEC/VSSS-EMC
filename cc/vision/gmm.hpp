@@ -29,17 +29,18 @@ private:
   bool isDone;
 
   // Vision ROI
+  std::vector<VisionROI> windowsList;
   const static int TOTAL_WINDOWS = 8;
   cv::Mat partialPredicts[TOTAL_WINDOWS];
   cv::Mat partialFrames[TOTAL_WINDOWS];
-
-  // Pos-Processing
-  int closingSize, openingSize;
 
   // Multi-thread
   const static int TOTAL_COLORS = 4;
   const static int TOTAL_THREADS = 8;
   boost::thread_group threads;
+
+  // Pos-Processing
+  int closingSize[TOTAL_COLORS], openingSize[TOTAL_COLORS];
 
   // Convert Type
   const static int HSV_TYPE = 0;
@@ -93,9 +94,6 @@ public:
   int train();
   void run(cv::Mat frame);
 
-  // VisionROI
-  std::vector<VisionROI> windowsList;
-
   // GET
   int getSamplesSize();
   std::vector<cv::Point> getSamplePoints();
@@ -108,16 +106,17 @@ public:
   cv::Mat getThresholdFrame(int color);
   std::vector<cv::Mat> getAllThresholds();
   int getConvertType();
-  int getClosingSize();
-  int getOpeningSize();
+  int getClosingSize(int index);
+  int getOpeningSize(int index);
+  std::vector<VisionROI>& getWindowsList();
 
   // SET
   void setFrame(cv::Mat frame);
   void setClusters(int k);
   void setDone(bool flag);
   void setMatchColor(int gaussian, int color);
-  void setOpeningSize(int value);
-  void setClosingSize(int value);
+  void setOpeningSize(int index, int value);
+  void setClosingSize(int index, int value);
   void setConvertType(int value);
 
 };

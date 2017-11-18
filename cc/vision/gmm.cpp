@@ -26,16 +26,18 @@ void GMM::run(cv::Mat frame) {
     cv::vconcat(partialFrames, TOTAL_THREADS, gaussiansFrame);
 
     paint();
+    setAllThresholds();
+    posProcessing();
   }
 }
 
 // Aplica Abertura e Fechamento nos thresholds
 void GMM::posProcessing() {
   for (int i = 0; i < TOTAL_COLORS; i++) {
-    cv::Mat closingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*closingSize+1, 2*closingSize+1 ), cv::Point(closingSize, closingSize));
+    cv::Mat closingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*closingSize[i]+1, 2*closingSize[i]+1 ), cv::Point(closingSize[i], closingSize[i]));
     cv::morphologyEx(threshold_frame.at(i), threshold_frame.at(i), cv::MORPH_CLOSE, closingElement);
 
-    cv::Mat openingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*openingSize+1, 2*openingSize+1 ), cv::Point(openingSize, openingSize));
+    cv::Mat openingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*openingSize[i]+1, 2*openingSize[i]+1 ), cv::Point(openingSize[i], openingSize[i]));
     cv::morphologyEx(threshold_frame.at(i), threshold_frame.at(i), cv::MORPH_OPEN, openingElement);
   }
 }
@@ -368,10 +370,12 @@ bool GMM::read(std::string fileName) {
     clusters = atoi(line.c_str());
     getline(file, line);
     convertType = atoi(line.c_str());
-    getline(file, line);
-    closingSize = atoi(line.c_str());
-    getline(file, line);
-    openingSize = atoi(line.c_str());
+    for (int i = 0; i < TOTAL_COLORS; i++) {
+      getline(file, line);
+      closingSize[i] = atoi(line.c_str());
+      getline(file, line);
+      openingSize[i] = atoi(line.c_str());
+    }
     for (int i = 0; i < matchColor.size(); i++) {
       getline(file, line);
       matchColor.at(i) = atoi(line.c_str());
@@ -421,8 +425,10 @@ bool GMM::write(std::string fileName) {
   if (file.is_open()) {
     file << clusters <<std::endl;
     file << convertType <<std::endl;
-    file << closingSize <<std::endl;
-    file << openingSize <<std::endl;
+    for (int i = 0; i < TOTAL_COLORS; i++) {
+      file << closingSize <<std::endl;
+      file << openingSize <<std::endl;
+    }
     for (int i = 0; i < matchColor.size(); i++) {
       file << matchColor.at(i) <<std::endl;
     }
@@ -497,6 +503,11 @@ void GMM::setMatchColor(int gaussian, int color) {
 bool GMM::getDoneFlag() {
   return isDone;
 }
+
+std::vector<VisionROI>& GMM::getWindowsList() {
+  return windowsList;
+}
+
 void GMM::setDone(bool flag) {
   if (flag == true) write("autoGMM.json");
   isDone = flag;
@@ -509,44 +520,55 @@ void GMM::setAllThresholds() {
     threshold_frame.at(i) = cv::Mat::zeros(preThreshold.rows, preThreshold.cols, CV_8UC3);
   }
 
-  for (int k = 0; k < windowsList.size(); k++) {
-    int x = windowsList.at(k).getX();
-    for (int i = 0; i < windowsList.at(k).getSize(); i++) {
-      int y = windowsList.at(k).getY();
-      for (int j = 0; j < windowsList.at(k).getSize(); j++) {
-        int label = preThreshold.at<cv::Vec3b>(x, y)[0];
-        if (label < TOTAL_COLORS) {
-          threshold_frame.at(label).at<cv::Vec3b>(x, y)[0] = 255;
-          threshold_frame.at(label).at<cv::Vec3b>(x, y)[1] = 255;
-          threshold_frame.at(label).at<cv::Vec3b>(x, y)[2] = 255;
+  if (isDone) {
+    for (int k = 0; k < windowsList.size(); k++) {
+      int x = windowsList.at(k).getX();
+      for (int i = 0; i < windowsList.at(k).getSize(); i++) {
+        int y = windowsList.at(k).getY();
+        for (int j = 0; j < windowsList.at(k).getSize(); j++) {
+          int label = preThreshold.at<cv::Vec3b>(x, y)[0];
+          if (label < TOTAL_COLORS) {
+            threshold_frame.at(label).at<cv::Vec3b>(x, y)[0] = 255;
+            threshold_frame.at(label).at<cv::Vec3b>(x, y)[1] = 255;
+            threshold_frame.at(label).at<cv::Vec3b>(x, y)[2] = 255;
+          }
+          y++;
         }
-        y++;
+        x++;
       }
-      x++;
+    }
+  } else {
+    for (int i = 0; i < preThreshold.rows; i++) {
+      for (int j = 0; j < preThreshold.cols; j++) {
+        int label = preThreshold.at<cv::Vec3b>(i, j)[0];
+        if (label < TOTAL_COLORS) {
+          threshold_frame.at(label).at<cv::Vec3b>(i, j)[0] = 255;
+          threshold_frame.at(label).at<cv::Vec3b>(i, j)[1] = 255;
+          threshold_frame.at(label).at<cv::Vec3b>(i, j)[2] = 255;
+        }
+      }
     }
   }
-
-
 }
 
 cv::Mat GMM::getThresholdFrame(int color) {
   return threshold_frame.at(color);
 }
 
-void GMM::setClosingSize(int value) {
-  closingSize = value;
+void GMM::setClosingSize(int index, int value) {
+  closingSize[index] = value;
 }
 
-void GMM::setOpeningSize(int value) {
-  openingSize = value;
+void GMM::setOpeningSize(int index, int value) {
+  openingSize[index] = value;
 }
 
-int GMM::getClosingSize() {
-  return closingSize;
+int GMM::getClosingSize(int index) {
+  return closingSize[index];
 }
 
-int GMM::getOpeningSize() {
-  return openingSize;
+int GMM::getOpeningSize(int index) {
+  return openingSize[index];
 }
 
 std::vector<cv::Mat> GMM::getAllThresholds() {
@@ -570,8 +592,8 @@ GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false), 
   }
 
   for (int i = 0; i < TOTAL_WINDOWS; i++) {
-    VisionROI roi(width, height, 40, i);
-    roi.setPosition(i*40,i*40);
+    VisionROI roi(width, height, 50, i);
+    roi.setPosition(0,0);
     windowsList.push_back(roi);
   }
 }

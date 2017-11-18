@@ -59,7 +59,7 @@ void VisionGUI::__event_rb_mode_clicked() {
     rb_GMM_original.set_state(Gtk::STATE_NORMAL);
     rb_GMM_gaussians.set_state(Gtk::STATE_NORMAL);
     rb_GMM_final.set_state(Gtk::STATE_NORMAL);
-    if (gmm->getDoneFlag()) rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+    // if (gmm->getDoneFlag()) rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
     bt_GMM_left.set_state(Gtk::STATE_NORMAL);
     bt_GMM_right.set_state(Gtk::STATE_NORMAL);
     bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
@@ -95,7 +95,7 @@ void VisionGUI::__event_rb_mode_clicked() {
     rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
     rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
     rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
-    rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
+    // rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
     bt_GMM_left.set_state(Gtk::STATE_INSENSITIVE);
     bt_GMM_right.set_state(Gtk::STATE_INSENSITIVE);
     bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
@@ -308,7 +308,7 @@ void VisionGUI::__create_frm_gmm() {
   rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
   rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
   rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
-  rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
+  // rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
   bt_GMM_left.set_state(Gtk::STATE_INSENSITIVE);
   bt_GMM_right.set_state(Gtk::STATE_INSENSITIVE);
 
@@ -357,11 +357,11 @@ bool VisionGUI::getThresholdFrameFlag() {
 }
 
 void VisionGUI::HScale_closing_value_changed() {
-  gmm->setClosingSize(HScale_closing.get_value());
+  gmm->setClosingSize(colorIndex, HScale_closing.get_value());
 }
 
 void VisionGUI::HScale_opening_value_changed() {
-  gmm->setOpeningSize(HScale_opening.get_value());
+  gmm->setOpeningSize(colorIndex, HScale_opening.get_value());
 }
 
 void VisionGUI::__event_bt_GMM_save_clicked() {
@@ -379,8 +379,8 @@ void VisionGUI::__event_bt_GMM_load_clicked() {
       rb_GMM_gaussians.set_active(true);
       rb_GMM_gaussians.clicked();
       HScale_clusters.set_value(gmm->getClusters());
-      HScale_closing.set_value(gmm->getClosingSize());
-      HScale_opening.set_value(gmm->getOpeningSize());
+      HScale_closing.set_value(gmm->getClosingSize(colorIndex));
+      HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
       cb_convertType.set_active(gmm->getConvertType());
 
     }
@@ -390,8 +390,8 @@ void VisionGUI::__event_bt_GMM_load_clicked() {
 void VisionGUI::quickLoadGMM() {
   gmm->read("autoGMM.json");
   HScale_clusters.set_value(gmm->getClusters());
-  HScale_closing.set_value(gmm->getClosingSize());
-  HScale_opening.set_value(gmm->getOpeningSize());
+  HScale_closing.set_value(gmm->getClosingSize(colorIndex));
+  HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
   cb_convertType.set_active(gmm->getConvertType());
 }
 
@@ -400,6 +400,8 @@ void VisionGUI::__event_bt_GMM_left_clicked() {
   else colorIndex--;
 
   lb_threshold.set_text(realColors.at(colorIndex));
+  HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
+  HScale_closing.set_value(gmm->getClosingSize(colorIndex));
 }
 
 void VisionGUI::__event_bt_GMM_right_clicked() {
@@ -407,6 +409,8 @@ void VisionGUI::__event_bt_GMM_right_clicked() {
   else colorIndex++;
 
   lb_threshold.set_text(realColors.at(colorIndex));
+  HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
+  HScale_closing.set_value(gmm->getClosingSize(colorIndex));
 }
 
 void VisionGUI::__event_rb_GMM_frame_clicked() {
@@ -443,11 +447,11 @@ void VisionGUI::__event_bt_GMM_done_clicked() {
   if (gmm->getDoneFlag() == false) {
     gmm->setDone(true);
     bt_GMM_done.set_label("Reset");
-    rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+    // rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
   } else {
     gmm->setDone(false);
     bt_GMM_done.set_label("Done");
-    rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
+    // rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
   }
 }
 
