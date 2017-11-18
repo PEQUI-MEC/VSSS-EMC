@@ -114,6 +114,7 @@ VisionROI::VisionROI(int width, int height, int size, int id) :
 mIsLost(true), mPosBegin(cv::Point(0,0)), mSize(size), mId(id),
 mWidth(width), mHeight(height) {
   mPosCenter = cv::Point(mPosBegin.x+mSize/2, mPosBegin.y+mSize/2);
+  checkForBoundaries();
 }
 
 VisionROI::~VisionROI() {
