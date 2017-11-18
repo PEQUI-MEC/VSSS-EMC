@@ -6,7 +6,7 @@ void GMM::run(cv::Mat frame) {
   // cv::pyrDown(inFrame, inFrame);
   gaussiansFrame = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
 
-  if (isDone) {
+  if (isDone && checkROIs()) {
     for (int i = 0; i < TOTAL_WINDOWS; i++) {
       threads.add_thread(new boost::thread(&GMM::classifyWindows, this, i));
       // classify(i);
@@ -210,7 +210,7 @@ cv::Mat GMM::formatFrameForEM(int index) {
 
   cv::Rect roi;
 
-  if (isDone) {
+  if (isDone && checkROIs()) {
     int cols = windowsList.at(index).getSize();
     int rows = windowsList.at(index).getSize();
 
@@ -520,7 +520,7 @@ void GMM::setAllThresholds() {
     threshold_frame.at(i) = cv::Mat::zeros(preThreshold.rows, preThreshold.cols, CV_8UC3);
   }
 
-  if (isDone) {
+  if (isDone && checkROIs()) {
     for (int k = 0; k < windowsList.size(); k++) {
       int x = windowsList.at(k).getX();
       for (int i = 0; i < windowsList.at(k).getSize(); i++) {
@@ -581,6 +581,13 @@ void GMM::setConvertType(int value) {
 
 int GMM::getConvertType() {
   return convertType;
+}
+
+bool GMM::checkROIs() {
+  for (int i = 0; i < windowsList.size(); i++) {
+    if (windowsList.at(i).getIsLost()) return false;
+  }
+  return true;
 }
 
 GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false), convertType(0) {

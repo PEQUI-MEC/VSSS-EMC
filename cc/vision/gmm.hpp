@@ -80,6 +80,7 @@ private:
   cv::Mat formatFrameForEM(int index);
   void setAllThresholds();
   void posProcessing();
+  bool checkROIs();
 
 public:
   GMM(int width, int height);
