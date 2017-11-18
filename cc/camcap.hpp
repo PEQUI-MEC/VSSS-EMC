@@ -243,14 +243,14 @@ public:
         if (interface.visionGUI.gmm->getIsTrained() && !interface.visionGUI.getIsHSV()) {
           interface.visionGUI.gmm->run(imageView);
           if (interface.visionGUI.gmm->getDoneFlag()) {
-            for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
-              interface.visionGUI.gmm->windowsList.at(i).setCenter(robot_kf_est.at(i));
-            }
-            interface.visionGUI.gmm->windowsList.at(3).setCenter(Ball_kf_est);
-            for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-              interface.visionGUI.gmm->windowsList.at(i+4).setCenter(robot_kf_est[i+4]);
-            }
-            interface.visionGUI.vision->runGMM(interface.visionGUI.gmm->getAllThresholds());
+            // for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
+            //   interface.visionGUI.gmm->windowsList.at(i).setCenter(robot_kf_est.at(i));
+            // }
+            // interface.visionGUI.gmm->windowsList.at(3).setCenter(Ball_kf_est);
+            // for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
+            //   interface.visionGUI.gmm->windowsList.at(i+4).setCenter(robot_kf_est[i+4]);
+            // }
+            interface.visionGUI.vision->runGMM(interface.visionGUI.gmm->getAllThresholds(), interface.visionGUI.gmm->getWindowsList());
           }
 
           if (interface.visionGUI.getGaussiansFrameFlag()) {
