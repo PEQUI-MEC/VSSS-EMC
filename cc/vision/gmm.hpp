@@ -29,9 +29,11 @@ private:
   bool isDone;
 
   // Vision ROI
-  std::vector<VisionROI> windowsList;
   const static int TOTAL_WINDOWS = 8;
   cv::Mat partialPredicts[TOTAL_WINDOWS];
+  cv::Mat partialGaussians[TOTAL_WINDOWS];
+  cv::Mat partialFinals[TOTAL_WINDOWS];
+  cv::Mat partialPreThresholds[TOTAL_WINDOWS];
   cv::Mat partialFrames[TOTAL_WINDOWS];
 
   // Multi-thread
@@ -49,11 +51,11 @@ private:
 
   // Colors
   const std::vector<cv::Vec3b> colors = {
+    {0, 0, 0}, // black
 		{239, 255, 22}, // yellow
 		{0, 255, 0}, // green
 		{247, 83, 46}, // orange
 		{39, 56, 137}, // blue
-		{0, 0, 0}, // black
     {255, 0, 195}, // pink
 		{255, 255, 255}, // white
 		{255, 0, 0}, // red
@@ -66,7 +68,7 @@ private:
 		{89, 89, 89} // dark grey
   };
   std::vector<int> matchColor = {
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   };
 
   void classify(int index);
@@ -94,6 +96,9 @@ public:
   bool write(std::string fileName);
   int train();
   void run(cv::Mat frame);
+  void joinWindowsToFrames();
+
+  std::vector<VisionROI> windowsList;
 
   // GET
   int getSamplesSize();
@@ -109,7 +114,7 @@ public:
   int getConvertType();
   int getClosingSize(int index);
   int getOpeningSize(int index);
-  std::vector<VisionROI>& getWindowsList();
+  std::vector<VisionROI>* getWindowsList();
 
   // SET
   void setFrame(cv::Mat frame);

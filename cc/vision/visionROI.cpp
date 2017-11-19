@@ -3,7 +3,13 @@
 bool VisionROI::checkForBoundaries() {
 
   if (mPosCenter.x < 0 || mPosCenter.y < 0 || mPosCenter.x > mWidth || mPosCenter.y > mHeight) {
-    std::cout << "VisionROI::checkForBoundaries: window " << mId << " center is not inside the frame. (mPosCenter.x < 0 || mPosCenter.y < 0 || mPosCenter.x > width || mPosCenter.y > height)" << std::endl;
+    // std::cout << "VisionROI::checkForBoundaries: window " << mId << ": " << mPosCenter.x << ", " << mPosCenter.y << std::endl;
+    mPosCenter.x = mWidth/2;
+    mPosCenter.y = mHeight/2;
+    mPosBegin = cv::Point(mPosCenter.x-mSize/2, mPosCenter.y-mSize/2);
+    mPosEnd = cv::Point(mPosCenter.x+mSize/2, mPosCenter.y+mSize/2);
+    // std::cout << "VisionROI::checkForBoundaries: CORRECTED window " << mId << ": " << mPosCenter.x << ", " << mPosCenter.y << std::endl;
+
     return false;
   }
 
@@ -12,10 +18,26 @@ bool VisionROI::checkForBoundaries() {
   mPosEnd.x = mPosCenter.x + mSize/2;
   mPosEnd.y = mPosCenter.y + mSize/2;
 
-  if (mPosBegin.x < 0) mPosBegin.x = 0;
-  if (mPosBegin.y < 0) mPosBegin.y = 0;
-  if (mPosEnd.x > mWidth-1) mPosEnd.x = mWidth-1;
-  if (mPosEnd.y > mHeight-1) mPosEnd.y = mHeight-1;
+  if (mPosBegin.x < 0) {
+    mPosBegin.x = 0;
+    mPosCenter.x = mSize/2;
+    mPosEnd.x = mSize;
+  }
+  if (mPosBegin.y < 0) {
+    mPosBegin.y = 0;
+    mPosCenter.y = mSize/2;
+    mPosEnd.y = mSize;
+  }
+  if (mPosEnd.x > mWidth-1) {
+    mPosCenter.x = mWidth-1 - mSize/2;
+    mPosBegin.x = mWidth-1 - mSize;
+    mPosEnd.x = mWidth-1;
+  }
+  if (mPosEnd.y > mHeight-1) {
+    mPosBegin.y = mHeight-1 - mSize;
+    mPosCenter.y = mHeight-1 - mSize/2;
+    mPosEnd.y = mHeight-1;
+  }
 
   if (abs(mPosBegin.x - mPosEnd.x) <= 0 || abs(mPosBegin.y - mPosEnd.y) <= 0) {
     std::cout << "VisionROI::checkForBoundaries: window " << mId << " has no valid area. (abs(mPosBegin.x - mPosEnd.x) <= 0 || abs(mPosBegin.y - mPosEnd.y) <= 0)" << std::endl;
