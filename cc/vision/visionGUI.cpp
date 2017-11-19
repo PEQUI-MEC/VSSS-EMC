@@ -248,11 +248,11 @@ void VisionGUI::__create_frm_gmm() {
   cb_gaussianColor.set_active(0);
   hbox->pack_start(cb_gaussianColor, false, true, 5);
   cb_realColor.append("Select Color:");
+  cb_realColor.append("Background");
   cb_realColor.append("Main");
   cb_realColor.append("Green");
   cb_realColor.append("Ball");
   cb_realColor.append("Opponent");
-  cb_realColor.append("Background");
   cb_realColor.set_active(0);
   hbox->pack_start(cb_realColor, false, true, 5);
   bt_GMM_match.set_label("Match!");

@@ -75,7 +75,7 @@ private:
   void searchGMMTags(std::vector<cv::Mat> thresholds);
   void findTags();
   // void findElements();
-  void pick_a_tag(std::vector<VisionROI> &windowsList);
+  void pick_a_tag(std::vector<VisionROI> *windowsList);
   void pick_a_tag();
   int inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secondary);
 
@@ -84,7 +84,7 @@ public:
   ~Vision();
 
   void run(cv::Mat raw_frame);
-  void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> &windowsList);
+  void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
   void setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5]);
   double calcDistance(cv::Point p1, cv::Point p2);
 

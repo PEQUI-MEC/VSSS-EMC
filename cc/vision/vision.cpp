@@ -11,7 +11,7 @@ void Vision::run(cv::Mat raw_frame) {
   pick_a_tag();
 }
 
-void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> &windowsList) {
+void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList) {
   searchGMMTags(thresholds);
   pick_a_tag(windowsList);
 }
@@ -196,12 +196,12 @@ void Vision::searchTags(int color) {
 /// <description>
 /// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
 /// </description>
-void Vision::pick_a_tag(std::vector<VisionROI> &windowsList) {
+void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
     int dist, tmpSide;
 
     // Define inicialmente que o objeto de cada janela não foi encontrado
-    for (int i = 0; i < windowsList.size(); i++) {
-      windowsList.at(i).setIsLost(true);
+    for (int i = 0; i < windowsList->size(); i++) {
+      windowsList->at(i).setIsLost(true);
     }
 
     // OUR ROBOTS
@@ -240,42 +240,44 @@ void Vision::pick_a_tag(std::vector<VisionROI> &windowsList) {
             robot_list.at(2).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(2).orientation =  robot.orientation;
             robot_list.at(2).rearPoint = tempTags.at(0).rearPoint;
-            windowsList.at(2).setIsLost(false);
-            windowsList.at(2).setCenter(robot.position);
+            windowsList->at(2).setIsLost(false);
+            windowsList->at(2).setCenter(robot.position);
         } else if(tempTags.size() > 1 && tempTags.at(1).left) {
             robot_list.at(0).position = robot.position; // colocar em um vetor
             robot_list.at(0).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(0).orientation = robot.orientation;
             robot_list.at(0).rearPoint = tempTags.at(0).rearPoint;
-            windowsList.at(0).setIsLost(false);
-            windowsList.at(0).setCenter(robot.position);
+            windowsList->at(0).setIsLost(false);
+            windowsList->at(0).setCenter(robot.position);
         } else {
             robot_list.at(1).position = robot.position; // colocar em um vetor
             robot_list.at(1).secundary = tempTags.at(0).frontPoint; // colocar em um vetor
             robot_list.at(1).orientation =  robot.orientation;
             robot_list.at(1).rearPoint = tempTags.at(0).rearPoint;
-            windowsList.at(1).setIsLost(false);
-            windowsList.at(1).setCenter(robot.position);
+            windowsList->at(1).setIsLost(false);
+            windowsList->at(1).setCenter(robot.position);
+
         }
     } // OUR ROBOTS
 
     // ADV ROBOTS
     for (int i = 0; i < tags.at(ADV).size() && i < MAX_ADV; i++) {
         advRobots[i] = tags.at(ADV).at(i).position;
-        windowsList.at(4+i).setIsLost(false);
-        windowsList.at(4+i).setCenter(advRobots[i]);
+        windowsList->at(4+i).setIsLost(false);
+        windowsList->at(4+i).setCenter(advRobots[i]);
     }
 
     // BALL POSITION
     if (!tags[BALL].empty()) {
       ball = tags.at(BALL).at(0).position;
-      windowsList.at(3).setIsLost(false);
-      windowsList.at(3).setCenter(ball);
+      windowsList->at(3).setIsLost(false);
+      // std::cout << "Ball: " << ball.x << ", " << ball.y << std::endl;
+      windowsList->at(3).setCenter(ball);
     }
 
     // Janela extra não sendo utilizada. TO-DO: reduzir uma janela no GMM
-    windowsList.at(7).setIsLost(false);
-    windowsList.at(7).setCenter(width/2, height/2);
+    windowsList->at(7).setIsLost(false);
+    windowsList->at(7).setCenter(width/2, height/2);
 }
 
 /// <summary>

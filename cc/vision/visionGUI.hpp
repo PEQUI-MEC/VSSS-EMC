@@ -96,7 +96,7 @@ private:
     "Main", "Green", "Ball", "Opponent"
   };
   const std::vector<std::string> gaussianColors {
-    "Yellow", "Green", "Orange", "Blue", "Black", "Pink", "White", "Red",
+    "Black", "Yellow", "Green", "Orange", "Blue", "Pink", "White", "Red",
     "Purple", "Brown", "Silver", "Cyan", "Dark Green","Baby Pink", "Dark Grey"
   };
   bool samplesEventFlag;
