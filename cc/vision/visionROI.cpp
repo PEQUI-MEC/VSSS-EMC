@@ -9,7 +9,6 @@ bool VisionROI::checkForBoundaries() {
     mPosBegin = cv::Point(mPosCenter.x-mSize/2, mPosCenter.y-mSize/2);
     mPosEnd = cv::Point(mPosCenter.x+mSize/2, mPosCenter.y+mSize/2);
     // std::cout << "VisionROI::checkForBoundaries: CORRECTED window " << mId << ": " << mPosCenter.x << ", " << mPosCenter.y << std::endl;
-
     return false;
   }
 
@@ -101,6 +100,10 @@ int VisionROI::getSize() {
 
 int VisionROI::getId() {
   return mId;
+}
+
+cv::Point VisionROI::getEnd() {
+  return mPosEnd;
 }
 
 cv::Point VisionROI::getPosition() {

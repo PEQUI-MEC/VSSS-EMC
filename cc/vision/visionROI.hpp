@@ -40,6 +40,7 @@ public:
   cv::Point getCenter();
   int getCenterX();
   int getCenterY();
+  cv::Point getEnd();
 
   VisionROI(int width, int height, int size, int id);
   ~VisionROI();

@@ -240,22 +240,16 @@ public:
 
         updateKalmanFilter();
 
-        if (interface.visionGUI.gmm->getIsTrained() && !interface.visionGUI.getIsHSV()) {
+
+        if (interface.visionGUI.gmm->getIsTrained() && !interface.visionGUI.getIsHSV()) { // GMM
           interface.visionGUI.gmm->run(imageView);
-          // if (interface.visionGUI.gmm->getDoneFlag()) {
-            // for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
-            //   interface.visionGUI.gmm->windowsList->at(i).setCenter(robot_kf_est.at(i));
-            // }
-            // interface.visionGUI.gmm->windowsList->at(3).setCenter(Ball_kf_est);
-            // for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-            //   interface.visionGUI.gmm->windowsList->at(i+4).setCenter(robot_kf_est[i+4]);
-            // }
-            interface.visionGUI.vision->runGMM(interface.visionGUI.gmm->getAllThresholds(), interface.visionGUI.gmm->getWindowsList());
-            // for (int i = 0; i < interface.visionGUI.gmm->windowsList->size(); i++) {
-            //   rectangle(imageView, interface.visionGUI.gmm->windowsList->at(i).getPosition(), cv::Point(interface.visionGUI.gmm->windowsList->at(i).getPosition().x+interface.visionGUI.gmm->windowsList->at(i).getSize(),interface.visionGUI.gmm->windowsList->at(i).getPosition().y+interface.visionGUI.gmm->windowsList->at(i).getSize()), cv::Scalar(255,255, 0));
-            // }
-            // std::cout << "Window 3: " << interface.visionGUI.gmm->windowsList.at(3).getX() << ", " << interface.visionGUI.gmm->windowsList.at(3).getY() << std::endl;
-          // }
+          if (interface.visionGUI.gmm->getDoneFlag()) {
+            for (int i = 0; i < interface.visionGUI.gmm->windowsList.size(); i++) {
+              rectangle(imageView, interface.visionGUI.gmm->windowsList.at(i).getPosition(), interface.visionGUI.gmm->windowsList.at(i).getEnd(), cv::Scalar(250,155,0));
+            }
+          }
+
+          interface.visionGUI.vision->runGMM(interface.visionGUI.gmm->getAllThresholds(), interface.visionGUI.gmm->getWindowsList());
 
           if (interface.visionGUI.getGaussiansFrameFlag()) {
             interface.imageView.set_data(interface.visionGUI.gmm->getGaussiansFrame().data, width, height);
@@ -268,7 +262,7 @@ public:
             interface.imageView.refresh();
           }
         }
-        else {
+        else { // HSV Simples
           interface.visionGUI.vision->run(imageView);
           if (interface.visionGUI.getIsSplitView()) {
             interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);

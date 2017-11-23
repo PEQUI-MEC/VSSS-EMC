@@ -292,10 +292,6 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
       // std::cout << "Ball: " << ball.x << ", " << ball.y << std::endl;
       windowsList->at(3).setCenter(ball);
     }
-
-    // Janela extra não sendo utilizada. TO-DO: reduzir uma janela no GMM
-    windowsList->at(7).setIsLost(false);
-    windowsList->at(7).setCenter(width/2, height/2);
 }
 
 /// <summary>
