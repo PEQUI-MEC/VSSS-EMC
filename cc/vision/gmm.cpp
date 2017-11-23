@@ -1,61 +1,42 @@
 #include "gmm.hpp"
 
 void GMM::run(cv::Mat frame) {
-  // std::cout << "run 1" << std::endl;
-  inFrame = frame.clone();
-  // cv::pyrDown(inFrame, inFrame);
-  // cv::pyrDown(inFrame, inFrame);
 
-  // std::cout << std::endl << std::endl << "------- GMM" << std::endl;
+  inFrame = frame.clone();
 
   if (isDone && checkROIs()) {
-    // std::cout << "run 2.0" << std::endl;
     for (int i = 0; i < TOTAL_WINDOWS; i++) {
       threads.add_thread(new boost::thread(&GMM::classifyWindows, this, i));
-      // if (i == 0) std::cout << "FIRST: " << windowsList.at(3).getCenterX() << ", " << windowsList.at(3).getCenterY() << std::endl;
-      // classifyWindows(i);
     }
     threads.join_all();
-    // std::cout << "run 2.1" << std::endl;
-    paintWindows();
-    // std::cout << "run 2.2" << std::endl;
-    joinWindowsToFrames();
-    // std::cout << "run 2.3" << std::endl;
-    setAllThresholds();
-    // std::cout << "run 2.4" << std::endl;
-    posProcessing();
-    // std::cout << "run 2.5" << std::endl;
 
-    // cv::imwrite("1.png", inFrame);
-    // cv::imwrite("2.png", gaussiansFrame);
-    // cv::imwrite("3.png", finalFrame);
-    // cv::imwrite("4.png", preThreshold);
-    // cv::imwrite("5.png", partialPredicts[3]);
-    // isDone = false;
+    paintWindows();
+    joinWindowsToFrames();
+    setAllThresholds();
   } else {
-    // std::cout << "run 3.0" << std::endl;
+
     for (int i = 0; i < TOTAL_THREADS; i++) {
       threads.add_thread(new boost::thread(&GMM::classify, this, i));
     }
     threads.join_all();
-    // std::cout << "run 3.1" << std::endl;
+
     cv::Mat emptyMat;
     gaussiansFrame = emptyMat;
     cv::vconcat(partialFrames, TOTAL_THREADS, gaussiansFrame);
-    // std::cout << "run 3.2" << std::endl;
     paint();
-    // std::cout << "run 3.3" << std::endl;
     setAllThresholds();
-    // std::cout << "run 3.4" << std::endl;
-    posProcessing();
-    // std::cout << "run 3.5" << std::endl;
   }
+
+  for (int i = 0; i < TOTAL_COLORS; i++) {
+    threads.add_thread(new boost::thread(&GMM::posProcessing, this, i));
+  }
+  threads.join_all();
 }
 
 void GMM::joinWindowsToFrames() {
   gaussiansFrame = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
-  finalFrame = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
-  preThreshold = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
+  finalFrame = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
+  preThreshold = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
 
   for (int i = 0; i < TOTAL_WINDOWS; i++) {
     int x = windowsList.at(i).getX();
@@ -67,15 +48,20 @@ void GMM::joinWindowsToFrames() {
   }
 }
 
-// Aplica Abertura e Fechamento nos thresholds
-void GMM::posProcessing() {
-  for (int i = 0; i < TOTAL_COLORS; i++) {
-    cv::Mat closingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*closingSize[i]+1, 2*closingSize[i]+1 ), cv::Point(closingSize[i], closingSize[i]));
-    cv::morphologyEx(threshold_frame.at(i), threshold_frame.at(i), cv::MORPH_CLOSE, closingElement);
+void GMM::posProcessing(int index) {
+    // cv::Mat openingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*openingSize[index]+1, 2*openingSize[index]+1 ), cv::Point(openingSize[index], openingSize[index]));
+    cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
+    cv::Mat dilateElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
+    // cv::Mat closingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*closingSize[index]+1, 2*closingSize[index]+1 ), cv::Point(closingSize[index], closingSize[index]));
+    // cv::morphologyEx(threshold_frame.at(index), threshold_frame.at(index), cv::MORPH_CLOSE, closingElement);
 
-    cv::Mat openingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*openingSize[i]+1, 2*openingSize[i]+1 ), cv::Point(openingSize[i], openingSize[i]));
-    cv::morphologyEx(threshold_frame.at(i), threshold_frame.at(i), cv::MORPH_OPEN, openingElement);
-  }
+    // cv::morphologyEx(threshold_frame.at(index), threshold_frame.at(index), cv::MORPH_OPEN, openingElement);
+
+    if (blur[index] > 0)
+      cv::medianBlur(threshold_frame.at(index), threshold_frame.at(index), blur[index]);
+
+    cv::erode(threshold_frame.at(index),threshold_frame.at(index),erodeElement,cv::Point(-1,-1),erode[index]);
+    cv::dilate(threshold_frame.at(index),threshold_frame.at(index),dilateElement,cv::Point(-1,-1),dilate[index]);
 }
 
 void GMM::setFrame(cv::Mat frame) {
@@ -117,29 +103,20 @@ cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
 
 
 void GMM::classifyWindows(int index) {
-  // std::cout << "classifyWindows 1" << std::endl;
   cv::Mat input = predictWindows(index);
-  // std::cout << "classifyWindows 2" << std::endl;
   int rows = input.rows;
   int cols = input.cols;
-  partialGaussians[index] = cv::Mat::zeros(rows, cols, CV_8UC3);
-  // if (index == 3) {
-    // std::cout << "classifyWindows: " << windowsList.at(index).getCenterX() << ", " << windowsList.at(index).getCenterY() << std::endl;
-    // std::cout << "input: " << input.rows << ", " << input.cols << std::endl;
 
-  // }
-  // std::cout << "classifyWindows 3" << std::endl;
+  partialGaussians[index] = cv::Mat::zeros(rows, cols, CV_8UC3);
+
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       int label = input.at<float>(i,j);
       partialGaussians[index].at<cv::Vec3b>(i, j)[0] = colors[label][0];
       partialGaussians[index].at<cv::Vec3b>(i, j)[1] = colors[label][1];
       partialGaussians[index].at<cv::Vec3b>(i, j)[2] = colors[label][2];
-      // if (index == 3)
-      // std::cout << "X: " << x+i << ", Y: " << y+j << std::endl;
     }
   }
-  // std::cout << "classifyWindows 4" << std::endl;
 }
 
 // Classifica cada pixel quanto a cor de sua gaussiana
@@ -160,7 +137,6 @@ void GMM::classify(int index) {
 }
 
 void GMM::paintWindows() {
-  // std::cout << "paintWindows 1" << std::endl;
   for (int k = 0; k < windowsList.size(); k++) {
     partialFinals[k] = cv::Mat::zeros(partialGaussians[k].rows, partialGaussians[k].cols, CV_8UC3);
     partialPreThresholds[k] = cv::Mat::zeros(partialGaussians[k].rows, partialGaussians[k].cols, CV_8UC3);
@@ -176,18 +152,16 @@ void GMM::paintWindows() {
       }
     }
   }
-  // std::cout << "paintWindows 2" << std::endl;
 }
 
 // Pinta os pixels das gaussianas em suas cores reais
 // Prepara o preThreshold para a futura separação dos thresholds de cada cor
 void GMM::paint() {
-  // std::cout << "GMM 5.2.1" << std::endl;
   cv::vconcat(partialPredicts, TOTAL_THREADS, predictFrame);
-  // std::cout << "GMM 5.2.2" << std::endl;
+
   finalFrame = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
   preThreshold = cv::Mat::zeros(predictFrame.rows, predictFrame.cols, CV_8UC3);
-  // std::cout << "GMM 5.2.3" << std::endl;
+
   for (int x = 0; x < predictFrame.rows; x++) {
     for (int y = 0; y < predictFrame.cols; y++) {
       int label = predictFrame.at<float>(x,y);
@@ -205,8 +179,6 @@ cv::Mat GMM::predictWindows(int index) {
   cv::Mat input = formatFrameForEM(index);
 
   int windowSize = windowsList.at(index).getSize();
-  // if (index == 3)
-  // std::cout << "predictWindows: " << windowsList.at(index).getCenterX() << ", " << windowsList.at(index).getCenterY() << std::endl;
 
   partialPredicts[index] = cv::Mat(windowSize, windowSize, CV_32F);
   int pixelIndex = 0;
@@ -261,13 +233,10 @@ cv::Mat GMM::formatFrameForEM(int index) {
     int cols = windowsList.at(index).getSize();
     int rows = windowsList.at(index).getSize();
 
-
     roi.x = windowsList.at(index).getX();
     roi.y = windowsList.at(index).getY();
     roi.width = cols;
     roi.height = rows;
-    // if (index == 3)
-    // std::cout << "Format ROI: (" << roi.x << ", " << roi.x+roi.width << ") (" << roi.y << ", " << roi.y+roi.height << ")" << std::endl;
   } else {
     int cols = inFrame.cols;
     int rows = inFrame.rows/TOTAL_THREADS;
@@ -276,13 +245,9 @@ cv::Mat GMM::formatFrameForEM(int index) {
     roi.y = index*rows;
     roi.width = cols;
     roi.height = rows;
-
   }
 
-
-
   cv::Mat dst = frame(roi);
-  if (index == 3 && isDone && checkROIs()) cv:imwrite("roi.png", dst);
 
   if (convertType == HSV_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
   else if (convertType == CIELAB_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
@@ -420,10 +385,16 @@ bool GMM::read(std::string fileName) {
     getline(file, line);
     convertType = atoi(line.c_str());
     for (int i = 0; i < TOTAL_COLORS; i++) {
+      // getline(file, line);
+      // closingSize[i] = atoi(line.c_str());
+      // getline(file, line);
+      // openingSize[i] = atoi(line.c_str());
       getline(file, line);
-      closingSize[i] = atoi(line.c_str());
+      blur[i] = atoi(line.c_str());
       getline(file, line);
-      openingSize[i] = atoi(line.c_str());
+      erode[i] = atoi(line.c_str());
+      getline(file, line);
+      dilate[i] = atoi(line.c_str());
     }
     for (int i = 0; i < matchColor.size(); i++) {
       getline(file, line);
@@ -475,8 +446,11 @@ bool GMM::write(std::string fileName) {
     file << clusters <<std::endl;
     file << convertType <<std::endl;
     for (int i = 0; i < TOTAL_COLORS; i++) {
-      file << closingSize <<std::endl;
-      file << openingSize <<std::endl;
+      // file << closingSize[i] <<std::endl;
+      // file << openingSize[i] <<std::endl;
+      file << blur[i] <<std::endl;
+      file << erode[i] <<std::endl;
+      file << dilate[i] <<std::endl;
     }
     for (int i = 0; i < matchColor.size(); i++) {
       file << matchColor.at(i) <<std::endl;
@@ -585,20 +559,43 @@ cv::Mat GMM::getThresholdFrame(int color) {
   return threshold_frame.at(color);
 }
 
-void GMM::setClosingSize(int index, int value) {
-  closingSize[index] = value;
+// void GMM::setClosingSize(int index, int value) {
+//   closingSize[index] = value;
+// }
+
+// void GMM::setOpeningSize(int index, int value) {
+//   openingSize[index] = value;
+// }
+
+void GMM::setBlur(int index, int value) {
+  blur[index] = value;
 }
 
-void GMM::setOpeningSize(int index, int value) {
-  openingSize[index] = value;
+void GMM::setErode(int index, int value) {
+  erode[index] = value;
 }
 
-int GMM::getClosingSize(int index) {
-  return closingSize[index];
+void GMM::setDilate(int index, int value) {
+  dilate[index] = value;
 }
 
-int GMM::getOpeningSize(int index) {
-  return openingSize[index];
+// int GMM::getClosingSize(int index) {
+//   return closingSize[index];
+// }
+
+// int GMM::getOpeningSize(int index) {
+//   return openingSize[index];
+// }
+
+int GMM::getBlur(int index) {
+  return blur[index];
+}
+
+int GMM::getErode(int index) {
+  return erode[index];
+}
+int GMM::getDilate(int index) {
+  return dilate[index];
 }
 
 std::vector<cv::Mat> GMM::getAllThresholds() {
@@ -626,10 +623,11 @@ GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false), 
   cv::Mat mat;
   for (int i = 0; i < TOTAL_COLORS; i++) {
     threshold_frame.push_back(mat);
+    blur[i] = 0;
   }
 
   for (int i = 0; i < TOTAL_WINDOWS; i++) {
-    VisionROI roi(width, height, 50, i);
+    VisionROI roi(width, height, 70, i);
     roi.setPosition(0,0);
     windowsList.push_back(roi);
   }

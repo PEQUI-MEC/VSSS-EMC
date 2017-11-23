@@ -29,7 +29,7 @@ private:
   bool isDone;
 
   // Vision ROI
-  const static int TOTAL_WINDOWS = 8;
+  const static int TOTAL_WINDOWS = 7;
   cv::Mat partialPredicts[TOTAL_WINDOWS];
   cv::Mat partialGaussians[TOTAL_WINDOWS];
   cv::Mat partialFinals[TOTAL_WINDOWS];
@@ -38,11 +38,12 @@ private:
 
   // Multi-thread
   const static int TOTAL_COLORS = 4;
-  const static int TOTAL_THREADS = 8;
+  const static int TOTAL_THREADS = 7;
   boost::thread_group threads;
 
   // Pos-Processing
   int closingSize[TOTAL_COLORS], openingSize[TOTAL_COLORS];
+  int blur[TOTAL_COLORS], erode[TOTAL_COLORS], dilate[TOTAL_COLORS];
 
   // Convert Type
   const static int HSV_TYPE = 0;
@@ -81,7 +82,7 @@ private:
   cv::Mat formatSamplesForEM();
   cv::Mat formatFrameForEM(int index);
   void setAllThresholds();
-  void posProcessing();
+  void posProcessing(int index);
   bool checkROIs();
 
 public:
@@ -112,8 +113,11 @@ public:
   cv::Mat getThresholdFrame(int color);
   std::vector<cv::Mat> getAllThresholds();
   int getConvertType();
-  int getClosingSize(int index);
-  int getOpeningSize(int index);
+  // int getClosingSize(int index);
+  // int getOpeningSize(int index);
+  int getBlur(int index);
+  int getErode(int index);
+  int getDilate(int index);
   std::vector<VisionROI>* getWindowsList();
 
   // SET
@@ -121,8 +125,11 @@ public:
   void setClusters(int k);
   void setDone(bool flag);
   void setMatchColor(int gaussian, int color);
-  void setOpeningSize(int index, int value);
-  void setClosingSize(int index, int value);
+  // void setOpeningSize(int index, int value);
+  // void setClosingSize(int index, int value);
+  void setBlur(int index, int value);
+  void setErode(int index, int value);
+  void setDilate(int index, int value);
   void setConvertType(int value);
 
 };
