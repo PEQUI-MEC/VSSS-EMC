@@ -8,7 +8,7 @@ namespace CONST {
     //class Const {
         static bool GOAL_DANGER_ZONE,
             ADV_NA_AREA;
-
+    
         static int height, width,
             ABS_PLAYING_FIELD_WIDTH,
             ABS_GOAL_TO_GOAL_WIDTH,
