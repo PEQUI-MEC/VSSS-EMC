@@ -5,6 +5,7 @@ void GMM::run(cv::Mat frame) {
   inFrame = frame.clone();
 
   if (isDone && checkROIs()) {
+    // std::cout << "ACHEI" << std::endl;
     for (int i = 0; i < TOTAL_WINDOWS; i++) {
       threads.add_thread(new boost::thread(&GMM::classifyWindows, this, i));
     }
@@ -14,7 +15,7 @@ void GMM::run(cv::Mat frame) {
     joinWindowsToFrames();
     setAllThresholds();
   } else {
-
+    // std::cout << "PERDI" << std::endl;
     for (int i = 0; i < TOTAL_THREADS; i++) {
       threads.add_thread(new boost::thread(&GMM::classify, this, i));
     }
@@ -57,11 +58,15 @@ void GMM::posProcessing(int index) {
 
     // cv::morphologyEx(threshold_frame.at(index), threshold_frame.at(index), cv::MORPH_OPEN, openingElement);
 
+    cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_RGB2GRAY);
+
     if (blur[index] > 0)
       cv::medianBlur(threshold_frame.at(index), threshold_frame.at(index), blur[index]);
 
     cv::erode(threshold_frame.at(index),threshold_frame.at(index),erodeElement,cv::Point(-1,-1),erode[index]);
     cv::dilate(threshold_frame.at(index),threshold_frame.at(index),dilateElement,cv::Point(-1,-1),dilate[index]);
+
+    cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
 }
 
 void GMM::setFrame(cv::Mat frame) {
@@ -627,7 +632,7 @@ GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false), 
   }
 
   for (int i = 0; i < TOTAL_WINDOWS; i++) {
-    VisionROI roi(width, height, 70, i);
+    VisionROI roi(width, height, 60, i);
     roi.setPosition(0,0);
     windowsList.push_back(roi);
   }
