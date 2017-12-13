@@ -11,6 +11,11 @@ void Vision::run(cv::Mat raw_frame) {
   pick_a_tag();
 }
 
+void Vision::recordVideo(cv::Mat frame) {
+  in_frame = frame.clone();
+  if (bOnAir) recordToVideo();
+}
+
 void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList) {
   searchGMMTags(thresholds);
   pick_a_tag(windowsList);
@@ -60,7 +65,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 
     for (int i = 0; i < contours.size(); i++) {
       double area = contourArea(contours[i]);
-      // if(area >= areaMin[color]) {
+      if(area >= 10) {
         cv::Moments moment = moments((cv::Mat)contours[i]);
         tags.at(color).push_back(Tag(cv::Point(moment.m10/area, moment.m01/area), area));
 
@@ -71,7 +76,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
             int tagsInVec = tags.at(color).size() - 1;
             tags.at(color).at(tagsInVec).setLine(line);
         }
-      // }
+      }
     }
   }
 }

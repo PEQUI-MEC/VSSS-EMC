@@ -85,6 +85,7 @@ public:
 
   void run(cv::Mat raw_frame);
   void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
+  void recordVideo(cv::Mat frame);
   void setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5]);
   double calcDistance(cv::Point p1, cv::Point p2);
 
