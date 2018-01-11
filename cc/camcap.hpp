@@ -20,7 +20,7 @@
 #include "controlGUI.hpp"
 #include "vision/vision.hpp"
 #include "Kalman_Filter.hpp"
-#include <capture-gui/V4LInterface.hpp>
+#include "V4LInterface.hpp"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
