@@ -41,7 +41,6 @@
 
 class CamCap: public Gtk::HBox {
 public:
-    std::ofstream robot_file[6], robot_kf_file[6], ball_file, ball_kf_file;
     std::string fileName[6];
     double robot_pos[6] = {0, 0, 0, 0, 0, 0};
     double ball_pos = 0, ball_kf_pos = 0;
@@ -408,17 +407,6 @@ public:
 
         // ----------- ESTRATEGIA -----------------//
    if(interface.get_start_game_flag()) {
-     for (int i = 0; i < 3; i++) {
-       robot_file[i] << interface.robot_list[i].position.x << ", " << interface.robot_list[i].position.y << ", " << interface.robot_list[i].orientation << std::endl;
-       robot_kf_file[i] << robot_kf_est[i].x << ", " << robot_kf_est[i].y << std::endl;
-     }
-     for (int i = 0; i < 3; i++) {
-       robot_file[i+3] << interface.visionGUI.vision->getAdvRobot(i).x << ", " << interface.visionGUI.vision->getAdvRobot(i).y << std::endl;
-       robot_kf_file[i+3] << robot_kf_est[i+3].x << ", " << robot_kf_est[i+3].y << std::endl;
-     }
-     ball_file << interface.visionGUI.vision->getBall().x << ", " << interface.visionGUI.vision->getBall().y << std::endl;
-     ball_kf_file << Ball_kf_est.x << ", " << Ball_kf_est.y << std::endl;
-
        strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
        Ball_Est=strategyGUI.strategy.get_Ball_Est();
        // line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
@@ -643,16 +631,6 @@ public:
         fixed_ball[2]=false;
         fm.set_label("imageView");
         fm.add(interface.imageView);
-        for (int i = 0; i < 6; i++) {
-          fileName[i] = "robot" + std::to_string(i) + ".txt";
-          robot_file[i].open(fileName[i]);
-        }
-        for (int i = 0; i < 6; i++) {
-          fileName[i] = "robot_kf_" + std::to_string(i) + ".txt";
-          robot_kf_file[i].open(fileName[i]);
-        }
-        ball_file.open("ball.txt");
-        ball_kf_file.open("ball_kf.txt");
 
         notebook.append_page(interface, "Capture");
         notebook.append_page(interface.visionGUI, "Vision");
@@ -704,13 +682,6 @@ public:
         con.disconnect();
         interface.imageView.disable_image_show();
         free(data);
-
-        for (int i = 0; i < 6; i++) {
-          robot_file[i].close();
-          robot_kf_file[i].close();
-        }
-        ball_file.close();
-        ball_kf_file.close();
 
         data = 0;
     }

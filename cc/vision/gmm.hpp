@@ -42,7 +42,6 @@ private:
   boost::thread_group threads;
 
   // Pos-Processing
-  int closingSize[TOTAL_COLORS], openingSize[TOTAL_COLORS];
   int blur[TOTAL_COLORS], erode[TOTAL_COLORS], dilate[TOTAL_COLORS];
 
   // Convert Type
@@ -113,8 +112,6 @@ public:
   cv::Mat getThresholdFrame(int color);
   std::vector<cv::Mat> getAllThresholds();
   int getConvertType();
-  // int getClosingSize(int index);
-  // int getOpeningSize(int index);
   int getBlur(int index);
   int getErode(int index);
   int getDilate(int index);
@@ -125,8 +122,6 @@ public:
   void setClusters(int k);
   void setDone(bool flag);
   void setMatchColor(int gaussian, int color);
-  // void setOpeningSize(int index, int value);
-  // void setClosingSize(int index, int value);
   void setBlur(int index, int value);
   void setErode(int index, int value);
   void setDilate(int index, int value);

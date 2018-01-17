@@ -86,7 +86,7 @@ private:
   Gtk::Button bt_popSample, bt_clearSamples;
   Gtk::Button bt_trainGMM, bt_GMM_match, bt_GMM_done;
   Gtk::ComboBoxText cb_gaussianColor, cb_realColor, cb_convertType;
-  Gtk::HScale HScale_clusters, HScale_closing, HScale_opening;
+  Gtk::HScale HScale_clusters;
   Gtk::HScale HScale_GMM_blur, HScale_GMM_erode, HScale_GMM_dilate;
   Gtk::RadioButton rb_GMM_original, rb_GMM_gaussians, rb_GMM_final, rb_GMM_threshold;
   Gtk::Button bt_GMM_left, bt_GMM_right;
@@ -121,8 +121,6 @@ private:
   void __event_rb_GMM_frame_clicked();
   void __event_bt_GMM_left_clicked();
   void __event_bt_GMM_right_clicked();
-  void HScale_closing_value_changed();
-  void HScale_opening_value_changed();
   void HScale_GMM_blur_value_changed();
   void HScale_GMM_erode_value_changed();
   void HScale_GMM_dilate_value_changed();

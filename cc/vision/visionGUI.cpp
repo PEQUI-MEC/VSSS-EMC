@@ -53,8 +53,6 @@ void VisionGUI::__event_rb_mode_clicked() {
     cb_gaussianColor.set_state(Gtk::STATE_NORMAL);
     cb_realColor.set_state(Gtk::STATE_NORMAL);
     HScale_clusters.set_state(Gtk::STATE_NORMAL);
-    HScale_closing.set_state(Gtk::STATE_NORMAL);
-    HScale_opening.set_state(Gtk::STATE_NORMAL);
     rb_GMM_original.set_state(Gtk::STATE_NORMAL);
     rb_GMM_gaussians.set_state(Gtk::STATE_NORMAL);
     rb_GMM_final.set_state(Gtk::STATE_NORMAL);
@@ -89,8 +87,6 @@ void VisionGUI::__event_rb_mode_clicked() {
     cb_gaussianColor.set_state(Gtk::STATE_INSENSITIVE);
     cb_realColor.set_state(Gtk::STATE_INSENSITIVE);
     HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_closing.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_opening.set_state(Gtk::STATE_INSENSITIVE);
     rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
     rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
     rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
@@ -271,24 +267,6 @@ void VisionGUI::__create_frm_gmm() {
   frame->add(*grid);
   vbox->pack_start(*frame, false, true, 5);  vbox->set_halign(Gtk::ALIGN_CENTER);
 
-  label = new Gtk::Label("Clos.: ");
-  // grid->attach(*label, 0, 0, 1, 1);
-  HScale_closing.set_digits(0);
-  HScale_closing.set_size_request(50);
-  HScale_closing.set_increments(1,2);
-  HScale_closing.set_range(0,5);
-  HScale_closing.set_value_pos(Gtk::POS_RIGHT);
-  HScale_closing.set_draw_value();
-  // grid->attach(HScale_closing, 1, 0, 1, 1);
-  label = new Gtk::Label("Open.: ");
-  // grid->attach(*label, 2, 0, 1, 1);
-  HScale_opening.set_digits(0);
-  HScale_opening.set_size_request(50);
-  HScale_opening.set_increments(1,2);
-  HScale_opening.set_range(0,5);
-  HScale_opening.set_value_pos(Gtk::POS_RIGHT);
-  HScale_opening.set_draw_value();
-  // grid->attach(HScale_opening, 3, 0, 1, 1);
   label = new Gtk::Label("Blur: ");
   grid->attach(*label, 4, 0, 1, 1);
   HScale_GMM_blur.set_digits(0);
@@ -329,8 +307,6 @@ void VisionGUI::__create_frm_gmm() {
   cb_gaussianColor.set_state(Gtk::STATE_INSENSITIVE);
   cb_realColor.set_state(Gtk::STATE_INSENSITIVE);
   HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_closing.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_opening.set_state(Gtk::STATE_INSENSITIVE);
   rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
   rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
   rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
@@ -354,8 +330,6 @@ void VisionGUI::__create_frm_gmm() {
   rb_GMM_threshold.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
   bt_GMM_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_left_clicked));
   bt_GMM_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_right_clicked));
-  HScale_closing.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_closing_value_changed));
-  HScale_opening.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_opening_value_changed));
   HScale_GMM_blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_blur_value_changed));
   HScale_GMM_erode.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_erode_value_changed));
   HScale_GMM_dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_dilate_value_changed));
@@ -399,14 +373,6 @@ bool VisionGUI::getThresholdFrameFlag() {
   return thresholdFrame_flag;
 }
 
-void VisionGUI::HScale_closing_value_changed() {
-  // gmm->setClosingSize(colorIndex, HScale_closing.get_value());
-}
-
-void VisionGUI::HScale_opening_value_changed() {
-  // gmm->setOpeningSize(colorIndex, HScale_opening.get_value());
-}
-
 void VisionGUI::__event_bt_GMM_save_clicked() {
   FileChooser saveWindow;
 
@@ -422,8 +388,6 @@ void VisionGUI::__event_bt_GMM_load_clicked() {
       rb_GMM_gaussians.set_active(true);
       rb_GMM_gaussians.clicked();
       HScale_clusters.set_value(gmm->getClusters());
-      // HScale_closing.set_value(gmm->getClosingSize(colorIndex));
-      // HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
       cb_convertType.set_active(gmm->getConvertType());
 
     }
@@ -433,8 +397,6 @@ void VisionGUI::__event_bt_GMM_load_clicked() {
 void VisionGUI::quickLoadGMM() {
   gmm->read("autoGMM.json");
   HScale_clusters.set_value(gmm->getClusters());
-  // HScale_closing.set_value(gmm->getClosingSize(colorIndex));
-  // HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
   HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
   HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
   HScale_GMM_dilate.set_value(gmm->getErode(colorIndex));
@@ -446,10 +408,8 @@ void VisionGUI::__event_bt_GMM_left_clicked() {
   else colorIndex--;
 
   lb_threshold.set_text(realColors.at(colorIndex));
-  // HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
-  // HScale_closing.set_value(gmm->getClosingSize(colorIndex));
   HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
-  HScale_GMM_dilate.set_value(gmm->getErode(colorIndex));
+  HScale_GMM_dilate.set_value(gmm->getDilate(colorIndex));
   HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
 }
 
@@ -458,10 +418,8 @@ void VisionGUI::__event_bt_GMM_right_clicked() {
   else colorIndex++;
 
   lb_threshold.set_text(realColors.at(colorIndex));
-  // HScale_opening.set_value(gmm->getOpeningSize(colorIndex));
-  // HScale_closing.set_value(gmm->getClosingSize(colorIndex));
   HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
-  HScale_GMM_dilate.set_value(gmm->getErode(colorIndex));
+  HScale_GMM_dilate.set_value(gmm->getDilate(colorIndex));
   HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
 }
 
