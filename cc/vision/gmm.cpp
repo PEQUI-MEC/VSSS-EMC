@@ -50,13 +50,9 @@ void GMM::joinWindowsToFrames() {
 }
 
 void GMM::posProcessing(int index) {
-    // cv::Mat openingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*openingSize[index]+1, 2*openingSize[index]+1 ), cv::Point(openingSize[index], openingSize[index]));
+
     cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
     cv::Mat dilateElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
-    // cv::Mat closingElement = cv::getStructuringElement( cv::MORPH_RECT, cv::Size( 2*closingSize[index]+1, 2*closingSize[index]+1 ), cv::Point(closingSize[index], closingSize[index]));
-    // cv::morphologyEx(threshold_frame.at(index), threshold_frame.at(index), cv::MORPH_CLOSE, closingElement);
-
-    // cv::morphologyEx(threshold_frame.at(index), threshold_frame.at(index), cv::MORPH_OPEN, openingElement);
 
     cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_RGB2GRAY);
 
@@ -390,10 +386,6 @@ bool GMM::read(std::string fileName) {
     getline(file, line);
     convertType = atoi(line.c_str());
     for (int i = 0; i < TOTAL_COLORS; i++) {
-      // getline(file, line);
-      // closingSize[i] = atoi(line.c_str());
-      // getline(file, line);
-      // openingSize[i] = atoi(line.c_str());
       getline(file, line);
       blur[i] = atoi(line.c_str());
       getline(file, line);
@@ -451,8 +443,6 @@ bool GMM::write(std::string fileName) {
     file << clusters <<std::endl;
     file << convertType <<std::endl;
     for (int i = 0; i < TOTAL_COLORS; i++) {
-      // file << closingSize[i] <<std::endl;
-      // file << openingSize[i] <<std::endl;
       file << blur[i] <<std::endl;
       file << erode[i] <<std::endl;
       file << dilate[i] <<std::endl;
@@ -564,14 +554,6 @@ cv::Mat GMM::getThresholdFrame(int color) {
   return threshold_frame.at(color);
 }
 
-// void GMM::setClosingSize(int index, int value) {
-//   closingSize[index] = value;
-// }
-
-// void GMM::setOpeningSize(int index, int value) {
-//   openingSize[index] = value;
-// }
-
 void GMM::setBlur(int index, int value) {
   blur[index] = value;
 }
@@ -583,14 +565,6 @@ void GMM::setErode(int index, int value) {
 void GMM::setDilate(int index, int value) {
   dilate[index] = value;
 }
-
-// int GMM::getClosingSize(int index) {
-//   return closingSize[index];
-// }
-
-// int GMM::getOpeningSize(int index) {
-//   return openingSize[index];
-// }
 
 int GMM::getBlur(int index) {
   return blur[index];
@@ -629,6 +603,8 @@ GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false), 
   for (int i = 0; i < TOTAL_COLORS; i++) {
     threshold_frame.push_back(mat);
     blur[i] = 0;
+    erode[i] = 0;
+    dilate[i] = 0;
   }
 
   for (int i = 0; i < TOTAL_WINDOWS; i++) {
