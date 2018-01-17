@@ -44,11 +44,6 @@ private:
   // Pos-Processing
   int blur[TOTAL_COLORS], erode[TOTAL_COLORS], dilate[TOTAL_COLORS];
 
-  // Convert Type
-  const static int HSV_TYPE = 0;
-  const static int CIELAB_TYPE = 1;
-  int convertType;
-
   // Colors
   const std::vector<cv::Vec3b> colors = {
     {0, 0, 0}, // black
@@ -111,7 +106,6 @@ public:
   bool getDoneFlag();
   cv::Mat getThresholdFrame(int color);
   std::vector<cv::Mat> getAllThresholds();
-  int getConvertType();
   int getBlur(int index);
   int getErode(int index);
   int getDilate(int index);
@@ -125,7 +119,6 @@ public:
   void setBlur(int index, int value);
   void setErode(int index, int value);
   void setDilate(int index, int value);
-  void setConvertType(int value);
 
 };
 

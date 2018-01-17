@@ -250,8 +250,7 @@ cv::Mat GMM::formatFrameForEM(int index) {
 
   cv::Mat dst = frame(roi);
 
-  if (convertType == HSV_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
-  else if (convertType == CIELAB_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
+  cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
 
   cv::Mat float_image;
   dst.convertTo(float_image,CV_32F);
@@ -322,8 +321,7 @@ cv::Mat GMM::formatSamplesForEM()
   int counter = 0;
   for (int k = 0; k < samples.size(); k++) {
     cv::Mat dst = samples.at(k).clone();
-    if (convertType == HSV_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
-    else if (convertType == CIELAB_TYPE) cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
+    cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
     cv::Mat float_image;
     dst.convertTo(float_image,CV_32F);
 
@@ -383,8 +381,6 @@ bool GMM::read(std::string fileName) {
     std::string line;
     getline(file, line);
     clusters = atoi(line.c_str());
-    getline(file, line);
-    convertType = atoi(line.c_str());
     for (int i = 0; i < TOTAL_COLORS; i++) {
       getline(file, line);
       blur[i] = atoi(line.c_str());
@@ -441,7 +437,6 @@ bool GMM::write(std::string fileName) {
 
   if (file.is_open()) {
     file << clusters <<std::endl;
-    file << convertType <<std::endl;
     for (int i = 0; i < TOTAL_COLORS; i++) {
       file << blur[i] <<std::endl;
       file << erode[i] <<std::endl;
@@ -581,14 +576,6 @@ std::vector<cv::Mat> GMM::getAllThresholds() {
   return threshold_frame;
 }
 
-void GMM::setConvertType(int value) {
-  convertType = value;
-}
-
-int GMM::getConvertType() {
-  return convertType;
-}
-
 bool GMM::checkROIs() {
   for (int i = 0; i < windowsList.size(); i++) {
     if (windowsList.at(i).getIsLost()) return false;
@@ -596,7 +583,7 @@ bool GMM::checkROIs() {
   return true;
 }
 
-GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false), convertType(0) {
+GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false) {
   em = cv::ml::EM::create();
 
   cv::Mat mat;
