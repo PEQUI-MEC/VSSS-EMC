@@ -46,7 +46,6 @@ void VisionGUI::__event_rb_mode_clicked() {
     bt_collectSamples.set_state(Gtk::STATE_NORMAL);
     bt_popSample.set_state(Gtk::STATE_NORMAL);
     bt_clearSamples.set_state(Gtk::STATE_NORMAL);
-    cb_convertType.set_state(Gtk::STATE_NORMAL);
     bt_trainGMM.set_state(Gtk::STATE_NORMAL);
     bt_GMM_match.set_state(Gtk::STATE_NORMAL);
     bt_GMM_done.set_state(Gtk::STATE_NORMAL);
@@ -80,7 +79,6 @@ void VisionGUI::__event_rb_mode_clicked() {
     bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
     bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
     bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
-    cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
     bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
     bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
     bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);
@@ -191,10 +189,6 @@ void VisionGUI::__create_frm_gmm() {
   HScale_clusters.set_value_pos(Gtk::POS_RIGHT);
   HScale_clusters.set_draw_value();
   grid->attach(HScale_clusters, 1, 0, 2, 1);
-  cb_convertType.append("HSV");
-  cb_convertType.append("CieLAB");
-  cb_convertType.set_active(0);
-  grid->attach(cb_convertType, 3, 0, 1, 1);
   bt_trainGMM.set_label("Train GMM");
   grid->attach(bt_trainGMM, 4, 0, 1, 1);
 
@@ -300,7 +294,6 @@ void VisionGUI::__create_frm_gmm() {
   bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
   bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
   bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
-  cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
   bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
   bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
   bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);
@@ -321,7 +314,6 @@ void VisionGUI::__create_frm_gmm() {
   bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
   bt_trainGMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_trainGMM_clicked));
   HScale_clusters.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_clusters_value_changed));
-  cb_convertType.signal_changed().connect(sigc::mem_fun(*this, &VisionGUI::__event_cb_convertType_signal_changed));
   bt_GMM_match.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_match_clicked));
   bt_GMM_done.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_done_clicked));
   rb_GMM_original.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
@@ -347,10 +339,6 @@ void VisionGUI::HScale_GMM_blur_value_changed() {
 
 void VisionGUI::HScale_GMM_erode_value_changed() {
   gmm->setErode(colorIndex, HScale_GMM_erode.get_value());
-}
-
-void VisionGUI::__event_cb_convertType_signal_changed() {
-  gmm->setConvertType(cb_convertType.get_active_row_number());
 }
 
 bool VisionGUI::getDrawSamples() {
@@ -388,7 +376,6 @@ void VisionGUI::__event_bt_GMM_load_clicked() {
       rb_GMM_gaussians.set_active(true);
       rb_GMM_gaussians.clicked();
       HScale_clusters.set_value(gmm->getClusters());
-      cb_convertType.set_active(gmm->getConvertType());
 
     }
   }
@@ -400,7 +387,6 @@ void VisionGUI::quickLoadGMM() {
   HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
   HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
   HScale_GMM_dilate.set_value(gmm->getErode(colorIndex));
-  cb_convertType.set_active(gmm->getConvertType());
 }
 
 void VisionGUI::__event_bt_GMM_left_clicked() {
