@@ -78,7 +78,7 @@ void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 	for (int i = 0; i < 3; i++){
 		switch (robot_list[i].cmdType){
 			case POSITION:
-			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.x != -1)
+			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.y != -1)
 			{
 				temp3 = double(robot_list[i].target.x - robot_list[i].position.x);
 				temp4 = double(robot_list[i].target.y - robot_list[i].position.y);
@@ -113,7 +113,7 @@ void SerialW::sendCmdToRobots(std::vector<Robot> robot_list){
 			// cout << robot_list[i].ID<<'@'<<"V"<<temp0<<";"<<temp1<<"#"<< endl;
 			break;
 			default:
-			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.x != -1)
+			if (robot_list.at(i).target.x != -1 && robot_list.at(i).target.y != -1)
 			{
 				temp3 = double(robot_list[i].target.x - robot_list[i].position.x);
 				temp4 = double(robot_list[i].target.y - robot_list[i].position.y);
