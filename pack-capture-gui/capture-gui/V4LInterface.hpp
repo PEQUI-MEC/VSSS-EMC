@@ -14,7 +14,7 @@
 #include <gtkmm.h>
 #include <gtkmm/messagedialog.h>
 #include <linux/videodev2.h>
-#include <capture/v4lcap.hpp>
+#include "v4lcap.hpp"
 #include "Robot.hpp"
 #include "ImageView.hpp"
 #include "../../cc/vision/visionGUI.hpp"

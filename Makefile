@@ -28,7 +28,7 @@ COMPILER = g++ -std=c++11
 # flags pra usar na compilação da fuzzy
 FUZZYFLAGS = -c -g -m64 -pipe -Wall -W
 # flags para o pack-capture
-CAPFLAGS = -w -I"pack-capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c
+CAPFLAGS = -w -I"pack-capture/capture" `pkg-config gtkmm-3.0 --cflags` -O3 -Wall -c
 # isso faz com que o make seja sensível a alterações a cpps e hpps que não são objetos, são só referenciados
 SOURCES = $(shell find . -name "*.hpp")
 
@@ -54,7 +54,7 @@ welcome:
 # verifica se algum hpp ou cpp foi alterado e compila a main se precisar
 cc/main.o: cc/main.cpp $(SOURCES)
 	@echo "\n\n\033[92mCompiling main program...\033[0m\n"
-	@$(COMPILER) -w -I"pack-capture-gui" -I"pack-capture" -O0 -g3 -Wall -c "cc/main.cpp" -o "cc/main.o" `pkg-config gtkmm-3.0 --cflags`
+	@$(COMPILER) -w -I"pack-capture-gui/capture-gui" -I"pack-capture/capture" -O0 -g3 -Wall -c "cc/main.cpp" -o "cc/main.o" `pkg-config gtkmm-3.0 --cflags`
 
 
 

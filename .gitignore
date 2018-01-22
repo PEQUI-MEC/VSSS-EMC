@@ -5,3 +5,10 @@ VSSS
 *.o
 *.json
 *.txt
+!CMakeLists.txt
+
+build/
+
+\.idea/
+
+cmake-build-debug/
