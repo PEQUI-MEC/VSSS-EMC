@@ -44,6 +44,7 @@ public:
   ~VisionGUI();
 
   void selectFrame(int sector);
+  void hideGMM();
 
   void incrementSamples();
   void decrementSamples();
@@ -69,18 +70,21 @@ private:
   bool isHSV;
 
   // Frame Split View
-  bool isSplitView;
+  Gtk::Frame fr_splitView;
+  bool isSplitView, disableSplitView;
 
   // Frame Capture
   int picIndex, vidIndex;
 
   // Frame HSV Calibration
+  Gtk::Frame fr_HSV;
   Gtk::Label HSV_label;
   Gtk::Button bt_HSV_left;
   Gtk::Button bt_HSV_right;
   Gtk::Button bt_switchMainAdv;
 
   // Frame GMM
+  Gtk::Frame fr_GMM;
   Gtk::Button bt_GMM_save, bt_GMM_load;
   Gtk::ToggleButton bt_collectSamples;
   Gtk::Button bt_popSample, bt_clearSamples;

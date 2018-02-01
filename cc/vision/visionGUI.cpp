@@ -41,71 +41,17 @@ void VisionGUI::__create_frm_calib_mode() {
 void VisionGUI::__event_rb_mode_clicked() {
   if (rb_mode_GMM.get_active()) {
     isHSV = false;
-    if (gmm->getIsTrained()) bt_GMM_save.set_state(Gtk::STATE_NORMAL);
-    bt_GMM_load.set_state(Gtk::STATE_NORMAL);
-    bt_collectSamples.set_state(Gtk::STATE_NORMAL);
-    bt_popSample.set_state(Gtk::STATE_NORMAL);
-    bt_clearSamples.set_state(Gtk::STATE_NORMAL);
-    bt_trainGMM.set_state(Gtk::STATE_NORMAL);
-    bt_GMM_match.set_state(Gtk::STATE_NORMAL);
-    bt_GMM_done.set_state(Gtk::STATE_NORMAL);
-    cb_gaussianColor.set_state(Gtk::STATE_NORMAL);
-    cb_realColor.set_state(Gtk::STATE_NORMAL);
-    HScale_clusters.set_state(Gtk::STATE_NORMAL);
-    rb_GMM_original.set_state(Gtk::STATE_NORMAL);
-    rb_GMM_gaussians.set_state(Gtk::STATE_NORMAL);
-    rb_GMM_final.set_state(Gtk::STATE_NORMAL);
-    // if (gmm->getDoneFlag()) rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
-    bt_GMM_left.set_state(Gtk::STATE_NORMAL);
-    bt_GMM_right.set_state(Gtk::STATE_NORMAL);
-    bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-    bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-    bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+    fr_HSV.hide();
+    fr_GMM.show();
+    fr_splitView.hide();
+    disableSplitView = true;
   }
   else {
+    fr_HSV.show();
+    fr_GMM.hide();
+    fr_splitView.show();
     isHSV = true;
-    bt_GMM_save.set_state(Gtk::STATE_INSENSITIVE);
-    bt_GMM_load.set_state(Gtk::STATE_INSENSITIVE);
-    bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
-    bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
-    bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
-    bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
-    bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
-    bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);
-    cb_gaussianColor.set_state(Gtk::STATE_INSENSITIVE);
-    cb_realColor.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
-    rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
-    rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
-    rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
-    // rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
-    bt_GMM_left.set_state(Gtk::STATE_INSENSITIVE);
-    bt_GMM_right.set_state(Gtk::STATE_INSENSITIVE);
-    bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
-    if (bt_HSV_calib.get_active()) {
-      HScale_Hmin.set_state(Gtk::STATE_NORMAL);
-      HScale_Smin.set_state(Gtk::STATE_NORMAL);
-      HScale_Vmin.set_state(Gtk::STATE_NORMAL);
-      HScale_Hmax.set_state(Gtk::STATE_NORMAL);
-      HScale_Smax.set_state(Gtk::STATE_NORMAL);
-      HScale_Vmax.set_state(Gtk::STATE_NORMAL);
-      HScale_Dilate.set_state(Gtk::STATE_NORMAL);
-      HScale_Erode.set_state(Gtk::STATE_NORMAL);
-      HScale_Blur.set_state(Gtk::STATE_NORMAL);
-      HScale_Amin.set_state(Gtk::STATE_NORMAL);
-      bt_HSV_left.set_state(Gtk::STATE_NORMAL);
-      bt_HSV_right.set_state(Gtk::STATE_NORMAL);
-    }
+    disableSplitView = false;
   }
 }
 
@@ -118,15 +64,14 @@ void VisionGUI::__create_frm_gmm() {
 
   vbox = new Gtk::VBox();
   grid = new Gtk::Grid();
-  frame = new Gtk::Frame();
 
-  pack_start(*frame, false, false, 5);
+  pack_start(fr_GMM, false, false, 5);
 
-  frame->add(*vbox);
+  fr_GMM.add(*vbox);
   vbox->set_halign(Gtk::ALIGN_CENTER);
   vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frame->set_label("GMM Calibration");
+  fr_GMM.set_label("GMM Calibration");
 
   hbox = new Gtk::HBox();
   vbox->pack_start(*hbox, false, true, 5);
@@ -327,6 +272,10 @@ void VisionGUI::__create_frm_gmm() {
   HScale_GMM_dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_dilate_value_changed));
 }
 
+void VisionGUI::hideGMM() {
+    fr_GMM.hide();
+}
+
 void VisionGUI::HScale_GMM_dilate_value_changed() {
   gmm->setDilate(colorIndex, HScale_GMM_dilate.get_value());
 }
@@ -509,20 +458,18 @@ void VisionGUI::__create_frm_split_view() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
   Gtk::Label * label;
-  Gtk::Frame * frame;
 
   vbox = new Gtk::VBox();
   grid = new Gtk::Grid();
-  frame = new Gtk::Frame();
 
-  pack_start(*frame, false, false, 5);
+  pack_start(fr_splitView, false, false, 5);
 
-  frame->add(*vbox);
+  fr_splitView.add(*vbox);
   vbox->pack_start(*grid, false, true, 5);
   vbox->set_halign(Gtk::ALIGN_CENTER);
   vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frame->set_label("Split View");
+  fr_splitView.set_label("Split View");
 
   grid->set_border_width(5);
   grid->set_column_spacing(10);
@@ -551,7 +498,8 @@ void VisionGUI::__event_rb_split_mode_clicked() {
 }
 
 bool VisionGUI::getIsSplitView() {
-  return isSplitView;
+  if (disableSplitView) return false;
+  else return isSplitView;
 }
 
 void VisionGUI::__create_frm_capture() {
@@ -635,20 +583,18 @@ void VisionGUI::__create_frm_hsv() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
   Gtk::Label * label;
-  Gtk::Frame * frame;
 
   vbox = new Gtk::VBox();
   grid = new Gtk::Grid();
-  frame = new Gtk::Frame();
 
-  pack_start(*frame, false, false, 5);
+  pack_start(fr_HSV, false, false, 5);
 
-  frame->add(*vbox);
+  fr_HSV.add(*vbox);
   vbox->pack_start(*grid, false, true, 5);
   vbox->set_halign(Gtk::ALIGN_CENTER);
   vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frame->set_label("HSV Calibration");
+  fr_HSV.set_label("HSV Calibration");
 
   grid->set_border_width(5);
   grid->set_column_spacing(15);
@@ -1123,14 +1069,14 @@ VisionGUI::VisionGUI() :
   originalFrame_flag(true), totalSamples(0),
   gaussiansFrame_flag(false), finalFrame_flag(false),
   thresholdFrame_flag(false), colorIndex(0), isHSV(true),
-  isSplitView(false) {
+  isSplitView(false), disableSplitView(false) {
 
   vision = new Vision(640, 480);
   gmm = new GMM(640, 480);
 
   __create_frm_calib_mode();
   __create_frm_capture();
-  // __create_frm_split_view();
+  __create_frm_split_view();
   __create_frm_hsv();
   __create_frm_gmm();
 

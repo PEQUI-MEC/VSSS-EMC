@@ -246,26 +246,28 @@ public:
         updateKalmanFilter();
 
 
-        if (interface.visionGUI.gmm->getIsTrained() && !interface.visionGUI.getIsHSV()) { // GMM
-          interface.visionGUI.gmm->run(imageView);
-          interface.visionGUI.vision->recordVideo(imageView);
-          if (interface.visionGUI.gmm->getDoneFlag()) {
-            for (int i = 0; i < interface.visionGUI.gmm->windowsList.size(); i++) {
-              rectangle(imageView, interface.visionGUI.gmm->windowsList.at(i).getPosition(), interface.visionGUI.gmm->windowsList.at(i).getEnd(), cv::Scalar(250,155,0));
+        if (!interface.visionGUI.getIsHSV()) { // GMM
+          if (interface.visionGUI.gmm->getIsTrained()) {
+            interface.visionGUI.gmm->run(imageView);
+            interface.visionGUI.vision->recordVideo(imageView);
+            if (interface.visionGUI.gmm->getDoneFlag()) {
+              for (int i = 0; i < interface.visionGUI.gmm->windowsList.size(); i++) {
+                rectangle(imageView, interface.visionGUI.gmm->windowsList.at(i).getPosition(), interface.visionGUI.gmm->windowsList.at(i).getEnd(), cv::Scalar(250,155,0));
+              }
             }
-          }
 
-          interface.visionGUI.vision->runGMM(interface.visionGUI.gmm->getAllThresholds(), interface.visionGUI.gmm->getWindowsList());
+            interface.visionGUI.vision->runGMM(interface.visionGUI.gmm->getAllThresholds(), interface.visionGUI.gmm->getWindowsList());
 
-          if (interface.visionGUI.getGaussiansFrameFlag()) {
-            interface.imageView.set_data(interface.visionGUI.gmm->getGaussiansFrame().data, width, height);
-            interface.imageView.refresh();
-          } else if (interface.visionGUI.getFinalFrameFlag()) {
-            interface.imageView.set_data(interface.visionGUI.gmm->getFinalFrame().data, width, height);
-            interface.imageView.refresh();
-          } else if (interface.visionGUI.getThresholdFrameFlag()) {
-            interface.imageView.set_data(interface.visionGUI.gmm->getThresholdFrame(interface.visionGUI.getGMMColorIndex()).data, width, height);
-            interface.imageView.refresh();
+            if (interface.visionGUI.getGaussiansFrameFlag()) {
+              interface.imageView.set_data(interface.visionGUI.gmm->getGaussiansFrame().data, width, height);
+              interface.imageView.refresh();
+            } else if (interface.visionGUI.getFinalFrameFlag()) {
+              interface.imageView.set_data(interface.visionGUI.gmm->getFinalFrame().data, width, height);
+              interface.imageView.refresh();
+            } else if (interface.visionGUI.getThresholdFrameFlag()) {
+              interface.imageView.set_data(interface.visionGUI.gmm->getThresholdFrame(interface.visionGUI.getGMMColorIndex()).data, width, height);
+              interface.imageView.refresh();
+            }
           }
         }
         else { // HSV Simples

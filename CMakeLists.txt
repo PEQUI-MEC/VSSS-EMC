@@ -35,6 +35,7 @@ set(SOURCE_FILES cc/main.cpp
         cc/Fuzzy/FuzzyController.cpp
         cc/Fuzzy/FuzzyFunction.cpp
         cc/Fuzzy/Rules.cpp
+	cc/vision/visionROI.cpp
         cc/vision/gmm.cpp
         cc/vision/tag.cpp
         cc/vision/vision.cpp
