@@ -234,24 +234,6 @@ void VisionGUI::__create_frm_gmm() {
   HScale_GMM_dilate.set_draw_value();
   grid->attach(HScale_GMM_dilate, 9, 0, 1, 1);
 
-  bt_GMM_save.set_state(Gtk::STATE_INSENSITIVE);
-  bt_GMM_load.set_state(Gtk::STATE_INSENSITIVE);
-  bt_collectSamples.set_state(Gtk::STATE_INSENSITIVE);
-  bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
-  bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
-  bt_trainGMM.set_state(Gtk::STATE_INSENSITIVE);
-  bt_GMM_match.set_state(Gtk::STATE_INSENSITIVE);
-  bt_GMM_done.set_state(Gtk::STATE_INSENSITIVE);
-  cb_gaussianColor.set_state(Gtk::STATE_INSENSITIVE);
-  cb_realColor.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_clusters.set_state(Gtk::STATE_INSENSITIVE);
-  rb_GMM_original.set_state(Gtk::STATE_INSENSITIVE);
-  rb_GMM_gaussians.set_state(Gtk::STATE_INSENSITIVE);
-  rb_GMM_final.set_state(Gtk::STATE_INSENSITIVE);
-  // rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
-  bt_GMM_left.set_state(Gtk::STATE_INSENSITIVE);
-  bt_GMM_right.set_state(Gtk::STATE_INSENSITIVE);
-
   bt_GMM_save.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_save_clicked));
   bt_GMM_load.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_load_clicked));
   bt_collectSamples.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_collectSamples_pressed));
@@ -1076,7 +1058,7 @@ VisionGUI::VisionGUI() :
 
   __create_frm_calib_mode();
   __create_frm_capture();
-  // __create_frm_split_view();
+  __create_frm_split_view();
   __create_frm_hsv();
   __create_frm_gmm();
 
