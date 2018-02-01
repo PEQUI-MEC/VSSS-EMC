@@ -405,19 +405,7 @@ public:
 
 
         // ----------- ESTRATEGIA -----------------//
-        if(interface.get_start_game_flag()) {
-            strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
-            Ball_Est=strategyGUI.strategy.get_Ball_Est();
-            // line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);
-            circle(imageView,Ball_Est, 7, cv::Scalar(255,140,0), 2);
-            //char buffer[3]; -> não é utilizado
-            // line(imageView,cv::Point(strategyGUI.strategy.COORD_BOX_DEF_X,strategyGUI.strategy.COORD_BOX_UP_Y - strategyGUI.strategy.ABS_ROBOT_SIZE/2),cv::Point(strategyGUI.strategy.COORD_GOAL_DEF_FRONT_X,strategyGUI.strategy.COORD_BOX_UP_Y- strategyGUI.strategy.ABS_ROBOT_SIZE/2),cv::Scalar(255,140,0), 2);
-            strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
-            for(int i =0; i<3; i++) {
-                circle(imageView,interface.robot_list[i].target, 7, cv::Scalar(127,255,127), 2);
-                putText(imageView,std::to_string(i+1),cv::Point(interface.robot_list[i].target.x-5,interface.robot_list[i].target.y-17),cv::FONT_HERSHEY_PLAIN,1,cv::Scalar(127,255,127),2);
-            } // for
-
+   if(interface.get_start_game_flag()) {
        strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
        Ball_Est=strategyGUI.strategy.get_Ball_Est();
        // line(imageView,interface.visionGUI.vision->getBall(),Ball_Est,cv::Scalar(255,140,0), 2);

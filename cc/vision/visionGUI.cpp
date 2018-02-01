@@ -1076,7 +1076,7 @@ VisionGUI::VisionGUI() :
 
   __create_frm_calib_mode();
   __create_frm_capture();
-  __create_frm_split_view();
+  // __create_frm_split_view();
   __create_frm_hsv();
   __create_frm_gmm();
 
