@@ -8,13 +8,14 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
+#include "visionROI.hpp"
 
 class GMM
 {
 
 private:
   // Frames
-  cv::Mat inFrame, gaussiansFrame, finalFrame, preThreshold;
+  cv::Mat inFrame, predictFrame, gaussiansFrame, finalFrame, preThreshold;
   std::vector<cv::Mat>threshold_frame;
   std::vector<cv::Point> samplePoints;
   std::vector<cv::Mat> samples;
@@ -27,29 +28,30 @@ private:
   bool isTrained;
   bool isDone;
 
-  // Pos-Processing
-  int closingSize, openingSize;
+  // Vision ROI
+  const static int TOTAL_WINDOWS = 7;
+  cv::Mat partialPredicts[TOTAL_WINDOWS];
+  cv::Mat partialGaussians[TOTAL_WINDOWS];
+  cv::Mat partialFinals[TOTAL_WINDOWS];
+  cv::Mat partialPreThresholds[TOTAL_WINDOWS];
+  cv::Mat partialFrames[TOTAL_WINDOWS];
 
   // Multi-thread
-  const static int TOTAL_COLORS = 5;
-  const static int TOTAL_THREADS = 8;
-  cv::Mat partialFrames[TOTAL_THREADS];
-  cv::Mat partialPredicts[TOTAL_THREADS];
+  const static int TOTAL_COLORS = 4;
+  const static int TOTAL_THREADS = 7;
   boost::thread_group threads;
 
-  // Convert Type
-  const static int HSV_TYPE = 0;
-  const static int CIELAB_TYPE = 1;
-  int convertType;
+  // Pos-Processing
+  int blur[TOTAL_COLORS], erode[TOTAL_COLORS], dilate[TOTAL_COLORS];
 
   // Colors
   const std::vector<cv::Vec3b> colors = {
+    {0, 0, 0}, // black
 		{239, 255, 22}, // yellow
 		{0, 255, 0}, // green
-		{255, 0, 195}, // pink
 		{247, 83, 46}, // orange
 		{39, 56, 137}, // blue
-		{0, 0, 0}, // black
+    {255, 0, 195}, // pink
 		{255, 255, 255}, // white
 		{255, 0, 0}, // red
 		{75, 12, 102}, // purple
@@ -65,16 +67,20 @@ private:
   };
 
   void classify(int index);
+  void classifyWindows(int index);
   void paint();
+  void paintWindows();
   cv::Mat predict(int index);
+  cv::Mat predictWindows(int index);
   cv::Mat crop(cv::Point p1, cv::Point p2);
   cv::Mat formatSamplesForEM();
   cv::Mat formatFrameForEM(int index);
   void setAllThresholds();
-  void posProcessing();
+  void posProcessing(int index);
+  bool checkROIs();
 
 public:
-  GMM();
+  GMM(int width, int height);
   ~GMM();
 
   // Expectation Maximization
@@ -85,6 +91,9 @@ public:
   bool write(std::string fileName);
   int train();
   void run(cv::Mat frame);
+  void joinWindowsToFrames();
+
+  std::vector<VisionROI> windowsList;
 
   // GET
   int getSamplesSize();
@@ -97,18 +106,19 @@ public:
   bool getDoneFlag();
   cv::Mat getThresholdFrame(int color);
   std::vector<cv::Mat> getAllThresholds();
-  int getConvertType();
-  int getClosingSize();
-  int getOpeningSize();
+  int getBlur(int index);
+  int getErode(int index);
+  int getDilate(int index);
+  std::vector<VisionROI>* getWindowsList();
 
   // SET
   void setFrame(cv::Mat frame);
   void setClusters(int k);
-  void setDone();
+  void setDone(bool flag);
   void setMatchColor(int gaussian, int color);
-  void setOpeningSize(int value);
-  void setClosingSize(int value);
-  void setConvertType(int value);
+  void setBlur(int index, int value);
+  void setErode(int index, int value);
+  void setDilate(int index, int value);
 
 };
 

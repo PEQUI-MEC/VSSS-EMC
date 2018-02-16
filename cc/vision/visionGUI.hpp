@@ -10,7 +10,7 @@ class VisionGUI: public Gtk::VBox
 {
 public:
   Vision *vision;
-  GMM gmm;
+  GMM *gmm;
   Gtk::ToggleButton bt_HSV_calib;
 
   int Img_id;
@@ -44,6 +44,7 @@ public:
   ~VisionGUI();
 
   void selectFrame(int sector);
+  void hideGMM();
 
   void incrementSamples();
   void decrementSamples();
@@ -69,34 +70,38 @@ private:
   bool isHSV;
 
   // Frame Split View
-  bool isSplitView;
+  Gtk::Frame fr_splitView;
+  bool isSplitView, disableSplitView;
 
   // Frame Capture
   int picIndex, vidIndex;
 
   // Frame HSV Calibration
+  Gtk::Frame fr_HSV;
   Gtk::Label HSV_label;
   Gtk::Button bt_HSV_left;
   Gtk::Button bt_HSV_right;
   Gtk::Button bt_switchMainAdv;
 
   // Frame GMM
+  Gtk::Frame fr_GMM;
   Gtk::Button bt_GMM_save, bt_GMM_load;
   Gtk::ToggleButton bt_collectSamples;
   Gtk::Button bt_popSample, bt_clearSamples;
   Gtk::Button bt_trainGMM, bt_GMM_match, bt_GMM_done;
-  Gtk::ComboBoxText cb_gaussianColor, cb_realColor, cb_convertType;
-  Gtk::HScale HScale_clusters, HScale_closing, HScale_opening;
+  Gtk::ComboBoxText cb_gaussianColor, cb_realColor;
+  Gtk::HScale HScale_clusters;
+  Gtk::HScale HScale_GMM_blur, HScale_GMM_erode, HScale_GMM_dilate;
   Gtk::RadioButton rb_GMM_original, rb_GMM_gaussians, rb_GMM_final, rb_GMM_threshold;
   Gtk::Button bt_GMM_left, bt_GMM_right;
   Gtk::Label lb_threshold;
   int totalSamples;
   int colorIndex;
   const std::vector<std::string> realColors {
-    "Main", "Green", "Pink", "Ball", "Opponent"
+    "Main", "Green", "Ball", "Opponent"
   };
   const std::vector<std::string> gaussianColors {
-    "Yellow", "Green", "Pink", "Orange", "Blue", "Black", "White", "Red",
+    "Black", "Yellow", "Green", "Orange", "Blue", "Pink", "White", "Red",
     "Purple", "Brown", "Silver", "Cyan", "Dark Green","Baby Pink", "Dark Grey"
   };
   bool samplesEventFlag;
@@ -120,9 +125,9 @@ private:
   void __event_rb_GMM_frame_clicked();
   void __event_bt_GMM_left_clicked();
   void __event_bt_GMM_right_clicked();
-  void HScale_closing_value_changed();
-  void HScale_opening_value_changed();
-  void __event_cb_convertType_signal_changed();
+  void HScale_GMM_blur_value_changed();
+  void HScale_GMM_erode_value_changed();
+  void HScale_GMM_dilate_value_changed();
 
   void __event_rb_mode_clicked();
 

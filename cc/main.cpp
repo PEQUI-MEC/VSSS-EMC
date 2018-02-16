@@ -39,6 +39,8 @@ int main(int argc, char ** argv) {
 
 	window.show_all();
 
+	camcap.interface.visionGUI.hideGMM();
+
 	Gtk::Main::run(window);
 
 	return EXIT_SUCCESS;
