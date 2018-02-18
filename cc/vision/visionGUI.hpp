@@ -63,11 +63,16 @@ public:
   int getGMMColorIndex();
   bool getIsHSV();
   bool getIsSplitView();
+  bool getIsDrawing();
 
 private:
 
   // Frame Calibration Mode
   bool isHSV;
+
+  // Frame Drawing Options
+  Gtk::CheckButton draw_info_checkbox;
+  bool draw_info_flag;
 
   // Frame Split View
   Gtk::Frame fr_splitView;
@@ -141,10 +146,13 @@ private:
   void __create_frm_capture();
   void __create_frm_gmm();
   void __create_frm_split_view();
+  void __create_frm_drawing_options();
 
   void HScale_Hmin_value_changed();
   void HScale_Smin_value_changed();
   void HScale_Vmin_value_changed();
+
+  void event_draw_info_checkbox_signal_clicked();
 
   void HScale_Hmax_value_changed();
   void HScale_Smax_value_changed();

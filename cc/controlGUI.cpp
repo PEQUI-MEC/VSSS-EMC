@@ -16,16 +16,17 @@ ControlGUI::ControlGUI() {
     Serial_fm.set_label("Serial");
     Serial_fm.add(Serial_vbox);
 
-    Top_hbox.pack_start(Test_fm, false, true, 5);
+//    Top_hbox.pack_start(Test_fm, false, true, 5);
 
-    Test_fm.set_label("Test");
-    Test_fm.add(Test_vbox);
+//    Test_fm.set_label("Test");
+//    Test_fm.add(Test_vbox);
     button_PID_Test.set_label("PID Test on Click");
-    Test_vbox.pack_start(button_PID_Test, false, true, 5);
+//    Test_vbox.pack_start(button_PID_Test, false, true, 5);
 
     Serial_hbox[0].pack_start(cb_serial, false, true, 5);
     Serial_hbox[0].pack_start(bt_Serial_Start, false, true, 5);
     Serial_hbox[0].pack_start(bt_Serial_Refresh, false, true, 5);
+    Serial_hbox[0].pack_end(button_PID_Test, false, true, 5);
     Serial_vbox.pack_start(Serial_hbox[0], false, true, 5);
 
     Serial_hbox[1].pack_start(cb_test, false, true, 5);
