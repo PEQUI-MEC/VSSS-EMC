@@ -37,7 +37,6 @@ void TestFrame::init() {
   add(grid);
   set_label("Test Parameters");
 
-  grid.set_border_width(10);
   grid.set_column_spacing(5);
   grid.set_halign(Gtk::ALIGN_CENTER);
   grid.set_column_homogeneous(true);

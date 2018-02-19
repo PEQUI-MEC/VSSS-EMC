@@ -826,7 +826,7 @@ namespace capture {
         robots_speed_progressBar[1].set_show_text(true);
         robots_speed_progressBar[1].set_size_request(barSize, -1);
         robots_speed_progressBar[1].set_fraction((double) robot_list[1].vmax);
-        robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 0);
+        robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 5);
 
         label = new Gtk::Label("Robot 3:");
         //label->set_yalign(1.0);
@@ -1042,7 +1042,7 @@ namespace capture {
 
         __init_combo_boxes();
 
-        pack_start(frm_device_info, false, false, 10);
+        pack_start(frm_device_info, false, false, 5);
         __create_frm_device_info();
 
         pack_start(frm_device_prop, false, false, 10);

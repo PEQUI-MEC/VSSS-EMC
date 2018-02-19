@@ -703,8 +703,8 @@ public:
             interface.imageView.adjust_mat[i][1] = -1;
         }
 
-        camera_vbox.pack_start(fm, false, true, 10);
-        camera_vbox.pack_start(info_fm, false, true, 10);
+        camera_vbox.pack_start(fm, false, true, 5);
+        camera_vbox.pack_start(info_fm, false, true, 5);
         info_fm.add(interface.info_hbox);
 
         pack_start(camera_vbox, true, true, 10);
