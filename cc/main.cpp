@@ -11,37 +11,31 @@
  */
 
 #include <gtkmm.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <iostream>
-using namespace std;
-#include <gtkmm.h>
 #include "camcap.hpp"
-#include "opencv2/opencv.hpp"
 
 
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
 
-	Gtk::Main kit(argc, argv);
-	Gtk::Window window;
+    Gtk::Main kit(argc, argv);
+    Gtk::Window window;
 
-	CamCap camcap;
+    GdkScreen *screen = gdk_screen_get_default();
 
-	window.set_position(Gtk::WIN_POS_CENTER);
-	//window.set_border_width(10);
-	window.maximize();
-	window.set_title("VS - Pequi");
 
-	window.add(camcap);
+    //window.set_border_width(10);
+    window.maximize();
+    window.set_title("Pequi Mecânico - VSSS EMC");
 
-	window.show_all();
 
-	camcap.interface.visionGUI.hideGMM();
+    CamCap camcap(gdk_screen_get_width(screen), gdk_screen_get_height(screen));
+    window.add(camcap);
 
-	Gtk::Main::run(window);
+    window.show_all();
 
-	return EXIT_SUCCESS;
+
+    camcap.interface.visionGUI.hideGMM();
+
+    Gtk::Main::run(window);
+
+    return EXIT_SUCCESS;
 }

@@ -1,5 +1,24 @@
 #include "visionGUI.hpp"
 
+void VisionGUI::__create_frm_drawing_options() {
+    Gtk::Frame *frame;
+    Gtk::HBox *hbox;
+
+    hbox = new Gtk::HBox();
+    frame = new Gtk::Frame();
+
+    pack_start(*frame, false, true, 5);
+    frame->add(*hbox);
+    frame->set_label("Drawing Options");
+    hbox->set_halign(Gtk::ALIGN_CENTER);
+    hbox->pack_start(draw_info_checkbox, false, true, 5);
+    draw_info_checkbox.set_label("Disable Drawing");
+    draw_info_checkbox.set_can_focus(false);
+    draw_info_checkbox.set_margin_bottom(5);
+
+    draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::event_draw_info_checkbox_signal_clicked));
+}
+
 void VisionGUI::__create_frm_calib_mode() {
   Gtk::VBox * vbox;
   Gtk::Grid * grid;
@@ -290,6 +309,10 @@ bool VisionGUI::getFinalFrameFlag() {
 
 bool VisionGUI::getThresholdFrameFlag() {
   return thresholdFrame_flag;
+}
+
+bool VisionGUI::getIsDrawing() {
+    return !draw_info_flag;
 }
 
 void VisionGUI::__event_bt_GMM_save_clicked() {
@@ -981,6 +1004,10 @@ void VisionGUI::__event_bt_left_HSV_calib_clicked() {
   }
 }
 
+    void VisionGUI::event_draw_info_checkbox_signal_clicked() {
+        draw_info_flag = !draw_info_flag;
+    }
+
 // void VisionGUI::__event_auto_save()
 // {
 //   std::cout << "AUTO SAVE" << std::endl;
@@ -1051,13 +1078,15 @@ VisionGUI::VisionGUI() :
   originalFrame_flag(true), totalSamples(0),
   gaussiansFrame_flag(false), finalFrame_flag(false),
   thresholdFrame_flag(false), colorIndex(0), isHSV(true),
-  isSplitView(false), disableSplitView(false) {
+  isSplitView(false), disableSplitView(false),
+   draw_info_flag(false) {
 
   vision = new Vision(640, 480);
   gmm = new GMM(640, 480);
 
   __create_frm_calib_mode();
   __create_frm_capture();
+  __create_frm_drawing_options();
   __create_frm_split_view();
   __create_frm_hsv();
   __create_frm_gmm();
