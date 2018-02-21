@@ -25,11 +25,12 @@ find_package(Boost REQUIRED COMPONENTS date_time filesystem wserialization syste
 
 find_package(OpenCV REQUIRED)
 
+find_library(LIBXBEE libxbee.so libxbeep.so)
+
 #Define arquivos a serem compilados. Novos arquivos devem ser inclusos aqui
 set(SOURCE_FILES cc/main.cpp
         cc/controlGUI.cpp
         cc/filechooser.cpp
-        cc/SerialW.cpp
         cc/strategyGUI.hpp
         cc/TestFrame.cpp
         cc/Fuzzy/FuzzyController.cpp
@@ -41,14 +42,18 @@ set(SOURCE_FILES cc/main.cpp
         cc/vision/vision.cpp
         cc/vision/visionGUI.cpp
         pack-capture/capture/v4lcap.cpp
+		pack-capture/capture/v4ldev.hpp
         pack-capture-gui/capture-gui/ImageView.cpp
         pack-capture-gui/capture-gui/Robot.hpp
         pack-capture-gui/capture-gui/V4LInterface-aux.cpp
         pack-capture-gui/capture-gui/V4LInterface-events.cpp
+		pack-capture-gui/capture-gui/V4LInterface.hpp
         cc/camcap.hpp
         cc/Constants.hpp
         cc/Kalman_Filter.hpp
-        cc/Strategy.hpp)
+        cc/Strategy.hpp
+        cc/Xbee.cpp cc/Xbee.h
+        cc/Messenger.cpp cc/Messenger.h)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
@@ -69,3 +74,4 @@ target_link_libraries(VSSS ${GTKMM_LIBRARIES})
 target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
+target_link_libraries(VSSS ${LIBXBEE}) 

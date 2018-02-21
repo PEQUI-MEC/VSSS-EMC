@@ -5,7 +5,6 @@
 #include "opencv2/opencv.hpp"
 #include "LS.cpp"
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
-#include "SerialW.hpp"
 #include <math.h>
 #include "TestFrame.hpp"
 #include "Constants.hpp"

@@ -18,10 +18,11 @@
 
 #include <gtkmm.h>
 #include <string>
-#include "SerialW.hpp"
+#include "Messenger.h"
 #include "TestFrame.hpp"
 #include <unistd.h>
 #include <time.h>
+#include <fcntl.h>
 // system_clock::now
 #include <iostream>
 #include <ctime>
@@ -30,13 +31,12 @@
 class ControlGUI: public Gtk::VBox
 {
 public:
-	SerialW s;
+	Messenger messenger;
 
 	const static int TOTAL_ROBOTS = 6;
 
 	TestFrame testFrame;
 
-	bool Serial_Enabled;
 	// Flag para saber se o botão PID está pressionado ou não.
 	bool PID_test_flag = false;
 	// Containers para o conteúdo da interface gráfica
@@ -68,6 +68,11 @@ public:
 	Gtk::Label status_lb[TOTAL_ROBOTS];
 	Gtk::Label lastUpdate_lb;
 	Gtk::ProgressBar battery_bar[TOTAL_ROBOTS];
+		Gtk::Label dropped_frames[TOTAL_ROBOTS];
+		Gtk::Label dropped_frames_text[TOTAL_ROBOTS];
+		Gtk::Button bt_reset_ack;
+		int dropped_frames_num[TOTAL_ROBOTS] = {0};
+		int total_frames_num[TOTAL_ROBOTS] = {0};
 
 	Gtk::Frame pid_fm;
 	Gtk::VBox pid_vbox;
@@ -92,9 +97,6 @@ public:
 
 	void _PID_Test();
 
-	// translate battery message
-	void handleBatteryMsg(char buf[12], int id);
-
 	// Gets battery % and robot id to update a single robot's battery status
 	void updateInterfaceStatus(double battery, int id);
 
@@ -114,6 +116,11 @@ public:
 	// Função para verificar se os valores digitados nos campos
 	// de PID são válidos: apenas números e um único ponto
 	bool checkPIDvalues();
+	
+	int get_robot_pos(char id);
+    char get_robot_id(int pos);
+		void update_dropped_frames(std::vector<message> acks);
+		void reset_lost_acks();
 };
 
 

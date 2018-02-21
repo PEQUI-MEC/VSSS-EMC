@@ -465,7 +465,7 @@ public:
         line(img, p, pt2, color, thickness, line_type, shift);
     }
 
-    void sendCmdToRobots(std::vector<Robot> &robot_list, bool &xbeeIsConnected) {
+    void sendCmdToRobots(std::vector<Robot> &robot_list) {
         while (1) {
             if (interface.get_start_game_flag() || interface.imageView.PID_test_flag ||
                 strategyGUI.updating_formation_flag) {
@@ -473,9 +473,10 @@ public:
                 robot_list[0].position = robot_kf_est[0];
                 robot_list[1].position = robot_kf_est[1];
                 robot_list[2].position = robot_kf_est[2];
-                control.s.sendCmdToRobots(robot_list);
+                std::vector<message> acks = control.messenger.sendCMDs(robot_list);
+//				control.update_dropped_frames(acks);
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+            boost::this_thread::sleep(boost::posix_time::milliseconds(200));
         }
     }
 
@@ -712,8 +713,7 @@ public:
 
         // Thread que envia comandos para o robo
         threshold_threads.add_thread(new boost::thread(&CamCap::sendCmdToRobots, this,
-                                                       boost::ref(interface.robot_list),
-                                                       boost::ref(control.s.Serial_Enabled)));
+                                                       boost::ref(interface.robot_list)));
 
 
         interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));

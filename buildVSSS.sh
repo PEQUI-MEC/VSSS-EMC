@@ -1,5 +1,8 @@
+#!/bin/bash
+
 mkdir build/
 cd build/
 cmake ..
-make
+thread_num=$(nproc)
+make -j$((++thread_num))
 cd ..
