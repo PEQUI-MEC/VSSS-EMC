@@ -66,6 +66,7 @@ ControlGUI::ControlGUI() {
     bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
     cb_test.set_state(Gtk::STATE_INSENSITIVE);
     bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
+    bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
 
     bt_Serial_Start.set_label("Start");
     bt_Serial_Refresh.set_label("Refresh");
