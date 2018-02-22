@@ -15,12 +15,12 @@ void Messenger::stop_xbee() {
 
 void Messenger::add_robots(){
 	if(!xbee) return;
-	xbee->add_robot('A', 0x1212);
-	xbee->add_robot('B', 0x25f8);
-	xbee->add_robot('C', 0x3816);
-	xbee->add_robot('D', 0x7878);
-	xbee->add_robot('E', 0x9090);
-	xbee->add_robot('F', 0x6c50);
+	xbee->add_robot('A', 0x88a0);
+	xbee->add_robot('B', 0xb24a);
+	xbee->add_robot('C', 0x215c);
+	xbee->add_robot('D', 0x35f6);
+	xbee->add_robot('E', 0x97e7);
+	xbee->add_robot('F', 0x6b0d);
 }
 
 void Messenger::send_msg(char id, string msg){
