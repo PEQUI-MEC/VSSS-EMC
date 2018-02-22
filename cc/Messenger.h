@@ -26,6 +26,7 @@ class Messenger {
 		std::vector<message> sendCMDs(std::vector<Robot> robots);
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);
+		std::string to_string(double num);
 		double get_battery(char id);
 		void start_xbee(const std::string& port, int baud = 115200);
 		void stop_xbee();

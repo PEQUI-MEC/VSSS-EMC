@@ -100,6 +100,12 @@ string Messenger::vector_msg(Robot robot) {
 	return ("V"+to_string(orientation)+";"+to_string(vmax));
 }
 
+string Messenger::to_string(double num) {
+	ostringstream ss;
+	ss << num;
+	return ss.str();
+}
+
 double Messenger::get_battery(char id) {
 	string msg = xbee->send_get_answer(id,"B");
 	if(msg.empty() || msg[0] != 'B') return -1;
