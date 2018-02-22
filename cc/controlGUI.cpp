@@ -9,7 +9,6 @@ void ControlGUI::set_PID_test_flag(bool input) {
 }
 
 ControlGUI::ControlGUI() {
-    Serial_Enabled=false;
     // Adicionar o frame do Serial e sua VBOX
     pack_start(Top_hbox, false, true, 5);
     Top_hbox.pack_start(Serial_fm, false, true, 5);
@@ -67,6 +66,7 @@ ControlGUI::ControlGUI() {
     bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
     cb_test.set_state(Gtk::STATE_INSENSITIVE);
     bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
+    bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
 
     bt_Serial_Start.set_label("Start");
     bt_Serial_Refresh.set_label("Refresh");
@@ -85,6 +85,7 @@ ControlGUI::ControlGUI() {
     bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
     bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
     bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
+//	bt_reset_ack.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::reset_lost_acks));
     bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
 }
 
@@ -103,37 +104,12 @@ void ControlGUI::configureTestFrame() {
 }
 
 void ControlGUI::_send_command(){
-    std::string cmd;
-    cmd.append(send_cmd_box.get_text());
-    s.sendAPISerialText(cmd);
+	std::string cmd = send_cmd_box.get_text(); 
+    messenger.send_old_format(cmd);
 }
 
 void ControlGUI::_PID_Test(){
     PID_test_flag = !PID_test_flag;
-}
-
-// translate battery message
-void ControlGUI::handleBatteryMsg(char buf[12], int id) {
-    double battery;
-    std::string cmd(buf);
-    // check if first element is an ID
-    if (cmd[0] != 'A' && cmd[0] != 'B' && cmd[0] != 'C' && cmd[0] != 'D' && cmd[0] != 'E' && cmd[0] != 'F') {
-        std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG ID). " << cmd << std::endl;
-        return;
-    }
-
-    // check if the message's type is correct
-    if (cmd.find("VBAT;") == std::string::npos) {
-        std::cout << "ControlGUI::updateBattery: failed to update battery (WRONG MSG TYPE). " << cmd << std::endl;
-        return;
-    }
-
-    // get battery
-    battery = atof(cmd.substr(6,4).c_str());
-    battery = ((battery - 6.4)/2.0)*100; // % of battery
-
-    // update battery
-    updateInterfaceStatus(battery, id);
 }
 
 // Gets battery % and robot id to update a single robot's battery status
@@ -142,13 +118,11 @@ void ControlGUI::updateInterfaceStatus(double battery, int id) {
         status_img[id].set("img/online.png");
         battery_bar[id].set_fraction(battery/100);
         status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
-    }
-    else if (battery > 0) {
+    } else if (battery > 0) {
         status_img[id].set("img/critical.png");
         battery_bar[id].set_fraction(battery/100);
         status_lb[id].set_text(std::to_string(battery).substr(0,5)+"%");
-    }
-    else {
+    } else {
         status_img[id].set("img/zombie.png");
         battery_bar[id].set_fraction(0.0);
         battery_bar[id].set_text("0%");
@@ -158,49 +132,36 @@ void ControlGUI::updateInterfaceStatus(double battery, int id) {
 
 // update the battery status of all robots
 void ControlGUI::_robot_status(){
-    std::string cmd[TOTAL_ROBOTS] = {"A@BAT#", "B@BAT#", "C@BAT#", "D@BAT#", "E@BAT#", "F@BAT#"};
     std::string dateString;
     time_t tt;
-    char buf[TOTAL_ROBOTS][12];
 
     // define last update time
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    tt = std::chrono::system_clock::to_time_t ( now );
+    tt = std::chrono::system_clock::to_time_t(now);
     dateString.append("Last Update: ");
     dateString.append(std::string(ctime(&tt)).substr(0,24));
     lastUpdate_lb.set_text(dateString);
 
     // update robot status
-    for (int i = 0; i < TOTAL_ROBOTS; i++) {
-        // s.sendSerial(cmd[i]);
-        usleep(100000);
-        if(s.readSerial(buf[i],sizeof buf[i]) == 1) {
-            handleBatteryMsg(buf[i], i);
-        } else {
-            status_img[i].set("img/offline.png");
-            battery_bar[i].set_fraction(0.0);
+	for (int i = 0; i < TOTAL_ROBOTS; ++i) {
+		char id = get_robot_id(i);
+		double battery = messenger.get_battery(id);
+		if(battery != -1) {
+			updateInterfaceStatus(battery, i);
+		} else { 
+			status_img[i].set("img/offline.png");
+			battery_bar[i].set_fraction(0.0);
             battery_bar[i].set_text("0%");
             status_lb[i].set_text("Offline");
-        }
-    }
-
+		}
+	}
 }
 
 void ControlGUI::_start_serial(){
-    int fd;
     Glib::ustring serial = cb_serial.get_active_text();
-
-    if (serial.size() < 1) return;
-    fd = s.start(serial);
-
-     if(fd != -1)
-    {
-           std::cout<<serial<<" - Connected"<<std::endl;
-    } else{
-        std::cout<<serial<<" - Error"<<std::endl;
-    }
-
-
+	if (serial.empty()) return;
+	
+	messenger.start_xbee(serial);
 
     bt_Serial_Start.set_state(Gtk::STATE_INSENSITIVE);
     cb_serial.set_state(Gtk::STATE_INSENSITIVE);
@@ -239,8 +200,6 @@ bool ControlGUI::isFloat(std::string value){
 }
 
 void ControlGUI::_send_test(){
-    std::string cmd;
-
     // verifica se os valores inseridos nos campos são válidos (são números entre -1.4 e 1.4)
     if(!isFloat(Tbox_V1.get_text()))
         Tbox_V1.set_text("0");
@@ -256,6 +215,7 @@ void ControlGUI::_send_test(){
         else
             Tbox_V1.set_text("1.4");
     }
+    
     if(abs(v2) > 1.4) {
         if(v2 < 0)
             Tbox_V2.set_text("-1.4");
@@ -263,118 +223,47 @@ void ControlGUI::_send_test(){
             Tbox_V2.set_text("1.4");
     }
 
-    switch(cb_test.get_active_row_number()){
-        case -1:
-        return;
-        break;
+	int pos = cb_test.get_active_row_number();
+	std::string cmd = Tbox_V1.get_text()+";"+Tbox_V2.get_text();
+	
+	if(pos == -1) {
+		return;
+	} else if(pos != 6) {
+		char id = get_robot_id(pos);
+		messenger.send_msg(id,cmd);
+	} else {
+		for (int i = 0; i < 6; ++i) {
+			char id = get_robot_id(i);
+			messenger.send_msg(id,cmd);
+		}
+	}
+}
 
-        case 0:
-        cmd.append("A@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-        break;
-
-        case 1:
-        cmd.append("B@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-        break;
-
-        case 2:
-        cmd.append("C@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-        break;
-
-        case 3:
-        cmd.append("D@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-        break;
-
-        case 4:
-        cmd.append("E@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-        break;
-
-        case 5:
-        cmd.append("F@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-        break;
-
-        case 6:
-        cmd.append("A@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-
-        cmd.append("B@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-
-        cmd.append("C@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-
-        cmd.append("D@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-
-        cmd.append("E@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-
-        cmd.append("F@");
-        cmd.append(Tbox_V1.get_text());
-        cmd.append(";");
-        cmd.append(Tbox_V2.get_text());
-        cmd.append("#");
-        break;
-
-        break;
-    }
-    // s.sendSerial(cmd);
+int ControlGUI::get_robot_pos(char id) {
+	return uint8_t(id)-65;
+} 
+ 
+char ControlGUI::get_robot_id(int pos) {
+	return char(65+pos);
 }
 
 void ControlGUI::_update_cb_serial(){
+	messenger.stop_xbee();
 
-    std::string port;
-    int fd;
     cb_serial.remove_all();
+	
     for(int i = 0; i < 256; ++i) {
-        port.clear();
-        port.append("/dev/ttyUSB");
-        port.append(std::to_string(i));
+        std::string port = "/dev/ttyUSB";
+		port.append(std::to_string(i));
 
-        fd = open(port.c_str(), O_RDWR);
+        int fd = open(port.c_str(), O_RDWR);
         if(fd != -1) {
             std::cout<<port<<std::endl;
             cb_serial.append(port);
+			close(fd);
         }
     }
+    
     bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
     cb_serial.set_state(Gtk::STATE_NORMAL);
     bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
@@ -385,8 +274,6 @@ void ControlGUI::_update_cb_serial(){
     bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
     cb_test.set_state(Gtk::STATE_INSENSITIVE);
     bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
-    s.Serial_Enabled = false;
-
 }
 
 void ControlGUI::_create_status_frame(){
@@ -405,6 +292,8 @@ void ControlGUI::_create_status_frame(){
     lastUpdate_lb.set_text("Last Update: -");
     lastUpdate_lb.set_valign(Gtk::ALIGN_BASELINE);
     status_grid.attach(lastUpdate_lb, 1, 0, 3, 1);
+    bt_reset_ack.set_label("Reset Lost ACKs");
+    status_grid.attach(bt_reset_ack, 4, 0, 1, 1);
 
     std::vector<std::string> name;
     name.push_back("Robot A");
@@ -423,6 +312,31 @@ void ControlGUI::_create_status_frame(){
         status_grid.attach(battery_bar[i], 2, i+1, 1, 1);
         status_lb[i].set_text("Offline");
         status_grid.attach(status_lb[i], 3, i+1, 1, 1);
+        dropped_frames_text[i].set_label("Lost ACKs: ");
+        status_grid.attach(dropped_frames_text[i], 4, i+1, 1, 1);
+        dropped_frames[i].set_label("- ");
+		status_grid.attach(dropped_frames[i], 5, i+1, 1, 1);
+    }
+}
+
+void ControlGUI::update_dropped_frames(std::vector<message> acks) {
+    for(message ack : acks) {
+        int pos = get_robot_pos(ack.id);
+        if(ack.data != "0") dropped_frames_num[pos]++;
+        total_frames_num[pos]++;
+        double rate = double(dropped_frames_num[pos])/double(total_frames_num[pos])*100;
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(3) << rate << "%";
+        std::string dropped_f = stream.str();
+        dropped_frames[pos].set_label(dropped_f);
+    }
+}
+
+void ControlGUI::reset_lost_acks() {
+    for (int i = 0; i < TOTAL_ROBOTS; ++i) {
+		dropped_frames_num[i] = 0;
+        total_frames_num[i] = 0;
+        dropped_frames[i].set_label("- ");
     }
 }
 
