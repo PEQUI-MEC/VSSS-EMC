@@ -107,8 +107,19 @@ string Messenger::to_string(double num) {
 }
 
 double Messenger::get_battery(char id) {
+	if(!xbee) return -1;
 	string msg = xbee->send_get_answer(id,"B");
 	if(msg.empty() || msg[0] != 'B') return -1;
 	msg.erase(0,1);
 	return ((stod(msg) - 6.4)/2.0)*100; // % of battery
+}
+
+ack_count Messenger::get_ack_count(char id){
+	if(!xbee) return {-1,-1,-1};
+	else return xbee->get_ack_count(id);
+}
+
+void Messenger::reset_lost_acks() {
+	if(!xbee) return;
+	xbee->reset_lost_acks();
 }

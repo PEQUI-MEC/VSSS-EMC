@@ -85,7 +85,7 @@ ControlGUI::ControlGUI() {
     bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
     bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
     bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
-//	bt_reset_ack.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::reset_lost_acks));
+	bt_reset_ack.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::reset_lost_acks));
     bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
 }
 
@@ -174,6 +174,7 @@ void ControlGUI::_start_serial(){
     cb_test.set_state(Gtk::STATE_NORMAL);
     pid_edit_bt.set_state(Gtk::STATE_NORMAL);
     bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
+    bt_reset_ack.set_state(Gtk::STATE_NORMAL);
 }
 
 bool ControlGUI::isFloat(std::string value){
@@ -274,6 +275,7 @@ void ControlGUI::_update_cb_serial(){
     bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
     cb_test.set_state(Gtk::STATE_INSENSITIVE);
     bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
+    bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
 }
 
 void ControlGUI::_create_status_frame(){
@@ -292,7 +294,7 @@ void ControlGUI::_create_status_frame(){
     lastUpdate_lb.set_text("Last Update: -");
     lastUpdate_lb.set_valign(Gtk::ALIGN_BASELINE);
     status_grid.attach(lastUpdate_lb, 1, 0, 3, 1);
-    bt_reset_ack.set_label("Reset Lost ACKs");
+    bt_reset_ack.set_label("Reset ACKs");
     status_grid.attach(bt_reset_ack, 4, 0, 1, 1);
 
     std::vector<std::string> name;
@@ -312,32 +314,28 @@ void ControlGUI::_create_status_frame(){
         status_grid.attach(battery_bar[i], 2, i+1, 1, 1);
         status_lb[i].set_text("Offline");
         status_grid.attach(status_lb[i], 3, i+1, 1, 1);
-        dropped_frames_text[i].set_label("Lost ACKs: ");
-        status_grid.attach(dropped_frames_text[i], 4, i+1, 1, 1);
-        dropped_frames[i].set_label("- ");
-		status_grid.attach(dropped_frames[i], 5, i+1, 1, 1);
+        dropped_frames[i].set_label("Lost ACKs: 0.00%, Total: 0");
+        status_grid.attach(dropped_frames[i], 4, i+1, 1, 1);
     }
 }
 
-void ControlGUI::update_dropped_frames(std::vector<message> acks) {
-    for(message ack : acks) {
-        int pos = get_robot_pos(ack.id);
-        if(ack.data != "0") dropped_frames_num[pos]++;
-        total_frames_num[pos]++;
-        double rate = double(dropped_frames_num[pos])/double(total_frames_num[pos])*100;
+void ControlGUI::update_dropped_frames() {
+	for(int i = 0; i < TOTAL_ROBOTS; ++i) {
+        char id = get_robot_id(i);
+        ack_count ack = messenger.get_ack_count(id);
+        if(ack.total == -1) return;
+
         std::stringstream stream;
-        stream << std::fixed << std::setprecision(3) << rate << "%";
-        std::string dropped_f = stream.str();
-        dropped_frames[pos].set_label(dropped_f);
+		stream << "Lost ACKs: ";
+        stream << std::fixed << std::setprecision(2) << ack.lost_rate<< "%";
+		stream << ", Total: " << ack.total;
+        dropped_frames[i].set_text(stream.str());
     }
 }
 
 void ControlGUI::reset_lost_acks() {
-    for (int i = 0; i < TOTAL_ROBOTS; ++i) {
-		dropped_frames_num[i] = 0;
-        total_frames_num[i] = 0;
-        dropped_frames[i].set_label("- ");
-    }
+	messenger.reset_lost_acks();
+    update_dropped_frames();
 }
 
 // Função para verificar se os valores digitados nos campos

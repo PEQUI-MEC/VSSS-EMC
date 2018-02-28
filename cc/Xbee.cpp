@@ -17,6 +17,7 @@ Xbee::~Xbee(){
 	for(pair<const char,robot_xbee>& r : robots){
 		xbee_conEnd(r.second.con);
 	}
+	robots.clear();
 	xbee_shutdown(xbee);
 }
 
@@ -35,7 +36,7 @@ void Xbee::add_robot(char id, uint16_t addr) {
 		return;
 	}
 
-	robots[id] = {id,addr,con};
+	robots[id] = {id,addr,con,{0,0,0}};
 }
 
 int Xbee::send(char id, const string &message) {
@@ -43,6 +44,7 @@ int Xbee::send(char id, const string &message) {
 
 	uint8_t ack;
 	xbee_conTx(robots[id].con, &ack, message.c_str());
+	update_ack(id, ack);
 	return ack;
 }
 
@@ -72,13 +74,31 @@ string Xbee::send_get_answer(char id, const string &message) {
 	struct xbee_pkt *pkt;
 	uint8_t ack;
 	xbee_conTx(robots[id].con, &ack, message.c_str());
+	update_ack(id, ack);
 	if (ack == 0 && xbee_conRxWait(robots[id].con, &pkt, nullptr) == XBEE_ENONE && pkt->dataLen > 0)
 		return get_string(pkt);
 	else
 		return "erro";
 }
 
+void Xbee::update_ack(char id, int ack) {
+	ack_count& acks = robots[id].acks;
+	if(ack != 0) acks.lost++;
+	acks.total++;
+	acks.lost_rate = double(acks.lost)/double(acks.total)*100;
+}
+
 string Xbee::get_string(struct xbee_pkt *pkt){
 	string str(pkt->data, pkt->data+pkt->dataLen);
 	return str;
+}
+
+ack_count Xbee::get_ack_count(char id) {
+	return robots[id].acks;
+}
+
+void Xbee::reset_lost_acks() {
+	for(pair<const char, robot_xbee>& r : robots){
+		r.second.acks = {0,0,0};
+	}
 }

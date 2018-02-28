@@ -372,6 +372,7 @@ public:
         } // if !draw_info_flag
 
         updateAllPositions();
+		control.update_dropped_frames();
 
         if (interface.imageView.PID_test_flag && !interface.get_start_game_flag()) {
             control.button_PID_Test.set_active(true);
@@ -473,8 +474,7 @@ public:
                 robot_list[0].position = robot_kf_est[0];
                 robot_list[1].position = robot_kf_est[1];
                 robot_list[2].position = robot_kf_est[2];
-                std::vector<message> acks = control.messenger.sendCMDs(robot_list);
-//				control.update_dropped_frames(acks);
+                control.messenger.sendCMDs(robot_list);
             }
             boost::this_thread::sleep(boost::posix_time::milliseconds(200));
         }

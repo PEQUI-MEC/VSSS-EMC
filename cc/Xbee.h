@@ -8,15 +8,22 @@
 #include <cstring>
 #include <unordered_map>
 
-struct robot_xbee {
-	char id;
-	uint16_t addr;
-	struct xbee_con *con;
-};
-
 struct message {
 	char id;
 	std::string data;
+};
+
+struct ack_count {
+	int lost;
+	int total;
+	double lost_rate;
+};
+
+struct robot_xbee {
+	char id;
+	uint16_t addr;
+	xbee_con *con;
+	ack_count acks;
 };
 
 class Xbee {
@@ -32,6 +39,9 @@ class Xbee {
 		std::string send_get_answer(char id, const std::string &message);
 		std::vector<message> send_get_answer_all(const std::string &message);
 		std::stack<message> get_messages();
+		void update_ack(char id, int ack);
+		ack_count get_ack_count(char id);
+		void reset_lost_acks();
 		std::string get_string(xbee_pkt *pkt);
 };
 
