@@ -794,7 +794,7 @@ namespace capture {
         robots_speed_progressBar[0].set_text(str0.substr(0, 3));
         robots_speed_progressBar[0].set_show_text(true);
         robots_speed_progressBar[0].set_size_request(barSize, -1);
-        robots_speed_progressBar[0].set_fraction((double) robot_list[0].vmax);
+        robots_speed_progressBar[0].set_fraction(robot_list[0].vmax/1.4);
         robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
         label = new Gtk::Label("Robot 2:");
@@ -825,7 +825,7 @@ namespace capture {
         robots_speed_progressBar[1].set_text(str1.substr(0, 3));
         robots_speed_progressBar[1].set_show_text(true);
         robots_speed_progressBar[1].set_size_request(barSize, -1);
-        robots_speed_progressBar[1].set_fraction((double) robot_list[1].vmax);
+        robots_speed_progressBar[1].set_fraction(robot_list[1].vmax/1.4);
         robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 5);
 
         label = new Gtk::Label("Robot 3:");
@@ -855,7 +855,7 @@ namespace capture {
         robots_speed_progressBar[2].set_text(str2.substr(0, 3));
         robots_speed_progressBar[2].set_show_text(true);
         robots_speed_progressBar[2].set_size_request(barSize, -1);
-        robots_speed_progressBar[2].set_fraction((double) robot_list[2].vmax);
+        robots_speed_progressBar[2].set_fraction(robot_list[2].vmax/1.4);
         robots_speed_vbox[0].pack_start(robots_speed_hbox[3], false, true, 0);
 
         robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);

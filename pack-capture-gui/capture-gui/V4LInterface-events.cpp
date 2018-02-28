@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <jsonSaveManager.h>
 
 #define DEFAULT_STR " - "
 
@@ -42,43 +43,38 @@ namespace capture {
     // signals
     void V4LInterface::__event_bt_quick_save_clicked() {
         std::cout << "QUICK SAVE" << std::endl;
-
-        if (!V4LInterface::__core_save("quicksave.txt")) {
-            std::cout << "Error: could not quick save." << std::endl;
-        }
+        jsonSaveManager config(this);
+		config.save();
     }
-
 
     void V4LInterface::__event_bt_save_clicked() {
         std::cout << "SAVE" << std::endl;
-
         FileChooser loadWindow;
 
-        if (loadWindow.result == Gtk::RESPONSE_OK)
-            if (!V4LInterface::__core_save(loadWindow.fileName.c_str())) {
-                std::cout << "Error: could not save." << std::endl;
-            } else
-                return;
+        if (loadWindow.result == Gtk::RESPONSE_OK){
+            jsonSaveManager config(this);
+			config.save(loadWindow.fileName);
+        }
     }
 
     void V4LInterface::__event_bt_quick_load_clicked() {
         std::cout << "QUICK LOAD" << std::endl;
-
-        if (!V4LInterface::__core_load("quicksave.txt")) {
-            std::cout << "Error: could not quick load. Maybe a quicksave.txt file does not exist." << std::endl;
-        }
+        jsonSaveManager config(this);
+		config.load();
+        update_interface_robots();
+		update_interface_camera();
     }
 
     void V4LInterface::__event_bt_load_clicked() {
         std::cout << "LOAD" << std::endl;
-
         FileChooser loadWindow;
 
-        if (loadWindow.result == Gtk::RESPONSE_OK)
-            if (!V4LInterface::__core_load(loadWindow.fileName.c_str())) {
-                std::cout << "Error: could not quick load. The requested file could not be opened." << std::endl;
-            } else
-                return;
+        if (loadWindow.result == Gtk::RESPONSE_OK) {
+            jsonSaveManager config(this);
+            config.load(loadWindow.fileName);
+            update_interface_robots();
+            update_interface_camera();
+        }
     }
 
 
@@ -257,10 +253,10 @@ namespace capture {
         if (dev.size() < 1) return;
 
         if (vcap.open_device(dev.data(), true)) {
-
-
             struct v4l2_capability cap;
             vcap.query_capability(&cap);
+
+			camera_card = std::string((const char *) cap.card);
 
             lb_device_name.set_text(dev.data());
             lb_device_card.set_text((const char *) cap.card);
@@ -285,6 +281,8 @@ namespace capture {
         }
 
         __make_control_list_default();
+
+        __event_bt_quick_load_clicked();
 
         __make_control_table(ctrl_list_default, "Cam Configs");
 
@@ -638,261 +636,51 @@ namespace capture {
 
     }
 
-
-    bool V4LInterface::__core_save(const char *txtFileName) {
-        std::ofstream txtFile;
-        txtFile.open(txtFileName);
-
-
-        if (txtFile.is_open()) {
-            // !BEGIN_INFO
-            std::cout << "Saving robots info..." << std::endl;
-
-            // sempre é salvo 9 linhas
-            for (int i = 0; i < 3; i++) {
-                txtFile << robots_id_box[i].get_active_text() << std::endl;
-                txtFile << cb_robot_function[i].get_active_row_number() << std::endl;
-                txtFile << robots_speed_hscale[i].get_value() << std::endl;
-            }
-            // !END_INFO
-
-            // !BEGIN_HSV
-            std::cout << "Saving HSV calibs..." << std::endl;
-            // salva sempre 42 linhas linhas
-            for (int i = 0; i < 4; i++) {
-                txtFile << visionGUI.vision->getHue(i, 0) << std::endl << visionGUI.vision->getHue(i, 1) << std::endl;
-                txtFile << visionGUI.vision->getSaturation(i, 0) << std::endl << visionGUI.vision->getSaturation(i, 1)
-                        << std::endl;
-                txtFile << visionGUI.vision->getValue(i, 0) << std::endl << visionGUI.vision->getValue(i, 1)
-                        << std::endl;
-                txtFile << visionGUI.vision->getDilate(i) << std::endl;
-                txtFile << visionGUI.vision->getErode(i) << std::endl;
-                txtFile << visionGUI.vision->getBlur(i) << std::endl;
-                txtFile << visionGUI.vision->getAmin(i) << std::endl;
-            }
-            // !END_HSV
-
-            // !BEGIN_WARP
-            std::cout << "Saving warp matrix..." << std::endl;
-            // salva sempre 18 linhas
-            txtFile << imageView.warp_mat[0][0] << std::endl << imageView.warp_mat[0][1] << std::endl;
-            txtFile << imageView.warp_mat[1][0] << std::endl << imageView.warp_mat[1][1] << std::endl;
-            txtFile << imageView.warp_mat[2][0] << std::endl << imageView.warp_mat[2][1] << std::endl;
-            txtFile << imageView.warp_mat[3][0] << std::endl << imageView.warp_mat[3][1] << std::endl;
-            txtFile << offsetL << std::endl << offsetR << std::endl;
-            txtFile << imageView.adjust_mat[0][0] << std::endl << imageView.adjust_mat[0][1] << std::endl;
-            txtFile << imageView.adjust_mat[1][0] << std::endl << imageView.adjust_mat[1][1] << std::endl;
-            txtFile << imageView.adjust_mat[2][0] << std::endl << imageView.adjust_mat[2][1] << std::endl;
-            txtFile << imageView.adjust_mat[3][0] << std::endl << imageView.adjust_mat[3][1] << std::endl;
-            // !END_WARP
-
-            // !BEGIN_CAM
-            std::cout << "Saving cam prop..." << std::endl;
-
-            struct v4l2_queryctrl qctrl;
-            struct v4l2_control control;
-            std::list<ControlHolder>::iterator iter;
-
-            // sempre salva um id e seu valor
-            // como o número de linhas é o único que pode ser variável, coloquei por último no arquivo
-            for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end(); ++iter) {
-                qctrl = (*iter).qctrl;
-                vcap.get_control(&control, qctrl.id);
-                txtFile << qctrl.id << std::endl << control.value << std::endl;
-            }
-            // !END_CAM
-
-            txtFile.close();
-
-            return true;
-        } else {
-            return false;
+    void V4LInterface::update_interface_robots() {
+        for (int i = 0; i < 3; i++) {
+            Robot robot = robot_list[i];
+			robots_id_box[i].set_active_text(&robot.ID);
+			cb_robot_function[i].set_active(robot.role);
+            robots_speed_hscale[i].set_value(robot.vdefault);
+            robots_speed_progressBar[i].set_fraction(robot.vmax/1.4);
+			std::ostringstream vmax;
+            vmax << round(robot.vmax*100)/100;
+            robots_speed_progressBar[i].set_text(vmax.str());
         }
     }
 
-    bool V4LInterface::__core_load(const char *txtFileName) {
-        std::ifstream txtFile;
-        txtFile.open(txtFileName);
-        std::string line;
+    void V4LInterface::update_interface_camera() {
+        visionGUI.HScale_Hmin.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 0));
+        visionGUI.HScale_Hmax.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 1));
 
-        if (txtFile.is_open()) {
-            // !BEGIN_INFO
-            std::cout << "Loading robots info..." << std::endl;
+        visionGUI.HScale_Smin.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 0));
+        visionGUI.HScale_Smax.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 1));
 
-            // lê os três valores para cada robô -- sempre 9 linhas
-            for (int i = 0; i < 3; i++) {
-                getline(txtFile, line);
-                robots_id_box[i].set_active_text(line.c_str());
-                robot_list[i].ID = line.c_str()[0];
+        visionGUI.HScale_Vmin.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 0));
+        visionGUI.HScale_Vmax.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 1));
 
-                getline(txtFile, line);
-                cb_robot_function[i].set_active(atoi(line.c_str()));
-                if (cb_robot_function[i].get_active_row_number() == 0) {
-                    std::cout << "Robot " << i + 1 << ": Goalkeeper." << std::endl;
-                    robot_list[i].role = 0;
-                } else if (cb_robot_function[i].get_active_row_number() == 1) {
-                    std::cout << "Robot " << i + 1 << ": Defense." << std::endl;
-                    robot_list[i].role = 1;
-                } else if (cb_robot_function[i].get_active_row_number() == 2) {
-                    std::cout << "Robot " << i + 1 << ": Attack." << std::endl;
-                    robot_list[i].role = 2;
-                } else if (cb_robot_function[i].get_active_row_number() == 3) {
-                    std::cout << "Robot " << i + 1 << ": Opponent." << std::endl;
-                    robot_list[i].role = 3;
-                } else {
-                    std::cout << "Error: not possible to set robot " << i + 1 << " function." << std::endl;
-                }
+        visionGUI.HScale_Dilate.set_value(visionGUI.vision->getDilate(visionGUI.Img_id));
+        visionGUI.HScale_Erode.set_value(visionGUI.vision->getErode(visionGUI.Img_id));
+        visionGUI.HScale_Blur.set_value(visionGUI.vision->getBlur(visionGUI.Img_id));
+        visionGUI.HScale_Amin.set_value(visionGUI.vision->getAmin(visionGUI.Img_id));
 
-                getline(txtFile, line);
-                double value = atof(line.c_str());
-                //std::cout << "ATOF " << atof(line.c_str()) << std::endl;
-                robots_speed_hscale[i].set_value((double) value);
-                robot_list[i].vmax = (double) value;
-                robot_list[i].vdefault = (double) value;
-
-                robots_speed_progressBar[i].set_fraction(robots_speed_hscale[i].get_value() / 6);
-                std::ostringstream strs;
-                strs << robots_speed_hscale[i].get_value();
-                std::string str = strs.str();
-                robots_speed_progressBar[i].set_text(str.substr(0, 4));
-            }
-            // !END_INFO
-
-            // !BEGIN_HSV
-            std::cout << "Loading HSV calibs..." << std::endl;
-            for (int i = 0; i < 4; i++) {
-                getline(txtFile, line);
-                visionGUI.vision->setHue(i, 0, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setHue(i, 1, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setSaturation(i, 0, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setSaturation(i, 1, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setValue(i, 0, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setValue(i, 1, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setDilate(i, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setErode(i, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setBlur(i, atoi(line.c_str()));
-                getline(txtFile, line);
-                visionGUI.vision->setAmin(i, atoi(line.c_str()));
-            }
-
-            visionGUI.HScale_Hmin.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 0));
-            visionGUI.HScale_Hmax.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 1));
-
-            visionGUI.HScale_Smin.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 0));
-            visionGUI.HScale_Smax.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 1));
-
-            visionGUI.HScale_Vmin.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 0));
-            visionGUI.HScale_Vmax.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 1));
-
-            visionGUI.HScale_Dilate.set_value(visionGUI.vision->getDilate(visionGUI.Img_id));
-            visionGUI.HScale_Erode.set_value(visionGUI.vision->getErode(visionGUI.Img_id));
-            visionGUI.HScale_Blur.set_value(visionGUI.vision->getBlur(visionGUI.Img_id));
-            visionGUI.HScale_Amin.set_value(visionGUI.vision->getAmin(visionGUI.Img_id));
-            // !END_HSV
-
-            // !BEGIN_WARP
-            // não precisa ser modificado, não usa o mesmo stream
-            __event_bt_warp_clicked();
-            // !END_WARP
-
-            // !BEGIN_LOADWARP
-            std::cout << "Loading warp matrix..." << std::endl;
-
-            getline(txtFile, line);
-            imageView.warp_mat[0][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.warp_mat[0][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[0][0] <<std::endl<<imageView.warp_mat[0][1] <<std::endl;
-
-            getline(txtFile, line);
-            imageView.warp_mat[1][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.warp_mat[1][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[1][0] <<std::endl<<imageView.warp_mat[1][1] <<std::endl;
-
-            getline(txtFile, line);
-            imageView.warp_mat[2][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.warp_mat[2][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[2][0] <<std::endl<<imageView.warp_mat[2][1] <<std::endl;
-
-            getline(txtFile, line);
-            imageView.warp_mat[3][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.warp_mat[3][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[3][0] <<std::endl<<imageView.warp_mat[3][1] <<std::endl;
-            getline(txtFile, line);
-            offsetL = atoi(line.c_str());
-            getline(txtFile, line);
-            offsetR = atoi(line.c_str());
-
-            getline(txtFile, line);
-            imageView.adjust_mat[0][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.adjust_mat[0][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[0][0] <<std::endl<<imageView.warp_mat[0][1] <<std::endl;
-
-            getline(txtFile, line);
-            imageView.adjust_mat[1][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.adjust_mat[1][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[1][0] <<std::endl<<imageView.warp_mat[1][1] <<std::endl;
-
-            getline(txtFile, line);
-            imageView.adjust_mat[2][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.adjust_mat[2][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[2][0] <<std::endl<<imageView.warp_mat[2][1] <<std::endl;
-
-            getline(txtFile, line);
-            imageView.adjust_mat[3][0] = atoi(line.c_str());
-            getline(txtFile, line);
-            imageView.adjust_mat[3][1] = atoi(line.c_str());
-            //std::cout<< imageView.warp_mat[3][0] <<std::endl<<imageView.warp_mat[3][1] <<std::endl;
-
+        if(warped) {
+            bt_warp.set_state(Gtk::STATE_INSENSITIVE);
+            if(imageView.adjust_rdy)
+                bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+            else bt_adjust.set_state(Gtk::STATE_NORMAL);
+        } else {
+            bt_warp.set_state(Gtk::STATE_NORMAL);
             bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
-
-            warped = true;
-            imageView.adjust_rdy = true;
-            HScale_offsetL.set_value(offsetL);
-            HScale_offsetR.set_value(offsetR);
-            imageView.warp_event_flag = false;
-            // !END_LOADWARP
-
-            // !BEGIN_CAM
-            std::cout << "Loading cam prop..." << std::endl;
-
-            struct v4l2_queryctrl qctrl;
-            struct v4l2_control control;
-            std::list<ControlHolder>::iterator iter;
-
-            for (iter = ctrl_list_default.begin(); iter != ctrl_list_default.end() && !txtFile.eof(); ++iter) {
-                getline(txtFile, line);
-                qctrl.id = atoi(line.c_str());
-                getline(txtFile, line);
-                control.value = atoi(line.c_str());
-                if (!vcap.set_control(qctrl.id, control.value)) {
-                    std::cout << "Can not load control [ " << qctrl.id << " ] with value " << control.value
-                              << std::endl;
-                }
-            }
-
-            __update_control_widgets(ctrl_list_default);
-            // !END_CAM
-
-            txtFile.close();
-            return true;
-        } else {
-            return false;
         }
-    }
 
+        if(warped || imageView.adjust_rdy)
+            bt_reset_warp.set_state(Gtk::STATE_NORMAL);
+        else bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
+
+        HScale_offsetL.set_value(offsetL);
+        HScale_offsetR.set_value(offsetR);
+
+        __update_control_widgets(ctrl_list_default);
+    }
 }
