@@ -26,6 +26,12 @@
 
 namespace capture {
 
+    typedef struct __ctrl_holder {
+        struct v4l2_queryctrl qctrl;
+        Gtk::Widget *widget;
+        sigc::connection con;
+    } ControlHolder;
+
     class V4LInterface : public Gtk::VBox {
 
     public:
@@ -39,9 +45,13 @@ namespace capture {
 
         ImageView imageView;
 
+            std::list<ControlHolder> ctrl_list_default;
+
         double ballX, ballY;
 
         std::vector<Robot> robot_list;
+
+            std::string camera_card;
 
         Gtk::Image red_button_released;
         Gtk::Image red_button_pressed;
@@ -134,10 +144,6 @@ namespace capture {
 
         void __event_bt_load_clicked();
 
-        bool __core_save(const char *);
-
-        bool __core_load(const char *);
-
         void __event_bt_start_clicked();
 
         void __event_bt_warp_clicked();
@@ -195,6 +201,10 @@ namespace capture {
         void updateFPS(int fps);
 
         bool get_start_game_flag();
+
+            void update_interface_robots();
+
+            void update_interface_camera();
 
         /* Signals */
         typedef sigc::signal<bool, bool> SignalStart;
@@ -311,12 +321,7 @@ namespace capture {
         Gtk::Notebook notebook2;
         //==================================================================
 
-        typedef struct __ctrl_holder {
-            struct v4l2_queryctrl qctrl;
-            Gtk::Widget *widget;
-            sigc::connection con;
-        } ControlHolder;
-        std::list<ControlHolder> ctrl_list_default;
+
 
         void __make_controls();
 

@@ -36,7 +36,7 @@ set(SOURCE_FILES cc/main.cpp
         cc/Fuzzy/FuzzyController.cpp
         cc/Fuzzy/FuzzyFunction.cpp
         cc/Fuzzy/Rules.cpp
-	cc/vision/visionROI.cpp
+		cc/vision/visionROI.cpp
         cc/vision/gmm.cpp
         cc/vision/tag.cpp
         cc/vision/vision.cpp
@@ -53,7 +53,8 @@ set(SOURCE_FILES cc/main.cpp
         cc/Kalman_Filter.hpp
         cc/Strategy.hpp
         cc/Xbee.cpp cc/Xbee.h
-        cc/Messenger.cpp cc/Messenger.h)
+        cc/Messenger.cpp cc/Messenger.h
+		cc/lib/json.hpp cc/jsonSaveManager.cpp cc/jsonSaveManager.h)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
