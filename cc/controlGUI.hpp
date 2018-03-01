@@ -69,10 +69,7 @@ public:
 	Gtk::Label lastUpdate_lb;
 	Gtk::ProgressBar battery_bar[TOTAL_ROBOTS];
 		Gtk::Label dropped_frames[TOTAL_ROBOTS];
-		Gtk::Label dropped_frames_text[TOTAL_ROBOTS];
 		Gtk::Button bt_reset_ack;
-		int dropped_frames_num[TOTAL_ROBOTS] = {0};
-		int total_frames_num[TOTAL_ROBOTS] = {0};
 
 	Gtk::Frame pid_fm;
 	Gtk::VBox pid_vbox;
@@ -119,7 +116,7 @@ public:
 	
 	int get_robot_pos(char id);
     char get_robot_id(int pos);
-		void update_dropped_frames(std::vector<message> acks);
+		void update_dropped_frames();
 		void reset_lost_acks();
 };
 
