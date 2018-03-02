@@ -56,8 +56,8 @@ namespace capture {
         Gtk::Image red_button_released;
         Gtk::Image red_button_pressed;
 
-        Gtk::Label *robot1_pos_lb, *robot2_pos_lb, *robot3_pos_lb;
-        Gtk::Label *ball_pos_lb;
+        std::vector<Gtk::Label> robot_pos_lb_list;
+        Gtk::Label ball_pos_lb;
 
         Gtk::Frame robots_id_fm;
         Gtk::HBox info_hbox;

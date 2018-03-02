@@ -675,24 +675,18 @@ namespace capture {
     }
 
     void V4LInterface::updateRobotLabels() {
-        std::stringstream aux1;
-        aux1 << "(" << round((robot_list[0].position.x)) << "," << round((robot_list[0].position.y)) << ","
-             << round(robot_list[0].orientation * (180 / PI)) << ")";
-        robot1_pos_lb->set_text(aux1.str());
+        std::stringstream ss;
 
-        std::stringstream aux2;
-        aux2 << "(" << round((robot_list[1].position.x)) << "," << round((robot_list[1].position.y)) << ","
-             << round((robot_list[1].orientation * (180 / PI))) << ")";
-        robot2_pos_lb->set_text(aux2.str());
+        for (unsigned long i = 0; i < robot_list.size(); i++) {
+            ss << "(" << std::fixed << std::setprecision(0) << robot_list[i].position.x << ","
+               << std::fixed << std::setprecision(0) << robot_list[i].position.y << ","
+               << std::fixed << std::setprecision(1) <<  robot_list[i].orientation * (180 / PI) << ")";
+            robot_pos_lb_list.at(i).set_text(ss.str());
+            ss.str(std::string());
+        }
 
-        std::stringstream aux3;
-        aux3 << "(" << round((robot_list[2].position.x)) << "," << round((robot_list[2].position.y)) << ","
-             << round((robot_list[2].orientation * (180 / PI))) << ")";
-
-        robot3_pos_lb->set_text(aux3.str());
-        std::stringstream aux4;
-        aux4 << "(" << round((ballX)) << "," << round((ballY)) << ")";
-        ball_pos_lb->set_text(aux4.str());
+        ss << "(" << std::fixed << std::setprecision(0) << ballX << "," << ballY << ")";
+        ball_pos_lb.set_text(ss.str());
     }
 
     void V4LInterface::updateFPS(int fps) {
@@ -954,6 +948,7 @@ namespace capture {
 
     void V4LInterface::createPositionsAndButtonsFrame() {
         Gtk::Label *label;
+        std::stringstream ss;
         info_hbox.pack_start(robots_pos_buttons_vbox, false, true, 5);
 
         robots_pos_fm.set_label("Positions");
@@ -961,31 +956,20 @@ namespace capture {
         robots_pos_fm.add(robots_pos_vbox);
         robots_pos_vbox.set_size_request(190, -1);
 
-
-        label = new Gtk::Label("Robot 1:");
-        robot1_pos_lb = new Gtk::Label("-");
-        robots_pos_hbox[0].pack_start(*label, false, true, 5);
-        robots_pos_hbox[0].pack_start(*robot1_pos_lb, false, true, 5);
-        robots_pos_vbox.pack_start(robots_pos_hbox[0], false, true, 5);
-
-
-        label = new Gtk::Label("Robot 2:");
-        robot2_pos_lb = new Gtk::Label("-");
-        robots_pos_hbox[1].pack_start(*label, false, true, 5);
-        robots_pos_hbox[1].pack_start(*robot2_pos_lb, false, true, 5);
-        robots_pos_vbox.pack_start(robots_pos_hbox[1], false, true, 5);
-
-
-        label = new Gtk::Label("Robot 3:");
-        robot3_pos_lb = new Gtk::Label("-");
-        robots_pos_hbox[2].pack_start(*label, false, true, 5);
-        robots_pos_hbox[2].pack_start(*robot3_pos_lb, false, true, 5);
-        robots_pos_vbox.pack_start(robots_pos_hbox[2], false, true, 5);
+        for (unsigned long i = 0; i < robot_list.size(); i++) {
+            ss << "Robot " << i << ":";
+            label = new Gtk::Label(ss.str());
+            robot_pos_lb_list.at(i).set_text("-");
+            robots_pos_hbox[i].pack_start(*label, false, true, 5);
+            robots_pos_hbox[i].pack_start(robot_pos_lb_list.at(i), false, true, 5);
+            robots_pos_vbox.pack_start(robots_pos_hbox[i], false, true, 5);
+            ss.str(std::string());
+        }
 
         label = new Gtk::Label("Ball:");
-        ball_pos_lb = new Gtk::Label("-");
+        ball_pos_lb.set_text("-");
         robots_pos_hbox[3].pack_start(*label, false, true, 5);
-        robots_pos_hbox[3].pack_start(*ball_pos_lb, false, true, 5);
+        robots_pos_hbox[3].pack_start(ball_pos_lb, false, true, 5);
         robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
 
         robots_pos_buttons_vbox.pack_start(robots_buttons_fm, false, true, 5);
@@ -1123,7 +1107,7 @@ namespace capture {
 
     V4LInterface::V4LInterface() :
             Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(false),
-            offsetL(0), offsetR(0) {
+            offsetL(0), offsetR(0), robot_pos_lb_list(3) {
 
         initInterface();
 
@@ -1131,7 +1115,7 @@ namespace capture {
 
     V4LInterface::V4LInterface(bool isLow) :
             Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(isLow),
-            offsetL(0), offsetR(0) {
+            offsetL(0), offsetR(0), robot_pos_lb_list(3) {
 
         initInterface();
 
