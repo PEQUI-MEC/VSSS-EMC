@@ -9,6 +9,7 @@ VSSS
 
 build/
 
-\.idea/
+\.idea/*
+!.idea/codeStyles/
 
 cmake-build-debug/
