@@ -31,15 +31,11 @@ find_library(LIBXBEE libxbee.so libxbeep.so)
 set(SOURCE_FILES cc/main.cpp
         cc/controlGUI.cpp
         cc/filechooser.cpp
-        cc/StrategyGUI.hpp
         cc/CamCap.cpp
         cc/KalmanFilter.cpp
         cc/Strategy.cpp
         cc/StrategyGUI.cpp
-        cc/CamCap.hpp
         cc/Constants.hpp
-        cc/KalmanFilter.hpp
-        cc/Strategy.hpp
         cc/Xbee.cpp
         cc/Messenger.cpp
         cc/jsonSaveManager.cpp
