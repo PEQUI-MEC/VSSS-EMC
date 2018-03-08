@@ -626,7 +626,7 @@ void VisionGUI::__create_frm_hsv() {
   grid->set_column_homogeneous(true);
   vbox->pack_start(*grid, false, true, 5);
 
-  label = new Gtk::Label("Hmin:");
+  label = new Gtk::Label("Lmin:");
   label->set_alignment(1.0, 1.0);
   grid->attach(*label, 0, 0, 1, 1);
 
@@ -637,18 +637,18 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Hmin.set_draw_value();
   grid->attach(HScale_Hmin, 1, 0, 2, 1);
 
-  label = new Gtk::Label("Hmax:");
+  label = new Gtk::Label("Lmax:");
   label->set_alignment(1.0, 1.0);
   grid->attach(*label, 3, 0, 1, 1);
 
   HScale_Hmax.set_digits(0);
   HScale_Hmax.set_increments(1,1);
-  HScale_Hmax.set_range(0,180);
+  HScale_Hmax.set_range(0,255);
   HScale_Hmax.set_value_pos(Gtk::POS_TOP);
   HScale_Hmax.set_draw_value();
   grid->attach(HScale_Hmax, 4, 0, 2, 1);
 
-  label = new Gtk::Label("Smin:");
+  label = new Gtk::Label("Amin:");
   label->set_alignment(1.0, 1.0);
    grid->attach(*label, 0, 1, 1, 1);
 
@@ -659,7 +659,7 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Smin.set_draw_value();
   grid->attach(HScale_Smin, 1, 1, 2, 1);
 
-  label = new Gtk::Label("Smax:");
+  label = new Gtk::Label("Amax:");
   label->set_alignment(1.0, 1.0);
   grid->attach(*label, 3, 1, 1, 1);
 
@@ -671,7 +671,7 @@ void VisionGUI::__create_frm_hsv() {
 
   grid->attach(HScale_Smax,4, 1, 2, 1);
 
-  label = new Gtk::Label("Vmin:");
+  label = new Gtk::Label("Bmin:");
   label->set_alignment(1.0, 1.0);
   grid->attach(*label, 0, 2, 1, 1);
 
@@ -682,7 +682,7 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Vmin.set_draw_value();
   grid->attach(HScale_Vmin, 1, 2, 2, 1);
 
-  label = new Gtk::Label("Vmax:");
+  label = new Gtk::Label("Bmax:");
   label->set_alignment(1.0, 1.0);
   grid->attach(*label, 3, 2, 1, 1);
 
@@ -1034,7 +1034,7 @@ void VisionGUI::decrementSamples() {
 void VisionGUI::init_calib_params()
 {
   // Inicializar variáveis de calibração
-  int H[5][2] = { {0,180}, {0,180}, {0,180}, {0,180}, {0,180} };
+  int H[5][2] = { {0,255}, {0,255}, {0,255}, {0,255}, {0,255} };
   int S[5][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255}, {0, 255} };
   int V[5][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255}, {0, 255} };
   int B[5] {3, 3, 3, 3, 3};

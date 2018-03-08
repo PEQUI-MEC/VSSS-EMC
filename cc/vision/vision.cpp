@@ -22,7 +22,7 @@ void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *win
 }
 
 void Vision::preProcessing() {
-  cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2HSV);
+  cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2Lab);
 }
 
 void Vision::findTags() {
