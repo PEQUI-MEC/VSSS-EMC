@@ -33,6 +33,8 @@ public:
 
   Gtk::Scale HScale_Amin;
 
+		Gtk::Label lb_Hmin, lb_Hmax, lb_Smin, lb_Smax, lb_Vmin, lb_Vmax;
+
   Gtk::ToggleButton bt_record_video;
   Gtk::Button bt_save_picture;
   Gtk::Entry en_video_name, en_picture_name;
@@ -87,6 +89,7 @@ private:
   Gtk::Button bt_HSV_left;
   Gtk::Button bt_HSV_right;
   Gtk::Button bt_switchMainAdv;
+        Gtk::ComboBoxText cb_convertType;
 
   // Frame GMM
   Gtk::Frame fr_GMM;
@@ -166,6 +169,7 @@ private:
 
   // void __event_auto_save();
 
+		void __event_cb_convertType_changed();
 };
 
 #endif /* VISIONGUI_HPP_ */

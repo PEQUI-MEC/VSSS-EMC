@@ -599,7 +599,7 @@ void VisionGUI::__create_frm_hsv() {
   vbox->set_halign(Gtk::ALIGN_CENTER);
   vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  fr_HSV.set_label("HSV Calibration");
+  fr_HSV.set_label("HSV/CIELAB Calibration");
 
   grid->set_border_width(5);
   grid->set_column_spacing(15);
@@ -619,6 +619,11 @@ void VisionGUI::__create_frm_hsv() {
   bt_switchMainAdv.set_label("Main <-> Adv");
   grid->attach(bt_switchMainAdv, 6, 0, 1, 1);
 
+	cb_convertType.append("HSV");
+	cb_convertType.append("CIELAB");
+	cb_convertType.set_active(0);
+	grid->attach(cb_convertType, 7, 0, 1, 1);
+
   grid = new Gtk::Grid();
   grid->set_border_width(5);
   grid->set_column_spacing(15);
@@ -626,9 +631,9 @@ void VisionGUI::__create_frm_hsv() {
   grid->set_column_homogeneous(true);
   vbox->pack_start(*grid, false, true, 5);
 
-  label = new Gtk::Label("Hmin:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0, 0, 1, 1);
+	lb_Hmin.set_text("Hmin");
+  lb_Hmin.set_alignment(1.0, 1.0);
+  grid->attach(lb_Hmin, 0, 0, 1, 1);
 
   HScale_Hmin.set_digits(0);
   HScale_Hmin.set_increments(1,1);
@@ -637,20 +642,20 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Hmin.set_draw_value();
   grid->attach(HScale_Hmin, 1, 0, 2, 1);
 
-  label = new Gtk::Label("Hmax:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 0, 1, 1);
+	lb_Hmax.set_text("Hmax");
+	lb_Hmax.set_alignment(1.0, 1.0);
+  grid->attach(lb_Hmax, 3, 0, 1, 1);
 
   HScale_Hmax.set_digits(0);
   HScale_Hmax.set_increments(1,1);
-  HScale_Hmax.set_range(0,180);
+  HScale_Hmax.set_range(0,255);
   HScale_Hmax.set_value_pos(Gtk::POS_TOP);
   HScale_Hmax.set_draw_value();
   grid->attach(HScale_Hmax, 4, 0, 2, 1);
 
-  label = new Gtk::Label("Smin:");
-  label->set_alignment(1.0, 1.0);
-   grid->attach(*label, 0, 1, 1, 1);
+	lb_Smin.set_text("Smin");
+	lb_Smin.set_alignment(1.0, 1.0);
+   grid->attach(lb_Smin, 0, 1, 1, 1);
 
   HScale_Smin.set_digits(0);
   HScale_Smin.set_increments(1,1);
@@ -659,9 +664,9 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Smin.set_draw_value();
   grid->attach(HScale_Smin, 1, 1, 2, 1);
 
-  label = new Gtk::Label("Smax:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 1, 1, 1);
+	lb_Smax.set_text("Smax");
+  lb_Smax.set_alignment(1.0, 1.0);
+  grid->attach(lb_Smax, 3, 1, 1, 1);
 
   HScale_Smax.set_digits(0);
   HScale_Smax.set_increments(1,1);
@@ -671,9 +676,9 @@ void VisionGUI::__create_frm_hsv() {
 
   grid->attach(HScale_Smax,4, 1, 2, 1);
 
-  label = new Gtk::Label("Vmin:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0, 2, 1, 1);
+	lb_Vmin.set_text("Vmin");
+  lb_Vmin.set_alignment(1.0, 1.0);
+  grid->attach(lb_Vmin, 0, 2, 1, 1);
 
   HScale_Vmin.set_digits(0);
   HScale_Vmin.set_increments(1,1);
@@ -682,9 +687,9 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Vmin.set_draw_value();
   grid->attach(HScale_Vmin, 1, 2, 2, 1);
 
-  label = new Gtk::Label("Vmax:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 2, 1, 1);
+	lb_Vmax.set_text("Vmax");
+  lb_Vmax.set_alignment(1.0, 1.0);
+  grid->attach(lb_Vmax, 3, 2, 1, 1);
 
   HScale_Vmax.set_digits(0);
   HScale_Vmax.set_increments(1,1);
@@ -741,6 +746,7 @@ void VisionGUI::__create_frm_hsv() {
 
   bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
   bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
+	cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
   HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
@@ -758,6 +764,7 @@ void VisionGUI::__create_frm_hsv() {
   bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_HSV_calib_clicked));
   bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_left_HSV_calib_clicked));
   bt_switchMainAdv.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_switchMainAdv_clicked));
+	cb_convertType.signal_changed().connect(sigc::mem_fun(*this, &VisionGUI::__event_cb_convertType_changed));
   HScale_Hmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmin_value_changed));
   HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmax_value_changed));
   HScale_Smin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smin_value_changed));
@@ -770,19 +777,67 @@ void VisionGUI::__create_frm_hsv() {
   HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Amin_value_changed));
 }
 
+void VisionGUI::__event_cb_convertType_changed() {
+  int type = cb_convertType.get_active_row_number();
+	vision->setConvertType(type);
+
+  HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
+  HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
+  HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
+  HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
+  HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
+  HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
+  HScale_Erode.set_value(vision->getErode(type, Img_id));
+  HScale_Dilate.set_value(vision->getDilate(type, Img_id));
+  HScale_Blur.set_value(vision->getBlur(type, Img_id));
+  HScale_Amin.set_value(vision->getAmin(type, Img_id));
+
+	if (type == vision->CIELAB) {
+		lb_Hmin.set_text("Lmin");
+		lb_Hmax.set_text("Lmax");
+		lb_Smin.set_text("Green");
+		lb_Smax.set_text("Red");
+		lb_Vmin.set_text("Blue");
+		lb_Vmax.set_text("Yellow");
+	} else {
+		lb_Hmin.set_text("Hmin");
+		lb_Hmax.set_text("Hmax");
+		lb_Smin.set_text("Smin");
+		lb_Smax.set_text("Smax");
+		lb_Vmin.set_text("Vmin");
+		lb_Vmax.set_text("Vmax");
+	}
+
+
+}
+
 void VisionGUI::__event_bt_switchMainAdv_clicked() {
   vision->switchMainWithAdv();
-  HScale_Hmin.set_value(vision->getHue(Img_id, 0));
-  HScale_Hmax.set_value(vision->getHue(Img_id, 1));
-  HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
-  HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
-  HScale_Vmin.set_value(vision->getValue(Img_id, 0));
-  HScale_Vmax.set_value(vision->getValue(Img_id, 1));
-  HScale_Amin.set_value(vision->getAmin(Img_id));
-  HScale_Blur.set_value(vision->getBlur(Img_id));
-  HScale_Erode.set_value(vision->getErode(Img_id));
-  HScale_Dilate.set_value(vision->getDilate(Img_id));
-}
+	if (vision->getConvertType()) { // CIELAB
+		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
+		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
+		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
+		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
+		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
+		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
+		HScale_Amin.set_value(vision->getAmin(vision->CIELAB, Img_id));
+		HScale_Blur.set_value(vision->getBlur(vision->CIELAB, Img_id));
+		HScale_Erode.set_value(vision->getErode(vision->CIELAB, Img_id));
+		HScale_Dilate.set_value(vision->getDilate(vision->CIELAB, Img_id));
+	} else { // HSV
+		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
+		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
+		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
+		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
+		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
+		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
+		HScale_Amin.set_value(vision->getAmin(vision->HSV, Img_id));
+		HScale_Blur.set_value(vision->getBlur(vision->HSV, Img_id));
+		HScale_Erode.set_value(vision->getErode(vision->HSV, Img_id));
+		HScale_Dilate.set_value(vision->getDilate(vision->HSV, Img_id));
+	}
+	}
+
 
 void VisionGUI::HScale_Hmin_value_changed() {
   vision->setHue(Img_id, 0, HScale_Hmin.get_value());
@@ -809,15 +864,15 @@ void VisionGUI::HScale_Vmax_value_changed() {
 }
 
 void VisionGUI::HScale_Amin_value_changed() {
-  vision->setAmin(Img_id, HScale_Amin.get_value());
+  vision->setAmin(vision->getConvertType(), Img_id, HScale_Amin.get_value());
 }
 
 void VisionGUI::HScale_Dilate_value_changed() {
 
  if(HScale_Dilate.get_value()<0){
-   vision->setDilate(Img_id, 0);
+   vision->setDilate(vision->getConvertType(), Img_id, 0);
  }else{
-   vision->setDilate(Img_id, HScale_Dilate.get_value());
+   vision->setDilate(vision->getConvertType(), Img_id, HScale_Dilate.get_value());
  }
   //std::cout<<"=================================================="<<D[Img_id]<<std::endl;
 
@@ -827,9 +882,9 @@ void VisionGUI::HScale_Erode_value_changed() {
 
 
  if(HScale_Erode.get_value()<0){
-   vision->setErode(Img_id, 0);
+   vision->setErode(vision->getConvertType(), Img_id, 0);
  }else{
-   vision->setErode(Img_id, HScale_Erode.get_value());
+   vision->setErode(vision->getConvertType(), Img_id, HScale_Erode.get_value());
  }
   //std::cout<<"=================================================="<<E[Img_id]<<std::endl;
 
@@ -838,13 +893,13 @@ void VisionGUI::HScale_Erode_value_changed() {
 void VisionGUI::HScale_Blur_value_changed() {
 
  if(HScale_Blur.get_value()<3){
-   vision->setBlur(Img_id, 3);
+   vision->setBlur(vision->getConvertType(), Img_id, 3);
  }
  else if((int) HScale_Blur.get_value() % 2 == 0){
-   vision->setBlur(Img_id, (int) HScale_Blur.get_value()+1);
+   vision->setBlur(vision->getConvertType(), Img_id, (int) HScale_Blur.get_value()+1);
  }
  else{
-   vision->setBlur(Img_id, (int)HScale_Blur.get_value());
+   vision->setBlur(vision->getConvertType(), Img_id, (int)HScale_Blur.get_value());
  }
   //std::cout<<"====Blur: "<<B[Img_id]<<" id color: "<<Img_id<<std::endl;
 
@@ -868,6 +923,7 @@ void VisionGUI::__event_bt_HSV_calib_pressed() {
     bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
     bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
     bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
+	  cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
   } else {
     HSV_calib_event_flag=true;
     HScale_Hmin.set_state(Gtk::STATE_NORMAL);
@@ -883,6 +939,7 @@ void VisionGUI::__event_bt_HSV_calib_pressed() {
     bt_HSV_right.set_state(Gtk::STATE_NORMAL);
     bt_HSV_left.set_state(Gtk::STATE_NORMAL);
     bt_switchMainAdv.set_state(Gtk::STATE_NORMAL);
+	  cb_convertType.set_state(Gtk::STATE_NORMAL);
   }
 }
 
@@ -931,23 +988,38 @@ void VisionGUI::selectFrame(int sector) {
 
 void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 
+	int type = vision->getConvertType();
+
   Img_id=Img_id+1;
 
   if(Img_id>3) Img_id = 0;
-  HScale_Hmin.set_value(vision->getHue(Img_id, 0));
-  HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
-  HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
-  HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
+	if (type == vision->HSV) {
+		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
+		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
-  HScale_Vmin.set_value(vision->getValue(Img_id, 0));
-  HScale_Vmax.set_value(vision->getValue(Img_id, 1));
+		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
+		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
 
-  HScale_Dilate.set_value(vision->getDilate(Img_id));
-  HScale_Erode.set_value(vision->getErode(Img_id));
+		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
+		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
+	} else { // CIELAB
+		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
+		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
 
-  HScale_Blur.set_value(vision->getBlur(Img_id));
-  HScale_Amin.set_value(vision->getAmin(Img_id));
+		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
+		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
+
+		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
+		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
+	}
+
+  HScale_Dilate.set_value(vision->getDilate(vision->getConvertType(), Img_id));
+  HScale_Erode.set_value(vision->getErode(vision->getConvertType(), Img_id));
+
+  HScale_Blur.set_value(vision->getBlur(vision->getConvertType(), Img_id));
+  HScale_Amin.set_value(vision->getAmin(vision->getConvertType(), Img_id));
+
   switch(Img_id) {
   case 0:
       HSV_label.set_text("Main");
@@ -955,9 +1027,6 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
   case 1:
       HSV_label.set_text("Green");
       break;
-  // case 2:
-  //     HSV_label.set_text("Pink");
-  //     break;
   case 2:
       HSV_label.set_text("Ball");
       break;
@@ -969,22 +1038,39 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 
 void VisionGUI::__event_bt_left_HSV_calib_clicked() {
 
+	int type = vision->getConvertType();
+
   Img_id=Img_id-1;
+
   if(Img_id<0) Img_id = 3;
-  HScale_Hmin.set_value(vision->getHue(Img_id, 0));
-  HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
-  HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
-  HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
+	if (type == vision->HSV) {
+		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
+		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
 
-  HScale_Vmin.set_value(vision->getValue(Img_id, 0));
-  HScale_Vmax.set_value(vision->getValue(Img_id, 1));
+		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
+		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
 
-  HScale_Dilate.set_value(vision->getDilate(Img_id));
-  HScale_Erode.set_value(vision->getErode(Img_id));
+		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
+		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
+	} else { // CIELAB
+		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
+		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
 
-  HScale_Blur.set_value(vision->getBlur(Img_id));
-  HScale_Amin.set_value(vision->getAmin(Img_id));
+		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
+		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
+
+		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
+		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
+	}
+
+
+  HScale_Dilate.set_value(vision->getDilate(type, Img_id));
+  HScale_Erode.set_value(vision->getErode(type, Img_id));
+
+  HScale_Blur.set_value(vision->getBlur(type, Img_id));
+  HScale_Amin.set_value(vision->getAmin(type, Img_id));
+
   switch(Img_id) {
   case 0:
       HSV_label.set_text("Main");
@@ -992,9 +1078,6 @@ void VisionGUI::__event_bt_left_HSV_calib_clicked() {
   case 1:
       HSV_label.set_text("Green");
       break;
-  // case 2:
-  //     HSV_label.set_text("Pink");
-  //     break;
   case 2:
       HSV_label.set_text("Ball");
       break;
@@ -1034,16 +1117,18 @@ void VisionGUI::decrementSamples() {
 void VisionGUI::init_calib_params()
 {
   // Inicializar variáveis de calibração
-  int H[5][2] = { {0,180}, {0,180}, {0,180}, {0,180}, {0,180} };
-  int S[5][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255}, {0, 255} };
-  int V[5][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255}, {0, 255} };
-  int B[5] {3, 3, 3, 3, 3};
-  int D[5] = {0, 0, 0, 0, 0};
-  int E[5] = {0, 0, 0, 0, 0};
-  int Amin[5] = {150, 90, 90, 115, 50};
+  int H[4][2] = { {0,180}, {0,180}, {0,180}, {0,180} };
+  int S[4][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255} };
+  int V[4][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255} };
+	int LAB[4][2] = { {0,255}, {0,255}, {0,255}, {0,255} };
+  int B[4] {3, 3, 3, 3};
+  int D[4] = {0, 0, 0, 0};
+  int E[4] = {0, 0, 0, 0};
+  int Amin[4] = {150, 90, 90, 115};
 
   // Configurar os valores iniciais de calibração
-  vision->setCalibParams(H, S, V, Amin, E, D, B);
+  vision->setCalibParams(vision->HSV, H, S, V, Amin, E, D, B);
+	vision->setCalibParams(vision->CIELAB, LAB, S, V, Amin, E, D, B);
 
   // Corrigir os valores mostrados na interface
   HScale_Hmax.set_value(H[0][1]);

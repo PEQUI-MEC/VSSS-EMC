@@ -48,10 +48,23 @@ void jsonSaveManager::save_camera() {
 		hsv["saturation_max"] = vision.getSaturation(i, 1);
 		hsv["value_min"] = vision.getValue(i, 0);
 		hsv["value_max"] = vision.getValue(i, 1);
-		hsv["dilate"] = vision.getDilate(i);
-		hsv["erode"] = vision.getErode(i);
-		hsv["blur"] = vision.getBlur(i);
-		hsv["amin"] = vision.getAmin(i);
+		hsv["dilate"] = vision.getDilate(vision.HSV, i);
+		hsv["erode"] = vision.getErode(vision.HSV, i);
+		hsv["blur"] = vision.getBlur(vision.HSV, i);
+		hsv["amin"] = vision.getAmin(vision.HSV, i);
+
+		json& lab = camera_config["CIELAB Calibration"][hsv_calibs[i]];
+
+		lab["L_min"] = vision.getCIE_L(i, 0);
+		lab["L_max"] = vision.getCIE_L(i, 1);
+		lab["A_min"] = vision.getCIE_A(i, 0);
+		lab["A_max"] = vision.getCIE_A(i, 1);
+		lab["B_min"] = vision.getCIE_B(i, 0);
+		lab["B_max"] = vision.getCIE_B(i, 1);
+		lab["dilate"] = vision.getDilate(vision.CIELAB, i);
+		lab["erode"] = vision.getErode(vision.CIELAB, i);
+		lab["blur"] = vision.getBlur(vision.CIELAB, i);
+		lab["amin"] = vision.getAmin(vision.CIELAB, i);
 	}
 
 	if(interface->warped) {
@@ -83,6 +96,7 @@ void jsonSaveManager::load_camera() {
 	string hsv_calibs[4] = {"Main", "Green", "Ball", "Opp."};
 	for (int i = 0; i < 4; ++i) {
 		json& hsv = camera_config["HSV Calibration"][hsv_calibs[i]];
+		json& lab = camera_config["CIELAB Calibration"][hsv_calibs[i]];
 		Vision& vision = *(interface->visionGUI.vision);
 
 		if(exists(hsv, "hue_min")) vision.setHue(i, 0, hsv["hue_min"]);
@@ -91,10 +105,21 @@ void jsonSaveManager::load_camera() {
 		if(exists(hsv, "saturation_max")) vision.setSaturation(i, 1, hsv["saturation_max"]);
 		if(exists(hsv, "value_min")) vision.setValue(i, 0, hsv["value_min"]);
 		if(exists(hsv, "value_max")) vision.setValue(i, 1, hsv["value_max"]);
-		if(exists(hsv, "dilate")) vision.setDilate(i, hsv["dilate"]);
-		if(exists(hsv, "erode")) vision.setErode(i, hsv["erode"]);
-		if(exists(hsv, "blur")) vision.setBlur(i, hsv["blur"]);
-		if(exists(hsv, "amin")) vision.setAmin(i, hsv["amin"]);
+		if(exists(hsv, "dilate")) vision.setDilate(vision.HSV, i, hsv["dilate"]);
+		if(exists(hsv, "erode")) vision.setErode(vision.HSV, i, hsv["erode"]);
+		if(exists(hsv, "blur")) vision.setBlur(vision.HSV, i, hsv["blur"]);
+		if(exists(hsv, "amin")) vision.setAmin(vision.HSV, i, hsv["amin"]);
+
+		if(exists(lab, "L_min")) vision.setCIE_L(i, 0, lab["L_min"]);
+		if(exists(lab, "L_max")) vision.setCIE_L(i, 1, lab["L_max"]);
+		if(exists(lab, "A_min")) vision.setCIE_A(i, 0, lab["A_min"]);
+		if(exists(lab, "A_max")) vision.setCIE_A(i, 1, lab["A_max"]);
+		if(exists(lab, "B_min")) vision.setCIE_B(i, 0, lab["B_min"]);
+		if(exists(lab, "B_max")) vision.setCIE_B(i, 1, lab["B_max"]);
+		if(exists(lab, "dilate")) vision.setDilate(vision.CIELAB, i, lab["dilate"]);
+		if(exists(lab, "erode")) vision.setErode(vision.CIELAB, i, lab["erode"]);
+		if(exists(lab, "blur")) vision.setBlur(vision.CIELAB, i, lab["blur"]);
+		if(exists(lab, "amin")) vision.setAmin(vision.CIELAB, i, lab["amin"]);
 	}
 
 	if(exists(camera_config, "warp_mat")){

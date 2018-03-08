@@ -659,10 +659,10 @@ namespace capture {
         visionGUI.HScale_Vmin.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 0));
         visionGUI.HScale_Vmax.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 1));
 
-        visionGUI.HScale_Dilate.set_value(visionGUI.vision->getDilate(visionGUI.Img_id));
-        visionGUI.HScale_Erode.set_value(visionGUI.vision->getErode(visionGUI.Img_id));
-        visionGUI.HScale_Blur.set_value(visionGUI.vision->getBlur(visionGUI.Img_id));
-        visionGUI.HScale_Amin.set_value(visionGUI.vision->getAmin(visionGUI.Img_id));
+        visionGUI.HScale_Dilate.set_value(visionGUI.vision->getDilate(visionGUI.vision->getConvertType(), visionGUI.Img_id));
+        visionGUI.HScale_Erode.set_value(visionGUI.vision->getErode(visionGUI.vision->getConvertType(), visionGUI.Img_id));
+        visionGUI.HScale_Blur.set_value(visionGUI.vision->getBlur(visionGUI.vision->getConvertType(), visionGUI.Img_id));
+        visionGUI.HScale_Amin.set_value(visionGUI.vision->getAmin(visionGUI.vision->getConvertType(), visionGUI.Img_id));
 
         if(warped) {
             bt_warp.set_state(Gtk::STATE_INSENSITIVE);
