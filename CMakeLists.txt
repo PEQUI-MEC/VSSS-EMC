@@ -31,8 +31,17 @@ find_library(LIBXBEE libxbee.so libxbeep.so)
 set(SOURCE_FILES cc/main.cpp
         cc/controlGUI.cpp
         cc/filechooser.cpp
-        cc/strategyGUI.hpp
+        cc/CamCap.cpp
+        cc/KalmanFilter.cpp
+        cc/Strategy.cpp
+        cc/StrategyGUI.cpp
+        cc/Constants.hpp
+        cc/Xbee.cpp
+        cc/Messenger.cpp
+        cc/jsonSaveManager.cpp
         cc/TestFrame.cpp
+		cc/LS.cpp
+		cc/CPUTimer.cpp
         cc/Fuzzy/FuzzyController.cpp
         cc/Fuzzy/FuzzyFunction.cpp
         cc/Fuzzy/Rules.cpp
@@ -48,18 +57,13 @@ set(SOURCE_FILES cc/main.cpp
         pack-capture-gui/capture-gui/V4LInterface-aux.cpp
         pack-capture-gui/capture-gui/V4LInterface-events.cpp
 		pack-capture-gui/capture-gui/V4LInterface.hpp
-        cc/camcap.hpp
-        cc/Constants.hpp
-        cc/Kalman_Filter.hpp
-        cc/Strategy.hpp
-        cc/Xbee.cpp cc/Xbee.h
-        cc/Messenger.cpp cc/Messenger.h
-		cc/lib/json.hpp cc/jsonSaveManager.cpp cc/jsonSaveManager.h)
+		cc/lib/json.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
                     cc/Fuzzy/
                     cc/vision/
+                    cc/lib
                     pack-capture/capture/
                     pack-capture-gui/capture-gui/
                     ${GTKMM_INCLUDE_DIRS}

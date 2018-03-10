@@ -11,7 +11,7 @@
  */
 
 #include <gtkmm.h>
-#include "camcap.hpp"
+#include "CamCap.hpp"
 
 
 int main(int argc, char **argv) {
