@@ -44,7 +44,7 @@ void VisionGUI::__create_frm_calib_mode() {
 
   label = new Gtk::Label("Calibration Mode: ");
   grid->attach(*label, 0, 0, 1, 1);
-  rb_mode_HSV.set_label("HSV");
+  rb_mode_HSV.set_label("HSV/CIELAB");
   grid->attach(rb_mode_HSV, 1, 0, 1, 1);
   rb_mode_GMM.set_label("GMM");
   rb_mode_GMM.join_group(rb_mode_HSV);
@@ -278,17 +278,17 @@ void VisionGUI::hideGMM() {
 }
 
 void VisionGUI::HScale_GMM_dilate_value_changed() {
-  gmm->setDilate(colorIndex, HScale_GMM_dilate.get_value());
+  gmm->setDilate(colorIndex, static_cast<int>(HScale_GMM_dilate.get_value()));
 }
 
 void VisionGUI::HScale_GMM_blur_value_changed() {
-  int value = HScale_GMM_blur.get_value();
+  int value = static_cast<int>(HScale_GMM_blur.get_value());
   if (value%2 == 0 && value != 0) value++;
   gmm->setBlur(colorIndex, value);
 }
 
 void VisionGUI::HScale_GMM_erode_value_changed() {
-  gmm->setErode(colorIndex, HScale_GMM_erode.get_value());
+  gmm->setErode(colorIndex, static_cast<int>(HScale_GMM_erode.get_value()));
 }
 
 bool VisionGUI::getDrawSamples() {
@@ -781,18 +781,18 @@ void VisionGUI::__event_cb_convertType_changed() {
   int type = cb_convertType.get_active_row_number();
 	vision->setConvertType(type);
 
-  HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
-  HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
-  HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
-  HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
-  HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
-  HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
-  HScale_Erode.set_value(vision->getErode(type, Img_id));
-  HScale_Dilate.set_value(vision->getDilate(type, Img_id));
-  HScale_Blur.set_value(vision->getBlur(type, Img_id));
-  HScale_Amin.set_value(vision->getAmin(type, Img_id));
+	HScale_Erode.set_value(vision->getErode(type, Img_id));
+	HScale_Dilate.set_value(vision->getDilate(type, Img_id));
+	HScale_Blur.set_value(vision->getBlur(type, Img_id));
+	HScale_Amin.set_value(vision->getAmin(type, Img_id));
 
 	if (type == vision->CIELAB) {
+		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
+		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
+		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
+		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
+		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
+		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
 		lb_Hmin.set_text("Lmin");
 		lb_Hmax.set_text("Lmax");
 		lb_Smin.set_text("Green");
@@ -800,6 +800,13 @@ void VisionGUI::__event_cb_convertType_changed() {
 		lb_Vmin.set_text("Blue");
 		lb_Vmax.set_text("Yellow");
 	} else {
+		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
+		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
+		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
+		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
+		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
+		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
+
 		lb_Hmin.set_text("Hmin");
 		lb_Hmax.set_text("Hmax");
 		lb_Smin.set_text("Smin");
@@ -836,35 +843,59 @@ void VisionGUI::__event_bt_switchMainAdv_clicked() {
 		HScale_Erode.set_value(vision->getErode(vision->HSV, Img_id));
 		HScale_Dilate.set_value(vision->getDilate(vision->HSV, Img_id));
 	}
-	}
+}
 
 
 void VisionGUI::HScale_Hmin_value_changed() {
-  vision->setHue(Img_id, 0, HScale_Hmin.get_value());
+	if (vision->getConvertType()) { // CIELAB
+		vision->setCIE_L(Img_id, 0, static_cast<int>(HScale_Hmin.get_value()));
+	} else { // HSV
+		vision->setHue(Img_id, 0, static_cast<int>(HScale_Hmin.get_value()));
+	}
 }
 
 void VisionGUI::HScale_Smin_value_changed() {
-  vision->setSaturation(Img_id, 0, HScale_Smin.get_value());
+	if (vision->getConvertType()) { // CIELAB
+		vision->setCIE_A(Img_id, 0, static_cast<int>(HScale_Smin.get_value()));
+	} else { // HSV
+		vision->setSaturation(Img_id, 0, static_cast<int>(HScale_Smin.get_value()));
+	}
 }
 
 void VisionGUI::HScale_Vmin_value_changed() {
-  vision->setValue(Img_id, 0, HScale_Vmin.get_value());
+	if (vision->getConvertType()) { // CIELAB
+		vision->setCIE_B(Img_id, 0, static_cast<int>(HScale_Vmin.get_value()));
+	} else { // HSV
+		vision->setValue(Img_id, 0, static_cast<int>(HScale_Vmin.get_value()));
+	}
 }
 
 void VisionGUI::HScale_Hmax_value_changed() {
-  vision->setHue(Img_id, 1, HScale_Hmax.get_value());
+	if (vision->getConvertType()) { // CIELAB
+		vision->setCIE_L(Img_id, 1, static_cast<int>(HScale_Hmax.get_value()));
+	} else { // HSV
+		vision->setHue(Img_id, 1, static_cast<int>(HScale_Hmax.get_value()));
+	}
 }
 
 void VisionGUI::HScale_Smax_value_changed() {
-  vision->setSaturation(Img_id, 1, HScale_Smax.get_value());
+	if (vision->getConvertType()) { // CIELAB
+		vision->setCIE_A(Img_id, 1, static_cast<int>(HScale_Smax.get_value()));
+	} else { // HSV
+		vision->setSaturation(Img_id, 1, static_cast<int>(HScale_Smax.get_value()));
+	}
 }
 
 void VisionGUI::HScale_Vmax_value_changed() {
-  vision->setValue(Img_id, 1, HScale_Vmax.get_value());
+	if (vision->getConvertType()) { // CIELAB
+		vision->setCIE_B(Img_id, 1, static_cast<int>(HScale_Vmax.get_value()));
+	} else { // HSV
+		vision->setValue(Img_id, 1, static_cast<int>(HScale_Vmax.get_value()));
+	}
 }
 
 void VisionGUI::HScale_Amin_value_changed() {
-  vision->setAmin(vision->getConvertType(), Img_id, HScale_Amin.get_value());
+  vision->setAmin(vision->getConvertType(), Img_id, static_cast<int>(HScale_Amin.get_value()));
 }
 
 void VisionGUI::HScale_Dilate_value_changed() {
@@ -872,7 +903,7 @@ void VisionGUI::HScale_Dilate_value_changed() {
  if(HScale_Dilate.get_value()<0){
    vision->setDilate(vision->getConvertType(), Img_id, 0);
  }else{
-   vision->setDilate(vision->getConvertType(), Img_id, HScale_Dilate.get_value());
+   vision->setDilate(vision->getConvertType(), Img_id, static_cast<int>(HScale_Dilate.get_value()));
  }
   //std::cout<<"=================================================="<<D[Img_id]<<std::endl;
 
@@ -884,7 +915,7 @@ void VisionGUI::HScale_Erode_value_changed() {
  if(HScale_Erode.get_value()<0){
    vision->setErode(vision->getConvertType(), Img_id, 0);
  }else{
-   vision->setErode(vision->getConvertType(), Img_id, HScale_Erode.get_value());
+   vision->setErode(vision->getConvertType(), Img_id, static_cast<int>(HScale_Erode.get_value()));
  }
   //std::cout<<"=================================================="<<E[Img_id]<<std::endl;
 

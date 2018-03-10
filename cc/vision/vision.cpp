@@ -36,8 +36,14 @@ void Vision::findTags() {
 void Vision::segmentAndSearch(int color) {
   cv::Mat frame = hsv_frame.clone();
 
-  inRange(frame,cv::Scalar(hue[color][MIN],saturation[color][MIN],value[color][MIN]),
-  cv::Scalar(hue[color][MAX],saturation[color][MAX],value[color][MAX]),threshold_frame.at(color));
+	if (convertType == HSV) {
+		inRange(frame,cv::Scalar(hue[color][MIN],saturation[color][MIN],value[color][MIN]),
+				cv::Scalar(hue[color][MAX],saturation[color][MAX],value[color][MAX]),threshold_frame.at(color));
+	} else {
+		inRange(frame,cv::Scalar(cieL[color][MIN],cieA[color][MIN],cieB[color][MIN]),
+				cv::Scalar(cieL[color][MAX],cieA[color][MAX],cieB[color][MAX]),threshold_frame.at(color));
+	}
+
 
   posProcessing(color);
   searchTags(color);
@@ -408,19 +414,36 @@ double Vision::calcDistance(cv::Point p1, cv::Point p2) {
 void Vision::switchMainWithAdv() {
   int tmp;
 
-  for (int i = MIN; i <= MAX; i++) {
-    tmp = hue[MAIN][i];
-    hue[MAIN][i] = hue[ADV][i];
-    hue[ADV][i] = tmp;
+	if (convertType == HSV) {
+		for (int i = MIN; i <= MAX; i++) {
+			tmp = hue[MAIN][i];
+			hue[MAIN][i] = hue[ADV][i];
+			hue[ADV][i] = tmp;
 
-    tmp = saturation[MAIN][i];
-    saturation[MAIN][i] = saturation[ADV][i];
-    saturation[ADV][i] = tmp;
+			tmp = saturation[MAIN][i];
+			saturation[MAIN][i] = saturation[ADV][i];
+			saturation[ADV][i] = tmp;
 
-    tmp = value[MAIN][i];
-    value[MAIN][i] = value[ADV][i];
-    value[ADV][i] = tmp;
-  }
+			tmp = value[MAIN][i];
+			value[MAIN][i] = value[ADV][i];
+			value[ADV][i] = tmp;
+		}
+	} else {
+		for (int i = MIN; i <= MAX; i++) {
+			tmp = cieL[MAIN][i];
+			cieL[MAIN][i] = cieL[ADV][i];
+			cieL[ADV][i] = tmp;
+
+			tmp = cieA[MAIN][i];
+			cieA[MAIN][i] = cieA[ADV][i];
+			cieA[ADV][i] = tmp;
+
+			tmp = cieB[MAIN][i];
+			cieB[MAIN][i] = cieB[ADV][i];
+			cieB[ADV][i] = tmp;
+		}
+	}
+
 
   tmp = areaMin[convertType][MAIN];
   areaMin[convertType][MAIN] = areaMin[convertType][ADV];
@@ -461,7 +484,7 @@ cv::Mat Vision::getSplitFrame() {
   return splitFrame;
 }
 
-void Vision::setCalibParams(int type, int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5])
+void Vision::setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4])
 {
 	if (type == HSV) {
 		for (int i = 0; i < TOTAL_COLORS; i++)

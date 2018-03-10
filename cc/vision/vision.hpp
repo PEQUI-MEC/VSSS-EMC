@@ -94,7 +94,7 @@ public:
   void run(cv::Mat raw_frame);
   void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
   void recordVideo(cv::Mat frame);
-  void setCalibParams(int type, int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5]);
+  void setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4]);
   double calcDistance(cv::Point p1, cv::Point p2);
 
   void startNewVideo(std::string videoName);
