@@ -48,12 +48,12 @@ int Xbee::send(char id, const string &message) {
 	return ack;
 }
 
-stack<message> Xbee::get_messages() {
+vector<message> Xbee::get_messages() {
 	struct xbee_pkt *pkt;
-	stack<message> msgs;
-	for(pair<const char,robot_xbee>& r : robots){
+	vector<message> msgs;
+	for(auto& r : robots){
 		if(xbee_conRx(r.second.con, &pkt, nullptr) == XBEE_ENONE && pkt->dataLen > 0){
-			msgs.push({r.second.id,get_string(pkt)});
+			msgs.push_back({r.second.id,get_string(pkt)});
 		}
 	}
 	return msgs;
@@ -61,7 +61,7 @@ stack<message> Xbee::get_messages() {
 
 vector<message> Xbee::send_get_answer_all(const std::string &message) {
 	vector<struct message> msgs;
-	for(pair<const char,robot_xbee>& r : robots){
+	for(auto& r : robots){
 		string ret = send_get_answer(r.second.id,message);
 		if(!ret.empty()) msgs.push_back({r.second.id,ret});
 	}
@@ -98,7 +98,7 @@ ack_count Xbee::get_ack_count(char id) {
 }
 
 void Xbee::reset_lost_acks() {
-	for(pair<const char, robot_xbee>& r : robots){
+	for(auto& r : robots){
 		r.second.acks = {0,0,0};
 	}
 }

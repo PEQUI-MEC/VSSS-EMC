@@ -1,6 +1,7 @@
 #include "Messenger.h"
 
-using namespace std;
+using std::string;
+using std::vector;
 
 void Messenger::start_xbee(const std::string &port, int baud) {
 	xbee = new Xbee(port, baud);
@@ -60,7 +61,7 @@ vector<message> Messenger::sendCMDs(vector<Robot> robots) {
 		}
 		if(!msg.empty()){
 			int ack = xbee->send(robot.ID,msg);
-			acks.push_back({robot.ID, to_string(ack)});
+			acks.push_back({robot.ID, std::to_string(ack)});
 		}
 	}
 	return acks;
@@ -73,45 +74,40 @@ string Messenger::position_msg(Robot robot) {
 	double transTarget_x = cos(robot.orientation)*diff_x + sin(robot.orientation)*diff_y;
 	double transTarget_y = -(-sin(robot.orientation)*diff_x + cos(robot.orientation)*diff_y);
 
-	double pos_x = round(transTarget_x*(150.0/640.0)*100.0)/100;
-	double pos_y = round(transTarget_y*(130.0/480.0)*100.0)/100;
-	double vel = round(robot.vmax*100.0)/100;
+	double pos_x = transTarget_x*(150.0/640.0);
+	double pos_y = transTarget_y*(130.0/480.0);
 
-	return ("P"+to_string(pos_x)+";"+to_string(pos_y)+";"+to_string(vel));
+	return ("P"+to_string(pos_x)+";"+to_string(pos_y)+";"+to_string(robot.vmax));
 }
 
 string Messenger::speed_msg(Robot robot) {
-	double speed_r = round(robot.Vr*100)/100;
-	double speed_l = round(robot.Vl*100)/100;
-	return (to_string(speed_r)+";"+to_string(speed_l));
+	return (to_string(robot.Vr)+";"+to_string(robot.Vl));
 }
 
 string Messenger::orientation_msg(Robot robot) {
 	double orientation = (robot.orientation + robot.targetOrientation)*180/M_PI;
-	orientation = round(orientation*100)/100;
-	double vmax = round(robot.vmax*100.0)/100;
-	return ("O"+to_string(orientation)+";"+to_string(vmax));
+	return ("O"+to_string(orientation)+";"+to_string(robot.vmax));
 }
 
 string Messenger::vector_msg(Robot robot) {
-	double orientation= atan2(sin(robot.orientation + robot.transAngle),cos(robot.orientation + robot.transAngle));
-	orientation = round(orientation*(180.0/M_PI)*100)/100;
-	double vmax = round(robot.vmax*100)/100;
-	return ("V"+to_string(orientation)+";"+to_string(vmax));
-}
-
-string Messenger::to_string(double num) {
-	ostringstream ss;
-	ss << num;
-	return ss.str();
+	double orientation = atan2(sin(robot.orientation + robot.transAngle),
+							  cos(robot.orientation + robot.transAngle));
+	orientation = orientation*(180.0/M_PI);
+	return ("V"+to_string(orientation)+";"+to_string(robot.vmax));
 }
 
 double Messenger::get_battery(char id) {
 	if(!xbee) return -1;
 	string msg = xbee->send_get_answer(id,"B");
 	if(msg.empty() || msg[0] != 'B') return -1;
-	msg.erase(0,1);
-	return ((stod(msg) - 6.4)/2.0)*100; // % of battery
+	return ((stod(msg.substr(1)) - 6.4)/2.0)*100;
+}
+
+string Messenger::to_string(double num) {
+	double num_round = round(num*100)/100;
+	std::ostringstream ss;
+	ss << num_round;
+	return ss.str();
 }
 
 ack_count Messenger::get_ack_count(char id){
@@ -122,4 +118,8 @@ ack_count Messenger::get_ack_count(char id){
 void Messenger::reset_lost_acks() {
 	if(!xbee) return;
 	xbee->reset_lost_acks();
+}
+
+Messenger::Messenger() {
+	setlocale(LC_ALL,"C");
 }

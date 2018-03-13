@@ -20,13 +20,13 @@ class Messenger {
 		std::string speed_msg(Robot robot);
 		std::string orientation_msg(Robot robot);
 		std::string vector_msg(Robot robot);
+		std::string to_string(double num);
 
 	public:
-		Messenger() = default;
+		Messenger();
 		std::vector<message> sendCMDs(std::vector<Robot> robots);
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);
-		std::string to_string(double num);
 		double get_battery(char id);
 		ack_count get_ack_count(char id);
 		void reset_lost_acks();
