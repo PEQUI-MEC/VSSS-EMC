@@ -23,13 +23,13 @@ private:
   // Constants
   static const int MAIN = 0;
   static const int GREEN = 1;
-  // static const int PINK = 2;
   static const int BALL = 2;
   static const int ADV = 3;
   static const int MAX_ADV = 3;
   static const int TOTAL_COLORS = 4;
   static const int MIN = 0;
   static const int MAX = 1;
+
 
   // Frames
   cv::Mat in_frame, hsv_frame;
@@ -46,14 +46,18 @@ private:
   // TAGS
   std::vector<std::vector<Tag>> tags;
 
-  // HSV Calibration Parameters
-  int hue[5][2];
-  int saturation[5][2];
-  int value[5][2];
-  int dilate[5];
-  int erode[5];
-  int blur[5];
-  int areaMin[5];
+  // HSV/CIELAB Calibration Parameters
+  int hue[4][2];
+  int saturation[4][2];
+  int value[4][2];
+		int cieL[4][2];
+		int cieA[4][2];
+		int cieB[4][2];
+  int dilate[2][4];
+  int erode[2][4];
+  int blur[2][4];
+  int areaMin[2][4];
+		int convertType;
 
   // image size
   int width;
@@ -80,13 +84,17 @@ private:
   int inSphere(Robot * robot, std::vector<Tag> * tempTags, cv::Point secondary);
 
 public:
+		// Public constants
+		static const int HSV = 0;
+		static const int CIELAB = 1;
+
   Vision(int w, int h);
   ~Vision();
 
   void run(cv::Mat raw_frame);
   void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
   void recordVideo(cv::Mat frame);
-  void setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5]);
+  void setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4]);
   double calcDistance(cv::Point p1, cv::Point p2);
 
   void startNewVideo(std::string videoName);
@@ -102,7 +110,7 @@ public:
   cv::Point getRobotPos(int index);
   cv::Point getAdvRobot(int index);
   cv::Point* getAllAdvRobots();
-  cv::Mat getSplitFrame();
+		cv::Mat getSplitFrame();
 
   int getRobotListSize();
   int getAdvListSize();
@@ -112,10 +120,14 @@ public:
   int getHue(int index0, int index1);
   int getSaturation(int index0, int index1);
   int getValue(int index0, int index1);
-  int getErode(int index);
-  int getDilate(int index);
-  int getBlur(int index);
-  int getAmin(int index);
+		int getCIE_L(int index0, int index1);
+		int getCIE_A(int index0, int index1);
+		int getCIE_B(int index0, int index1);
+		int getConvertType();
+  int getErode(int convertType, int index);
+  int getDilate(int convertType, int index);
+  int getBlur(int convertType, int index);
+  int getAmin(int convertType, int index);
 
   void setFrameSize(int inWidth, int inHeight);
   int getFrameHeight();
@@ -124,10 +136,14 @@ public:
   void setHue(int index0, int index1, int inValue);
   void setSaturation(int index0, int index1, int inValue);
   void setValue(int index0, int index1, int inValue);
-  void setErode(int index, int inValue);
-  void setDilate(int index, int inValue);
-  void setBlur(int index, int inValue);
-  void setAmin(int index, int inValue);
+		void setCIE_L(int index0, int index1, int inValue);
+		void setCIE_A(int index0, int index1, int inValue);
+		void setCIE_B(int index0, int index1, int inValue);
+		void setConvertType(int type);
+  void setErode(int convertType, int index, int inValue);
+  void setDilate(int convertType, int index, int inValue);
+  void setBlur(int convertType, int index, int inValue);
+  void setAmin(int convertType, int index, int inValue);
 
 
 };

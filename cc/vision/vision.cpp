@@ -22,7 +22,8 @@ void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *win
 }
 
 void Vision::preProcessing() {
-  cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2HSV);
+	if (convertType == HSV) cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2HSV);
+	else cv::cvtColor(in_frame,hsv_frame,cv::COLOR_RGB2Lab);
 }
 
 void Vision::findTags() {
@@ -35,8 +36,14 @@ void Vision::findTags() {
 void Vision::segmentAndSearch(int color) {
   cv::Mat frame = hsv_frame.clone();
 
-  inRange(frame,cv::Scalar(hue[color][MIN],saturation[color][MIN],value[color][MIN]),
-  cv::Scalar(hue[color][MAX],saturation[color][MAX],value[color][MAX]),threshold_frame.at(color));
+	if (convertType == HSV) {
+		inRange(frame,cv::Scalar(hue[color][MIN],saturation[color][MIN],value[color][MIN]),
+				cv::Scalar(hue[color][MAX],saturation[color][MAX],value[color][MAX]),threshold_frame.at(color));
+	} else {
+		inRange(frame,cv::Scalar(cieL[color][MIN],cieA[color][MIN],cieB[color][MIN]),
+				cv::Scalar(cieL[color][MAX],cieA[color][MAX],cieB[color][MAX]),threshold_frame.at(color));
+	}
+
 
   posProcessing(color);
   searchTags(color);
@@ -46,9 +53,9 @@ void Vision::posProcessing(int color) {
   cv::Mat erodeElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
   cv::Mat dilateElement = cv::getStructuringElement( cv::MORPH_RECT,cv::Size(3,3));
 
-  cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
-  cv::erode(threshold_frame.at(color),threshold_frame.at(color),erodeElement,cv::Point(-1,-1),erode[color]);
-  cv::dilate(threshold_frame.at(color),threshold_frame.at(color),dilateElement,cv::Point(-1,-1),dilate[color]);
+  cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[convertType][color]);
+  cv::erode(threshold_frame.at(color),threshold_frame.at(color),erodeElement,cv::Point(-1,-1),erode[convertType][color]);
+  cv::dilate(threshold_frame.at(color),threshold_frame.at(color),dilateElement,cv::Point(-1,-1),dilate[convertType][color]);
 }
 
 void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
@@ -91,7 +98,7 @@ void Vision::searchTags(int color) {
 
   for (int i = 0; i < contours.size(); i++) {
     double area = contourArea(contours[i]);
-    if(area >= areaMin[color]) {
+    if(area >= areaMin[convertType][color]) {
       cv::Moments moment = moments((cv::Mat)contours[i]);
 
       // seta as linhas para as tags principais do pick-a-tag
@@ -407,35 +414,52 @@ double Vision::calcDistance(cv::Point p1, cv::Point p2) {
 void Vision::switchMainWithAdv() {
   int tmp;
 
-  for (int i = MIN; i <= MAX; i++) {
-    tmp = hue[MAIN][i];
-    hue[MAIN][i] = hue[ADV][i];
-    hue[ADV][i] = tmp;
+	if (convertType == HSV) {
+		for (int i = MIN; i <= MAX; i++) {
+			tmp = hue[MAIN][i];
+			hue[MAIN][i] = hue[ADV][i];
+			hue[ADV][i] = tmp;
 
-    tmp = saturation[MAIN][i];
-    saturation[MAIN][i] = saturation[ADV][i];
-    saturation[ADV][i] = tmp;
+			tmp = saturation[MAIN][i];
+			saturation[MAIN][i] = saturation[ADV][i];
+			saturation[ADV][i] = tmp;
 
-    tmp = value[MAIN][i];
-    value[MAIN][i] = value[ADV][i];
-    value[ADV][i] = tmp;
-  }
+			tmp = value[MAIN][i];
+			value[MAIN][i] = value[ADV][i];
+			value[ADV][i] = tmp;
+		}
+	} else {
+		for (int i = MIN; i <= MAX; i++) {
+			tmp = cieL[MAIN][i];
+			cieL[MAIN][i] = cieL[ADV][i];
+			cieL[ADV][i] = tmp;
 
-  tmp = areaMin[MAIN];
-  areaMin[MAIN] = areaMin[ADV];
-  areaMin[ADV] = tmp;
+			tmp = cieA[MAIN][i];
+			cieA[MAIN][i] = cieA[ADV][i];
+			cieA[ADV][i] = tmp;
 
-  tmp = erode[MAIN];
-  erode[MAIN] = erode[ADV];
-  erode[ADV] = tmp;
+			tmp = cieB[MAIN][i];
+			cieB[MAIN][i] = cieB[ADV][i];
+			cieB[ADV][i] = tmp;
+		}
+	}
 
-  tmp = dilate[MAIN];
-  dilate[MAIN] = dilate[ADV];
-  dilate[ADV] = tmp;
 
-  tmp = blur[MAIN];
-  blur[MAIN] = blur[ADV];
-  blur[ADV] = tmp;
+  tmp = areaMin[convertType][MAIN];
+  areaMin[convertType][MAIN] = areaMin[convertType][ADV];
+  areaMin[convertType][ADV] = tmp;
+
+  tmp = erode[convertType][MAIN];
+  erode[convertType][MAIN] = erode[convertType][ADV];
+  erode[convertType][ADV] = tmp;
+
+  tmp = dilate[convertType][MAIN];
+  dilate[convertType][MAIN] = dilate[convertType][ADV];
+  dilate[convertType][ADV] = tmp;
+
+  tmp = blur[convertType][MAIN];
+  blur[convertType][MAIN] = blur[convertType][ADV];
+  blur[convertType][ADV] = tmp;
 }
 
 cv::Mat Vision::getSplitFrame() {
@@ -460,21 +484,38 @@ cv::Mat Vision::getSplitFrame() {
   return splitFrame;
 }
 
-void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5])
+void Vision::setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4])
 {
-  for (int i = 0; i < 5; i++)
-  {
-    areaMin[i] = Amin[i];
-    erode[i] = E[i];
-    dilate[i] = D[i];
-    blur[i] = B[i];
-    for (int j = 0; j < 2; j++)
-    {
-      hue[i][j] = H[i][j];
-      saturation[i][j] = S[i][j];
-      value[i][j] = V[i][j];
-    }
-  }
+	if (type == HSV) {
+		for (int i = 0; i < TOTAL_COLORS; i++)
+		{
+			areaMin[type][i] = Amin[i];
+			erode[type][i] = E[i];
+			dilate[type][i] = D[i];
+			blur[type][i] = B[i];
+			for (int j = 0; j < 2; j++)
+			{
+				hue[i][j] = H[i][j];
+				saturation[i][j] = S[i][j];
+				value[i][j] = V[i][j];
+			}
+		}
+	} else { // CIELAB
+		for (int i = 0; i < TOTAL_COLORS; i++)
+		{
+			areaMin[type][i] = Amin[i];
+			erode[type][i] = E[i];
+			dilate[type][i] = D[i];
+			blur[type][i] = B[i];
+			for (int j = 0; j < 2; j++)
+			{
+				cieL[i][j] = H[i][j];
+				cieA[i][j] = S[i][j];
+				cieB[i][j] = V[i][j];
+			}
+		}
+	}
+
 }
 
 void Vision::savePicture(std::string in_name) {
@@ -561,25 +602,56 @@ int Vision::getValue(int index0, int index1) {
   return value[index0][index1];
 }
 
-int Vision::getErode(int index) {
-  return erode[index];
+int Vision::getCIE_L(int index0, int index1) {
+	return cieL[index0][index1];
 }
 
-int Vision::getDilate(int index) {
-  return dilate[index];
+int Vision::getCIE_A(int index0, int index1) {
+	return cieA[index0][index1];
 }
 
-int Vision::getBlur(int index) {
-  return blur[index];
+int Vision::getCIE_B(int index0, int index1) {
+	return cieB[index0][index1];
 }
 
-int Vision::getAmin(int index) {
-  return areaMin[index];
+int Vision::getErode(int convertType, int index) {
+	return erode[convertType][index];
+}
+
+int Vision::getDilate(int convertType, int index) {
+  return dilate[convertType][index];
+}
+
+int Vision::getBlur(int convertType, int index) {
+  return blur[convertType][index];
+}
+
+int Vision::getAmin(int convertType, int index) {
+  return areaMin[convertType][index];
+}
+
+int Vision::getConvertType() {
+	return convertType;
 }
 
 void Vision::setHue(int index0, int index1, int inValue) {
   if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) hue[index0][index1] = inValue;
   else std::cout << "Vision:setHue: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setCIE_L(int index0, int index1, int inValue) {
+	if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) cieL[index0][index1] = inValue;
+	else std::cout << "Vision:setCIE_L: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setCIE_A(int index0, int index1, int inValue) {
+	if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) cieA[index0][index1] = inValue;
+	else std::cout << "Vision:setCIE_A: could not set (invalid index)" << std::endl;
+}
+
+void Vision::setCIE_B(int index0, int index1, int inValue) {
+	if (index0 >= 0 && index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) cieB[index0][index1] = inValue;
+	else std::cout << "Vision:setCIE_B: could not set (invalid index)" << std::endl;
 }
 
 void Vision::setSaturation(int index0, int index1, int inValue) {
@@ -592,24 +664,29 @@ void Vision::setValue(int index0, int index1, int inValue) {
   else std::cout << "Vision:setValue: could not set (invalid index)" << std::endl;
 }
 
-void Vision::setErode(int index, int inValue) {
-  if (index >= 0 && index < TOTAL_COLORS) erode[index] = inValue;
-  else std::cout << "Vision:setErode: could not set (invalid index)" << std::endl;
+void Vision::setErode(int convertType, int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS && (convertType == HSV || convertType == CIELAB)) erode[convertType][index] = inValue;
+  else std::cout << "Vision:setErode: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setDilate(int index, int inValue) {
-  if (index >= 0 && index < TOTAL_COLORS) dilate[index] = inValue;
-  else std::cout << "Vision:setDilate: could not set (invalid index)" << std::endl;
+void Vision::setDilate(int convertType, int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS && (convertType == HSV || convertType == CIELAB)) dilate[convertType][index] = inValue;
+  else std::cout << "Vision:setDilate: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setBlur(int index, int inValue) {
-  if (index >= 0 && index < TOTAL_COLORS) blur[index] = inValue;
-  else std::cout << "Vision:setBlur: could not set (invalid index)" << std::endl;
+void Vision::setBlur(int convertType, int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS && (convertType == HSV || convertType == CIELAB)) blur[convertType][index] = inValue;
+  else std::cout << "Vision:setBlur: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setAmin(int index, int inValue) {
-  if (index >= 0 && index < TOTAL_COLORS) areaMin[index] = inValue;
-  else std::cout << "Vision:setAmin: could not set (invalid index)" << std::endl;
+void Vision::setAmin(int convertType, int index, int inValue) {
+  if (index >= 0 && index < TOTAL_COLORS && (convertType == HSV || convertType == CIELAB)) areaMin[convertType][index] = inValue;
+  else std::cout << "Vision:setAmin: could not set (invalid index or convert type)" << std::endl;
+}
+
+void Vision::setConvertType(int type) {
+	if (type == HSV || type == CIELAB) convertType = type;
+	else std::cout << "Vision:setConvertType: could not set type (invalid type)" << std::endl;
 }
 
 void Vision::setFrameSize(int inWidth, int inHeight) {
@@ -630,24 +707,17 @@ cv::Point* Vision::getAllAdvRobots() {
 }
 
 
-Vision::Vision(int w, int h) : width(w), height(h), bOnAir(false)
+Vision::Vision(int w, int h) : width(w), height(h), bOnAir(false), convertType(HSV),
+robot_list(3), threshold_frame(TOTAL_COLORS), tags(TOTAL_COLORS)
 {
-  // Variables Init
-  cv::Mat mat;
-  std::vector<Tag> tagVec;
-  Robot robot;
 
-  for (int i = 0; i < TOTAL_COLORS; i++) {
-    threshold_frame.push_back(mat);
-    tags.push_back(tagVec);
-  }
-
-  robot_list.push_back(robot);
-  robot_list.push_back(robot);
-  robot_list.push_back(robot);
 }
 
 Vision::~Vision()
 {
 
 }
+
+
+
+

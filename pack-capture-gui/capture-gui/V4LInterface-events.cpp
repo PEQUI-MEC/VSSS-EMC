@@ -650,19 +650,7 @@ namespace capture {
     }
 
     void V4LInterface::update_interface_camera() {
-        visionGUI.HScale_Hmin.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 0));
-        visionGUI.HScale_Hmax.set_value(visionGUI.vision->getHue(visionGUI.Img_id, 1));
-
-        visionGUI.HScale_Smin.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 0));
-        visionGUI.HScale_Smax.set_value(visionGUI.vision->getSaturation(visionGUI.Img_id, 1));
-
-        visionGUI.HScale_Vmin.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 0));
-        visionGUI.HScale_Vmax.set_value(visionGUI.vision->getValue(visionGUI.Img_id, 1));
-
-        visionGUI.HScale_Dilate.set_value(visionGUI.vision->getDilate(visionGUI.Img_id));
-        visionGUI.HScale_Erode.set_value(visionGUI.vision->getErode(visionGUI.Img_id));
-        visionGUI.HScale_Blur.set_value(visionGUI.vision->getBlur(visionGUI.Img_id));
-        visionGUI.HScale_Amin.set_value(visionGUI.vision->getAmin(visionGUI.Img_id));
+        visionGUI.__event_cb_convertType_changed();
 
         if(warped) {
             bt_warp.set_state(Gtk::STATE_INSENSITIVE);
