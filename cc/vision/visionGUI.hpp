@@ -169,6 +169,7 @@ private:
 
   // void __event_auto_save();
 
+    public:
 		void __event_cb_convertType_changed();
 };
 

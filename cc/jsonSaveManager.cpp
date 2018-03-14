@@ -139,7 +139,7 @@ void jsonSaveManager::load_camera() {
 	}
 
 	if(exists(camera_config, "offsetL")) interface->offsetL = camera_config["offsetL"];
-	if(exists(camera_config, "offsetL")) interface->offsetR = camera_config["offsetR"];
+	if(exists(camera_config, "offsetR")) interface->offsetR = camera_config["offsetR"];
 
 	if(exists(camera_config, "Camera Properties")){
 		json& properties_config = camera_config["Camera Properties"];
