@@ -143,6 +143,15 @@ bool CamCap::capture_and_show() {
 		interface.imageView.sector = -1;
 	}
 
+    if(interface.visionGUI.vision->flag_cam_calibrated){
+        interface.btn_camCalib_colect.set_state(Gtk::STATE_NORMAL);
+        interface.btn_camCalib_pop.set_label("Pop(0)");
+        cv::Mat temp;
+        imageView.copyTo(temp);
+        cv::undistort(temp,imageView, interface.visionGUI.vision->getcameraMatrix(), interface.visionGUI.vision->getdistanceCoeficents());
+
+    }
+
 	if (interface.warped) {
 		interface.bt_warp.set_active(false);
 		interface.bt_warp.set_state(Gtk::STATE_INSENSITIVE);
@@ -153,6 +162,21 @@ bool CamCap::capture_and_show() {
 			cv::flip(imageView, imageView, -1);
 		}
 	}
+
+    if(interface.CamCalib_flag_event){
+        bool found = false;
+        cv::Mat drawToFrame;
+        std::vector<cv::Vec2f> foundPoints;
+        found = cv::findChessboardCorners(imageView,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+        imageView.copyTo(drawToFrame);
+        if (found)
+        {
+            cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, found);
+        }else
+            drawToFrame.copyTo(imageView);
+    }
+
+
 
 	if (interface.imageView.gmm_ready_flag) {
 		interface.visionGUI.gmm->setFrame(imageView);

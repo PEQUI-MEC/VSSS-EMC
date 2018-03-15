@@ -477,6 +477,76 @@ void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], 
   }
 }
 
+void Vision::saveCamCalibFrame() {
+    cv::Mat temp = in_frame.clone();
+    savedCamCalibFrames.push_back(temp);
+//    std::string text = "CamCalib_" + std::to_string(getCamCalibFrames().size());
+//    savePicture(text);
+    std::cout << "Salvando imagem "<< std::endl;
+}
+
+void Vision::cameraCalibration() {
+
+    std::vector<std::vector<cv::Point2f>> checkerBoardImageSpacePoints;
+    getChessBoardCorners(savedCamCalibFrames, checkerBoardImageSpacePoints, false);
+
+    std::vector<std::vector<cv::Point3f>> worldSpaceCornersPoints(1);
+
+    createKnownBoardPosition(CHESSBOARD_DIMENSION, CALIBRATION_SQUARE_DIMENSION, worldSpaceCornersPoints[0]);
+    worldSpaceCornersPoints.resize(checkerBoardImageSpacePoints.size(), worldSpaceCornersPoints[0]);
+
+    std::vector<cv::Mat> rVectors, tVectors;
+    distanceCoeficents = cv::Mat::zeros(8, 1, CV_64F);
+
+    cv::calibrateCamera(worldSpaceCornersPoints, checkerBoardImageSpacePoints, CHESSBOARD_DIMENSION, cameraMatrix, distanceCoeficents, rVectors, tVectors);
+    savedCamCalibFrames.clear();
+
+    flag_cam_calibrated = true;
+
+//    std::cout << "Matriz de parâmetros da câmera" << std::endl;
+//    std::cout << cameraMatrix << std::endl;
+//    std::cout << "Coeficientes de distorçao da câmera" << std::endl;
+//    std::cout << distanceCoeficents << std::endl;
+//    std::cout << "Terminou a calibraçao" << std::endl;
+
+}
+
+// criando um vetor com a posiçap de todos os pontos que pertencem ao padrao em milimetros desconsiderando Z para ficar
+// computacionalmente mais barato
+void Vision::createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght, std::vector<cv::Point3f>& corners)
+{
+    //
+    for(int i = 0; i < boardSize.height; i++)
+    {
+        for (int j = 0; j < boardSize.width; ++j)
+        {
+            corners.push_back(cv::Point3f(j * squareEdgeLenght, i * squareEdgeLenght, 0.0f));
+        }
+    }
+}
+
+void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::vector<cv::Point2f>>& allFoundCorners, bool showResults){
+    cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+    cv::Mat grayFrame;
+    for (std::vector<cv::Mat>::iterator iter = images.begin(); iter != images.end(); iter++)
+    {
+        std::vector<cv::Point2f> pointBuf;
+        bool found = cv::findChessboardCorners(*iter, CHESSBOARD_DIMENSION, pointBuf, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+
+        if(found)
+        {
+            cv::cvtColor(*iter, grayFrame, cv::COLOR_RGB2GRAY);
+            cv::cornerSubPix(grayFrame, pointBuf, cv::Size(11,11), cv::Size(-1,-1), termCriteria);
+            allFoundCorners.push_back(pointBuf);
+        }
+        if (showResults)
+        {
+            //TO DO
+        }
+    }
+}
+
+
 void Vision::savePicture(std::string in_name) {
   cv::Mat frame = in_frame.clone();
   std::string picName = "media/pictures/" + in_name + ".png";
@@ -555,6 +625,25 @@ int Vision::getHue(int index0, int index1) {
 
 int Vision::getSaturation(int index0, int index1) {
   return saturation[index0][index1];
+}
+
+std::vector<cv::Mat> Vision::getCamCalibFrames() {
+    return savedCamCalibFrames;
+}
+
+cv::Mat Vision::getcameraMatrix(){
+    return cameraMatrix;
+}
+cv::Mat Vision::getdistanceCoeficents(){
+    return distanceCoeficents;
+}
+
+void Vision::setFlagCamCalibrated(bool value){
+    this->flag_cam_calibrated = value;
+}
+
+void Vision::popCamCalibFrames() {
+    savedCamCalibFrames.pop_back();
 }
 
 int Vision::getValue(int index0, int index1) {

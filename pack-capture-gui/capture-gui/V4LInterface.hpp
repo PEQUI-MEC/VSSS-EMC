@@ -22,6 +22,7 @@
 #include <ctime>
 #include <chrono>
 
+
 #define PI 3.14159265453
 
 namespace capture {
@@ -40,6 +41,7 @@ namespace capture {
         bool isWaitingForRes;
 
         VisionGUI visionGUI;
+
 
         bool warped = false;
 
@@ -136,6 +138,16 @@ namespace capture {
         sigc::connection cb_frame_size_signal;
         sigc::connection cb_frame_interval_signal;
 
+        // Camera calibration frames
+        Gtk::Frame fr_camCalib_offline;
+        Gtk::Frame fr_camCalib_online;
+        Gtk::Button btn_camCalib_colect, btn_camCalib_reset, btn_camCalib_start, btn_camCalib_pop;
+        Gtk::ToggleButton btn_camCalib;
+
+        bool CamCalib_flag_event;
+
+
+
         void __event_bt_quick_save_clicked();
 
         void __event_bt_quick_load_clicked();
@@ -168,6 +180,18 @@ namespace capture {
 
         void __event_cb_frame_size_changed();
 
+        void __event_camCalib_mode_clicked();
+
+        void __event_camCalib_online_collect_clicked();
+
+        void __event_camCalib_online_pop_clicked();
+
+        void __event_camCalib_online_reset_clicked();
+
+        void __event_camCalib_online_start_clicked();
+
+        void __event_camCalib_pressed();
+
         void __event_cb_frame_interval_changed();
 
         void createIDsFrame();
@@ -181,6 +205,7 @@ namespace capture {
         void createPositionsAndButtonsFrame();
 
         void createFunctionsFrame();
+
 
         void event_robots_function_done_bt_signal_clicked();
 
@@ -226,6 +251,14 @@ namespace capture {
         void __create_frm_device_info();
 
         void __create_frm_device_properties();
+
+        void __create_frm_cam_calib();
+
+        void __create_frm_CamCalibMode_Offline();
+
+        void __create_frm_CamCalibMode_Online();
+
+        void hideCamCalibModeOffline();
 
         void createQuickActionsFrame();
 
@@ -273,6 +306,7 @@ namespace capture {
         Gtk::Frame frm_warp;
         Gtk::SpinButton sp_width;
         Gtk::SpinButton sp_height;
+        Gtk::Frame frm_cam_calib;
 
         //==================================================================
         Gtk::ComboBox cb_input;
@@ -287,6 +321,8 @@ namespace capture {
         Glib::RefPtr<Gtk::ListStore> ls_frame_size;
         Glib::RefPtr<Gtk::ListStore> ls_frame_interval;
         //----------------------------------
+        // Camera Calibration Mode
+        Gtk::RadioButton calib_offline, calib_online;
 
         template<class T>
         class ModelColumn : public Gtk::TreeModel::ColumnRecord {

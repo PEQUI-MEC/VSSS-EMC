@@ -1,5 +1,9 @@
 #ifndef VISION_HPP_
 #define VISION_HPP_
+//dimensões dos quadrados do tabuleiro
+#define CALIBRATION_SQUARE_DIMENSION 0.02629f
+// número de intersecções do tabuleiro
+#define CHESSBOARD_DIMENSION cv::Size(6,9)
 
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
@@ -65,6 +69,8 @@ private:
   // video
   cv::VideoWriter video;
 
+
+
   // threads
   boost::thread_group threshold_threads;
 
@@ -94,6 +100,23 @@ public:
   bool finishVideo();
   bool isRecording();
   void savePicture(std::string in_name);
+
+    //Cam calib
+    std::vector<cv::Mat> savedCamCalibFrames;
+    cv::Mat cameraMatrix;
+    cv::Mat distanceCoeficents;
+    bool flag_cam_calibrated = false;
+
+    std::vector<cv::Mat> getCamCalibFrames();
+    cv::Mat getcameraMatrix();
+    cv::Mat getdistanceCoeficents();
+    void setFlagCamCalibrated(bool value);
+
+    void saveCamCalibFrame();
+    void popCamCalibFrames();
+    void cameraCalibration();
+    void getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::vector<cv::Point2f>>& allFoundCorners, bool showResults);
+    void createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght, std::vector<cv::Point3f>& corners);
 
   void switchMainWithAdv();
 
@@ -128,6 +151,8 @@ public:
   void setDilate(int index, int inValue);
   void setBlur(int index, int inValue);
   void setAmin(int index, int inValue);
+
+
 
 
 };

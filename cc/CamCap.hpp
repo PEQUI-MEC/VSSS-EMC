@@ -8,6 +8,11 @@
 #ifndef CAMCAP_HPP_
 #define CAMCAP_HPP_
 #define PI 3.14159265453
+//dimensões dos quadrados do tabuleiro
+#define CALIBRATION_SQUARE_DIMENSION 0.02629f
+// número de intersecções do tabuleiro
+#define CHESSBOARD_DIMENSION cv::Size(6,9)
+
 
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
@@ -86,6 +91,8 @@ class CamCap : public Gtk::HBox {
 		cv::Point obstacle;
 		cv::Point deviation1;
 		cv::Point deviation2;
+
+
 
 		bool checkForLowRes();
 		void updateAllPositions();
