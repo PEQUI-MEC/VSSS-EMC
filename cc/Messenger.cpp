@@ -77,23 +77,23 @@ string Messenger::position_msg(Robot robot) {
 	double pos_x = transTarget_x*(150.0/640.0);
 	double pos_y = transTarget_y*(130.0/480.0);
 
-	return ("P"+to_string(pos_x)+";"+to_string(pos_y)+";"+to_string(robot.vmax));
+	return ("P"+ rounded_str(pos_x)+";"+ rounded_str(pos_y)+";"+ rounded_str(robot.vmax));
 }
 
 string Messenger::speed_msg(Robot robot) {
-	return (to_string(robot.Vr)+";"+to_string(robot.Vl));
+	return (rounded_str(robot.Vr)+";"+ rounded_str(robot.Vl));
 }
 
 string Messenger::orientation_msg(Robot robot) {
 	double orientation = (robot.orientation + robot.targetOrientation)*180/M_PI;
-	return ("O"+to_string(orientation)+";"+to_string(robot.vmax));
+	return ("O"+ rounded_str(orientation)+";"+ rounded_str(robot.vmax));
 }
 
 string Messenger::vector_msg(Robot robot) {
 	double orientation = atan2(sin(robot.orientation + robot.transAngle),
 							  cos(robot.orientation + robot.transAngle));
 	orientation = orientation*(180.0/M_PI);
-	return ("V"+to_string(orientation)+";"+to_string(robot.vmax));
+	return ("V"+ rounded_str(orientation)+";"+ rounded_str(robot.vmax));
 }
 
 double Messenger::get_battery(char id) {
@@ -103,10 +103,10 @@ double Messenger::get_battery(char id) {
 	return ((stod(msg.substr(1)) - 6.4)/2.0)*100;
 }
 
-string Messenger::to_string(double num) {
-	double num_round = round(num*100)/100;
+string Messenger::rounded_str(double num) {
+	double rounded_num = round(num*100)/100;
 	std::ostringstream ss;
-	ss << num_round;
+	ss << rounded_num;
 	return ss.str();
 }
 

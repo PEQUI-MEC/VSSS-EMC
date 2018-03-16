@@ -20,7 +20,7 @@ class Messenger {
 		std::string speed_msg(Robot robot);
 		std::string orientation_msg(Robot robot);
 		std::string vector_msg(Robot robot);
-		std::string to_string(double num);
+		std::string rounded_str(double num);
 
 	public:
 		Messenger();
