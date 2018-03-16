@@ -38,7 +38,7 @@ class Xbee {
 		int send(char id, const std::string &message);
 		std::string send_get_answer(char id, const std::string &message);
 		std::vector<message> send_get_answer_all(const std::string &message);
-		std::stack<message> get_messages();
+		std::vector<message> get_messages();
 		void update_ack(char id, int ack);
 		ack_count get_ack_count(char id);
 		void reset_lost_acks();
