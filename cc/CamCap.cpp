@@ -171,7 +171,9 @@ bool CamCap::capture_and_show() {
         imageView.copyTo(drawToFrame);
         if (found)
         {
+			interface.visionGUI.vision->setRawFrameCamcalib(imageView);
             cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, found);
+
         }else
             drawToFrame.copyTo(imageView);
     }

@@ -94,7 +94,7 @@ public:
   void recordVideo(cv::Mat frame);
   void setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], int E[5], int D[5], int B[5]);
   double calcDistance(cv::Point p1, cv::Point p2);
-
+  void saveCameraCalibPicture(std::string  in_name, std::string directory);
   void startNewVideo(std::string videoName);
   bool recordToVideo();
   bool finishVideo();
@@ -106,19 +106,19 @@ public:
     cv::Mat cameraMatrix;
     cv::Mat distanceCoeficents;
     bool flag_cam_calibrated = false;
-
+    std::vector<std::vector<cv::Point2f>> getChessBoardCorners(std::vector<cv::Mat> images, bool showResults);
     std::vector<cv::Mat> getCamCalibFrames();
     cv::Mat getcameraMatrix();
     cv::Mat getdistanceCoeficents();
     void setFlagCamCalibrated(bool value);
-
     void saveCamCalibFrame();
     void popCamCalibFrames();
     void cameraCalibration();
-    void getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::vector<cv::Point2f>>& allFoundCorners, bool showResults);
-    void createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght, std::vector<cv::Point3f>& corners);
-
-  void switchMainWithAdv();
+    std::vector<cv::Point3f> createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght);
+	bool foundChessBoardCorners();
+  	void switchMainWithAdv();
+    cv::Mat rawFrameCamcalib;
+    void setRawFrameCamcalib(cv::Mat frame);
 
   cv::Point getBall();
   Robot getRobot(int index);

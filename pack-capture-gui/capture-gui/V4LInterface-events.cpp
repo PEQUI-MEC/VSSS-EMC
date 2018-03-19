@@ -703,7 +703,9 @@ namespace capture {
     void V4LInterface::__event_camCalib_online_collect_clicked() {
         btn_camCalib_pop.set_state(Gtk::STATE_NORMAL);
         btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
-        visionGUI.vision->saveCamCalibFrame();
+        if(visionGUI.vision->foundChessBoardCorners()){
+            visionGUI.vision->saveCamCalibFrame();
+        }
         std::string text = "Pop (" + std::to_string(visionGUI.vision->getCamCalibFrames().size()) + ")";
         btn_camCalib_pop.set_label(text);
         btn_camCalib_pop.set_state(Gtk::STATE_NORMAL);
