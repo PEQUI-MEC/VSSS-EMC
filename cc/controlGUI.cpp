@@ -38,6 +38,11 @@ ControlGUI::ControlGUI() {
     Serial_hbox[2].pack_start(bt_send_cmd, false, true, 5);
     send_cmd_box.set_width_chars(25);
     bt_send_cmd.set_label("Send Command");
+
+	ack_enable_label.set_label("Enable ACKs");
+	Serial_hbox[2].pack_start(ack_enable_button, false, true, 5);
+	Serial_hbox[2].pack_start(ack_enable_label, false, true, 0);
+
     Serial_vbox.pack_start(Serial_hbox[2], false, true, 5);
 
     Tbox_V1.set_max_length(6);
@@ -79,6 +84,7 @@ ControlGUI::ControlGUI() {
     configureTestFrame();
 
     _update_cb_serial();
+	update_ack_interface();
     // Conectar os sinais para o acontecimento dos eventos
     button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
     bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
@@ -87,6 +93,7 @@ ControlGUI::ControlGUI() {
     bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
 	bt_reset_ack.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::reset_lost_acks));
     bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
+	ack_enable_button.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
 }
 
 void ControlGUI::configureTestFrame() {
@@ -317,6 +324,22 @@ void ControlGUI::_create_status_frame(){
         dropped_frames[i].set_label("Lost ACKs: 0.00%, Total: 0");
         status_grid.attach(dropped_frames[i], 4, i+1, 1, 1);
     }
+}
+
+void ControlGUI::update_ack_interface() {
+	bool is_active = ack_enable_button.get_active();
+	messenger.set_ack_enabled(is_active);
+	if(is_active) {
+		for(Gtk::Label& label : dropped_frames){
+			label.show();
+		}
+		bt_reset_ack.show();
+	} else {
+		for(Gtk::Label& label : dropped_frames){
+			label.hide();
+		}
+		bt_reset_ack.hide();
+	}
 }
 
 void ControlGUI::update_dropped_frames() {

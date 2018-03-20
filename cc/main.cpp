@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
 
 
     camcap.interface.visionGUI.hideGMM();
+    camcap.control.update_ack_interface();
 
     Gtk::Main::run(window);
 
