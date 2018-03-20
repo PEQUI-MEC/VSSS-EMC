@@ -110,7 +110,12 @@ string Messenger::rounded_str(double num) {
 	return ss.str();
 }
 
-ack_count Messenger::get_ack_count(char id){
+void Messenger::set_ack_enabled(bool enable) {
+	if(!xbee) return;
+	xbee->set_ack_enabled(enable);
+}
+
+ack_count Messenger::get_ack_count(char id) {
 	if(!xbee) return {-1,-1,-1};
 	else return xbee->get_ack_count(id);
 }

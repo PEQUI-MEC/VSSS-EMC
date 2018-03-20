@@ -61,6 +61,9 @@ public:
 	Gtk::Entry Tbox_V1;
 	Gtk::Entry Tbox_V2;
 
+		Gtk::CheckButton ack_enable_button;
+		Gtk::Label ack_enable_label;
+
 	Gtk::Grid status_grid;
 	Gtk::Frame status_fm;
 	Gtk::Image status_img[TOTAL_ROBOTS];
@@ -113,11 +116,12 @@ public:
 	// Função para verificar se os valores digitados nos campos
 	// de PID são válidos: apenas números e um único ponto
 	bool checkPIDvalues();
-	
+
 	int get_robot_pos(char id);
     char get_robot_id(int pos);
 		void update_dropped_frames();
 		void reset_lost_acks();
+		void update_ack_interface();
 };
 
 
