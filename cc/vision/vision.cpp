@@ -478,7 +478,8 @@ void Vision::setCalibParams(int H[5][2], int S[5][2], int V[5][2], int Amin[5], 
 }
 
 void Vision::saveCamCalibFrame() {
-    cv::Mat temp = rawFrameCamcalib.clone();
+//    cv::Mat temp = rawFrameCamcalib.clone();
+	cv::Mat temp = in_frame.clone();
     savedCamCalibFrames.push_back(temp);
     std::string text = "CamCalib_" + std::to_string(getCamCalibFrames().size());
     saveCameraCalibPicture(text, "media/pictures/camCalib/");
@@ -553,10 +554,8 @@ std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<c
 bool Vision::foundChessBoardCorners() {
 	std::vector<cv::Vec2f> foundPoints;
 	cv::Mat temp;
-	rawFrameCamcalib.copyTo(temp);
-	savePicture("Erro");
+	temp = in_frame.clone();
 	bool found = cv::findChessboardCorners(temp,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
-
 	if (found)
 	{
 		return true;
@@ -566,7 +565,8 @@ bool Vision::foundChessBoardCorners() {
 
 
 void Vision::saveCameraCalibPicture(std::string in_name, std::string directory) {
-    cv::Mat frame = rawFrameCamcalib.clone();
+//    cv::Mat frame = rawFrameCamcalib.clone();
+	cv::Mat frame = in_frame.clone();
     std::string picName = directory + in_name + ".png";
 
     cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
@@ -729,7 +729,7 @@ void Vision::setAmin(int index, int inValue) {
 }
 
 void Vision::setRawFrameCamcalib(cv::Mat frame){
-    frame.copyTo(rawFrameCamcalib);
+    frame.copyTo(in_frame);
 }
 
 void Vision::setFrameSize(int inWidth, int inHeight) {

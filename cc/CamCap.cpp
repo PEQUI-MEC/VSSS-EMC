@@ -105,6 +105,9 @@ bool CamCap::start_signal(bool b) {
 
 bool CamCap::capture_and_show() {
 
+	bool chessBoardFound = false;
+	std::vector<cv::Vec2f> foundPoints;
+
 	if (!data) return false;
 
 	if (frameCounter == 0) {
@@ -118,6 +121,7 @@ bool CamCap::capture_and_show() {
 	interface.imageView.refresh();
 
 	cv::Mat imageView(height, width, CV_8UC3, data);
+
 
 	if (interface.imageView.hold_warp) {
 		interface.warped = true;
@@ -163,19 +167,9 @@ bool CamCap::capture_and_show() {
 		}
 	}
 
-    if(interface.CamCalib_flag_event){
-        bool found = false;
-        cv::Mat drawToFrame;
-        std::vector<cv::Vec2f> foundPoints;
-        found = cv::findChessboardCorners(imageView,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
-        imageView.copyTo(drawToFrame);
-        if (found)
-        {
-			interface.visionGUI.vision->setRawFrameCamcalib(imageView);
-            cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, found);
+    if(interface.CamCalib_flag_event && !interface.get_start_game_flag()){
 
-        }else
-            drawToFrame.copyTo(imageView);
+		chessBoardFound = cv::findChessboardCorners(imageView,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
     }
 
 
@@ -230,6 +224,12 @@ bool CamCap::capture_and_show() {
 	}
 
 	if (!interface.visionGUI.HSV_calib_event_flag) {
+		if (chessBoardFound)
+		{
+//			interface.visionGUI.vision->setRawFrameCamcalib(imageView);
+			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
+
+		}
 		if (interface.visionGUI.getIsDrawing() && !interface.visionGUI.getIsSplitView()) {
 			cv::Point aux_point;
 
