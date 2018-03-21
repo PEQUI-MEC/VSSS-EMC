@@ -357,6 +357,8 @@ namespace capture {
         Gtk::Notebook notebook2;
         //==================================================================
 
+            Gtk::ScrolledWindow scrolledWindow;
+            Gtk::VBox capture_vbox;
 
 
         void __make_controls();
