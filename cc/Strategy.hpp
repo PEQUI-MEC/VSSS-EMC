@@ -120,47 +120,328 @@ class Strategy {
 		bool atk_mindcontrol = false;
 		bool def_mindcontrol = false;
 
+/*
+Tipos de funções da estratégia:
+
+- Math - Funções deste tipo realizam cálculos matemáticos comumente usados nos
+diversos comportamentos e rotinas.
+
+- IA - Funções não necessariamente matemáticas, mas que utilizam técnicas
+complexas de planejamento de rotas, manipulaço de variáveis, entre outros. Estas
+não controlam diretamente os jogadores, apenas entregam aos comportamentos os
+valores necessários para tal, como angulação ou alvos.
+
+- Caomportamentos - Estes são conjuntos de cálculos e condições que por fim
+levam a uma ação, ou serquência breve de ações, a serem realizadas pelo robô.
+Estas funções geralmente são responsáveis por alterar as variáveis dos agentes
+como alvos(target), comandos(cmdType), orientação(targetOrientation) etc.
+
+- Rotinas - Um conjunto de comportamentos, orquestrados a partir de condições
+e estados referentes ao jogo são chamados de rotinas. Elas não devem alterar
+variáveis dos jogadores diretamente, apenas chamando comportamentos.
+
+- Auxiliares - Funções que não se encaixam nos outros padrões cujo propósito é
+simplificar apenas uma outra função.
+
+*/
+
 		Strategy();
+
+		/* set_constants
+		Central --- Inicializa todas as variáveis de medida de campo, uma vez que
+			dependem das dimensões da imagem.
+		Input: 			Dimensões em pixeis(int)
+		Output:			-----
+		*/
 		void set_constants(int w, int h);
+
+		/* distance
+		Math --- Calcula distancia entre dois pontos A e B
+		Input: 			Dois pontos(cv::Point)
+		Output:			Distância entre os pontos em pixeis
+		*/
 		double distance(cv::Point A, cv::Point B);
+
+		/* distance_meters
+		Math --- Calcula distancia em metros entre dois pontos A e B
+		Input: 			Dois pontos(cv::Point)
+		Output:			Distância entre os pontos em metros
+		*/
 		double distance_meters(cv::Point A, cv::Point B);
+
+		/* angle_atan2
+		Math --- Calcula o ângulo de A em relação a B
+				Positivo em entido horáio e negativo anti-horário (igual a orientação)
+		Input: 			Dois pontos(cv::Point)
+		Output:			ângulo de A em relação a B em radianos
+		*/
+		double angle_atan2(cv::Point A, cv::Point B);
+
+		/* get_variables
+		Central --- Pega da interface as variáveis necessárias.
+		Input: 			-----
+		Output:			-----
+		*/
 		void get_variables();
+
+		/* get_past
+		Auxiliar --- Guarda posições passadas dos robôs para 'collision_check'
+		Input: 			índice(int) do robô
+		Output:			-----
+		*/
 		void get_past(int i);
+
+		/* get_targets
+		Central --- Função principal da estratégia. Ela chama todas as outras de
+			maneira a determinar o fluxo de execução, além de fornecer os alvos aqui
+			decididos para o resto do sistema.
+		Input: 			-----
+		Output:			-----
+		*/
 		void get_targets(vector<Robot> *pRobots, cv::Point *advRobots);
+
+		/* overmind
+		Central --- Sobrescreve rotinas baseando-se no escopo total do jogo. Esta
+			função utiliza de todas as variáveis e informações disponíveis, como
+			indices sobre todos os jogadores para realizar movintos mais complexos.
+		Input: 			-----
+		Output:			-----
+		*/
 		void overmind();
+
+		/* Transitions
+		Central ---  utiliza de todas as variáveis e informações disponíveis, como
+		indices sobre todos os jogadores para chamar por transições de jogadores.
+		Input: 			-----
+		Output:			-----
+		*/
+		void Transitions();
+
+		/* set_flags
+		Central --- Aciona ou desliga flags de acordo com a situação atual do jogo
+		Input: 			-----
+		Output:			-----
+		*/
 		void set_flags();
+
+		/* offensive_adv
+		Central --- Identifica se ha algum adversário próximo a bola avançando ao gol
+		Input: 			-----
+		Output:			bool se há ou não adversário
+		*/
 		bool offensive_adv();
+
+		/* fixed_position_check
+		Central --- Caso o robo em questão esteja com a variável fixedPos == True
+			entao as medidas são tomadas como, alteração de velocidade e alvos.
+		Input: 			Indice(int) do robô
+		Output:			-----
+		*/
 		void fixed_position_check(int i);
+
+		/* collision_check
+		Central --- Identifica se o robô em questão sofreu uma colisão e esta paralisado
+		Input: 			Indice(int) do robô
+		Output:			-----
+		*/
 		void collision_check(int i);
-		bool cock_blocked();
+
+		/* player_blocked
+		Central --- Identifica se ha robos bloqueados entre si
+		Input: 			-----
+		Output:			True(bool) caso haja pelo menos dois robôs bloqueados
+		*/
+		bool player_blocked();
+
+		/* set_role
+		Central --- muda o papel de um robô
+		Input: 			indice do robo(int) e o papel desejado(int) dentre
+			GOALKEEPER 0, DEFENDER 1, ATTACKER 2, OPPONENT 3
+		Output:			-----
+		*/
 		void set_role(int i, int role);
+
+		/* is_near
+		Math --- Utiliza a distancia entre um robo e um ponto especifico para analisar
+			se é menor que o limiar pre estabelecido(fixed_pos_distance).
+		Input: 			indice do robo(int) e ponto(cv::Point).
+		Output:			True ou False dependendo da distância.
+		*/
 		bool is_near(int i, cv::Point point);
+
+		/* position_to_vector
+		Comportamento --- transforma o alvo(target) em ângulo a ser seguido pelo
+			robo(transAngle) para casos de utilização do VECTOR.
+		Input: 			índice(int) do robô
+		Output:			-----
+		*/
 		void position_to_vector(int i);
-		void go_to_the_ball(int i);
-		void go_to_the_ball_direct(int i);
-		void around_the_ball(int i);
+
+		/* go_to_x
+		Comportamento --- Simplismente altera o alvo x do robô
+		Input: 			índice(int) do robô e o valor do alvo(double)
+		Output:			-----
+		*/
+		void go_to_x(int i, double x);
+
+		/* go_to_y
+		Comportamento --- Simplismente altera o alvo y do robô
+		Input: 			índice(int) do robô e o valor do alvo(double)
+		Output:			-----
+		*/
+		void go_to_y(int i, double y);
+
+		/* go_to
+		Comportamento --- Simplismente altera o alvo do robô
+		Input: 			índice(int) do robô e o ponto alvo(cv::Point)
+		Output:			-----
+		*/
+		void go_to(int i, cv::Point point);
+
+		/* look_at_ball
+		Comportamento --- Coloca robô em modo de ORIENTATION e aponta-o para a bola
+		Input: 			índice(int) do robô
+		Output:			-----
+		*/
 		double look_at_ball(int i);
+
+		/* potField
+		IA --- Utiliza Campos Potenciais para levar o robô a um objetivo
+			desviando de obstáculos. O campo pode ter quatro comportamentos diferentes
+			- BALL_IS_OBS -0- Bola considerada como obstáculo
+			- BALL_ONLY_OBS -1- Bola considerada o único obstáculo
+			- BALL_NOT_OBS -2- Bola não é considerada obstáculo (DEFAULT)
+			- NO_OBS -3- Sem obstáculos
+		Input: 			índice(int) do robô, ponto bjetivo(cv::Point) e modo (int)
+		Output:			Angulo a ser seguido pelo robô no modo VECTOR
+		*/
 		double potField(int robot_index, cv::Point goal, int behavior);
+
+		/* pot_rotation_decision
+		Auxiliar --- Faz a decisão do sentido em que o robô deve girar para a função
+			de Campos Potenciais(potField)
+		Input: 			índice(int) do robô, ponto bjetivo(cv::Point) e obstaculo(cv::Point)
+		Output:			direção(int) onde HORARIO = 1; ANTI_HORARIO = -1;
+		*/
 		int pot_rotation_decision(int robot_index, cv::Point goal, cv::Point obst);
-		double reach_on_time(double dist, double time_limit);
+
+		/* spin_anti_clockwise
+		Comportamento --- Gira o robô no sentido anti-horário
+		Input: 			índice(int) do robô e o valor da velocidade(double) de giro
+		Output:			-----
+		*/
 		void spin_anti_clockwise(int i, double speed);
+
+		/* spin_clockwise
+		Comportamento --- Gira o robô no sentido horário
+		Input: 			índice(int) do robô e o valor da velocidade(double) de giro
+		Output:			-----
+		*/
 		void spin_clockwise(int i, double speed);
+
+		/* def_wait
+		Comportamento --- Espera o robô chegar ao alvo(não determinado na função)
+			em seguida o faz olhar para a bola.
+		Input: 			índice(int) do robô
+		Output:			-----
+		*/
 		void def_wait(int i);
+
+		/* fuzzy_init
+		Auxiliar --- Inicializa as regras e memberships para serem utilizadas pelo Fuzzy
+		Input: 			-----
+		Output:			-----
+		*/
 		void fuzzy_init();
+
+		/* Fuzzy_Troca
+		IA --- Utiliza as regras e memberships inicializadas em 'fuzzy_init' para
+			definir quando os jogadores devem trocar de papéis.
+		Input: 			-----
+		Output:			tipo de transição(int)
+		 						0 = nenhum troca
+		 						1 = troca todos
+		 						2 = apenas ataque e defesa
+		*/
 		int Fuzzy_Troca();
-		double map_range(double actual, double minactual, double maxactual);
+
+		/* pot_field_around
+		Comportamento --- Utiliza Campos Potenciais(potField) para fazer o robô dar
+			a volta na bola e pegá-la por trás.
+		Input: 			índice(int) do robô
+		Output:			-----
+		*/
 		void pot_field_around(int i);
-		void gotta_catch_the_ball(int i);
+
+		/* crop_targets
+		Comportamento --- Remove alvos fora do campo ou dentro da área aliada e os
+			coloca em uma região 'aceitável'
+		Input: 			índice(int) do robô
+		Output:			-----
+		*/
 		void crop_targets(int i);
+
+		/* smart_ball
+		Comportamento --- Posiciona alvos entre a bola e sua estimativa de acordo
+		com a relação da distancia entre o robo e a bola, e a distancia máxima a
+		ser considerada.
+		Input: 			índice(int) do robô e distancia maxima(int) a ser considerada
+		Output:			-----
+		*/
 		void smart_ball(int i, int max_distance);
+
+		/* test_run
+		Rotina --- Rotina para testes de comportamentos específicos.
+		Input: 			índice(int) do robô que receberá tais comportamentos
+		Output:			-----
+		*/
 		void test_run(int i);
+
+		/* atk_routine
+		Rotina --- Aciona comportamentos do atacante dependendo das circunstâncias.
+			Rotina utilizada na LARC 2017
+		Input: 			índice(int) do robô que receberá tais comportamentos
+		Output:			-----
+		*/
 		void atk_routine(int i);
+
+		/* def_routine
+		Routine --- Aciona comportamentos do defensor dependendo das circunstâncias.
+			Rotina utilizada na LARC 2017
+		Input: 			índice(int) do robô que receberá tais comportamentos
+		Output:			-----
+		*/
 		void def_routine(int i);
+
+		/* gk_routine
+		Rotina --- Aciona comportamentos do goleiro dependendo das circunstâncias.
+			Rotina utilizada na LARC 2017
+		Input: 			índice(int) do robô que receberá tais comportamentos
+		Output:			-----
+		*/
 		void gk_routine(int i);
-		void def_past_routine(int i);
+
+		/* opp_gk_routine
+		Rotina --- Faz com que o golerio se posicione no lado oposto do campo para
+			treinamentos.
+		Input: 			índice(int) do robô que receberá tais comportamentos
+		Output:			-----
+		*/
 		void opp_gk_routine(int i);
+
+		/* get_Ball_Est
+		Central --- Apenas entrega a estimativa caso solicitada. Utilizada fora da estratégia.
+		Input: 			-----
+		Output:			Estimativa da bola(cv::Point)
+		*/
 		cv::Point get_Ball_Est();
 		void set_Ball_Est(cv::Point b);
+
+		/* set_Ball
+		Central --- Inicializa e adquire a estimativa da bola.
+		Input: 			Bola(cv::Point)
+		Output:			-----
+		*/
 		void set_Ball(cv::Point b);
 };
 
