@@ -85,7 +85,7 @@ double Strategy::distance_meters(cv::Point A, cv::Point B) {
 	return dist;
 }
 
-double angle_atan2(cv::Point A, cv::Point B) {
+double Strategy::angle_atan2(cv::Point A, cv::Point B) {
 	return atan2(double(A.y - B.y),-double(A.x - B.x));
 }
 
@@ -364,11 +364,16 @@ void Strategy::overmind() {
 	}
 
 
-	}
 }
 
 void Strategy::Transitions() {
 	/**** SITUAÇÕES DE TROCA ****/
+
+	cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
+
+	double ballGoal = double(goal.y - Ball_Est.y) / double(goal.x - Ball_Est.x);
+	double defBall = double(robots[def].position.y - Ball_Est.y) / double(robots[def].position.x - Ball_Est.x);
+	double phiDef = atan((defBall - ballGoal) / (1 + defBall * ballGoal));
 
 	// troca se está travado
 	if (robots[gk].position.x >= COORD_MID_FIELD_X) {
@@ -426,6 +431,7 @@ void Strategy::Transitions() {
 
 		half_transition = true;
 		// cout << " if 6 " << endl;
+	}
 }
 
 
