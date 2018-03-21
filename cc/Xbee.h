@@ -30,6 +30,8 @@ class Xbee {
 	private:
 		struct xbee *xbee;
 		std::unordered_map<char, robot_xbee> robots;
+		std::string get_string(xbee_pkt *pkt);
+		void update_ack(char id, int ack);
 
 	public:
 		Xbee(const std::string &port, int baud);
@@ -37,12 +39,13 @@ class Xbee {
 		void add_robot(char id, uint16_t addr);
 		int send(char id, const std::string &message);
 		std::string send_get_answer(char id, const std::string &message);
-		std::vector<message> send_get_answer_all(const std::string &message);
-		std::stack<message> get_messages();
-		void update_ack(char id, int ack);
+		std::vector<message> send_get_answer(const std::string &message);
+		std::vector<message> get_messages();
 		ack_count get_ack_count(char id);
 		void reset_lost_acks();
-		std::string get_string(xbee_pkt *pkt);
+		void set_ack_enabled(char id, bool enable);
+		void set_ack_enabled(bool enable);
+		bool is_ack_enabled(char id);
 };
 
 

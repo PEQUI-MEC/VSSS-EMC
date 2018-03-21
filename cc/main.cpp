@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
 
     camcap.interface.visionGUI.hideGMM();
     camcap.interface.fr_camCalib_offline.hide();
+    camcap.control.update_ack_interface();
 
     Gtk::Main::run(window);
 
