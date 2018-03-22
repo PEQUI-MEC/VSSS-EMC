@@ -524,19 +524,19 @@ void Vision::saveCamCalibFrame() {
     savedCamCalibFrames.push_back(temp);
     std::string text = "CamCalib_" + std::to_string(getCamCalibFrames().size());
     saveCameraCalibPicture(text, "media/pictures/camCalib/");
-    std::cout << "Salvando imagem "<< std::endl;
+    std::cout << "Saving picture "<< std::endl;
 }
 
 void Vision::cameraCalibration() {
 
     std::vector<std::vector<cv::Point2f>> checkerBoardImageSpacePoints;
 	checkerBoardImageSpacePoints = getChessBoardCorners(savedCamCalibFrames, false);
-	std::cout << "ImageSpacePoints " << checkerBoardImageSpacePoints.size() <<  std::endl;
+	std::cout << "Image Space Points " << checkerBoardImageSpacePoints.size() <<  std::endl;
     std::vector<std::vector<cv::Point3f>> worldSpaceCornersPoints(1);
 
 	worldSpaceCornersPoints[0] = createKnownBoardPosition(CHESSBOARD_DIMENSION, CALIBRATION_SQUARE_DIMENSION);
     worldSpaceCornersPoints.resize(checkerBoardImageSpacePoints.size(), worldSpaceCornersPoints[0]);
-	std::cout << "worldSpaceCornersPoints " << worldSpaceCornersPoints.size() <<  std::endl;
+	std::cout << "world SpaceCorners Points " << worldSpaceCornersPoints.size() <<  std::endl;
     std::vector<cv::Mat> rVectors, tVectors;
     distanceCoeficents = cv::Mat::zeros(8, 1, CV_64F);
 
@@ -545,11 +545,11 @@ void Vision::cameraCalibration() {
 
     flag_cam_calibrated = true;
 
-    std::cout << "Matriz de parâmetros da câmera" << std::endl;
+    std::cout << "Camera parameters matrix." << std::endl;
     std::cout << cameraMatrix << std::endl;
-    std::cout << "Coeficientes de distorçao da câmera" << std::endl;
+    std::cout << "Camera distortion coefficients" << std::endl;
     std::cout << distanceCoeficents << std::endl;
-    std::cout << "Terminou a calibraçao" << std::endl;
+    std::cout << "End of calibration" << std::endl;
 
 }
 
@@ -584,10 +584,6 @@ std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<c
             cv::cornerSubPix(grayFrame, pointBuf, cv::Size(11,11), cv::Size(-1,-1), termCriteria);
             allFoundCorners.push_back(pointBuf);
         }
-        if (showResults)
-        {
-            //TO DO
-        }
     }
 	return allFoundCorners;
 }
@@ -596,12 +592,8 @@ bool Vision::foundChessBoardCorners() {
 	std::vector<cv::Vec2f> foundPoints;
 	cv::Mat temp;
 	temp = in_frame.clone();
-	bool found = cv::findChessboardCorners(temp,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
-	if (found)
-	{
-		return true;
-	} else
-		return false;
+
+    return cv::findChessboardCorners(temp,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
 }
 
 

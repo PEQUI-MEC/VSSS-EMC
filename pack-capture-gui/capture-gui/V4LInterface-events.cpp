@@ -11,7 +11,6 @@
 #include <fstream>
 #include <sstream>
 #include <jsonSaveManager.h>
-#include <CamCap.hpp>
 
 #define DEFAULT_STR " - "
 
@@ -548,7 +547,7 @@ namespace capture {
             start_game_bt.set_image(red_button_pressed);
 			btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
 			btn_camCalib.set_active(false);
-			btn_camCalib_colect.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
 			btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
 			btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
 			btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
@@ -706,8 +705,6 @@ namespace capture {
 
         if(visionGUI.vision->getCamCalibFrames().size()>15)
             btn_camCalib_start.set_state(Gtk::STATE_NORMAL);
-        else
-            btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
 
         visionGUI.vision->setFlagCamCalibrated(false);
     }
@@ -725,7 +722,7 @@ namespace capture {
     }
 
     void V4LInterface::__event_camCalib_online_reset_clicked() {
-        btn_camCalib_colect.set_state(Gtk::STATE_NORMAL);
+        btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
         btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
@@ -733,7 +730,7 @@ namespace capture {
     }
 
     void V4LInterface::__event_camCalib_online_start_clicked() {
-        btn_camCalib_colect.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
@@ -744,10 +741,10 @@ namespace capture {
     void V4LInterface::__event_camCalib_pressed() {
 
         if(btn_camCalib.get_active()){
-            btn_camCalib_colect.set_state(Gtk::STATE_NORMAL);
+            btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
             CamCalib_flag_event = true;
         }else{
-            btn_camCalib_colect.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
             btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
             btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
             btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
