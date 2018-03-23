@@ -145,6 +145,9 @@ namespace capture {
             visionGUI.bt_save_picture.set_state(Gtk::STATE_NORMAL);
             visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
             visionGUI.en_picture_name.set_state(Gtk::STATE_NORMAL);
+            calib_offline.set_state(Gtk::STATE_NORMAL);
+            calib_online.set_state(Gtk::STATE_NORMAL);
+            btn_camCalib.set_state(Gtk::STATE_NORMAL);
             m_signal_start.emit(true);
 
         } else {
@@ -542,7 +545,12 @@ namespace capture {
         if (!start_game_flag) {
             start_game_flag = true;
             start_game_bt.set_image(red_button_pressed);
-
+			btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib.set_active(false);
+			btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
             robot_list[0].status = 0;
             robot_list[1].status = 0;
             robot_list[2].status = 0;
@@ -562,6 +570,7 @@ namespace capture {
             visionGUI.en_video_name.set_text(dateString);
             visionGUI.vision->startNewVideo(dateString);
         } else {
+            btn_camCalib.set_state(Gtk::STATE_NORMAL);
             visionGUI.vision->finishVideo();
             visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
             visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
@@ -671,4 +680,77 @@ namespace capture {
 
         __update_control_widgets(ctrl_list_default);
     }
+
+    void V4LInterface::__event_camCalib_mode_clicked() {
+        if(calib_online.get_active()){
+            std::cout << "Online active" << std::endl;
+            fr_camCalib_offline.hide();
+            fr_camCalib_online.show();
+        }else{
+            std::cout << "Offline active" << std::endl;
+            fr_camCalib_online.hide();
+            fr_camCalib_offline.show();
+        }
+    }
+
+    void V4LInterface::__event_camCalib_online_collect_clicked() {
+
+        if(!get_start_game_flag() && visionGUI.vision->foundChessBoardCorners()){
+            visionGUI.vision->saveCamCalibFrame();
+			btn_camCalib_pop.set_state(Gtk::STATE_NORMAL);
+			btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
+        }
+        std::string text = "Pop (" + std::to_string(visionGUI.vision->getCamCalibFrames().size()) + ")";
+        btn_camCalib_pop.set_label(text);
+
+        if(visionGUI.vision->getCamCalibFrames().size()>15)
+            btn_camCalib_start.set_state(Gtk::STATE_NORMAL);
+
+        visionGUI.vision->setFlagCamCalibrated(false);
+    }
+
+    void V4LInterface::__event_camCalib_online_pop_clicked() {
+        visionGUI.vision->popCamCalibFrames();
+        std::string text = "Pop (" + std::to_string(visionGUI.vision->getCamCalibFrames().size()) + ")";
+        btn_camCalib_pop.set_label(text);
+        if(visionGUI.vision->getCamCalibFrames().size()<=0){
+            btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        }else if(visionGUI.vision->getCamCalibFrames().size()<=15)
+            btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+
+    }
+
+    void V4LInterface::__event_camCalib_online_reset_clicked() {
+        btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
+        btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+
+    }
+
+    void V4LInterface::__event_camCalib_online_start_clicked() {
+        btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+        visionGUI.vision->cameraCalibration();
+
+    }
+
+    void V4LInterface::__event_camCalib_pressed() {
+
+        if(btn_camCalib.get_active()){
+            btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
+            CamCalib_flag_event = true;
+        }else{
+            btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+            CamCalib_flag_event = false;
+        }
+
+    }
+
 }

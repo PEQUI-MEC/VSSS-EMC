@@ -1,5 +1,9 @@
 #ifndef VISION_HPP_
 #define VISION_HPP_
+//dimensões dos quadrados do tabuleiro
+#define CALIBRATION_SQUARE_DIMENSION 0.02629f
+// número de intersecções do tabuleiro
+#define CHESSBOARD_DIMENSION cv::Size(6,9)
 
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
@@ -69,6 +73,8 @@ private:
   // video
   cv::VideoWriter video;
 
+
+
   // threads
   boost::thread_group threshold_threads;
 
@@ -96,14 +102,31 @@ public:
   void recordVideo(cv::Mat frame);
   void setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4]);
   double calcDistance(cv::Point p1, cv::Point p2);
-
+  void saveCameraCalibPicture(std::string  in_name, std::string directory);
   void startNewVideo(std::string videoName);
   bool recordToVideo();
   bool finishVideo();
   bool isRecording();
   void savePicture(std::string in_name);
 
-  void switchMainWithAdv();
+    //Cam calib
+    std::vector<cv::Mat> savedCamCalibFrames;
+    cv::Mat cameraMatrix;
+    cv::Mat distanceCoeficents;
+    bool flag_cam_calibrated = false;
+    std::vector<std::vector<cv::Point2f>> getChessBoardCorners(std::vector<cv::Mat> images);
+    std::vector<cv::Mat> getCamCalibFrames();
+    cv::Mat getcameraMatrix();
+    cv::Mat getdistanceCoeficents();
+    void setFlagCamCalibrated(bool value);
+    void saveCamCalibFrame();
+    void popCamCalibFrames();
+    void cameraCalibration();
+    std::vector<cv::Point3f> createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght);
+	bool foundChessBoardCorners();
+  	void switchMainWithAdv();
+    cv::Mat rawFrameCamcalib;
+    void setRawFrameCamcalib(cv::Mat frame);
 
   cv::Point getBall();
   Robot getRobot(int index);
@@ -144,6 +167,8 @@ public:
   void setDilate(int convertType, int index, int inValue);
   void setBlur(int convertType, int index, int inValue);
   void setAmin(int convertType, int index, int inValue);
+
+
 
 
 };
