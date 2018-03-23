@@ -1,6 +1,6 @@
-FROM ubuntu:17.10
+FROM ubuntu:10.04
 
-#OPENCV
+# OPENCV
 RUN apt-get update && \
     apt-get install -y \
         build-essential \
@@ -36,14 +36,14 @@ RUN make -j7
 RUN make install
 RUN rm -r /Xbee_workspace
 
-# #VSSS
-# WORKDIR /VSS_workspace
-# RUN apt-get install -y \
-#         libboost-all-dev \
-#         libv4l-dev \
-#         libv4lconvert0 \
-#         libgtkmm-3.0-dev
+# VSSS
+WORKDIR /VSS_workspace
+RUN apt-get install -y \
+        libboost-all-dev \
+        libv4l-dev \
+        libv4lconvert0 \
+        libgtkmm-3.0-dev
 
-# COPY . .
-# RUN ./make.sh
-# CMD ./runVSSS.sh
+COPY . .
+RUN ./make.sh
+CMD ./runVSSS.sh
