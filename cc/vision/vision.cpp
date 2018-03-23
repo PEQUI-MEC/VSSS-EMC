@@ -530,7 +530,7 @@ void Vision::saveCamCalibFrame() {
 void Vision::cameraCalibration() {
 
     std::vector<std::vector<cv::Point2f>> checkerBoardImageSpacePoints;
-	checkerBoardImageSpacePoints = getChessBoardCorners(savedCamCalibFrames, false);
+	checkerBoardImageSpacePoints = getChessBoardCorners(savedCamCalibFrames);
 	std::cout << "Image Space Points " << checkerBoardImageSpacePoints.size() <<  std::endl;
     std::vector<std::vector<cv::Point3f>> worldSpaceCornersPoints(1);
 
@@ -569,7 +569,7 @@ std::vector<cv::Point3f> Vision::createKnownBoardPosition(cv::Size boardSize, fl
 	return corners;
 }
 
-std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<cv::Mat> images, bool showResults){
+std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<cv::Mat> images){
     cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
     cv::Mat grayFrame;
 	std::vector<std::vector<cv::Point2f>> allFoundCorners;

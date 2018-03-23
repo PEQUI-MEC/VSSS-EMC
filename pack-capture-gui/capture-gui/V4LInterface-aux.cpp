@@ -1075,8 +1075,8 @@ namespace capture {
         capture_vbox.pack_start(frm_warp, false, false, 10);
         __create_frm_warp();
 
-        capture_vbox.pack_start(frm_cam_calib, false, false, 10);
-        __create_frm_cam_calib();
+//        capture_vbox.pack_start(frm_cam_calib, false, false, 10);
+//        __create_frm_cam_calib();
 
         capture_vbox.pack_start(fr_camCalib_online, false, false, 10);
         __create_frm_CamCalibMode_Online();

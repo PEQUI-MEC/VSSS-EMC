@@ -114,7 +114,7 @@ public:
     cv::Mat cameraMatrix;
     cv::Mat distanceCoeficents;
     bool flag_cam_calibrated = false;
-    std::vector<std::vector<cv::Point2f>> getChessBoardCorners(std::vector<cv::Mat> images, bool showResults);
+    std::vector<std::vector<cv::Point2f>> getChessBoardCorners(std::vector<cv::Mat> images);
     std::vector<cv::Mat> getCamCalibFrames();
     cv::Mat getcameraMatrix();
     cv::Mat getdistanceCoeficents();
