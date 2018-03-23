@@ -1,8 +1,5 @@
 FROM ubuntu:17.10
 
-# Workaround https://github.com/docker-library/official-images/issues/1902
-RUN sed -i 's/archive/old-releases/' /etc/apt/sources.list
-
 # OPENCV
 RUN apt-get update && \
     apt-get install -y \
