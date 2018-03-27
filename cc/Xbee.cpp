@@ -37,9 +37,9 @@ void Xbee::add_robot(char id, uint16_t addr) {
 		printf("Xbee connection error: %d (%s)\n", ret, xbee_errorToStr(ret));
 		return;
 	}
-	set_ack_enabled(id, false);
 
 	robots[id] = {id,addr,con,{0,0,0}};
+	set_ack_enabled(id, false);
 }
 
 int Xbee::send(char id, const string &message) {

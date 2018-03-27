@@ -92,17 +92,21 @@ class CamCap : public Gtk::HBox {
 		cv::Point deviation1;
 		cv::Point deviation2;
 
-
+		boost::thread msg_thread;
+		boost::condition_variable data_ready_cond;
+		boost::mutex data_ready_mutex;
+		bool data_ready_flag = false;
 
 		bool checkForLowRes();
 		void updateAllPositions();
 		void updateKalmanFilter();
 		bool start_signal(bool b);
 		bool capture_and_show();
+		void send_cmd_thread(vector<Robot> &robots);
+		void notify_data_ready();
 		void arrowedLine(cv::Mat img, cv::Point pt1, cv::Point pt2,
 						 const cv::Scalar &color, int thickness = 1,
 						 int line_type = 8, int shift = 0, double tipLength = 0.1);
-		void sendCmdToRobots(vector<Robot> &robot_list);
 		double distance(cv::Point a, cv::Point b);
 		double angular_distance(double alpha, double beta);
 		void updating_formation();

@@ -71,7 +71,7 @@ include_directories(cc/
                     ${OpenCV_INCLUDE_DIRS}
                     ${V4L2_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "-g -m64 -pipe -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")
+set(CMAKE_CXX_FLAGS "-std=c++11 -g -m64 -pipe -pthread -lpthread -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")
                     
 add_executable(VSSS ${SOURCE_FILES})
 
