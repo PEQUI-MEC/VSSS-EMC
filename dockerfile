@@ -14,7 +14,6 @@ RUN apt-get update && \
 
 WORKDIR /opencv_workspace
 RUN git clone \
-        --branch 3.0.0 \
         --depth 1 \
         https://github.com/opencv/opencv.git 
 WORKDIR ./opencv/build
