@@ -4,16 +4,16 @@ set -e
 mkdir dependencies/
 cd dependencies/
 
-echo "Instalando Boost"
+echo "Installing Boost"
 sudo apt-get install libboost-all-dev
 
-echo "Instalando Lib4L"
+echo "Installing Lib4L"
 sudo apt-get install libv4l-dev libv4lconvert0
 
-echo "Instalando GTKmm"
+echo "Installing GTKmm"
 sudo apt-get install libgtkmm-3.0-dev
 
-echo "instalado OpenCV"
+echo "Installing OpenCV"
 git clone https://github.com/opencv/opencv.git
 cd opencv/
 mkdir build/
@@ -25,7 +25,7 @@ sudo make install
 cd ../../
 rm -rf opencv
 
-echo "Instalando libxbee3"
+echo "Installing libxbee3"
 git clone https://github.com/lopelope/libxbee3.git
 cd libxbee3/
 git checkout waitforack-needsfree-issues-fix
@@ -38,4 +38,4 @@ rm -rf libxbee3
 cd ../
 rm -rf dependencies/
 
-echo "Dependencias instaladas com sucesso"
+echo "All dependencies were installed. Run ./buildVSSS.sh to build"
