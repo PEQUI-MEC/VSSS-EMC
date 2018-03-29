@@ -45,10 +45,16 @@ public:
 	Gtk::HBox Top_hbox;
 	Gtk::VBox Serial_vbox;
 	Gtk::VBox Test_vbox;
-	Gtk::HBox Serial_hbox[3];
+	Gtk::HBox Serial_hbox[4];
 	Gtk::Label *label;
 	Gtk::Button bt_send_cmd;
 	Gtk::Entry send_cmd_box;
+
+		Gtk::Entry entry_set_frameskip;
+		Gtk::Button bt_set_frameskip;
+		Gtk::Label time_msgs;
+		double acc_time;
+		int time_count;
 
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
@@ -85,7 +91,7 @@ public:
 	Gtk::ComboBoxText cb_pid_type;
 	bool pid_edit_flag = false;
 
-	ControlGUI();
+		ControlGUI();
 
 	bool get_PID_test_flag();
 
@@ -122,6 +128,8 @@ public:
 		void update_dropped_frames();
 		void reset_lost_acks();
 		void update_ack_interface();
+		void set_frameskipper();
+		void update_msg_time();
 };
 
 

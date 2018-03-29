@@ -11,7 +11,7 @@ void ControlGUI::set_PID_test_flag(bool input) {
 ControlGUI::ControlGUI() {
     // Adicionar o frame do Serial e sua VBOX
     pack_start(Top_hbox, false, true, 5);
-    Top_hbox.pack_start(Serial_fm, false, true, 5);
+    Top_hbox.pack_start(Serial_fm, true, true, 0);
     Serial_fm.set_label("Serial");
     Serial_fm.add(Serial_vbox);
 
@@ -44,6 +44,15 @@ ControlGUI::ControlGUI() {
 	Serial_hbox[2].pack_start(ack_enable_label, false, true, 0);
 
     Serial_vbox.pack_start(Serial_hbox[2], false, true, 5);
+
+	bt_set_frameskip.set_label("Set skipped frames");
+	int frameskipper = messenger.get_frameskipper();
+	time_msgs.set_label("Time between CMDs: "+std::to_string((frameskipper+1)*33)+" ms");
+	entry_set_frameskip.set_text(std::to_string(frameskipper));
+	Serial_hbox[3].pack_start(entry_set_frameskip, false, false, 5);
+	Serial_hbox[3].pack_start(bt_set_frameskip, false, false, 5);
+	Serial_hbox[3].pack_start(time_msgs, false, false, 5);
+	Serial_vbox.pack_start(Serial_hbox[3], false, false, 5);
 
     Tbox_V1.set_max_length(6);
     Tbox_V2.set_max_length(6);
@@ -94,6 +103,7 @@ ControlGUI::ControlGUI() {
 	bt_reset_ack.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::reset_lost_acks));
     bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
 	ack_enable_button.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
+	bt_set_frameskip.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::set_frameskipper));
 }
 
 void ControlGUI::configureTestFrame() {
@@ -359,6 +369,30 @@ void ControlGUI::update_dropped_frames() {
 void ControlGUI::reset_lost_acks() {
 	messenger.reset_lost_acks();
     update_dropped_frames();
+}
+
+void ControlGUI::set_frameskipper() {
+	int frames;
+	try {
+		frames = std::stoi(entry_set_frameskip.get_text());
+	} catch (...) {
+		return;
+	}
+	messenger.set_frameskipper(frames);
+	std::string time_str = std::to_string(33*(frames+1));
+	time_msgs.set_label("Time between CMDs: " + time_str + " ms");
+}
+
+void ControlGUI::update_msg_time() {
+	acc_time += messenger.get_time();
+	time_count++;
+	if(acc_time > 500){
+		std::ostringstream ss;
+		ss << round(acc_time/time_count*100)/100;
+		time_msgs.set_label("Time between CMDs: "+ss.str() + " ms");
+		acc_time = 0;
+		time_count = 0;
+	}
 }
 
 // Função para verificar se os valores digitados nos campos

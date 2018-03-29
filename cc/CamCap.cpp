@@ -390,8 +390,37 @@ bool CamCap::capture_and_show() {
 		frameCounter = 0;
 	}
 
+
+	interface.robot_list[0].position = robot_kf_est[0];
+	interface.robot_list[1].position = robot_kf_est[1];
+	interface.robot_list[2].position = robot_kf_est[2];
+	if (interface.get_start_game_flag() || interface.imageView.PID_test_flag ||
+			strategyGUI.updating_formation_flag) {
+		control.update_msg_time();
+		notify_data_ready();
+	}
+
 	return true;
 } // capture_and_show
+
+void CamCap::send_cmd_thread(vector<Robot> &robots) {
+	boost::unique_lock<boost::mutex> lock(data_ready_mutex);
+	while(true) {
+		try {
+			data_ready_cond.wait(lock, [this](){return data_ready_flag;});
+		} catch (...) {
+			lock.unlock();
+			return;
+		}
+		data_ready_flag = false;
+		control.messenger.send_cmds(robots);
+	}
+}
+
+void CamCap::notify_data_ready(){
+	data_ready_flag = true;
+	data_ready_cond.notify_all();
+}
 
 void CamCap::arrowedLine(cv::Mat img, cv::Point pt1, cv::Point pt2,
 						 const cv::Scalar &color, int thickness,
@@ -406,20 +435,6 @@ void CamCap::arrowedLine(cv::Mat img, cv::Point pt1, cv::Point pt2,
 	p.x = cvRound(pt2.x + tipSize * cos(angle - CV_PI / 4));
 	p.y = cvRound(pt2.y + tipSize * sin(angle - CV_PI / 4));
 	line(img, p, pt2, color, thickness, line_type, shift);
-}
-
-void CamCap::sendCmdToRobots(std::vector<Robot> &robot_list) {
-	while (1) {
-		if (interface.get_start_game_flag() || interface.imageView.PID_test_flag ||
-			strategyGUI.updating_formation_flag) {
-			//transformTargets(robot_list);
-			robot_list[0].position = robot_kf_est[0];
-			robot_list[1].position = robot_kf_est[1];
-			robot_list[2].position = robot_kf_est[2];
-			control.messenger.sendCMDs(robot_list);
-		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-	}
 }
 
 double CamCap::distance(cv::Point a, cv::Point b) {
@@ -598,7 +613,8 @@ void CamCap::warp_transform(cv::Mat imageView) {
 } // warp_transform
 
 CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
-								   screenWidth(screenW), screenHeight(screenH) {
+								   screenWidth(screenW), screenHeight(screenH),
+										   msg_thread(&CamCap::send_cmd_thread, this, boost::ref(interface.robot_list)){
 
 	isLowRes = checkForLowRes();
 
@@ -653,11 +669,6 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 	pack_start(camera_vbox, true, true, 10);
 	pack_start(notebook, false, false, 10);
 
-	// Thread que envia comandos para o robo
-	threshold_threads.add_thread(new boost::thread(&CamCap::sendCmdToRobots, this,
-												   boost::ref(interface.robot_list)));
-
-
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
 }
 
@@ -667,4 +678,7 @@ CamCap::~CamCap(){
 	free(data);
 
 	data = nullptr;
+
+	msg_thread.interrupt();
+	if(msg_thread.joinable()) msg_thread.join();
 }
