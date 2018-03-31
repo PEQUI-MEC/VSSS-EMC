@@ -54,6 +54,7 @@
 
 #define THETA_TOLERATION 3
 
+
 using namespace CONST;
 
 class Strategy {
@@ -119,6 +120,11 @@ class Strategy {
 		bool transition_mindcontrol = false;
 		bool atk_mindcontrol = false;
 		bool def_mindcontrol = false;
+
+		//univector field
+		double kr;
+		double de;
+
 
 /*
 Tipos de funções da estratégia:

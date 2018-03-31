@@ -1260,3 +1260,68 @@ void Strategy::set_Ball(cv::Point b) {
 	Ball_Est.x = LS_ball_x.estimate(10);
 	Ball_Est.y = LS_ball_y.estimate(10);
 }
+
+double Strategy::hyperbolic_field(int i, cv::Point P, bool clockwise){ //de = raio do espiral , p distancia da origem ate o ponteiro
+	double hb_field;
+	double p = distance_meters(robots[i].position, P);
+	if (p>de){
+		if(clockwise)
+		hb_field = theta + ((PI/2)*(2-(de+kr	)/(p+kr)));
+		else
+		hb_field = theta - ((PI/2)*(2-(de+kr	)/(p+kr)));
+	}else{
+		if(clockwise)
+		hb_field = theta + ((PI/2)*sqrt(p/de));
+		else
+		hb_field = theta - ((PI/2)*sqrt(p/de));
+	}
+	return hb_field;
+}
+
+double Strategy::move_to_goal_field(int i, cv::Point P){
+	double theta_pr_cw = hyperbolic_field(i, cv::Point(P.x, P.y + de), true);
+	double theta_pl_ccw = hyperbolic_field(i, cv::Point(P.x, P.y - de), false);
+	double theta_pr_ccw = hyperbolic_field(i, cv::Point(P.x, P.y + de), false);
+	double theta_pl_cw = hyperbolic_field(i, cv::Point(P.x, P.y - de), true);
+
+	cv::Point Nl = cv::Point(cos(theta_pl_ccw), sin(theta_pl_ccw));
+	cv::Point Nr = cv::Point(cos(theta_pr_cw), sin(theta_pr_cw));
+
+	double phi;
+
+	if(-de<= P.y && y<de){
+		cv::Point aux = (((P.y+de)*Nl)+((P.y-de)*Nr))/(2*de);
+		phi = atan2(aux.x, aux.y);
+	}else if(P.y < -de){
+		phi = theta_pl_cw;
+	}else if (y>= de) {
+		phi = theta_pr_ccw;
+	}
+	return phi;
+}
+
+	cv::Point s = kz*(Vobs - Vrobo);
+	double d = distance_meters(robots[i].position, Obs);
+	cv::Point Pelinha;
+	if (d>= sqrt(pow(s.x,2)+pow(s.y,2))){
+		 Pelinha = Obs+s;
+	}else if (d< sqrt(pow(s.x,2)+pow(s.y,2))){
+		Pelinha = Obs+((d/sqrt(pow(s.x,2)+pow(s.y,2)))*s);
+	}
+
+	double theta_avoid = angle_atan2(robots[i].position, Obs-Pelinha);
+}
+
+double Strategy::composed_field(int i,cv::Point P){
+	for(int j = 0; j<3;j++){
+		double theta;
+		R = distance_meters(adv[j],robots[i].position)
+		if(R<=dmin){
+			theta=avoid_field(i,adv[j],Vrobo,Vobs);
+		}else if(R>dmin){
+			double gaussiana= exp(-pow(R-Dmin,2)/(2*delta));
+			theta = (avoid_field(i,adv[j],Vrobo,Vobs)*gaussiana)+(move_to_goal_field(i,P)*(1-gaussiana));
+		}
+	}
+
+}
