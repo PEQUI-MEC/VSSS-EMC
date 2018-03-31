@@ -14,7 +14,7 @@ RUN apt-get update && \
 
 WORKDIR /opencv_workspace
 RUN git clone \
-        --branch 3.0.0 \
+        --branch 3.4.1 \
         --depth 1 \
         https://github.com/opencv/opencv.git 
 WORKDIR ./opencv/build
@@ -27,7 +27,7 @@ RUN rm -r /opencv_workspace
 
 # Xbee
 WORKDIR /Xbee_workspace
-RUN clone \
+RUN git clone \
         --depth 1 \
         https://github.com/attie/libxbee3.git
 WORKDIR ./libxbee3
@@ -45,5 +45,5 @@ RUN apt-get install -y \
         libgtkmm-3.0-dev
 
 COPY . .
-RUN ./make.sh
+RUN ./buildVSSS.sh
 CMD ./runVSSS.sh
