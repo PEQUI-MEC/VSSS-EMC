@@ -1075,14 +1075,14 @@ namespace capture {
         capture_vbox.pack_start(frm_warp, false, false, 10);
         __create_frm_warp();
 
-//        capture_vbox.pack_start(frm_cam_calib, false, false, 10);
-//        __create_frm_cam_calib();
+        capture_vbox.pack_start(frm_cam_calib, false, false, 10);
+        __create_frm_cam_calib();
 
         capture_vbox.pack_start(fr_camCalib_online, false, false, 10);
         __create_frm_CamCalibMode_Online();
 
-//        capture_vbox.pack_start(fr_camCalib_offline, false, false, 10);
-//        __create_frm_CamCalibMode_Offline();
+        capture_vbox.pack_start(fr_camCalib_offline, false, false, 10);
+        __create_frm_CamCalibMode_Offline();
 
 
 
@@ -1156,17 +1156,19 @@ namespace capture {
 	void V4LInterface::__create_frm_CamCalibMode_Offline() {
 
 		Gtk::Grid * grid;
-		Gtk::VBox * vbox;
 
 		grid = new Gtk::Grid();
-		vbox = new Gtk::VBox();
+
 
 		fr_camCalib_offline.set_label("Offline Calibration");
 
-		fr_camCalib_offline.add(*vbox);
-		vbox->pack_start(*grid, false, true, 5);
-		vbox->set_halign(Gtk::ALIGN_CENTER);
-		vbox->set_valign(Gtk::ALIGN_CENTER);
+		fr_camCalib_offline.add(*grid);
+		btn_camCalib_offline_start.set_label("Start");
+		grid->attach(btn_camCalib_offline_start,0,0,1,1);
+
+		btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+		btn_camCalib_offline_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_offline_start_clicked));
+
 	}
 
 	void V4LInterface::__create_frm_CamCalibMode_Online() {

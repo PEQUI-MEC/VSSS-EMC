@@ -690,6 +690,7 @@ namespace capture {
             std::cout << "Offline active" << std::endl;
             fr_camCalib_online.hide();
             fr_camCalib_offline.show();
+            btn_camCalib_offline_start.set_state(Gtk::STATE_NORMAL);
         }
     }
 
@@ -737,6 +738,11 @@ namespace capture {
         visionGUI.vision->cameraCalibration();
 
     }
+
+	void V4LInterface::__event_camCalib_offline_start_clicked() {
+		std::cout << "Offline active" << std::endl;
+		visionGUI.vision->collectImagesForCalibration();
+	}
 
     void V4LInterface::__event_camCalib_pressed() {
 

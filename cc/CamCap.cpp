@@ -149,6 +149,7 @@ bool CamCap::capture_and_show() {
 
     if(interface.visionGUI.vision->flag_cam_calibrated){
         interface.btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
+		interface.btn_camCalib_offline_start.set_state(Gtk::STATE_NORMAL);
         interface.btn_camCalib_pop.set_label("Pop(0)");
         cv::Mat temp;
         imageView.copyTo(temp);
@@ -226,7 +227,10 @@ bool CamCap::capture_and_show() {
 	if (!interface.visionGUI.HSV_calib_event_flag) {
 		if (chessBoardFound)
 		{
-//			interface.visionGUI.vision->setRawFrameCamcalib(imageView);
+			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+			cv::Mat grayFrame;
+			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
+			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11,11), cv::Size(-1,-1), termCriteria);
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 
 		}

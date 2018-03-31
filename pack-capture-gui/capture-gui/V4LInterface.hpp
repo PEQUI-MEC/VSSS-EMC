@@ -141,7 +141,7 @@ namespace capture {
         // Camera calibration frames
         Gtk::Frame fr_camCalib_offline;
         Gtk::Frame fr_camCalib_online;
-        Gtk::Button btn_camCalib_collect, btn_camCalib_reset, btn_camCalib_start, btn_camCalib_pop;
+        Gtk::Button btn_camCalib_collect, btn_camCalib_reset, btn_camCalib_start, btn_camCalib_pop, btn_camCalib_offline_start;
         Gtk::ToggleButton btn_camCalib;
 
         bool CamCalib_flag_event;
@@ -189,6 +189,8 @@ namespace capture {
         void __event_camCalib_online_reset_clicked();
 
         void __event_camCalib_online_start_clicked();
+
+			void __event_camCalib_offline_start_clicked();
 
         void __event_camCalib_pressed();
 
