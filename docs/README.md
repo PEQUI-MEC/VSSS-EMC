@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC.svg?branch=master)](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC)
+
 # Introdução
 
 Repositório destinado ao versionamento dos sistemas de controle e movimentação de robôs para participacao em competições de [IEEE VSSS](http://www.cbrobotica.org/?page_id=81&lang=pt). O grupo é misto e é composto por integrantes de Engenharia Elétrica, Engenharia da Computação, Engenharia de Software e Ciência da Computação da Universidade Federal de Goiás - [UFG](https://www.ufg.br/) - Goiânia.
