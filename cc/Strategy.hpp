@@ -124,6 +124,7 @@ class Strategy {
 		//univector field
 		double kr;
 		double de;
+		double ticks;
 
 
 /*
@@ -449,6 +450,20 @@ simplificar apenas uma outra função.
 		Output:			-----
 		*/
 		void set_Ball(cv::Point b);
+		/* vetor_velocidade
+		Calcula a velocidade de um ponto
+		Input: 		Ponto anterior e ponto atual
+		Output: 	vetor velocidade (cv::Point)
+		 * */
+		cv::Point Strategy::vetor_velocidade(cv::Point P_ini, cv::Point P_final);
+
+
+		double Strategy::hyperbolic_field(int i, cv::Point P, bool clockwise);
+		double Strategy::move_to_goal_field(int i, cv::Point P);
+		double Strategy::avoid_field(int i,cv::Point Obs,cv::Point Vrobo,cv::Point Vobs );
+		double Strategy::composed_field(int i,cv::Point P);
+
+
 };
 
 #endif /* STRATEGY_HPP_ */

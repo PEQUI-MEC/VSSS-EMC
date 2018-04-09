@@ -61,10 +61,12 @@ class CamCap : public Gtk::HBox {
 		int frameCounter;
 		double ticks = 0;
 		vector<cv::Point2f> robot_kf_est;
+		vector<cv::Point2f> robot_kf_est_ini;
 		vector<KalmanFilter> KF_RobotBall;
 
 		cv::Point2f Ball_Est;
 		cv::Point2f Ball_kf_est;
+		cv::Point2f Ball_kf_est_ini;
 
 		cv::Point virtual_robots_positions[3];
 		float virtual_robots_orientations[3];

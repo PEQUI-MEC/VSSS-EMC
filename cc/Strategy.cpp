@@ -3,6 +3,7 @@
 Strategy::Strategy() {
 	LS_ball_x.init(PREDICAO_NUM_SAMPLES, 1);
 	LS_ball_y.init(PREDICAO_NUM_SAMPLES, 1);
+	ticks = 0;
 }
 
 void Strategy::set_constants(int w, int h) {
@@ -1300,6 +1301,7 @@ double Strategy::move_to_goal_field(int i, cv::Point P){
 	return phi;
 }
 
+double Strategy::avoid_field(int i,cv::Point Obs,cv::Point Vrobo,cv::Point Vobs ){
 	cv::Point s = kz*(Vobs - Vrobo);
 	double d = distance_meters(robots[i].position, Obs);
 	cv::Point Pelinha;
@@ -1315,7 +1317,7 @@ double Strategy::move_to_goal_field(int i, cv::Point P){
 double Strategy::composed_field(int i,cv::Point P){
 	for(int j = 0; j<3;j++){
 		double theta;
-		R = distance_meters(adv[j],robots[i].position)
+		doouble R = distance_meters(adv[j],robots[i].position);
 		if(R<=dmin){
 			theta=avoid_field(i,adv[j],Vrobo,Vobs);
 		}else if(R>dmin){
@@ -1324,4 +1326,16 @@ double Strategy::composed_field(int i,cv::Point P){
 		}
 	}
 
+}
+
+cv::Point Strategy::vetor_velocidade(cv::Point P_ini, cv::Point P_final){
+	double precTick = ticks;
+	ticks = (double) cv::getTickCount();
+	double dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
+	double dx = P_final.x - P_ini.x;
+	double dy = P_final.y - P_ini.y;
+	cv::Point vel;
+	vel.x = dx/dT;
+	vel.y = dy/dT;
+	return vel;
 }
