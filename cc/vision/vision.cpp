@@ -563,6 +563,7 @@ void Vision::cameraCalibration() {
 
     flag_cam_calibrated = true;
 
+
     std::cout << "Camera parameters matrix." << std::endl;
     std::cout << cameraMatrix << std::endl;
     std::cout << "Camera distortion coefficients" << std::endl;

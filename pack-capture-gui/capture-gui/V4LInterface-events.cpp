@@ -723,10 +723,11 @@ namespace capture {
     }
 
     void V4LInterface::__event_camCalib_online_reset_clicked() {
-        btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
+		visionGUI.vision->flag_cam_calibrated = false;
         btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+		btn_camCalib_offline_start.set_state(Gtk::STATE_NORMAL);
 
     }
 
@@ -747,6 +748,7 @@ namespace capture {
     void V4LInterface::__event_camCalib_pressed() {
 
         if(btn_camCalib.get_active()){
+            visionGUI.vision->flag_cam_calibrated = false;
             btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
             CamCalib_flag_event = true;
         }else{

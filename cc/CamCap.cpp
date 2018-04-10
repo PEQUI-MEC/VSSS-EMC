@@ -148,8 +148,9 @@ bool CamCap::capture_and_show() {
 	}
 
     if(interface.visionGUI.vision->flag_cam_calibrated){
-        interface.btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
-		interface.btn_camCalib_offline_start.set_state(Gtk::STATE_NORMAL);
+        interface.btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+		interface.btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+		interface.btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
         interface.btn_camCalib_pop.set_label("Pop(0)");
         cv::Mat temp;
         imageView.copyTo(temp);
