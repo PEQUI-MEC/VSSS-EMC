@@ -23,7 +23,6 @@ public:
   double getValue(int index);
   void configureHScale(int index, double currentValue, double min, double max, double digits=1, double steps=1);
   void setLabel(int index, std::string label);
-  void setName(std::string name);
 };
 
 

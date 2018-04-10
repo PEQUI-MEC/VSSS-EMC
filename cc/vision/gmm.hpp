@@ -4,7 +4,7 @@
 #include "opencv2/opencv.hpp"
 #include "opencv2/ml.hpp"
 #include <iostream>     // std::cout
-#include <math.h>
+#include <cmath>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
@@ -96,12 +96,11 @@ public:
   std::vector<VisionROI> windowsList;
 
   // GET
-  int getSamplesSize();
+  unsigned long getSamplesSize();
   std::vector<cv::Point> getSamplePoints();
   int getClusters();
   cv::Mat getGaussiansFrame();
   cv::Mat getFinalFrame();
-  cv::Mat getPreThresholdFrame();
   bool getIsTrained();
   bool getDoneFlag();
   cv::Mat getThresholdFrame(int color);
