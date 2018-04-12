@@ -28,10 +28,6 @@ void TestFrame::configureHScale(int index, double currentValue, double min, doub
   hscale[index].set_value(currentValue);
 }
 
-void TestFrame::setName(std::string name) {
-  set_label(name);
-}
-
 void TestFrame::init() {
 
   add(grid);

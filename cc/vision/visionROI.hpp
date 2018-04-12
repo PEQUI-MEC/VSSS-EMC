@@ -22,24 +22,15 @@ private:
 
 public:
 
-  void setSize(cv::Size size);
-  void setSize(int width, int height);
-  void setId(int id);
-  void setPosition(cv::Point pos);
   void setPosition(int x, int y);
   void setCenter(cv::Point pos);
-  void setCenter(int x, int y);
   void setIsLost(bool lost);
 
   int getSize();
-  int getId();
   cv::Point getPosition();
   bool getIsLost();
   int getX();
   int getY();
-  cv::Point getCenter();
-  int getCenterX();
-  int getCenterY();
   cv::Point getEnd();
 
   VisionROI(int width, int height, int size, int id);

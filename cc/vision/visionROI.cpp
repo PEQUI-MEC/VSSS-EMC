@@ -3,12 +3,10 @@
 bool VisionROI::checkForBoundaries() {
 
   if (mPosCenter.x < 0 || mPosCenter.y < 0 || mPosCenter.x > mWidth || mPosCenter.y > mHeight) {
-    // std::cout << "VisionROI::checkForBoundaries: window " << mId << ": " << mPosCenter.x << ", " << mPosCenter.y << std::endl;
     mPosCenter.x = mWidth/2;
     mPosCenter.y = mHeight/2;
     mPosBegin = cv::Point(mPosCenter.x-mSize/2, mPosCenter.y-mSize/2);
     mPosEnd = cv::Point(mPosCenter.x+mSize/2, mPosCenter.y+mSize/2);
-    // std::cout << "VisionROI::checkForBoundaries: CORRECTED window " << mId << ": " << mPosCenter.x << ", " << mPosCenter.y << std::endl;
     return false;
   }
 
@@ -46,31 +44,6 @@ bool VisionROI::checkForBoundaries() {
   return true;
 }
 
-void VisionROI::setSize(cv::Size size) {
-  mSize = size.width;
-  mSize = size.height;
-  mPosCenter = cv::Point(mPosBegin.x+mSize/2, mPosBegin.y+mSize/2);
-  checkForBoundaries();
-}
-
-void VisionROI::setSize(int width, int height) {
-  mSize = width;
-  mSize = height;
-  mPosCenter = cv::Point(mPosBegin.x+mSize/2, mPosBegin.y+mSize/2);
-  checkForBoundaries();
-}
-
-void VisionROI::setId(int id) {
-  mId = id;
-}
-
-void VisionROI::setPosition(cv::Point pos) {
-  mPosBegin.x = pos.x;
-  mPosBegin.y = pos.y;
-  mPosCenter = cv::Point(mPosBegin.x+mSize/2, mPosBegin.y+mSize/2);
-  checkForBoundaries();
-}
-
 void VisionROI::setPosition(int x, int y) {
   mPosBegin.x = x;
   mPosBegin.y = y;
@@ -84,22 +57,12 @@ void VisionROI::setCenter(cv::Point pos) {
   checkForBoundaries();
 }
 
-void VisionROI::setCenter(int x, int y) {
-  mPosCenter = cv::Point(x, y);
-  checkForBoundaries();
-}
-
-
 void VisionROI::setIsLost(bool lost) {
   mIsLost = lost;
 }
 
 int VisionROI::getSize() {
   return mSize;
-}
-
-int VisionROI::getId() {
-  return mId;
 }
 
 cv::Point VisionROI::getEnd() {
@@ -122,19 +85,6 @@ int VisionROI::getY() {
   return mPosBegin.y;
 }
 
-cv::Point VisionROI::getCenter() {
-  return mPosCenter;
-}
-
-int VisionROI::getCenterX() {
-  return mPosCenter.x;
-}
-
-int VisionROI::getCenterY() {
-  return mPosCenter.y;
-}
-
-
 VisionROI::VisionROI(int width, int height, int size, int id) :
 mIsLost(true), mPosBegin(cv::Point(0,0)), mSize(size), mId(id),
 mWidth(width), mHeight(height) {
@@ -142,5 +92,4 @@ mWidth(width), mHeight(height) {
   checkForBoundaries();
 }
 
-VisionROI::~VisionROI() {
-}
+VisionROI::~VisionROI() = default;

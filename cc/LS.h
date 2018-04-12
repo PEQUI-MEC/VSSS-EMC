@@ -1,6 +1,6 @@
 #ifndef LS_H_INCLUDED
 #define LS_H_INCLUDED
-#include <stdlib.h>
+#include <cstdlib>
 
 class LS{
     private:
@@ -19,13 +19,13 @@ class LS{
         // Atribui valor 0 a todos os elementos de V
         void zeroVector( double* V, int m);
 
-        // Aloca espalo de memória para a matriz
+        // Aloca espalo de memï¿½ria para a matriz
         double** intializeMatrix( int m, int n);
 
-        // Aloca espalo de memória para o vetor
+        // Aloca espalo de memï¿½ria para o vetor
         double* initializeVector( int m);
 
-        // Copia o conteúdo da matriz A e do vetor B para a matriz M
+        // Copia o conteï¿½do da matriz A e do vetor B para a matriz M
         void prepareMatrix( double** M, double** A, double* B, int m);
 
         void retrosubstitutionU( double** M, double* R, int m);

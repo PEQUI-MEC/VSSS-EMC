@@ -5,7 +5,6 @@ void GMM::run(cv::Mat frame) {
   inFrame = frame.clone();
 
   if (isDone && checkROIs()) {
-    // std::cout << "ACHEI" << std::endl;
     for (int i = 0; i < TOTAL_WINDOWS; i++) {
       threads.add_thread(new boost::thread(&GMM::classifyWindows, this, i));
     }
@@ -15,7 +14,6 @@ void GMM::run(cv::Mat frame) {
     joinWindowsToFrames();
     setAllThresholds();
   } else {
-    // std::cout << "PERDI" << std::endl;
     for (int i = 0; i < TOTAL_THREADS; i++) {
       threads.add_thread(new boost::thread(&GMM::classify, this, i));
     }
@@ -94,8 +92,8 @@ cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
     roi.y = p1.y;
   }
 
-  roi.width  = sqrt(pow((p1.x - p2.x),2));
-  roi.height = sqrt(pow((p1.y - p2.y),2));
+  roi.width  = static_cast<int>(sqrt(pow((p1.x - p2.x), 2)));
+  roi.height = static_cast<int>(sqrt(pow((p1.y - p2.y), 2)));
 
   cv::Mat out = frame(roi);
 
@@ -112,7 +110,7 @@ void GMM::classifyWindows(int index) {
 
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
-      int label = input.at<float>(i,j);
+      int label = static_cast<int>(input.at<float>(i, j));
       partialGaussians[index].at<cv::Vec3b>(i, j)[0] = colors[label][0];
       partialGaussians[index].at<cv::Vec3b>(i, j)[1] = colors[label][1];
       partialGaussians[index].at<cv::Vec3b>(i, j)[2] = colors[label][2];
@@ -129,7 +127,7 @@ void GMM::classify(int index) {
   partialFrames[index] = cv::Mat::zeros(rows, cols, CV_8UC3);
   for (int x = 0; x < rows; x++) {
     for (int y = 0; y < cols; y++) {
-      int label = input.at<float>(x,y);
+      int label = static_cast<int>(input.at<float>(x, y));
       partialFrames[index].at<cv::Vec3b>(x, y)[0] = colors[label][0];
       partialFrames[index].at<cv::Vec3b>(x, y)[1] = colors[label][1];
       partialFrames[index].at<cv::Vec3b>(x, y)[2] = colors[label][2];
@@ -143,7 +141,7 @@ void GMM::paintWindows() {
     partialPreThresholds[k] = cv::Mat::zeros(partialGaussians[k].rows, partialGaussians[k].cols, CV_8UC3);
     for (int i = 0; i < windowsList.at(k).getSize(); i++) {
       for (int j = 0; j < windowsList.at(k).getSize(); j++) {
-        int label = partialPredicts[k].at<float>(i,j);
+        int label = static_cast<int>(partialPredicts[k].at<float>(i, j));
         partialFinals[k].at<cv::Vec3b>(i, j)[0] = colors[matchColor.at(label)][0];
         partialFinals[k].at<cv::Vec3b>(i, j)[1] = colors[matchColor.at(label)][1];
         partialFinals[k].at<cv::Vec3b>(i, j)[2] = colors[matchColor.at(label)][2];
@@ -165,7 +163,7 @@ void GMM::paint() {
 
   for (int x = 0; x < predictFrame.rows; x++) {
     for (int y = 0; y < predictFrame.cols; y++) {
-      int label = predictFrame.at<float>(x,y);
+      int label = static_cast<int>(predictFrame.at<float>(x, y));
       finalFrame.at<cv::Vec3b>(x, y)[0] = colors[matchColor.at(label)][0];
       finalFrame.at<cv::Vec3b>(x, y)[1] = colors[matchColor.at(label)][1];
       finalFrame.at<cv::Vec3b>(x, y)[2] = colors[matchColor.at(label)][2];
@@ -191,7 +189,7 @@ cv::Mat GMM::predictWindows(int index) {
 
       double result = em->predict2(input.row(pixelIndex), results)[1];
 
-      partialPredicts[index].at<float>(i, j) = result;
+      partialPredicts[index].at<float>(i, j) = static_cast<float>(result);
 
       pixelIndex++;
     }
@@ -213,7 +211,7 @@ cv::Mat GMM::predict(int index) {
 
       double result = em->predict2(input.row(pixelIndex), results)[1];
 
-      partialPredicts[index].at<float>(i, j) = result;
+      partialPredicts[index].at<float>(i, j) = static_cast<float>(result);
 
       pixelIndex++;
     }
@@ -260,7 +258,7 @@ cv::Mat GMM::formatFrameForEM(int index) {
   int counter = 0;
   for (int j = 0; j < dst.rows; j++)
   {
-      cv::Vec3f* row = float_image.ptr<cv::Vec3f > (j);
+	  auto * row = float_image.ptr<cv::Vec3f > (j);
 
       for (int i = 0; i < dst.cols; i++)
       {
@@ -314,13 +312,13 @@ cv::Mat GMM::formatSamplesForEM()
     return cv::Mat::zeros(1, 1, CV_32F);
   }
   int totalRows = 0;
-  for (int i = 0; i < samples.size(); i++) {
-    totalRows += samples.at(i).cols*samples.at(i).rows;
+  for (auto &sample : samples) {
+    totalRows += sample.cols* sample.rows;
   }
   cv::Mat output(totalRows, 3, CV_32FC1);
   int counter = 0;
-  for (int k = 0; k < samples.size(); k++) {
-    cv::Mat dst = samples.at(k).clone();
+  for (auto &sample : samples) {
+    cv::Mat dst = sample.clone();
     cv::cvtColor(dst, dst, cv::COLOR_BGR2Lab);
     cv::Mat float_image;
     dst.convertTo(float_image,CV_32F);
@@ -328,7 +326,7 @@ cv::Mat GMM::formatSamplesForEM()
     //Converting from Float image to Column vector
     for (int j = 0; j < dst.rows; j++)
     {
-        cv::Vec3f* row = float_image.ptr<cv::Vec3f > (j);
+		auto * row = float_image.ptr<cv::Vec3f > (j);
 
         for (int i = 0; i < dst.cols; i++)
         {
@@ -389,9 +387,9 @@ bool GMM::read(std::string fileName) {
       getline(file, line);
       dilate[i] = atoi(line.c_str());
     }
-    for (int i = 0; i < matchColor.size(); i++) {
+    for (int &color : matchColor) {
       getline(file, line);
-      matchColor.at(i) = atoi(line.c_str());
+		color = atoi(line.c_str());
     }
     file.close();
   } else {
@@ -442,8 +440,8 @@ bool GMM::write(std::string fileName) {
       file << erode[i] <<std::endl;
       file << dilate[i] <<std::endl;
     }
-    for (int i = 0; i < matchColor.size(); i++) {
-      file << matchColor.at(i) <<std::endl;
+    for (int color : matchColor) {
+      file << color <<std::endl;
     }
     file.close();
   } else {
@@ -453,7 +451,7 @@ bool GMM::write(std::string fileName) {
 
   cv::FileStorage fs(fileName, cv::FileStorage::WRITE);
 
-  if (fileName == "") cv::FileStorage fs("autoGMM.json", cv::FileStorage::WRITE);
+  if (fileName.empty()) cv::FileStorage fs("autoGMM.json", cv::FileStorage::WRITE);
 
   if (fs.isOpened()) {
     em->write(fs);
@@ -466,7 +464,7 @@ bool GMM::write(std::string fileName) {
 
 }
 
-int GMM::getSamplesSize() {
+unsigned long GMM::getSamplesSize() {
   return samples.size();
 }
 
@@ -498,13 +496,6 @@ cv::Mat GMM::getFinalFrame() {
   return output;
 }
 
-cv::Mat GMM::getPreThresholdFrame() {
-  cv::Mat output = preThreshold.clone();
-  // cv::pyrUp(output, output);
-  // cv::pyrUp(output, output);
-  return output;
-}
-
 bool GMM::getIsTrained() {
   return isTrained;
 }
@@ -522,7 +513,7 @@ std::vector<VisionROI>* GMM::getWindowsList() {
 }
 
 void GMM::setDone(bool flag) {
-  if (flag == true) write("autoGMM.json");
+  if (flag) write("autoGMM.json");
   isDone = flag;
 }
 
@@ -577,8 +568,8 @@ std::vector<cv::Mat> GMM::getAllThresholds() {
 }
 
 bool GMM::checkROIs() {
-  for (int i = 0; i < windowsList.size(); i++) {
-    if (windowsList.at(i).getIsLost()) return false;
+  for (auto &window : windowsList) {
+    if (window.getIsLost()) return false;
   }
   return true;
 }
@@ -601,6 +592,4 @@ GMM::GMM(int width, int height) : clusters(1), isTrained(false), isDone(false) {
   }
 }
 
-GMM::~GMM() {
-
-}
+GMM::~GMM() = default;

@@ -797,10 +797,6 @@ void Vision::setConvertType(int type) {
 	else std::cout << "Vision:setConvertType: could not set type (invalid type)" << std::endl;
 }
 
-void Vision::setRawFrameCamcalib(cv::Mat frame){
-    frame.copyTo(in_frame);
-}
-
 void Vision::setFrameSize(int inWidth, int inHeight) {
   if (inWidth >= 0) width = inWidth;
   if (inHeight >= 0) height = inHeight;

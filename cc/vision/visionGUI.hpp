@@ -54,11 +54,8 @@ public:
   void quickLoadGMM();
 
   void setFrameSize(int inWidth, int inHeight);
-  int getFrameHeight();
-  int getFrameWidth();
   bool getSamplesEventFlag();
   bool getDrawSamples();
-  bool getOriginalFrameFlag();
   bool getGaussiansFrameFlag();
   bool getFinalFrameFlag();
   bool getThresholdFrameFlag();
@@ -113,7 +110,7 @@ private:
     "Purple", "Brown", "Silver", "Cyan", "Dark Green","Baby Pink", "Dark Grey"
   };
   bool samplesEventFlag;
-  bool originalFrame_flag, gaussiansFrame_flag, finalFrame_flag;
+  bool gaussiansFrame_flag, finalFrame_flag;
   bool thresholdFrame_flag;
 
   void __event_bt_HSV_calib_pressed();

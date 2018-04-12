@@ -1,13 +1,5 @@
 #include "controlGUI.hpp"
 
-bool ControlGUI::get_PID_test_flag() {
-    return PID_test_flag;
-}
-
-void ControlGUI::set_PID_test_flag(bool input) {
-    PID_test_flag = input;
-}
-
 ControlGUI::ControlGUI() {
     // Adicionar o frame do Serial e sua VBOX
     pack_start(Top_hbox, false, true, 5);
@@ -15,12 +7,7 @@ ControlGUI::ControlGUI() {
     Serial_fm.set_label("Serial");
     Serial_fm.add(Serial_vbox);
 
-//    Top_hbox.pack_start(Test_fm, false, true, 5);
-
-//    Test_fm.set_label("Test");
-//    Test_fm.add(Test_vbox);
     button_PID_Test.set_label("PID Test on Click");
-//    Test_vbox.pack_start(button_PID_Test, false, true, 5);
 
     Serial_hbox[0].pack_start(cb_serial, false, true, 5);
     Serial_hbox[0].pack_start(bt_Serial_Start, false, true, 5);
@@ -89,9 +76,6 @@ ControlGUI::ControlGUI() {
 
     _create_status_frame();
 
-    pack_start(testFrame, false, true, 5);
-    configureTestFrame();
-
     _update_cb_serial();
 	update_ack_interface();
     // Conectar os sinais para o acontecimento dos eventos
@@ -104,20 +88,6 @@ ControlGUI::ControlGUI() {
     bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
 	ack_enable_button.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
 	bt_set_frameskip.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::set_frameskipper));
-}
-
-void ControlGUI::configureTestFrame() {
-    std::string labels[5] = {"Name 1", "Name 2", "Name 3", "Name 4", "Name 5"};
-    double min[5] = {0, 0, 0, 0, 0};
-    double max[5] = {100, 100, 100, 100, 100};
-    double currentValue[5] = {0, 10, 20, 30, 40};
-    double digits[5] = {0, 0, 0, 0, 0};
-    double steps[5] = {1, 1, 1, 1, 1};
-
-    for (int i = 0; i < 5; i++) {
-        testFrame.setLabel(i, labels[i]);
-        testFrame.configureHScale(i, currentValue[i],  min[i], max[i], digits[i], steps[i]);
-    }
 }
 
 void ControlGUI::_send_command(){
@@ -197,7 +167,7 @@ void ControlGUI::_start_serial(){
 bool ControlGUI::isFloat(std::string value){
     int counter = 0, i = 0;
 
-    if (value.size() < 1 || value.front() == '.' || value.back() == '.')
+    if (value.empty() || value.front() == '.' || value.back() == '.')
         return false;
 
     if(!isdigit(value[0])) {
@@ -256,10 +226,6 @@ void ControlGUI::_send_test(){
 		}
 	}
 }
-
-int ControlGUI::get_robot_pos(char id) {
-	return uint8_t(id)-65;
-} 
  
 char ControlGUI::get_robot_id(int pos) {
 	return char(65+pos);
@@ -393,26 +359,4 @@ void ControlGUI::update_msg_time() {
 		acc_time = 0;
 		time_count = 0;
 	}
-}
-
-// Função para verificar se os valores digitados nos campos
-// de PID são válidos: apenas números e um único ponto
-bool ControlGUI::checkPIDvalues(){
-    std::string value;
-    int counter;
-    for (int i = 0; i < 3; i++) {
-        counter = 0;
-        value.clear();
-        value.append(pid_box[i].get_text());
-        std::cout << i << ": " << value << std::endl;
-
-        if (value.front() == '.' || value.back() == '.')
-            return false;
-        for (int j = 0; j < value.size(); j++) {
-            if (value[j] == '.') counter++;
-            if (!isdigit(value[j]) && value[j] != '.') return false;
-        }
-        if (counter > 1) return false;
-    }
-    return true;
 }
