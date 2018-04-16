@@ -7,11 +7,6 @@
 
 #include "V4LInterface.hpp"
 
-
-#include <string>       // std::string
-#include <iostream>     // std::cout
-#include <sstream>      // std::stringstream
-
 #define DEFAULT_STR " - "
 
 namespace capture {
@@ -49,7 +44,7 @@ namespace capture {
 
         if (isLowRes) {
             box->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
-            pack_start(frm_quick_actions, false, true, 5);
+            capture_vbox.pack_start(frm_quick_actions, false, true, 5);
         } else {
             box->set_orientation(Gtk::ORIENTATION_VERTICAL);
             info_hbox.pack_start(frm_quick_actions, false, true, 5);
@@ -205,7 +200,6 @@ namespace capture {
     void V4LInterface::__create_frm_warp() {
         Gtk::HBox *hbox;
         Gtk::HBox *hbox2;
-        Gtk::HBox *hbox3;
         Gtk::VBox *vbox;
         Gtk::Label *label;
 
@@ -268,6 +262,7 @@ namespace capture {
     }
 
 
+
     void V4LInterface::__update_cb_device() {
 
         char device[16];
@@ -315,7 +310,7 @@ namespace capture {
 
         ls_standard->clear();
 
-        struct v4l2_standard standard;
+        struct v4l2_standard standard{};
 
         vcap.get_standard(&standard);
         unsigned long index = standard.id;
@@ -343,8 +338,8 @@ namespace capture {
 
         ls_format_desc->clear();
 
-        struct v4l2_format fmt;
-        struct v4l2_fmtdesc fmt_desc;
+        struct v4l2_format fmt{};
+        struct v4l2_fmtdesc fmt_desc{};
         vcap.get_format(&fmt, V4L2_BUF_TYPE_VIDEO_CAPTURE);
 
         unsigned int index = fmt.fmt.pix.pixelformat;
@@ -376,12 +371,12 @@ namespace capture {
 
         ls_frame_size->clear();
 
-        struct v4l2_format fmt;
+        struct v4l2_format fmt{};
         vcap.get_format(&fmt, V4L2_BUF_TYPE_VIDEO_CAPTURE);
         sp_width.set_value((double) fmt.fmt.pix.width);
         sp_height.set_value((double) fmt.fmt.pix.height);
 
-        struct v4l2_frmsizeenum frmsize;
+        struct v4l2_frmsizeenum frmsize{};
 
         if (vcap.enum_frame_size(&frmsize, fmt.fmt.pix.pixelformat, 0, true)) {
             do {
@@ -405,7 +400,7 @@ namespace capture {
 
         ls_frame_interval->clear();
 
-        struct v4l2_format fmt;
+        struct v4l2_format fmt{};
         unsigned int &width = fmt.fmt.pix.width;
         unsigned int &height = fmt.fmt.pix.height;
 
@@ -413,9 +408,9 @@ namespace capture {
         sp_width.set_value((double) width);
         sp_height.set_value((double) height);
 
-        struct v4l2_frmivalenum frminterval;
+        struct v4l2_frmivalenum frminterval{};
 
-        struct v4l2_streamparm streamparm;
+        struct v4l2_streamparm streamparm{};
         vcap.get_stream_parameter(&streamparm, V4L2_BUF_TYPE_VIDEO_CAPTURE);
 
         if (vcap.enum_frame_interval(&frminterval, fmt.fmt.pix.pixelformat, width, height, 0, true)) {
@@ -448,8 +443,8 @@ namespace capture {
     void V4LInterface::__make_control_list_default() {
 
         ctrl_list_default.clear();
-        struct v4l2_queryctrl qctrl;
-        struct v4l2_querymenu qmenu;
+        struct v4l2_queryctrl qctrl{};
+        struct v4l2_querymenu qmenu{};
 
         if (vcap.enum_control_default(&qctrl, true)) {
             do {
@@ -463,10 +458,10 @@ namespace capture {
                     case V4L2_CTRL_TYPE_INTEGER64:
 
                         wctrl = new Gtk::HScale();
-                        static_cast<Gtk::HScale *>(wctrl)->set_value_pos(Gtk::POS_RIGHT);
-                        static_cast<Gtk::HScale *>(wctrl)->set_range(qctrl.minimum, qctrl.maximum);
-                        static_cast<Gtk::HScale *>(wctrl)->set_increments(qctrl.step, 10 * qctrl.step);
-                        hold.con = static_cast<Gtk::HScale *>(wctrl)->signal_change_value().connect(
+                        dynamic_cast<Gtk::HScale *>(wctrl)->set_value_pos(Gtk::POS_RIGHT);
+                        dynamic_cast<Gtk::HScale *>(wctrl)->set_range(qctrl.minimum, qctrl.maximum);
+                        dynamic_cast<Gtk::HScale *>(wctrl)->set_increments(qctrl.step, 10 * qctrl.step);
+                        hold.con = dynamic_cast<Gtk::HScale *>(wctrl)->signal_change_value().connect(
                                 sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(
                                         sigc::mem_fun(*this, &V4LInterface::__set_control_hscale),
                                         &ctrl_list_default, wctrl));
@@ -475,7 +470,7 @@ namespace capture {
                     case V4L2_CTRL_TYPE_BOOLEAN:
 
                         wctrl = new Gtk::CheckButton((const char *) qctrl.name);
-                        hold.con = static_cast<Gtk::CheckButton *>(wctrl)->signal_clicked().connect(
+                        hold.con = dynamic_cast<Gtk::CheckButton *>(wctrl)->signal_clicked().connect(
                                 sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(
                                         sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_default,
                                         wctrl));
@@ -484,7 +479,7 @@ namespace capture {
                     case V4L2_CTRL_TYPE_BUTTON:
 
                         wctrl = new Gtk::Button((const char *) qctrl.name);
-                        hold.con = static_cast<Gtk::Button *>(wctrl)->signal_clicked().connect(
+                        hold.con = dynamic_cast<Gtk::Button *>(wctrl)->signal_clicked().connect(
                                 sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(
                                         sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_default,
                                         wctrl));
@@ -500,8 +495,8 @@ namespace capture {
 
                         wctrl = new Gtk::ComboBox();
                         lstore = Gtk::ListStore::create(model_control_menu);
-                        static_cast<Gtk::ComboBox *>(wctrl)->set_model(lstore);
-                        static_cast<Gtk::ComboBox *>(wctrl)->pack_start(model_control_menu.m_col_name);
+                        dynamic_cast<Gtk::ComboBox *>(wctrl)->set_model(lstore);
+                        dynamic_cast<Gtk::ComboBox *>(wctrl)->pack_start(model_control_menu.m_col_name);
 
                         if (vcap.enum_control_menu(&qmenu, qctrl, 0, true)) {
                             do {
@@ -512,7 +507,7 @@ namespace capture {
                             } while (vcap.enum_control_menu(&qmenu, qctrl));
                         }
 
-                        hold.con = static_cast<Gtk::ComboBox *>(wctrl)->signal_changed().connect(
+                        hold.con = dynamic_cast<Gtk::ComboBox *>(wctrl)->signal_changed().connect(
                                 sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(
                                         sigc::mem_fun(*this, &V4LInterface::__set_control), &ctrl_list_default,
                                         wctrl));
@@ -521,7 +516,7 @@ namespace capture {
                     case V4L2_CTRL_TYPE_CTRL_CLASS:
                     case V4L2_CTRL_TYPE_BITMASK:
                     default:
-                        wctrl = 0;
+                        wctrl = nullptr;
                         break;
 
                 }
@@ -540,17 +535,17 @@ namespace capture {
     void V4LInterface::__make_control_table(std::list<ControlHolder> &list, const char *title) {
 
         // create new controls =====================================================
-        Gtk::Label *label = NULL;
-        Gtk::Table *table = NULL;
-        Gtk::Widget *wctrl = NULL;
+        Gtk::Label *label = nullptr;
+        Gtk::Table *table = nullptr;
+        Gtk::Widget *wctrl = nullptr;
 
-        int ROWS = 4;
-        int COLS = 2;
-        int r, c;
+        guint ROWS = 4;
+        guint COLS = 2;
+        guint r, c;
         int tab_count = 0;
         int count = 0;
 
-        struct v4l2_queryctrl qctrl;
+        struct v4l2_queryctrl qctrl{};
         std::list<ControlHolder>::iterator iter;
 
         for (iter = list.begin(); iter != list.end(); ++iter) {
@@ -609,9 +604,9 @@ namespace capture {
 
     void V4LInterface::__update_control_widgets(std::list<ControlHolder> &ctrl_list) {
 
-        Gtk::Widget *wctrl = NULL;
-        struct v4l2_queryctrl qctrl;
-        struct v4l2_control control;
+        Gtk::Widget *wctrl = nullptr;
+        struct v4l2_queryctrl qctrl{};
+        struct v4l2_control control{};
 
         __block_control_signals(ctrl_list, true);
 
@@ -627,12 +622,12 @@ namespace capture {
                 case V4L2_CTRL_TYPE_INTEGER:
                 case V4L2_CTRL_TYPE_INTEGER64:
 
-                    static_cast<Gtk::HScale *>(wctrl)->set_value(control.value);
+                    dynamic_cast<Gtk::HScale *>(wctrl)->set_value(control.value);
                     break;
 
                 case V4L2_CTRL_TYPE_BOOLEAN:
 
-                    static_cast<Gtk::CheckButton *>(wctrl)->set_active(control.value == 1);
+                    dynamic_cast<Gtk::CheckButton *>(wctrl)->set_active(control.value == 1);
                     break;
 
                 case V4L2_CTRL_TYPE_BUTTON:
@@ -646,28 +641,27 @@ namespace capture {
                 case V4L2_CTRL_TYPE_MENU:
                 case V4L2_CTRL_TYPE_INTEGER_MENU:
 
-                    Glib::RefPtr<Gtk::TreeModel> model = static_cast<Gtk::ComboBox *>(wctrl)->get_model();
+                    Glib::RefPtr<Gtk::TreeModel> model = dynamic_cast<Gtk::ComboBox *>(wctrl)->get_model();
 
                     Gtk::TreeModel::Children child = model->children();
 
                     int i = 0;
-                    for (Gtk::TreeModel::Children::iterator iter = child.begin(); iter != child.end(); ++iter, ++i) {
+                    for (Gtk::TreeModel::Children::iterator treeIter = child.begin(); treeIter != child.end(); ++treeIter, ++i) {
 
-                        Gtk::TreeModel::Row row = *iter;
-                        struct v4l2_querymenu qm;
+                        Gtk::TreeModel::Row row = *treeIter;
+                        struct v4l2_querymenu qm{};
                         qm = row[model_control_menu.m_col_data];
 
                         if (control.value < 0) return;
 
                         if (control.value == (int) qm.index) {
-                            static_cast<Gtk::ComboBox *>(wctrl)->set_active(iter);
+                            dynamic_cast<Gtk::ComboBox *>(wctrl)->set_active(treeIter);
                             break;
                         }
 
                     }
 
                     break;
-
             }
         }
         __block_control_signals(ctrl_list, false);
@@ -703,8 +697,8 @@ namespace capture {
         robots_id_vbox.pack_start(robots_id_hbox[0], false, true, 5);
 
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 6; j++) {
-                robots_id_box[i].append(std::string(1, robotsIDs[j]));
+            for (char robotsID : robotsIDs) {
+                robots_id_box[i].append(std::string(1, robotsID));
             }
             robots_id_box[i].set_active(i);
         }
@@ -747,7 +741,7 @@ namespace capture {
 
         if (isLowRes) {
             barSize = 200;
-            pack_start(robots_speed_fm, false, true, 5);
+            capture_vbox.pack_start(robots_speed_fm, false, true, 5);
         } else {
             barSize = 100;
             info_hbox.pack_start(robots_speed_fm, false, true, 5);
@@ -756,10 +750,6 @@ namespace capture {
         robots_speed_fm.set_label("Speeds");
         robots_speed_fm.add(robots_speed_vbox[0]);
 
-
-
-//                  robots_speed_hbox[0].set_halign(Gtk::ALIGN_CENTER);
-//                  robots_speed_hbox[0].set_homogeneous(true);
         robots_speed_hbox[0].pack_start(robots_speed_edit_bt, false, true, 2);
         robots_speed_edit_bt.set_label("Edit");
         robots_speed_hbox[0].pack_end(robots_speed_done_bt, false, true, 2);
@@ -767,12 +757,10 @@ namespace capture {
         robots_speed_vbox[0].pack_start(robots_speed_hbox[0], false, true, 2);
 
         label = new Gtk::Label("Robot 1:");
-        //label->set_yalign(1.0);
         robots_speed_hscale[0].set_digits(1);
         robots_speed_hscale[0].set_increments(0.1, 1);
         robots_speed_hscale[0].set_range(0, 1.4);
         robots_speed_hscale[0].set_size_request(barSize, -1);
-        //robots_speed_hscale[0].set_inverted(true);
         robots_speed_hscale[0].set_value(0.8);
         if (isLowRes) robots_speed_hscale[0].set_value_pos(Gtk::POS_RIGHT);
         robots_speed_hbox[1].pack_start(*label, false, true, 0);
@@ -792,12 +780,10 @@ namespace capture {
         robots_speed_vbox[0].pack_start(robots_speed_hbox[1], false, true, 0);
 
         label = new Gtk::Label("Robot 2:");
-        //label->set_yalign(1.0);
         robots_speed_hscale[1].set_digits(1);
         robots_speed_hscale[1].set_increments(0.1, 1);
         robots_speed_hscale[1].set_range(0, 1.4);
         robots_speed_hscale[1].set_size_request(barSize, -1);
-        //robots_speed_hscale[1].set_inverted(true);
         robots_speed_hscale[1].set_value(0.8);
         if (isLowRes) {
             robots_speed_hscale[1].set_value_pos(Gtk::POS_RIGHT);
@@ -823,12 +809,10 @@ namespace capture {
         robots_speed_vbox[0].pack_start(robots_speed_hbox[2], false, true, 5);
 
         label = new Gtk::Label("Robot 3:");
-        //label->set_yalign(1.0);
         robots_speed_hscale[2].set_digits(1);
         robots_speed_hscale[2].set_increments(0.1, 1);
         robots_speed_hscale[2].set_range(0, 1.4);
         robots_speed_hscale[2].set_size_request(barSize, -1);
-        //robots_speed_hscale[2].set_inverted(true);
         robots_speed_hscale[2].set_value(0.8);
         if (isLowRes) {
             robots_speed_hscale[2].set_value_pos(Gtk::POS_RIGHT);
@@ -868,18 +852,18 @@ namespace capture {
         std::ostringstream strs0, strs1, strs2;
         std::string str0, str1, str2;
 
-        robots_speed_progressBar[0].set_fraction((double) robot_list[0].vmax / 1.4);
-        strs0 << (double) robot_list[0].vmax;
+        robots_speed_progressBar[0].set_fraction(robot_list[0].vmax / 1.4);
+        strs0 << robot_list[0].vmax;
         str0 = strs0.str();
         robots_speed_progressBar[0].set_text(str0.substr(0, 4));
 
-        robots_speed_progressBar[1].set_fraction((double) robot_list[1].vmax / 1.4);
-        strs1 << (double) robot_list[1].vmax;
+        robots_speed_progressBar[1].set_fraction(robot_list[1].vmax / 1.4);
+        strs1 << robot_list[1].vmax;
         str1 = strs1.str();
         robots_speed_progressBar[1].set_text(str1.substr(0, 4));
 
-        robots_speed_progressBar[2].set_fraction((double) robot_list[2].vmax / 1.4);
-        strs2 << (double) robot_list[2].vmax;
+        robots_speed_progressBar[2].set_fraction(robot_list[2].vmax / 1.4);
+        strs2 << robot_list[2].vmax;
         str2 = strs2.str();
         robots_speed_progressBar[2].set_text(str2.substr(0, 4));
     }
@@ -1026,14 +1010,25 @@ namespace capture {
 
         __init_combo_boxes();
 
-        pack_start(frm_device_info, false, false, 5);
+
+		pack_start(scrolledWindow);
+
+		scrolledWindow.add(capture_vbox);
+		scrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+
+
+        capture_vbox.pack_start(frm_device_info, false, false, 5);
         __create_frm_device_info();
 
-        pack_start(frm_device_prop, false, false, 10);
+        capture_vbox.pack_start(frm_device_prop, false, false, 10);
         __create_frm_device_properties();
 
-        pack_start(frm_warp, false, false, 10);
+        capture_vbox.pack_start(frm_warp, false, false, 10);
         __create_frm_warp();
+
+        capture_vbox.pack_start(frm_cam_calib, false, false, 10);
+        __create_frm_cam_calib();
+
 
 
         __update_cb_device();
@@ -1055,8 +1050,8 @@ namespace capture {
         robot_list[2].role = 2;
 
 
-        for (int i = 0; i < robot_list.size(); i++) {
-            robot_list[i].position = cv::Point(-1, -1);
+        for (auto &robot : robot_list) {
+            robot.position = cv::Point(-1, -1);
         }
 
         createPositionsAndButtonsFrame();
@@ -1103,11 +1098,108 @@ namespace capture {
 
     }
 
+    void V4LInterface::__create_frm_cam_calib(){
+
+        Gtk::Grid  * grid;
+        Gtk::Grid  * grid2;
+        Gtk::Label *label;
+        Gtk::VBox  *vbox;
+        Gtk::VBox  *vbox2;
+        Gtk::HBox  *hbox;
+		Gtk::HBox  *hbox2;
+        Gtk::HBox  *hbox3;
+
+
+        grid = new Gtk::Grid();
+        grid2 = new Gtk::Grid();
+        vbox = new Gtk::VBox();
+        vbox2 = new Gtk::VBox();
+        hbox = new Gtk::HBox();
+		hbox2 = new Gtk::HBox();
+        hbox3 = new Gtk::HBox();
+
+
+
+        frm_cam_calib.set_label("Camera calibration");
+        fr_camCalib_offline.set_label("Offline Calibration");
+
+        frm_cam_calib.add(*vbox);
+        vbox->set_halign(Gtk::ALIGN_CENTER);
+        vbox->set_valign(Gtk::ALIGN_CENTER);
+		hbox->set_border_width(5);
+		hbox->set_halign(Gtk::ALIGN_CENTER);
+        hbox->pack_start(*grid, false, true, 5);
+        hbox->set_halign(Gtk::ALIGN_CENTER);
+        hbox->set_valign(Gtk::ALIGN_CENTER);
+        label = new Gtk::Label("Calibration Mode: ");
+        grid->attach(*label, 0, 0, 1, 1);
+        calib_online.set_label("Online");
+        grid->attach(calib_online, 1, 0, 1, 1);
+        calib_offline.set_label("Offline");
+        calib_offline.join_group(calib_online);
+        grid->attach(calib_offline, 2, 0, 1, 1);
+        vbox->pack_start(*hbox,false, true, 0);
+
+		fr_camCalib_offline.set_label("Offline Calibration");
+		hbox2->set_border_width(2);
+		hbox2->set_halign(Gtk::ALIGN_CENTER);
+		btn_camCalib_offline_start.set_label("Start");
+		hbox2->pack_start(btn_camCalib_offline_start, true, true, 5);
+        fr_camCalib_offline.add(*hbox2);
+        vbox->pack_start(fr_camCalib_offline, false, false, 10);
+
+        fr_camCalib_online.set_label("Online Calibration");
+        hbox3->set_border_width(2);
+        hbox3->set_halign(Gtk::ALIGN_CENTER);
+        btn_camCalib.set_label("Cam calib.");
+        hbox3->pack_start(btn_camCalib, false, false, 5);
+		vbox2->pack_start(*hbox3, false, true, 0);
+        grid2->set_margin_left(10);
+        grid2->set_margin_right(10);
+        grid2->set_margin_top(5);
+        grid2->set_margin_bottom(5);
+        grid2->set_column_spacing(5);
+        grid2->set_column_homogeneous(true);
+        btn_camCalib_collect.set_label("Collect");
+        grid2->attach(btn_camCalib_collect,0,0,1,1);
+        btn_camCalib_pop.set_label("Pop(0)");
+        grid2->attach(btn_camCalib_pop,1,0,1,1);
+        btn_camCalib_reset.set_label("Reset");
+        grid2->attach(btn_camCalib_reset,2,0,1,1);
+        btn_camCalib_start.set_label("Start");
+        grid2->attach(btn_camCalib_start,3,0,1,1);
+		vbox2->pack_start(*grid2, false, true, 0);
+		fr_camCalib_online.add(*vbox2);
+        vbox->pack_start(fr_camCalib_online, false, false, 10);
+
+
+        btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+        calib_offline.set_state(Gtk::STATE_INSENSITIVE);
+        calib_online.set_state(Gtk::STATE_INSENSITIVE);
+
+        btn_camCalib_collect.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_collect_clicked));
+        btn_camCalib_pop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_pop_clicked));
+        btn_camCalib_reset.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_reset_clicked));
+        btn_camCalib_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_start_clicked));
+        btn_camCalib.signal_toggled().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_pressed));
+        btn_camCalib_offline_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_offline_start_clicked));
+        calib_offline.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_mode_clicked));
+        calib_online.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_mode_clicked));
+
+    }
+
+
+
     // Constructor
 
     V4LInterface::V4LInterface() :
             Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(false),
-            offsetL(0), offsetR(0), robot_pos_lb_list(3) {
+            offsetL(0), offsetR(0), robot_pos_lb_list(3),CamCalib_flag_event(false) {
 
         initInterface();
 

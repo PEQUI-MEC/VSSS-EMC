@@ -36,9 +36,8 @@ void Messenger::send_old_format(string cmd){
 	xbee->send(id,msg);
 }
 
-vector<message> Messenger::sendCMDs(vector<Robot> robots) {
-	vector<message> acks;
-	if(!xbee) return acks;
+void Messenger::send_cmds(const vector<Robot>& robots) {
+	if(!xbee || ++send_cmd_count <= frameskip) return;
 	for(Robot robot : robots){
 		string msg;
 		switch (robot.cmdType){
@@ -59,12 +58,10 @@ vector<message> Messenger::sendCMDs(vector<Robot> robots) {
 				if(robot.target.x != -1 && robot.target.y != -1)
 					msg = position_msg(robot);
 		}
-		if(!msg.empty()){
-			int ack = xbee->send(robot.ID,msg);
-			acks.push_back({robot.ID, std::to_string(ack)});
-		}
+		if(!msg.empty()) xbee->send(robot.ID,msg);
 	}
-	return acks;
+	update_msg_time();
+	send_cmd_count = 0;
 }
 
 string Messenger::position_msg(Robot robot) {
@@ -110,7 +107,12 @@ string Messenger::rounded_str(double num) {
 	return ss.str();
 }
 
-ack_count Messenger::get_ack_count(char id){
+void Messenger::set_ack_enabled(bool enable) {
+	if(!xbee) return;
+	xbee->set_ack_enabled(enable);
+}
+
+ack_count Messenger::get_ack_count(char id) {
 	if(!xbee) return {-1,-1,-1};
 	else return xbee->get_ack_count(id);
 }
@@ -120,6 +122,16 @@ void Messenger::reset_lost_acks() {
 	xbee->reset_lost_acks();
 }
 
-Messenger::Messenger() {
+void Messenger::update_msg_time() {
+	auto now = std::chrono::system_clock::now();
+	std::chrono::duration<double, std::milli> time_diff = now - previous_msg_time;
+	time_between_msgs = time_diff.count();
+	previous_msg_time = now;
+}
+
+Messenger::Messenger(){
 	setlocale(LC_ALL,"C");
+	send_cmd_count = 0;
+	frameskip = DEFAULT_FRAMESKIP;
+	previous_msg_time = std::chrono::system_clock::now();
 }

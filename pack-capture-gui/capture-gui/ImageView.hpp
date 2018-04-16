@@ -20,7 +20,7 @@ namespace capture {
 
 		Glib::RefPtr<Gdk::Pixbuf> pb;
 
-		virtual bool on_button_press_event(GdkEventButton *event);
+			bool on_button_press_event(GdkEventButton *event) override;
 
 	public:
 		unsigned char * data;
@@ -33,18 +33,15 @@ namespace capture {
 		double tar_pos[2];
 		double robot_pos[2];
 		double look_pos[2];
-		cv::Point pointClicked;
 
 		int warp_counter =0;
 		int adj_counter =0;
 		int gmm_counter = 0;
 	    bool warp_event_flag = false;
 		bool PID_test_flag = false;
-		bool formation_flag = false;
 	    bool adjust_event_flag = false;
 	    bool hold_warp = false;
 	    bool adjust_rdy = false;
-	    bool auto_calib_flag = false;
 		bool gmm_sample_flag = false;
 		bool gmm_ready_flag = false;
 		bool split_flag = false;
@@ -54,17 +51,12 @@ namespace capture {
 
 		void set_data(unsigned char * data, int width, int height);
 
-		unsigned char * get_data();
-
-		int get_width();
-
-		int get_height();
 
 		void disable_image_show();
 
 		void refresh();
 
-		virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr);
+			bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
 	};
 

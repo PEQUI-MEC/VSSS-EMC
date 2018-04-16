@@ -19,9 +19,7 @@
 #include <gtkmm.h>
 #include <string>
 #include "Messenger.h"
-#include "TestFrame.hpp"
 #include <unistd.h>
-#include <time.h>
 #include <fcntl.h>
 // system_clock::now
 #include <iostream>
@@ -35,20 +33,22 @@ public:
 
 	const static int TOTAL_ROBOTS = 6;
 
-	TestFrame testFrame;
-
 	// Flag para saber se o botão PID está pressionado ou não.
 	bool PID_test_flag = false;
 	// Containers para o conteúdo da interface gráfica
 	Gtk::Frame Serial_fm;
-	Gtk::Frame Test_fm;
 	Gtk::HBox Top_hbox;
 	Gtk::VBox Serial_vbox;
-	Gtk::VBox Test_vbox;
-	Gtk::HBox Serial_hbox[3];
+	Gtk::HBox Serial_hbox[4];
 	Gtk::Label *label;
 	Gtk::Button bt_send_cmd;
 	Gtk::Entry send_cmd_box;
+
+		Gtk::Entry entry_set_frameskip;
+		Gtk::Button bt_set_frameskip;
+		Gtk::Label time_msgs;
+		double acc_time;
+		int time_count;
 
 	// Botões e combo box Rádio
 	Gtk::Button bt_Serial_Start;
@@ -61,6 +61,9 @@ public:
 	Gtk::Entry Tbox_V1;
 	Gtk::Entry Tbox_V2;
 
+		Gtk::CheckButton ack_enable_button;
+		Gtk::Label ack_enable_label;
+
 	Gtk::Grid status_grid;
 	Gtk::Frame status_fm;
 	Gtk::Image status_img[TOTAL_ROBOTS];
@@ -71,24 +74,11 @@ public:
 		Gtk::Label dropped_frames[TOTAL_ROBOTS];
 		Gtk::Button bt_reset_ack;
 
-	Gtk::Frame pid_fm;
-	Gtk::VBox pid_vbox;
-	Gtk::HBox pid_hbox[2];
+
 	Gtk::Button pid_edit_bt;
-	Gtk::Button pid_send_bt;
-	Gtk::Entry pid_box[3];
-	Glib::ustring pid_tmp[4];
-	Gtk::ComboBoxText cb_pid_robot;
-	Gtk::ComboBoxText cb_pid_type;
-	bool pid_edit_flag = false;
 
-	ControlGUI();
+		ControlGUI();
 
-	bool get_PID_test_flag();
-
-	void set_PID_test_flag(bool input);
-
-	void configureTestFrame();
 
 	void _send_command();
 
@@ -110,14 +100,12 @@ public:
 
 	void _create_status_frame();
 
-	// Função para verificar se os valores digitados nos campos
-	// de PID são válidos: apenas números e um único ponto
-	bool checkPIDvalues();
-	
-	int get_robot_pos(char id);
     char get_robot_id(int pos);
 		void update_dropped_frames();
 		void reset_lost_acks();
+		void update_ack_interface();
+		void set_frameskipper();
+		void update_msg_time();
 };
 
 

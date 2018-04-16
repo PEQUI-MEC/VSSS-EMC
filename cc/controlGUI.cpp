@@ -1,26 +1,13 @@
 #include "controlGUI.hpp"
 
-bool ControlGUI::get_PID_test_flag() {
-    return PID_test_flag;
-}
-
-void ControlGUI::set_PID_test_flag(bool input) {
-    PID_test_flag = input;
-}
-
 ControlGUI::ControlGUI() {
     // Adicionar o frame do Serial e sua VBOX
     pack_start(Top_hbox, false, true, 5);
-    Top_hbox.pack_start(Serial_fm, false, true, 5);
+    Top_hbox.pack_start(Serial_fm, true, true, 0);
     Serial_fm.set_label("Serial");
     Serial_fm.add(Serial_vbox);
 
-//    Top_hbox.pack_start(Test_fm, false, true, 5);
-
-//    Test_fm.set_label("Test");
-//    Test_fm.add(Test_vbox);
     button_PID_Test.set_label("PID Test on Click");
-//    Test_vbox.pack_start(button_PID_Test, false, true, 5);
 
     Serial_hbox[0].pack_start(cb_serial, false, true, 5);
     Serial_hbox[0].pack_start(bt_Serial_Start, false, true, 5);
@@ -38,7 +25,21 @@ ControlGUI::ControlGUI() {
     Serial_hbox[2].pack_start(bt_send_cmd, false, true, 5);
     send_cmd_box.set_width_chars(25);
     bt_send_cmd.set_label("Send Command");
+
+	ack_enable_label.set_label("Enable ACKs");
+	Serial_hbox[2].pack_start(ack_enable_button, false, true, 5);
+	Serial_hbox[2].pack_start(ack_enable_label, false, true, 0);
+
     Serial_vbox.pack_start(Serial_hbox[2], false, true, 5);
+
+	bt_set_frameskip.set_label("Set skipped frames");
+	int frameskipper = messenger.get_frameskipper();
+	time_msgs.set_label("Time between CMDs: "+std::to_string((frameskipper+1)*33)+" ms");
+	entry_set_frameskip.set_text(std::to_string(frameskipper));
+	Serial_hbox[3].pack_start(entry_set_frameskip, false, false, 5);
+	Serial_hbox[3].pack_start(bt_set_frameskip, false, false, 5);
+	Serial_hbox[3].pack_start(time_msgs, false, false, 5);
+	Serial_vbox.pack_start(Serial_hbox[3], false, false, 5);
 
     Tbox_V1.set_max_length(6);
     Tbox_V2.set_max_length(6);
@@ -75,10 +76,8 @@ ControlGUI::ControlGUI() {
 
     _create_status_frame();
 
-    pack_start(testFrame, false, true, 5);
-    configureTestFrame();
-
     _update_cb_serial();
+	update_ack_interface();
     // Conectar os sinais para o acontecimento dos eventos
     button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
     bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
@@ -87,20 +86,8 @@ ControlGUI::ControlGUI() {
     bt_Robot_Status.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_robot_status));
 	bt_reset_ack.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::reset_lost_acks));
     bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
-}
-
-void ControlGUI::configureTestFrame() {
-    std::string labels[5] = {"Name 1", "Name 2", "Name 3", "Name 4", "Name 5"};
-    double min[5] = {0, 0, 0, 0, 0};
-    double max[5] = {100, 100, 100, 100, 100};
-    double currentValue[5] = {0, 10, 20, 30, 40};
-    double digits[5] = {0, 0, 0, 0, 0};
-    double steps[5] = {1, 1, 1, 1, 1};
-
-    for (int i = 0; i < 5; i++) {
-        testFrame.setLabel(i, labels[i]);
-        testFrame.configureHScale(i, currentValue[i],  min[i], max[i], digits[i], steps[i]);
-    }
+	ack_enable_button.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
+	bt_set_frameskip.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::set_frameskipper));
 }
 
 void ControlGUI::_send_command(){
@@ -180,7 +167,7 @@ void ControlGUI::_start_serial(){
 bool ControlGUI::isFloat(std::string value){
     int counter = 0, i = 0;
 
-    if (value.size() < 1 || value.front() == '.' || value.back() == '.')
+    if (value.empty() || value.front() == '.' || value.back() == '.')
         return false;
 
     if(!isdigit(value[0])) {
@@ -239,10 +226,6 @@ void ControlGUI::_send_test(){
 		}
 	}
 }
-
-int ControlGUI::get_robot_pos(char id) {
-	return uint8_t(id)-65;
-} 
  
 char ControlGUI::get_robot_id(int pos) {
 	return char(65+pos);
@@ -319,6 +302,22 @@ void ControlGUI::_create_status_frame(){
     }
 }
 
+void ControlGUI::update_ack_interface() {
+	bool is_active = ack_enable_button.get_active();
+	messenger.set_ack_enabled(is_active);
+	if(is_active) {
+		for(Gtk::Label& label : dropped_frames){
+			label.show();
+		}
+		bt_reset_ack.show();
+	} else {
+		for(Gtk::Label& label : dropped_frames){
+			label.hide();
+		}
+		bt_reset_ack.hide();
+	}
+}
+
 void ControlGUI::update_dropped_frames() {
 	for(int i = 0; i < TOTAL_ROBOTS; ++i) {
         char id = get_robot_id(i);
@@ -338,24 +337,26 @@ void ControlGUI::reset_lost_acks() {
     update_dropped_frames();
 }
 
-// Função para verificar se os valores digitados nos campos
-// de PID são válidos: apenas números e um único ponto
-bool ControlGUI::checkPIDvalues(){
-    std::string value;
-    int counter;
-    for (int i = 0; i < 3; i++) {
-        counter = 0;
-        value.clear();
-        value.append(pid_box[i].get_text());
-        std::cout << i << ": " << value << std::endl;
+void ControlGUI::set_frameskipper() {
+	int frames;
+	try {
+		frames = std::stoi(entry_set_frameskip.get_text());
+	} catch (...) {
+		return;
+	}
+	messenger.set_frameskipper(frames);
+	std::string time_str = std::to_string(33*(frames+1));
+	time_msgs.set_label("Time between CMDs: " + time_str + " ms");
+}
 
-        if (value.front() == '.' || value.back() == '.')
-            return false;
-        for (int j = 0; j < value.size(); j++) {
-            if (value[j] == '.') counter++;
-            if (!isdigit(value[j]) && value[j] != '.') return false;
-        }
-        if (counter > 1) return false;
-    }
-    return true;
+void ControlGUI::update_msg_time() {
+	acc_time += messenger.get_time();
+	time_count++;
+	if(acc_time > 500){
+		std::ostringstream ss;
+		ss << round(acc_time/time_count*100)/100;
+		time_msgs.set_label("Time between CMDs: "+ss.str() + " ms");
+		acc_time = 0;
+		time_count = 0;
+	}
 }

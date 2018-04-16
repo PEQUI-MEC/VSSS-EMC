@@ -6,7 +6,7 @@
 class Robot
 {
     public:
-        cv::Point position, secundary, target, transTarget, ternary;
+        cv::Point position, secundary, target;
         cv::Point rearPoint;
         char ID;
         bool isOdd;
@@ -16,7 +16,8 @@ class Robot
         int cmdType;
         double vdefault;
         double vmax; // m/s
-        float Vl,Vr;  // RPS
+        double Vl;
+		double Vr;  // RPS
         bool fixedPos;
         bool using_pot_field;
         int role;
@@ -26,7 +27,6 @@ class Robot
         cmdType(0), vdefault(0.8), vmax(1.4), fixedPos(false),
         using_pot_field(false), role(0), status(0)
         {
-            ternary = cv::Point(-1,-1);
             secundary= cv::Point(-1,-1);
             position= cv::Point(-1,-1);
             target = cv::Point(-1,-1);

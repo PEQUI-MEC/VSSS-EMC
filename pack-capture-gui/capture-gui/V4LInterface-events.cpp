@@ -6,10 +6,6 @@
 */
 
 #include "V4LInterface.hpp"
-#include "../../cc/filechooser.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <jsonSaveManager.h>
 
 #define DEFAULT_STR " - "
@@ -19,24 +15,19 @@ namespace capture {
     bool V4LInterface::on_button_press_event(GdkEventButton *event) {
 
         // Check if the event is a left(1) button click.
-        if ((event->type == GDK_BUTTON_PRESS)) {
-            //  std::cout<<"click"<<std::endl;
-
-            return true;
-        } else
-            return false;
+        return event->type == GDK_BUTTON_PRESS;
 
     }
 
     void V4LInterface::HScale_offsetR_value_changed() {
 
-        offsetR = HScale_offsetR.get_value();
+        offsetR = static_cast<int>(HScale_offsetR.get_value());
 
     }
 
     void V4LInterface::HScale_offsetL_value_changed() {
 
-        offsetL = HScale_offsetL.get_value();
+        offsetL = static_cast<int>(HScale_offsetL.get_value());
 
     }
 
@@ -112,7 +103,7 @@ namespace capture {
             }
 
             // = Actualize the displayed frame size ========================
-            struct v4l2_format format;
+            struct v4l2_format format{};
             vcap.get_format(&format, V4L2_BUF_TYPE_VIDEO_CAPTURE);
 
             sp_width.set_value(format.fmt.pix.width);
@@ -145,6 +136,9 @@ namespace capture {
             visionGUI.bt_save_picture.set_state(Gtk::STATE_NORMAL);
             visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
             visionGUI.en_picture_name.set_state(Gtk::STATE_NORMAL);
+            calib_offline.set_state(Gtk::STATE_NORMAL);
+            calib_online.set_state(Gtk::STATE_NORMAL);
+            btn_camCalib.set_state(Gtk::STATE_NORMAL);
             m_signal_start.emit(true);
 
         } else {
@@ -177,13 +171,9 @@ namespace capture {
             m_signal_start.emit(false);
 
         }
-
-        return;
-
     }
 
     void V4LInterface::__event_bt_warp_clicked() {
-        std::cout << "Warp drive engaged" << std::endl;
         if (!imageView.warp_event_flag) {
             imageView.warp_event_flag = true;
             bt_reset_warp.set_state(Gtk::STATE_NORMAL);
@@ -191,7 +181,6 @@ namespace capture {
             bt_quick_save.set_state(Gtk::STATE_NORMAL);
             bt_load.set_state(Gtk::STATE_NORMAL);
             bt_save.set_state(Gtk::STATE_NORMAL);
-            //bt_invert_image.set_state(Gtk::STATE_NORMAL);
         } else {
             imageView.warp_event_flag = false;
             bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
@@ -200,20 +189,12 @@ namespace capture {
             bt_load.set_state(Gtk::STATE_INSENSITIVE);
             bt_save.set_state(Gtk::STATE_INSENSITIVE);
             reset_warp_flag = true;
-            //bt_invert_image.set_state(Gtk::STATE_INSENSITIVE);
         }
     }
 
     void V4LInterface::__event_bt_adjust_pressed() {
 
-        if (!adjust_event_flag) {
-            adjust_event_flag = true;
-            std::cout << "ADJUST = TRUE" << std::endl;
-        } else {
-            adjust_event_flag = false;
-            std::cout << "ADJUST = FALSE" << std::endl;
-
-        }
+        adjust_event_flag = !adjust_event_flag;
     }
 
 
@@ -250,10 +231,10 @@ namespace capture {
 
         Glib::ustring dev = cb_device.get_active_text();
 
-        if (dev.size() < 1) return;
+        if (dev.empty()) return;
 
         if (vcap.open_device(dev.data(), true)) {
-            struct v4l2_capability cap;
+            struct v4l2_capability cap{};
             vcap.query_capability(&cap);
 
 			camera_card = std::string((const char *) cap.card);
@@ -382,15 +363,15 @@ namespace capture {
             if ((*iter).widget == wctrl) break;
         }
 
-        int value = static_cast<Gtk::HScale *>(wctrl)->get_value();
+        double value = dynamic_cast<Gtk::HScale *>(wctrl)->get_value();
         struct v4l2_queryctrl qctrl = (*iter).qctrl;
 
-        if (!vcap.set_control(qctrl.id, value)) {
+        if (!vcap.set_control(qctrl.id, static_cast<int>(value))) {
             std::cout << "Can not update control [" << qctrl.name << "] with value " << value << std::endl;
             return false;
         }
 
-        struct v4l2_control ctrl;
+        struct v4l2_control ctrl{};
         if (!vcap.get_control(&ctrl, qctrl.id)) return false;
 
         __update_control_widgets(ctrl_list_default);
@@ -419,7 +400,7 @@ namespace capture {
 
 
             case V4L2_CTRL_TYPE_BOOLEAN:
-                value = static_cast<Gtk::CheckButton *>(wctrl)->get_active();
+                value = dynamic_cast<Gtk::CheckButton *>(wctrl)->get_active();
                 if (!vcap.set_control(qctrl.id, value)) {
                     std::cout << "Can not update control [" << qctrl.name << "] with value " << value << std::endl;
                 }
@@ -437,9 +418,9 @@ namespace capture {
             case V4L2_CTRL_TYPE_MENU:
             case V4L2_CTRL_TYPE_INTEGER_MENU:
 
-                Gtk::TreeModel::Children::iterator iter = static_cast<Gtk::ComboBox *>(wctrl)->get_active();
-                Gtk::TreeModel::Row row = *iter;
-                struct v4l2_querymenu qmenu;
+                Gtk::TreeModel::Children::iterator treeIter = static_cast<Gtk::ComboBox *>(wctrl)->get_active();
+                Gtk::TreeModel::Row row = *treeIter;
+                struct v4l2_querymenu qmenu{};
                 qmenu = row[model_control_menu.m_col_data];
                 if (!vcap.set_control(qctrl.id, qmenu.index)) {
                     std::cout << "Can not update control [" << qctrl.name << "] with value " << qmenu.name << std::endl;
@@ -542,7 +523,12 @@ namespace capture {
         if (!start_game_flag) {
             start_game_flag = true;
             start_game_bt.set_image(red_button_pressed);
-
+			btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib.set_active(false);
+			btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+			btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
             robot_list[0].status = 0;
             robot_list[1].status = 0;
             robot_list[2].status = 0;
@@ -562,13 +548,14 @@ namespace capture {
             visionGUI.en_video_name.set_text(dateString);
             visionGUI.vision->startNewVideo(dateString);
         } else {
+            btn_camCalib.set_state(Gtk::STATE_NORMAL);
             visionGUI.vision->finishVideo();
             visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
             visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
             visionGUI.en_video_name.set_text("");
             start_game_flag = false;
             start_game_bt.set_image(red_button_released);
-            for (int i = 0; i < 3; i++) {
+            for (unsigned long i = 0; i < 3; i++) {
                 robot_list.at(i).cmdType = 0; // Position
                 robot_list.at(i).vmax = 0;
             }
@@ -608,16 +595,16 @@ namespace capture {
         for (int i = 0; i < 3; i++) {
             s[i] = cb_robot_function[i].get_active_text();
 
-            if (s[i].compare("Goalkeeper") == 0) {
+            if (s[i] == "Goalkeeper") {
                 std::cout << "Robot " << i + 1 << ": Goalkeeper." << std::endl;
                 robot_list[i].role = 0;
-            } else if (s[i].compare("Defense") == 0) {
+            } else if (s[i] == "Defense") {
                 std::cout << "Robot " << i + 1 << ": Defense." << std::endl;
                 robot_list[i].role = 1;
-            } else if (s[i].compare("Attack") == 0) {
+            } else if (s[i] == "Attack") {
                 std::cout << "Robot " << i + 1 << ": Attack." << std::endl;
                 robot_list[i].role = 2;
-            } else if (s[i].compare("Opponent") == 0) {
+            } else if (s[i] == "Opponent") {
                 std::cout << "Robot " << i + 1 << ": Opponent." << std::endl;
                 robot_list[i].role = 3;
             } else {
@@ -671,4 +658,97 @@ namespace capture {
 
         __update_control_widgets(ctrl_list_default);
     }
+
+    void V4LInterface::__event_camCalib_mode_clicked() {
+        if(calib_online.get_active()){
+            std::cout << "Online active" << std::endl;
+            fr_camCalib_offline.hide();
+            fr_camCalib_online.show();
+        }else{
+            std::cout << "Offline active" << std::endl;
+            fr_camCalib_online.hide();
+            fr_camCalib_offline.show();
+            btn_camCalib_offline_start.set_state(Gtk::STATE_NORMAL);
+        }
+    }
+
+    void V4LInterface::__event_camCalib_online_collect_clicked() {
+
+        if(!get_start_game_flag() && visionGUI.vision->foundChessBoardCorners()){
+            visionGUI.vision->saveCamCalibFrame();
+			btn_camCalib_pop.set_state(Gtk::STATE_NORMAL);
+			btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
+        }
+        std::string text = "Pop (" + std::to_string(visionGUI.vision->getCamCalibFrames().size()) + ")";
+        btn_camCalib_pop.set_label(text);
+
+        if(visionGUI.vision->getCamCalibFrames().size()>15)
+            btn_camCalib_start.set_state(Gtk::STATE_NORMAL);
+
+        visionGUI.vision->setFlagCamCalibrated(false);
+    }
+
+    void V4LInterface::__event_camCalib_online_pop_clicked() {
+        visionGUI.vision->popCamCalibFrames();
+        std::string text = "Pop (" + std::to_string(visionGUI.vision->getCamCalibFrames().size()) + ")";
+        btn_camCalib_pop.set_label(text);
+        if(visionGUI.vision->getCamCalibFrames().empty()){
+            btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        }else if(visionGUI.vision->getCamCalibFrames().size()<=15)
+            btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+
+    }
+
+    void V4LInterface::__event_camCalib_online_reset_clicked() {
+		visionGUI.vision->flag_cam_calibrated = false;
+        btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+		btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
+    }
+
+    void V4LInterface::__event_camCalib_online_start_clicked() {
+        btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+        visionGUI.vision->cameraCalibration();
+        if(visionGUI.vision->flag_cam_calibrated){
+            btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
+            btn_camCalib_pop.set_label("Pop(0)");
+        }
+
+    }
+
+	void V4LInterface::__event_camCalib_offline_start_clicked() {
+		std::cout << "Offline active" << std::endl;
+		visionGUI.vision->collectImagesForCalibration();
+	}
+
+    void V4LInterface::__event_camCalib_pressed() {
+
+        if(btn_camCalib.get_active()){
+            if(visionGUI.vision->flag_cam_calibrated){
+                btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+                btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+                btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
+                btn_camCalib_pop.set_label("Pop(0)");
+                CamCalib_flag_event = true;
+            }
+//            visionGUI.vision->flag_cam_calibrated = false;
+//            btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
+//            CamCalib_flag_event = true;
+        }else{
+            btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+            CamCalib_flag_event = false;
+        }
+
+    }
+
 }

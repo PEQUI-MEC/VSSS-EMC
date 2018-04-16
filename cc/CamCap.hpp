@@ -1,13 +1,11 @@
-/*
-* camcap.hpp
-*
-*  Created on: Feb 18, 2014
-*      Author: gustavo
-*/
-
 #ifndef CAMCAP_HPP_
 #define CAMCAP_HPP_
 #define PI 3.14159265453
+//dimensões dos quadrados do tabuleiro
+#define CALIBRATION_SQUARE_DIMENSION 0.02629f
+// número de intersecções do tabuleiro
+#define CHESSBOARD_DIMENSION cv::Size(6,9)
+
 
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
@@ -42,15 +40,9 @@ class CamCap : public Gtk::HBox {
 		int screenWidth, screenHeight;
 		bool isLowRes;
 
-		std::string fileName[6];
-		double robot_pos[6] = {0, 0, 0, 0, 0, 0};
-		double ball_pos = 0, ball_kf_pos = 0;
-		double robot_kf_pos[6] = {0, 0, 0, 0, 0, 0};
-		int positionCount = 0;
 		int width, height;
 		int Selec_index = -1;
 		int fps_average = 0;
-		int timerCounter = 0;
 		CPUTimer timer;
 
 		bool fixed_ball[3];
@@ -59,7 +51,6 @@ class CamCap : public Gtk::HBox {
 		unsigned char *data;
 
 		int frameCounter;
-		double ticks = 0;
 		vector<cv::Point2f> robot_kf_est;
 		vector<cv::Point2f> robot_kf_est_ini;
 		vector<KalmanFilter> KF_Robot;
@@ -81,7 +72,6 @@ class CamCap : public Gtk::HBox {
 		Gtk::VBox camera_vbox;
 		Gtk::Notebook notebook;
 
-		boost::thread_group threshold_threads;
 		sigc::connection con;
 
 		/* PARA TESTE */
@@ -89,23 +79,23 @@ class CamCap : public Gtk::HBox {
 		cv::Point deviation1;
 		cv::Point deviation2;
 
+		boost::thread msg_thread;
+		boost::condition_variable data_ready_cond;
+		boost::mutex data_ready_mutex;
+		bool data_ready_flag = false;
+
 		bool checkForLowRes();
 		void updateAllPositions();
 		void updateKalmanFilter();
 		bool start_signal(bool b);
 		bool capture_and_show();
-		void arrowedLine(cv::Mat img, cv::Point pt1, cv::Point pt2,
-						 const cv::Scalar &color, int thickness = 1,
-						 int line_type = 8, int shift = 0, double tipLength = 0.1);
-		void sendCmdToRobots(vector<Robot> &robot_list);
+		void send_cmd_thread(vector<Robot> &robots);
+		void notify_data_ready();
 		double distance(cv::Point a, cv::Point b);
-		double angular_distance(double alpha, double beta);
-		void updating_formation();
-		void update_formation_information();
 		void PID_test();
 		void warp_transform(cv::Mat imageView);
 		CamCap(int screenW, int screenH);
-		~CamCap();
+		~CamCap() override;
 };
 
 #endif /* CAMCAP_HPP_ */

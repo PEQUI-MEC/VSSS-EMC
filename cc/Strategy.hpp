@@ -6,23 +6,12 @@
 #include "opencv2/opencv.hpp"
 #include "LS.h"
 #include "../pack-capture-gui/capture-gui/Robot.hpp"
-#include <math.h>
+#include <cmath>
 #include "TestFrame.hpp"
 #include "Constants.hpp"
 
 #define PREDICAO_NUM_SAMPLES 15
-// Parametros para atacante sem bola
 
-#define ENTRADA_GOL_INVERSO    1
-
-//Parametros para atacante com bola
-#define AVOID_GOLEIRO_APOLO        0
-
-// Parametros do Defensor com bola no ataque
-#define DEF_RATIO            1.0f
-
-// Parametros do Defensor na defesa
-#define ZAGA_CENTRALIZADA            1
 //role
 #define GOALKEEPER 0
 #define DEFENDER 1
@@ -34,13 +23,11 @@
 #define SPEED 1
 #define ORIENTATION 2
 #define VECTOR 3
-#define VECTORRAW 4
 
 //state
 #define NORMAL_STATE 0
 #define CORNER_STATE 1
 #define    STEP_BACK 2
-#define    ADVANCING_STATE 3
 #define    TRANSITION_STATE 4
 #define    SIDEWAYS 5
 #define DEF_CORNER_STATE 6
@@ -54,25 +41,17 @@
 
 #define THETA_TOLERATION 3
 
-
 using namespace CONST;
 
 class Strategy {
 	public:
 		TestFrame testFrame;
 
-		// Robot Goalkeeper;
-		// Robot Attack;
-		// Robot Defense;
-		// Robot Opponent;
 		cv::Point Ball;
-		cv::Point FutureBall;
-		int distBall;
 		LS LS_ball_x;
 		LS LS_ball_y;
 		cv::Point Ball_Est;
 		cv::Point target = cv::Point(-1, -1);
-		cv::Point targetlock = cv::Point(-1, -1);
 
 		double pot_thetaX = 0;
 		double pot_thetaY = 0;
@@ -81,18 +60,14 @@ class Strategy {
 		double pot_goalMag;
 		double pot_magnitude[5];
 		double pot_angle[5];
-		float ball_angle = 0;
-		float ball_mag = 0;
+		double ball_angle = 0;
+		double ball_mag = 0;
 
 		vector<Robot> robots;
 		cv::Point *adv;
 		int collision_count[3];
 		double past_transangle[3];
 		cv::Point past_position[3];
-		cv::Point Goalkeeper;
-		cv::Point Defender;
-		cv::Point Attacker;
-		cv::Point Opponent;
 		int atk, def, gk, opp;
 		double lock_angle;
 
@@ -107,16 +82,12 @@ class Strategy {
 		bool half_transition_enabled = false;
 		bool full_transition_enabled = false;
 		bool transition_mindcontrol_enabled = true;
-		bool atk_ball_possession = false;
 
 		int t = 0;
 		int timeout = 0;
 		int transition_timeout = 0;
 		int transition_overmind_timeout = 0;
 		bool action1 = false;
-		bool action2 = false;
-		bool action3 = false;
-		bool kick = false;
 		bool transition_mindcontrol = false;
 		bool atk_mindcontrol = false;
 		bool def_mindcontrol = false;
@@ -397,13 +368,6 @@ simplificar apenas uma outra função.
 		*/
 		void smart_ball(int i, int max_distance);
 
-		/* test_run
-		Rotina --- Rotina para testes de comportamentos específicos.
-		Input: 			índice(int) do robô que receberá tais comportamentos
-		Output:			-----
-		*/
-		void test_run(int i);
-
 		/* atk_routine
 		Rotina --- Aciona comportamentos do atacante dependendo das circunstâncias.
 			Rotina utilizada na LARC 2017
@@ -442,7 +406,6 @@ simplificar apenas uma outra função.
 		Output:			Estimativa da bola(cv::Point)
 		*/
 		cv::Point get_Ball_Est();
-		void set_Ball_Est(cv::Point b);
 
 		/* set_Ball
 		Central --- Inicializa e adquire a estimativa da bola.

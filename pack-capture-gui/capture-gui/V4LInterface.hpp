@@ -22,6 +22,7 @@
 #include <ctime>
 #include <chrono>
 
+
 #define PI 3.14159265453
 
 namespace capture {
@@ -37,9 +38,9 @@ namespace capture {
     public:
 
         bool isLowRes;
-        bool isWaitingForRes;
 
         VisionGUI visionGUI;
+
 
         bool warped = false;
 
@@ -65,7 +66,6 @@ namespace capture {
         Gtk::HBox robots_pos_hbox[7];
         Gtk::HBox start_game_hbox;
         Gtk::VBox buttons_vbox;
-        std::vector<std::string> robot_pos;
         Gtk::Button start_game_bt;
 
         Gtk::Frame robots_pos_fm;
@@ -108,7 +108,7 @@ namespace capture {
 
         V4LInterface();
 
-        V4LInterface(bool isLow);
+            explicit V4LInterface(bool isLow);
 
         void initInterface();
 
@@ -123,11 +123,6 @@ namespace capture {
         Gtk::ToggleButton bt_adjust;
         Gtk::CheckButton bt_invert_image;
 
-        void grab_rgb(unsigned char *rgb) {
-            std::cout << "Grabbing\n";
-            vcap.grab_rgb(rgb);
-        }
-
 
         // Signals
         sigc::connection cb_input_signal;
@@ -135,6 +130,16 @@ namespace capture {
         sigc::connection cb_format_desc_signal;
         sigc::connection cb_frame_size_signal;
         sigc::connection cb_frame_interval_signal;
+
+        // Camera calibration frames
+        Gtk::Frame fr_camCalib_offline;
+        Gtk::Frame fr_camCalib_online;
+        Gtk::Button btn_camCalib_collect, btn_camCalib_reset, btn_camCalib_start, btn_camCalib_pop, btn_camCalib_offline_start;
+        Gtk::ToggleButton btn_camCalib;
+
+        bool CamCalib_flag_event;
+
+
 
         void __event_bt_quick_save_clicked();
 
@@ -167,6 +172,20 @@ namespace capture {
         void __event_cb_format_desc_changed();
 
         void __event_cb_frame_size_changed();
+
+        void __event_camCalib_mode_clicked();
+
+        void __event_camCalib_online_collect_clicked();
+
+        void __event_camCalib_online_pop_clicked();
+
+        void __event_camCalib_online_reset_clicked();
+
+        void __event_camCalib_online_start_clicked();
+
+			void __event_camCalib_offline_start_clicked();
+
+        void __event_camCalib_pressed();
 
         void __event_cb_frame_interval_changed();
 
@@ -216,7 +235,7 @@ namespace capture {
     protected:
         SignalStart m_signal_start;
 
-        bool on_button_press_event(GdkEventButton *event);
+        bool on_button_press_event(GdkEventButton *event) override;
 
     private:
         bool start_game_flag = false;
@@ -226,6 +245,13 @@ namespace capture {
         void __create_frm_device_info();
 
         void __create_frm_device_properties();
+
+        void __create_frm_cam_calib();
+
+        void __create_frm_CamCalibMode_Offline();
+
+        void __create_frm_CamCalibMode_Online();
+
 
         void createQuickActionsFrame();
 
@@ -266,13 +292,12 @@ namespace capture {
         Gtk::Label lb_device_card;
         Gtk::Label lb_device_driver;
         Gtk::Label lb_device_bus;
-        Gtk::Label right_offset_label;
-        Gtk::Label left_offset_label;
         //==================================================================
         Gtk::Frame frm_device_prop;
         Gtk::Frame frm_warp;
         Gtk::SpinButton sp_width;
         Gtk::SpinButton sp_height;
+        Gtk::Frame frm_cam_calib;
 
         //==================================================================
         Gtk::ComboBox cb_input;
@@ -287,6 +312,8 @@ namespace capture {
         Glib::RefPtr<Gtk::ListStore> ls_frame_size;
         Glib::RefPtr<Gtk::ListStore> ls_frame_interval;
         //----------------------------------
+        // Camera Calibration Mode
+        Gtk::RadioButton calib_offline, calib_online;
 
         template<class T>
         class ModelColumn : public Gtk::TreeModel::ColumnRecord {
@@ -318,12 +345,10 @@ namespace capture {
 
         //==================================================================
         Gtk::Notebook notebook;
-        Gtk::Notebook notebook2;
         //==================================================================
 
-
-
-        void __make_controls();
+            Gtk::ScrolledWindow scrolledWindow;
+            Gtk::VBox capture_vbox;
 
         void __make_control_list_default();
 
