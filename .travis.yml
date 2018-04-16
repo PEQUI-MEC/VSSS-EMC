@@ -11,7 +11,7 @@ addons:
       - docker-ce
       
 before_install:
- - docker login -u $DOCKER_ACC -p $DOCKER_PASS
+ - echo $DOCKER_PASS | docker login -u $DOCKER_ACC --password-stdin
  - docker pull pequi/vsss-emc:latest
 
 script:
