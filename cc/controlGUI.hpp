@@ -19,9 +19,7 @@
 #include <gtkmm.h>
 #include <string>
 #include "Messenger.h"
-#include "TestFrame.hpp"
 #include <unistd.h>
-#include <time.h>
 #include <fcntl.h>
 // system_clock::now
 #include <iostream>
@@ -35,16 +33,12 @@ public:
 
 	const static int TOTAL_ROBOTS = 6;
 
-	TestFrame testFrame;
-
 	// Flag para saber se o botão PID está pressionado ou não.
 	bool PID_test_flag = false;
 	// Containers para o conteúdo da interface gráfica
 	Gtk::Frame Serial_fm;
-	Gtk::Frame Test_fm;
 	Gtk::HBox Top_hbox;
 	Gtk::VBox Serial_vbox;
-	Gtk::VBox Test_vbox;
 	Gtk::HBox Serial_hbox[4];
 	Gtk::Label *label;
 	Gtk::Button bt_send_cmd;
@@ -80,24 +74,11 @@ public:
 		Gtk::Label dropped_frames[TOTAL_ROBOTS];
 		Gtk::Button bt_reset_ack;
 
-	Gtk::Frame pid_fm;
-	Gtk::VBox pid_vbox;
-	Gtk::HBox pid_hbox[2];
+
 	Gtk::Button pid_edit_bt;
-	Gtk::Button pid_send_bt;
-	Gtk::Entry pid_box[3];
-	Glib::ustring pid_tmp[4];
-	Gtk::ComboBoxText cb_pid_robot;
-	Gtk::ComboBoxText cb_pid_type;
-	bool pid_edit_flag = false;
 
 		ControlGUI();
 
-	bool get_PID_test_flag();
-
-	void set_PID_test_flag(bool input);
-
-	void configureTestFrame();
 
 	void _send_command();
 
@@ -119,11 +100,6 @@ public:
 
 	void _create_status_frame();
 
-	// Função para verificar se os valores digitados nos campos
-	// de PID são válidos: apenas números e um único ponto
-	bool checkPIDvalues();
-
-	int get_robot_pos(char id);
     char get_robot_id(int pos);
 		void update_dropped_frames();
 		void reset_lost_acks();

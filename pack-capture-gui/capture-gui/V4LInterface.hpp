@@ -38,7 +38,6 @@ namespace capture {
     public:
 
         bool isLowRes;
-        bool isWaitingForRes;
 
         VisionGUI visionGUI;
 
@@ -67,7 +66,6 @@ namespace capture {
         Gtk::HBox robots_pos_hbox[7];
         Gtk::HBox start_game_hbox;
         Gtk::VBox buttons_vbox;
-        std::vector<std::string> robot_pos;
         Gtk::Button start_game_bt;
 
         Gtk::Frame robots_pos_fm;
@@ -110,7 +108,7 @@ namespace capture {
 
         V4LInterface();
 
-        V4LInterface(bool isLow);
+            explicit V4LInterface(bool isLow);
 
         void initInterface();
 
@@ -124,11 +122,6 @@ namespace capture {
         Gtk::ToggleButton bt_warp;
         Gtk::ToggleButton bt_adjust;
         Gtk::CheckButton bt_invert_image;
-
-        void grab_rgb(unsigned char *rgb) {
-            std::cout << "Grabbing\n";
-            vcap.grab_rgb(rgb);
-        }
 
 
         // Signals
@@ -208,7 +201,6 @@ namespace capture {
 
         void createFunctionsFrame();
 
-
         void event_robots_function_done_bt_signal_clicked();
 
         void event_robots_function_edit_bt_signal_clicked();
@@ -243,7 +235,7 @@ namespace capture {
     protected:
         SignalStart m_signal_start;
 
-        bool on_button_press_event(GdkEventButton *event);
+        bool on_button_press_event(GdkEventButton *event) override;
 
     private:
         bool start_game_flag = false;
@@ -300,8 +292,6 @@ namespace capture {
         Gtk::Label lb_device_card;
         Gtk::Label lb_device_driver;
         Gtk::Label lb_device_bus;
-        Gtk::Label right_offset_label;
-        Gtk::Label left_offset_label;
         //==================================================================
         Gtk::Frame frm_device_prop;
         Gtk::Frame frm_warp;
@@ -355,14 +345,10 @@ namespace capture {
 
         //==================================================================
         Gtk::Notebook notebook;
-        Gtk::Notebook notebook2;
         //==================================================================
 
             Gtk::ScrolledWindow scrolledWindow;
             Gtk::VBox capture_vbox;
-
-
-        void __make_controls();
 
         void __make_control_list_default();
 
