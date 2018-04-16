@@ -20,6 +20,7 @@
 #include <linux/videodev2.h>
 
 #include <iostream>
+
 using namespace std;
 
 namespace capture {
@@ -28,7 +29,7 @@ namespace capture {
 			fd(0), emulate_format(true), needs_convert(false), v4lconv(NULL), status(0) {
 	}
 
-	int v4lcap::xioctl(int fd, int request, void * arg) {
+	int v4lcap::xioctl(int fd, int request, void *arg) {
 		int r;
 		if (emulate_format) r = v4l2_ioctl(fd, request, arg);
 		else r = ioctl(fd, request, arg);
@@ -38,6 +39,7 @@ namespace capture {
 	bool v4lcap::is_opened() {
 		return fd > 0;
 	}
+
 	bool v4lcap::enum_device_name(char device[16], int ndev_max, bool init) {
 		static int __dev_count = 0;
 		bool not_found = true;
@@ -51,7 +53,8 @@ namespace capture {
 		}
 		return !not_found;
 	}
-	bool v4lcap::open_device(const char * devname, bool emulate_fmt) {
+
+	bool v4lcap::open_device(const char *devname, bool emulate_fmt) {
 		fd = open(devname, O_RDWR);
 		this->emulate_format = emulate_fmt;
 		if (fd < 0) {
@@ -85,35 +88,34 @@ namespace capture {
 		return true;
 	}
 
-	bool v4lcap::query_buffer(struct v4l2_buffer * buf, enum v4l2_buf_type type, enum v4l2_memory memory, unsigned int index) {
+	bool v4lcap::query_buffer(struct v4l2_buffer *buf, enum v4l2_buf_type type, enum v4l2_memory memory,
+							  unsigned int index) {
 		buf->type = type;
 		buf->memory = memory;
 		buf->index = index;
 		return query_buffer(buf);
 	}
-	bool v4lcap::query_buffer(struct v4l2_buffer * buf, unsigned int type, unsigned int memory, unsigned int index) {
+
+	bool v4lcap::query_buffer(struct v4l2_buffer *buf, unsigned int type, unsigned int memory, unsigned int index) {
 		buf->type = type;
 		buf->memory = memory;
 		buf->index = index;
 		return query_buffer(buf);
 	}
-	bool v4lcap::query_buffer(struct v4l2_buffer * buffer) {
+
+	bool v4lcap::query_buffer(struct v4l2_buffer *buffer) {
 		int r = xioctl(fd, VIDIOC_QUERYBUF, buffer);
 		if (r >= 0) return true;
 		perror("VIDIOC_QUERYBUF");
 		return false;
 	}
-	bool v4lcap::enqueue_buff(struct v4l2_buffer * vbuf) {
+
+	bool v4lcap::enqueue_buff(struct v4l2_buffer *vbuf) {
 		return xioctl(fd, VIDIOC_QBUF, vbuf) >= 0;
 	}
-	bool v4lcap::enqueue_buff(struct v4l2_buffer * vbuf, enum v4l2_buf_type buf_type, enum v4l2_memory memory, int index) {
-		memset(vbuf, 0, sizeof(*vbuf));
-		vbuf->type = buf_type;
-		vbuf->memory = memory;
-		vbuf->index = index;
-		return enqueue_buff(vbuf);
-	}
-	bool v4lcap::enqueue_buff(struct v4l2_buffer * vbuf, unsigned int buf_type, unsigned int memory, int index) {
+
+	bool
+	v4lcap::enqueue_buff(struct v4l2_buffer *vbuf, enum v4l2_buf_type buf_type, enum v4l2_memory memory, int index) {
 		memset(vbuf, 0, sizeof(*vbuf));
 		vbuf->type = buf_type;
 		vbuf->memory = memory;
@@ -121,10 +123,19 @@ namespace capture {
 		return enqueue_buff(vbuf);
 	}
 
-	bool v4lcap::dequeue_buff(struct v4l2_buffer * vbuf) {
+	bool v4lcap::enqueue_buff(struct v4l2_buffer *vbuf, unsigned int buf_type, unsigned int memory, int index) {
+		memset(vbuf, 0, sizeof(*vbuf));
+		vbuf->type = buf_type;
+		vbuf->memory = memory;
+		vbuf->index = index;
+		return enqueue_buff(vbuf);
+	}
+
+	bool v4lcap::dequeue_buff(struct v4l2_buffer *vbuf) {
 		return xioctl(fd, VIDIOC_DQBUF, vbuf) >= 0;
 	}
-	bool v4lcap::dequeue_buff(struct v4l2_buffer * vbuf, unsigned int buf_type, unsigned int memory, bool * again) {
+
+	bool v4lcap::dequeue_buff(struct v4l2_buffer *vbuf, unsigned int buf_type, unsigned int memory, bool *again) {
 		memset(vbuf, 0, sizeof(struct v4l2_buffer));
 		vbuf->type = buf_type;
 		vbuf->memory = memory;
@@ -134,7 +145,9 @@ namespace capture {
 		*again = (r < 0) && (errno == EAGAIN);
 		return (r >= 0) || (*again);
 	}
-	bool v4lcap::dequeue_buff(struct v4l2_buffer * vbuf, enum v4l2_buf_type buf_type, enum v4l2_memory memory, bool * again) {
+
+	bool
+	v4lcap::dequeue_buff(struct v4l2_buffer *vbuf, enum v4l2_buf_type buf_type, enum v4l2_memory memory, bool *again) {
 		memset(vbuf, 0, sizeof(struct v4l2_buffer));
 		vbuf->type = buf_type;
 		vbuf->memory = memory;
@@ -171,7 +184,7 @@ namespace capture {
 		// = Memory map: mmap ======================================================
 		for (unsigned int i = 0; i < reqbuf.count; ++i) {
 
-			struct v4l2_buffer buffer = { 0 };
+			struct v4l2_buffer buffer = {0};
 
 			if (!query_buffer(&buffer, V4L2_BUF_TYPE_VIDEO_CAPTURE, V4L2_MEMORY_MMAP, i)) {
 				std::cout << "Can't request buffer " << i << std::endl;
@@ -182,19 +195,18 @@ namespace capture {
 			if (emulate_format) {
 
 				buffers.buffs[i].start = v4l2_mmap(NULL, //
-						buffer.length, //
-						PROT_READ | PROT_WRITE, /* recommended */
-						MAP_SHARED, /* recommended */
-						fd, //
-						buffer.m.offset);
-
+												   buffer.length, //
+												   PROT_READ | PROT_WRITE, /* recommended */
+												   MAP_SHARED, /* recommended */
+												   fd, //
+												   buffer.m.offset);
 			} else {
 				buffers.buffs[i].start = mmap(NULL, //
-						buffer.length, //
-						PROT_READ | PROT_WRITE, /* recommended */
-						MAP_SHARED, /* recommended */
-						fd, //
-						buffer.m.offset);
+											  buffer.length, //
+											  PROT_READ | PROT_WRITE, /* recommended */
+											  MAP_SHARED, /* recommended */
+											  fd, //
+											  buffer.m.offset);
 			}
 
 			if (MAP_FAILED == buffers.buffs[i].start) {
@@ -220,6 +232,7 @@ namespace capture {
 	bool v4lcap::streamon(enum v4l2_buf_type type) {
 		return xioctl(fd, VIDIOC_STREAMON, &type) >= 0;
 	}
+
 	bool v4lcap::streamon(int type) {
 		return streamon((enum v4l2_buf_type) type);
 	}
@@ -240,7 +253,7 @@ namespace capture {
 
 		// = Enqueue all buffers ===================================================
 		for (unsigned int i = 0; i < reqbuf.count; ++i) {
-			struct v4l2_buffer buffer = { 0 };
+			struct v4l2_buffer buffer = {0};
 			if (!enqueue_buff(&buffer, reqbuf.type, reqbuf.memory, i)) {
 				std::cout << "Can't enqueue buffer " << i << std::endl;
 			}
@@ -271,14 +284,13 @@ namespace capture {
 		}
 
 		return streamon(V4L2_BUF_TYPE_VIDEO_CAPTURE) >= 0;
-
 	}
 
 	bool v4lcap::start_capturing() {
 
 		// = Enqueue all buffers ===================================================
 		for (unsigned int i = 0; i < reqbuf.count; ++i) {
-			struct v4l2_buffer buffer = { 0 };
+			struct v4l2_buffer buffer = {0};
 			if (!enqueue_buff(&buffer, reqbuf.type, reqbuf.memory, i)) {
 				std::cout << "Can't enqueue buffer " << i << std::endl;
 			}
@@ -311,7 +323,7 @@ namespace capture {
 		return streamon(V4L2_BUF_TYPE_VIDEO_CAPTURE) >= 0;
 	}
 
-	void * v4lcap::grab_raw(unsigned char * raw) {
+	void *v4lcap::grab_raw(unsigned char *raw) {
 
 		struct v4l2_buffer vbuf;
 		memset(&vbuf, 0, sizeof(struct v4l2_buffer));
@@ -331,7 +343,7 @@ namespace capture {
 		} while (again);
 		// =========================================================================
 
-		unsigned char * data = (unsigned char *) buffers.buffs[vbuf.index].start;
+		unsigned char *data = (unsigned char *) buffers.buffs[vbuf.index].start;
 		for (unsigned int i = 0; i < vbuf.bytesused; ++i) {
 			*raw = *data;
 			++data;
@@ -346,7 +358,7 @@ namespace capture {
 		return data;
 	}
 
-	void * v4lcap::grab_rgb(unsigned char * rgb) {
+	void *v4lcap::grab_rgb(unsigned char *rgb) {
 
 		struct v4l2_buffer vbuf;
 		memset(&vbuf, 0, sizeof(struct v4l2_buffer));
@@ -366,11 +378,12 @@ namespace capture {
 		} while (again);
 		// =========================================================================
 
-		unsigned char * data = (unsigned char *) buffers.buffs[vbuf.index].start;
+		unsigned char *data = (unsigned char *) buffers.buffs[vbuf.index].start;
 
 		if (needs_convert) {
 			int err = 0;
-			err = v4lconvert_convert(v4lconv, &format_src, &format_dest, (unsigned char *) data, vbuf.bytesused, rgb, format_dest.fmt.pix.sizeimage);
+			err = v4lconvert_convert(v4lconv, &format_src, &format_dest, (unsigned char *) data, vbuf.bytesused, rgb,
+									 format_dest.fmt.pix.sizeimage);
 			if (err < 0) std::cout << "OOpsss \n";
 		}
 
@@ -391,9 +404,11 @@ namespace capture {
 	bool v4lcap::streamoff(enum v4l2_buf_type type) {
 		return xioctl(fd, VIDIOC_STREAMOFF, &type) >= 0;
 	}
+
 	bool v4lcap::streamoff(int type) {
 		return streamoff((enum v4l2_buf_type) type);
 	}
+
 	bool v4lcap::stop_capturing() {
 		return streamoff(V4L2_BUF_TYPE_VIDEO_CAPTURE);
 	}
@@ -439,31 +454,38 @@ namespace capture {
 		fd = 0;
 		return true;
 	}
+
 	/////////////////////////////////////
-	bool v4lcap::query_capability(struct v4l2_capability * cap) {
+	bool v4lcap::query_capability(struct v4l2_capability *cap) {
 		return xioctl(fd, VIDIOC_QUERYCAP, cap) >= 0;
 	}
-	bool v4lcap::get_format(struct v4l2_format * fmt) {
+
+	bool v4lcap::get_format(struct v4l2_format *fmt) {
 		fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		return xioctl(fd, VIDIOC_G_FMT, fmt) >= 0;
 	}
-	bool v4lcap::get_format(struct v4l2_format * fmt, unsigned int type) {
+
+	bool v4lcap::get_format(struct v4l2_format *fmt, unsigned int type) {
 		fmt->type = type;
 		return xioctl(fd, VIDIOC_G_FMT, fmt) >= 0;
 	}
-	bool v4lcap::get_input_index(unsigned int * input) {
+
+	bool v4lcap::get_input_index(unsigned int *input) {
 		return xioctl(fd, VIDIOC_G_INPUT, input) >= 0;
 	}
-	bool v4lcap::get_input(struct v4l2_input * input) {
+
+	bool v4lcap::get_input(struct v4l2_input *input) {
 		unsigned int index;
 		if (!get_input_index(&index)) return false;
 		input->index = index;
 		return xioctl(fd, VIDIOC_ENUMINPUT, input) >= 0;
 	}
-	bool v4lcap::get_standard_id(v4l2_std_id * std_id) {
+
+	bool v4lcap::get_standard_id(v4l2_std_id *std_id) {
 		return xioctl(fd, VIDIOC_G_STD, std_id) >= 0;
 	}
-	bool v4lcap::get_standard(struct v4l2_standard * standard) {
+
+	bool v4lcap::get_standard(struct v4l2_standard *standard) {
 
 		v4l2_std_id std_id;
 
@@ -476,42 +498,48 @@ namespace capture {
 		}
 		return false;
 	}
-	bool v4lcap::get_stream_parameter(struct v4l2_streamparm * streamparm, unsigned int type) {
+
+	bool v4lcap::get_stream_parameter(struct v4l2_streamparm *streamparm, unsigned int type) {
 		streamparm->type = type;
 		return xioctl(fd, VIDIOC_G_PARM, streamparm) >= 0;
 	}
-	bool v4lcap::get_control(struct v4l2_control * ctrl, unsigned int ctrl_id) {
+
+	bool v4lcap::get_control(struct v4l2_control *ctrl, unsigned int ctrl_id) {
 		ctrl->id = ctrl_id;
 		return xioctl(fd, VIDIOC_G_CTRL, ctrl) >= 0;
 	}
-	bool v4lcap::query_control(struct v4l2_queryctrl * qctrl) {
+
+	bool v4lcap::query_control(struct v4l2_queryctrl *qctrl) {
 		return xioctl(fd, VIDIOC_QUERYCTRL, qctrl) >= 0;
 	}
-	bool v4lcap::query_control_menu(struct v4l2_querymenu * qmenu) {
+
+	bool v4lcap::query_control_menu(struct v4l2_querymenu *qmenu) {
 		return xioctl(fd, VIDIOC_QUERYMENU, qmenu) >= 0;
 	}
 
-	bool v4lcap::request_buffers(struct v4l2_requestbuffers * req_buff) {
+	bool v4lcap::request_buffers(struct v4l2_requestbuffers *req_buff) {
 		int r = xioctl(fd, VIDIOC_REQBUFS, req_buff);
 		if (r >= 0) return true;
 		perror("VIDIOC_REQBUFS");
 		return false;
 	}
-	bool v4lcap::request_buffers(struct v4l2_requestbuffers * req_buff, int nbuffers, enum v4l2_memory memory, enum v4l2_buf_type type) {
+
+	bool v4lcap::request_buffers(struct v4l2_requestbuffers *req_buff, int nbuffers, enum v4l2_memory memory,
+								 enum v4l2_buf_type type) {
 		req_buff->reserved[0] = 0;
 		req_buff->reserved[1] = 0;
 		req_buff->count = nbuffers;
 		req_buff->memory = memory;
 		req_buff->type = type;
 		return request_buffers(req_buff);
-
 	}
-	bool v4lcap::request_buffers_mmap(struct v4l2_requestbuffers * req_buff, int nbuffers) {
+
+	bool v4lcap::request_buffers_mmap(struct v4l2_requestbuffers *req_buff, int nbuffers) {
 		return request_buffers(req_buff, nbuffers, V4L2_MEMORY_MMAP, V4L2_BUF_TYPE_VIDEO_CAPTURE);
 	}
 
 	////////////////////////////////
-	bool v4lcap::enum_audio_input(struct v4l2_audio * audio, int index, bool init) {
+	bool v4lcap::enum_audio_input(struct v4l2_audio *audio, int index, bool init) {
 		if (init) audio->index = index;
 		else ++audio->index;
 
@@ -520,7 +548,8 @@ namespace capture {
 
 		return xioctl(fd, VIDIOC_ENUMAUDIO, audio) >= 0;
 	}
-	bool v4lcap::enum_audio_output(struct v4l2_audioout * audiout, int index, bool init) {
+
+	bool v4lcap::enum_audio_output(struct v4l2_audioout *audiout, int index, bool init) {
 		if (init) audiout->index = index;
 		else ++audiout->index;
 
@@ -529,7 +558,8 @@ namespace capture {
 
 		return xioctl(fd, VIDIOC_ENUMAUDOUT, audiout) >= 0;
 	}
-	bool v4lcap::enum_image_format(int fd, struct v4l2_fmtdesc * fmtdesc) {
+
+	bool v4lcap::enum_image_format(int fd, struct v4l2_fmtdesc *fmtdesc) {
 		return xioctl(fd, VIDIOC_ENUM_FMT, fmtdesc) >= 0;
 //		int r = xioctl(fd, VIDIOC_ENUM_FMT, fmtdesc);
 //		if (r >= 0) return true;
@@ -537,7 +567,7 @@ namespace capture {
 //		return false;
 	}
 
-	bool v4lcap::enum_image_format(struct v4l2_fmtdesc * fmtdesc, int index, bool init) {
+	bool v4lcap::enum_image_format(struct v4l2_fmtdesc *fmtdesc, int index, bool init) {
 		if (init) {
 			memset(fmtdesc, 0, sizeof(struct v4l2_fmtdesc));
 			fmtdesc->index = index;
@@ -548,7 +578,7 @@ namespace capture {
 		//return xioctl(fd, VIDIOC_ENUM_FMT, fmtdesc) >= 0;
 	}
 
-	bool v4lcap::enum_frame_size(struct v4l2_frmsizeenum * frmsize, int pixel_format, int index, bool init) {
+	bool v4lcap::enum_frame_size(struct v4l2_frmsizeenum *frmsize, int pixel_format, int index, bool init) {
 
 		if (init) frmsize->index = index;
 		else ++frmsize->index;
@@ -556,7 +586,9 @@ namespace capture {
 		frmsize->pixel_format = pixel_format;
 		return xioctl(fd, VIDIOC_ENUM_FRAMESIZES, frmsize) >= 0;
 	}
-	bool v4lcap::enum_frame_interval(struct v4l2_frmivalenum * frmi, int pixel_format, int width, int height, int index, bool init) {
+
+	bool v4lcap::enum_frame_interval(struct v4l2_frmivalenum *frmi, int pixel_format, int width, int height, int index,
+									 bool init) {
 
 		if (init) frmi->index = 0;
 		else ++frmi->index;
@@ -566,30 +598,35 @@ namespace capture {
 		frmi->height = height;
 		return xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, frmi) >= 0;
 	}
-	bool v4lcap::enum_video_input(struct v4l2_input * input, int index, bool init) {
+
+	bool v4lcap::enum_video_input(struct v4l2_input *input, int index, bool init) {
 		if (init) input->index = index;
 		else ++input->index;
 
 		return xioctl(fd, VIDIOC_ENUMINPUT, input) >= 0;
 	}
-	bool v4lcap::enum_video_output(struct v4l2_output * output, int index, bool init) {
+
+	bool v4lcap::enum_video_output(struct v4l2_output *output, int index, bool init) {
 		if (init) output->index = index;
 		else ++output->index;
 
 		return xioctl(fd, VIDIOC_ENUMOUTPUT, output) >= 0;
 	}
-	bool v4lcap::enum_video_standard(struct v4l2_standard * std, int index, bool init) {
+
+	bool v4lcap::enum_video_standard(struct v4l2_standard *std, int index, bool init) {
 		if (init) std->index = index;
 		else ++std->index;
 
 		return xioctl(fd, VIDIOC_ENUMSTD, std) >= 0;
 	}
-	bool v4lcap::enum_control_default(struct v4l2_queryctrl * qctrl, bool init) {
+
+	bool v4lcap::enum_control_default(struct v4l2_queryctrl *qctrl, bool init) {
 		if (init) qctrl->id = V4L2_CTRL_FLAG_NEXT_CTRL;
 		else qctrl->id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 		return query_control(qctrl);
 	}
-	bool v4lcap::enum_control_user_base(struct v4l2_queryctrl * qctrl, bool init) {
+
+	bool v4lcap::enum_control_user_base(struct v4l2_queryctrl *qctrl, bool init) {
 		if (init) qctrl->id = V4L2_CID_BASE;
 		else {
 			++qctrl->id;
@@ -602,13 +639,15 @@ namespace capture {
 		}
 		return true;
 	}
-	bool v4lcap::enum_control_private_base(struct v4l2_queryctrl * qctrl, bool init) {
+
+	bool v4lcap::enum_control_private_base(struct v4l2_queryctrl *qctrl, bool init) {
 		if (init) qctrl->id = V4L2_CID_PRIVATE_BASE;
 		else ++qctrl->id;
 		if (!query_control(qctrl)) return false;
 		return true;
 	}
-	bool v4lcap::enum_control_menu(struct v4l2_querymenu * qmenu, struct v4l2_queryctrl & ctrl, int index, bool init) {
+
+	bool v4lcap::enum_control_menu(struct v4l2_querymenu *qmenu, struct v4l2_queryctrl &ctrl, int index, bool init) {
 
 		if (init) {
 			//memset(qmenu, 0, sizeof(struct v4l2_querymenu));
@@ -629,10 +668,12 @@ namespace capture {
 	bool v4lcap::set_input(int index) {
 		return xioctl(fd, VIDIOC_S_INPUT, &index) >= 0;
 	}
+
 	bool v4lcap::set_standard(v4l2_std_id std_id) {
 		return xioctl(fd, VIDIOC_S_STD, &std_id) >= 0;
 	}
-	bool v4lcap::set_format(struct v4l2_format * fmt) {
+
+	bool v4lcap::set_format(struct v4l2_format *fmt) {
 		return xioctl(fd, VIDIOC_S_FMT, fmt) >= 0;
 	}
 //	bool v4lcap::set_format(int pixel_format, int width, int height) {
@@ -695,7 +736,8 @@ namespace capture {
 		fmt.fmt.pix.height = height;
 		return xioctl(fd, VIDIOC_S_FMT, &fmt) >= 0;
 	}
-	bool v4lcap::set_frame_interval(struct v4l2_fract & fract) {
+
+	bool v4lcap::set_frame_interval(struct v4l2_fract &fract) {
 
 		v4l2_streamparm parm;
 
@@ -707,12 +749,14 @@ namespace capture {
 
 		return xioctl(fd, VIDIOC_S_PARM, &parm) >= 0;
 	}
+
 	bool v4lcap::set_control(int ctrl_id, int value) {
 		struct v4l2_control ctrl;
 		ctrl.id = ctrl_id;
 		ctrl.value = value;
 		return xioctl(fd, VIDIOC_S_CTRL, &ctrl) >= 0;
 	}
+
 	///////////////////////////////
 	bool v4lcap::show_controls() {
 
@@ -751,6 +795,5 @@ namespace capture {
 
 		return true;
 	}
-
 }
 

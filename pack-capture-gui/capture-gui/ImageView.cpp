@@ -2,117 +2,113 @@
 
 namespace capture {
 
-    bool ImageView::on_button_press_event(GdkEventButton *event){
+	bool ImageView::on_button_press_event(GdkEventButton *event) {
 
-        if (gmm_sample_flag && event->button == 1) {
+		if (gmm_sample_flag && event->button == 1) {
 
-        	gmm_clicks[gmm_counter][0] = static_cast<int>(event->x);
-        	gmm_clicks[gmm_counter][1] = static_cast<int>(event->y);
-        	if (gmm_counter == 1) {
-        		gmm_counter = 0;
-        		gmm_ready_flag = true;
-        	}
-        	else gmm_counter++;
-        }
-
-        if (split_flag) {
-          if (event->x <= width/2 && event->y <= height/2) sector = 0;
-          else if (event->x <= width/2 && event->y > height/2) sector = 2;
-          else if (event->x > width/2 && event->y <= height/2) sector = 1;
-          else if (event->x > width/2 && event->y > height/2) sector = 3;
-        }
-
-        if(warp_event_flag){
-        	if (event->button == 1) {
-        		warp_mat[warp_counter][0] = static_cast<int>(event->x);
-        		warp_mat[warp_counter][1] = static_cast<int>(event->y);
-        		warp_counter++;
-        		if(warp_counter==4){
-        			warp_event_flag = false;
-        			hold_warp = true;
-        			warp_counter=0;
-        		}
-        		return true;
-        	}
-        	return true;
-        }
-
-        if(adjust_event_flag){
-        	if (event->button == 1) {
-        		adj_counter++;
-        		std::cerr << adj_counter << std::endl;
-        		if(event->x < width/2){
-        			if(event->y < height/2){
-        				adjust_mat[0][0] = static_cast<int>(event->x);
-        				adjust_mat[0][1] = static_cast<int>(event->y);
-        			}else{
-        				adjust_mat[1][0] = static_cast<int>(event->x);
-        				adjust_mat[1][1] = static_cast<int>(event->y);
-        			}
-        		} else{
-        			if(event->y < height/2){
-        				adjust_mat[2][0] = static_cast<int>(event->x);
-        				adjust_mat[2][1] = static_cast<int>(event->y);
-        			}else{
-        				adjust_mat[3][0] = static_cast<int>(event->x);
-        				adjust_mat[3][1] = static_cast<int>(event->y);
-        			}
-        		}
-        		if(adj_counter==4){
-        			adjust_rdy = true;
-        			adjust_event_flag=false;
-        			adj_counter = 0;
-        		}
-        	}
-
-        } else if(PID_test_flag){
-        	robot_pos[0]=0;
-        	robot_pos[1]=0;
-
-        	if (event->button == 1) {
-        		robot_pos[0] = event->x;
-        		robot_pos[1] = event->y;
-        	}
-        	else if(event->button == 3) {
-        		tar_pos[0] = event->x;
-        		tar_pos[1] = event->y;
-        	}
+			gmm_clicks[gmm_counter][0] = static_cast<int>(event->x);
+			gmm_clicks[gmm_counter][1] = static_cast<int>(event->y);
+			if (gmm_counter == 1) {
+				gmm_counter = 0;
+				gmm_ready_flag = true;
+			} else gmm_counter++;
 		}
 
-    }
+		if (split_flag) {
+			if (event->x <= width / 2 && event->y <= height / 2) sector = 0;
+			else if (event->x <= width / 2 && event->y > height / 2) sector = 2;
+			else if (event->x > width / 2 && event->y <= height / 2) sector = 1;
+			else if (event->x > width / 2 && event->y > height / 2) sector = 3;
+		}
 
-    ImageView::ImageView() : data(0), width(0), height(0), stride(0) {
-    		robot_pos[1]=0;
-    		robot_pos[0]=0;
-    		tar_pos[1]=-1;
-    		tar_pos[0]=-1;
-    }
+		if (warp_event_flag) {
+			if (event->button == 1) {
+				warp_mat[warp_counter][0] = static_cast<int>(event->x);
+				warp_mat[warp_counter][1] = static_cast<int>(event->y);
+				warp_counter++;
+				if (warp_counter == 4) {
+					warp_event_flag = false;
+					hold_warp = true;
+					warp_counter = 0;
+				}
+				return true;
+			}
+			return true;
+		}
 
-    void ImageView::set_data(unsigned char * data, int width, int height) {
-    	this->data = data;
-    	this->width = width;
-    	this->height = height;
-    	this->stride = width * 3;
-    }
+		if (adjust_event_flag) {
+			if (event->button == 1) {
+				adj_counter++;
+				std::cerr << adj_counter << std::endl;
+				if (event->x < width / 2) {
+					if (event->y < height / 2) {
+						adjust_mat[0][0] = static_cast<int>(event->x);
+						adjust_mat[0][1] = static_cast<int>(event->y);
+					} else {
+						adjust_mat[1][0] = static_cast<int>(event->x);
+						adjust_mat[1][1] = static_cast<int>(event->y);
+					}
+				} else {
+					if (event->y < height / 2) {
+						adjust_mat[2][0] = static_cast<int>(event->x);
+						adjust_mat[2][1] = static_cast<int>(event->y);
+					} else {
+						adjust_mat[3][0] = static_cast<int>(event->x);
+						adjust_mat[3][1] = static_cast<int>(event->y);
+					}
+				}
+				if (adj_counter == 4) {
+					adjust_rdy = true;
+					adjust_event_flag = false;
+					adj_counter = 0;
+				}
+			}
+		} else if (PID_test_flag) {
+			robot_pos[0] = 0;
+			robot_pos[1] = 0;
 
-    void ImageView::disable_image_show() {
-    	data = 0;
-    	width = 0;
-    	height = 0;
-    	stride = 0;
-    }
+			if (event->button == 1) {
+				robot_pos[0] = event->x;
+				robot_pos[1] = event->y;
+			} else if (event->button == 3) {
+				tar_pos[0] = event->x;
+				tar_pos[1] = event->y;
+			}
+		}
+	}
 
-    void ImageView::refresh() {
-    	this->queue_draw();
-    }
+	ImageView::ImageView() : data(0), width(0), height(0), stride(0) {
+		robot_pos[1] = 0;
+		robot_pos[0] = 0;
+		tar_pos[1] = -1;
+		tar_pos[0] = -1;
+	}
 
-    bool ImageView::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
-    	add_events(Gdk::BUTTON_PRESS_MASK);
-    	if (!data) return false;
+	void ImageView::set_data(unsigned char *data, int width, int height) {
+		this->data = data;
+		this->width = width;
+		this->height = height;
+		this->stride = width * 3;
+	}
 
-    	pb = Gdk::Pixbuf::create_from_data(data, Gdk::COLORSPACE_RGB, false, 8, width, height, stride);
-    	Gdk::Cairo::set_source_pixbuf(cr, pb, 0, 0);
-    	cr->paint();
+	void ImageView::disable_image_show() {
+		data = 0;
+		width = 0;
+		height = 0;
+		stride = 0;
+	}
+
+	void ImageView::refresh() {
+		this->queue_draw();
+	}
+
+	bool ImageView::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
+		add_events(Gdk::BUTTON_PRESS_MASK);
+		if (!data) return false;
+
+		pb = Gdk::Pixbuf::create_from_data(data, Gdk::COLORSPACE_RGB, false, 8, width, height, stride);
+		Gdk::Cairo::set_source_pixbuf(cr, pb, 0, 0);
+		cr->paint();
 
 //    				cr->set_line_width(5.0);
 //    				cr->set_source_rgb(1, 0, 0);
@@ -135,6 +131,6 @@ namespace capture {
 //    				cr->move_to(10, 10);
 //    				layout->show_in_cairo_context(cr);
 
-    	return true;
-    }
+		return true;
+	}
 }

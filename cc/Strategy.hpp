@@ -97,7 +97,6 @@ class Strategy {
 		double de;
 		double ticks;
 
-
 /*
 Tipos de funções da estratégia:
 
@@ -420,13 +419,10 @@ simplificar apenas uma outra função.
 		 * */
 		cv::Point speed_vector(cv::Point P_ini, cv::Point P_final);
 
-
 		double hyperbolic_field(int i, cv::Point P, bool clockwise);
 		double move_to_goal_field(int i, cv::Point P);
-		double avoid_field(int i,cv::Point Obs,cv::Point Vrobo,cv::Point Vobs );
-		double composed_field(int i,cv::Point P);
-
-
+		double avoid_field(int i, cv::Point Obs, cv::Point Vrobo, cv::Point Vobs);
+		double composed_field(int i, cv::Point P);
 };
 
 #endif /* STRATEGY_HPP_ */

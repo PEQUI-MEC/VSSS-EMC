@@ -17,7 +17,7 @@
 
 class Messenger {
 	private:
-		Xbee* xbee = nullptr;
+		Xbee *xbee = nullptr;
 
 		double time_between_msgs;
 		int frameskip, send_cmd_count;
@@ -32,21 +32,22 @@ class Messenger {
 
 	public:
 		Messenger();
-		void send_cmds(const std::vector<Robot>& robots);
+		void send_cmds(const std::vector<Robot> &robots);
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);
 		double get_battery(char id);
 		void set_ack_enabled(bool enable);
 		ack_count get_ack_count(char id);
 		void reset_lost_acks();
-		void start_xbee(const std::string& port, int baud = 115200);
+		void start_xbee(const std::string &port, int baud = 115200);
 		void stop_xbee();
 		void update_msg_time();
 
-		void set_frameskipper(int frames) {frameskip = frames;}
-		int get_frameskipper() {return frameskip;}
-		double get_time() {return time_between_msgs;}
-};
+		void set_frameskipper(int frames) { frameskip = frames; }
 
+		int get_frameskipper() { return frameskip; }
+
+		double get_time() { return time_between_msgs; }
+};
 
 #endif //VSSS_MESSENGER_H

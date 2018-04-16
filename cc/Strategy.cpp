@@ -55,7 +55,7 @@ double Strategy::distance_meters(cv::Point A, cv::Point B) {
 }
 
 double Strategy::angle_atan2(cv::Point A, cv::Point B) {
-	return atan2(double(A.y - B.y),-double(A.x - B.x));
+	return atan2(double(A.y - B.y), -double(A.x - B.x));
 }
 
 void Strategy::get_variables() {
@@ -187,7 +187,8 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 						robots[i].vmax = robots[i].vdefault;
 						def = i;
 						break;
-					default:break;
+					default:
+						break;
 				}
 			}
 		}
@@ -214,7 +215,8 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 						robots[i].vmax = robots[i].vdefault;
 						def = i;
 						break;
-					default:break;
+					default:
+						break;
 				}
 			}
 		}
@@ -230,7 +232,6 @@ void Strategy::overmind() {
 	double m2 = double(robots[atk].position.y - Ball.y) / double(robots[atk].position.x - Ball.x);
 
 	double phi = atan((m2 - m1) / (1 + m2 * m1));
-
 
 	if (robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
@@ -283,16 +284,14 @@ void Strategy::overmind() {
 
 	// Goalkeeper overmind-------------------
 	if (!full_transition_enabled && robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE / 2 &&
-			 robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE / 2 &&
-			 robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE / 2) {
+		robots[atk].position.y < COORD_BOX_DWN_Y + ABS_ROBOT_SIZE / 2 &&
+		robots[atk].position.y > COORD_BOX_UP_Y - ABS_ROBOT_SIZE / 2) {
 
-				robots[gk].fixedPos = true;
-				robots[gk].target = cv::Point(static_cast<int>(COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 1.5), COORD_GOAL_MID_Y);
-				position_to_vector(gk);
-				fixed_position_check(gk);
-			}
-
-
+		robots[gk].fixedPos = true;
+		robots[gk].target = cv::Point(static_cast<int>(COORD_BOX_DEF_X + ABS_ROBOT_SIZE * 1.5), COORD_GOAL_MID_Y);
+		position_to_vector(gk);
+		fixed_position_check(gk);
+	}
 }
 
 void Strategy::Transitions() {
@@ -328,7 +327,7 @@ void Strategy::Transitions() {
 		// se a bola tá atrás do atacante e está atrás do defensor, goleiro tora o pau
 	else if (danger_zone_2) {
 		if (Ball.x < COORD_MID_FIELD_X / 2 && !offensive_adv() && Ball.x >
-																		 robots[def].position.x) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
+																  robots[def].position.x) { // senão se a bola está atrás do def e atk e não tem adv com a bola, full transition
 			full_transition = true;
 		}
 	}
@@ -340,7 +339,6 @@ void Strategy::Transitions() {
 		half_transition = true;
 	}
 }
-
 
 void Strategy::set_flags() {
 	danger_zone_1 = false;
@@ -456,15 +454,15 @@ void Strategy::position_to_vector(int i) {
 	robots[i].transAngle = angle_atan2(robots[i].position, robots[i].target);
 }
 
-void Strategy::go_to_x(int i, double x){
+void Strategy::go_to_x(int i, double x) {
 	robots[i].target.x = static_cast<int>(x);
 }
 
-void Strategy::go_to_y(int i, double y){
+void Strategy::go_to_y(int i, double y) {
 	robots[i].target.y = static_cast<int>(y);
 }
 
-void Strategy::go_to(int i, cv::Point point){
+void Strategy::go_to(int i, cv::Point point) {
 	robots[i].target = point;
 }
 
@@ -556,7 +554,6 @@ double Strategy::potField(int robot_index, cv::Point goal, int behavior = BALL_N
 					ball_mag = 0;
 				else if (pot_rotation_decision(robot_index, goal, Ball) > 0) {
 					ball_angle = atan2(sin(ball_angle + PI / 2), cos(ball_angle + PI / 2));
-
 				} else {
 					ball_angle = atan2(sin(ball_angle + 3 * PI / 2), cos(ball_angle + 3 * PI / 2));
 				}
@@ -585,7 +582,6 @@ double Strategy::potField(int robot_index, cv::Point goal, int behavior = BALL_N
 					ball_mag = 0;
 				else if (pot_rotation_decision(robot_index, goal, Ball) > 0) {
 					ball_angle = atan2(sin(ball_angle + PI / 2), cos(ball_angle + PI / 2));
-
 				} else {
 					ball_angle = atan2(sin(ball_angle + 3 * PI / 2), cos(ball_angle + 3 * PI / 2));
 				}
@@ -605,7 +601,8 @@ double Strategy::potField(int robot_index, cv::Point goal, int behavior = BALL_N
 
 		case BALL_NOT_OBS:
 			break;
-		default:break;
+		default:
+			break;
 	}
 
 	for (int i = 0; i < 5; i++) {
@@ -839,7 +836,8 @@ void Strategy::crop_targets(int i) {
 void Strategy::smart_ball(int i, int max_distance) {
 	cv::Point v = cv::Point(Ball.x - Ball_Est.x, Ball.y - Ball_Est.y); //vetor a estimativa à bola
 	double vector_module = sqrt(pow(v.x, 2) + pow(v.y, 2)); //módulo do vetor
-	double approach = distance(Ball, Ball_Est) * (distance(Ball, robots[atk].position) / (max_distance)); // porcentagem que a distancia do roboà bola representa da máxima
+	double approach = distance(Ball, Ball_Est) * (distance(Ball, robots[atk].position) /
+												  (max_distance)); // porcentagem que a distancia do roboà bola representa da máxima
 	robots[i].target.x = static_cast<int>(Ball.x - (v.x / vector_module) * approach);
 	robots[i].target.y = static_cast<int>(Ball.y - (v.y / vector_module) * approach);
 }
@@ -899,7 +897,9 @@ void Strategy::atk_routine(int i) {
 						if (Ball.x > robots[i].position.x &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
 							spin_clockwise(i); // giro que leva a bola ao gol
-						else go_to(i, Ball); // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
+						else
+							go_to(i,
+								  Ball); // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
@@ -911,7 +911,9 @@ void Strategy::atk_routine(int i) {
 						if (Ball.x > robots[i].position.x &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
 							spin_anti_clockwise(i);
-						else go_to(i, Ball); // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
+						else
+							go_to(i,
+								  Ball); // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
@@ -951,7 +953,8 @@ void Strategy::atk_routine(int i) {
 			}
 			crop_targets(i);
 			break;
-		default:break;
+		default:
+			break;
 	}
 }
 
@@ -1085,7 +1088,8 @@ void Strategy::gk_routine(int i) {
 			}
 
 			break;
-		default:break;
+		default:
+			break;
 	}
 }
 
@@ -1107,7 +1111,8 @@ void Strategy::opp_gk_routine(int i) {
 			// 	full_transition = true;
 			// }
 			// break;
-		default:break;
+		default:
+			break;
 	}
 }
 

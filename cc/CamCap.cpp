@@ -115,13 +115,11 @@ bool CamCap::capture_and_show() {
 	}
 	frameCounter++;
 
-
 	interface.vcap.grab_rgb(data);
 	interface.imageView.set_data(data, width, height);
 	interface.imageView.refresh();
 
 	cv::Mat imageView(height, width, CV_8UC3, data);
-
 
 	if (interface.imageView.hold_warp) {
 		interface.warped = true;
@@ -146,12 +144,12 @@ bool CamCap::capture_and_show() {
 		interface.imageView.sector = -1;
 	}
 
-    if(interface.visionGUI.vision->flag_cam_calibrated){
-        cv::Mat temp;
-        imageView.copyTo(temp);
-        cv::undistort(temp,imageView, interface.visionGUI.vision->getcameraMatrix(), interface.visionGUI.vision->getdistanceCoeficents());
-
-    }
+	if (interface.visionGUI.vision->flag_cam_calibrated) {
+		cv::Mat temp;
+		imageView.copyTo(temp);
+		cv::undistort(temp, imageView, interface.visionGUI.vision->getcameraMatrix(),
+					  interface.visionGUI.vision->getdistanceCoeficents());
+	}
 
 	if (interface.warped) {
 		interface.bt_warp.set_active(false);
@@ -164,12 +162,12 @@ bool CamCap::capture_and_show() {
 		}
 	}
 
-    if(interface.CamCalib_flag_event && !interface.get_start_game_flag() && !interface.visionGUI.vision->flag_cam_calibrated){
+	if (interface.CamCalib_flag_event && !interface.get_start_game_flag() &&
+		!interface.visionGUI.vision->flag_cam_calibrated) {
 
-		chessBoardFound = cv::findChessboardCorners(imageView,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
-    }
-
-
+		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
+													CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+	}
 
 	if (interface.imageView.gmm_ready_flag) {
 		interface.visionGUI.gmm->setFrame(imageView);
@@ -179,7 +177,6 @@ bool CamCap::capture_and_show() {
 	}
 
 	updateKalmanFilter();
-
 
 	if (!interface.visionGUI.getIsHSV()) { // GMM
 		if (interface.visionGUI.gmm->getIsTrained()) {
@@ -221,13 +218,12 @@ bool CamCap::capture_and_show() {
 	}
 
 	if (!interface.visionGUI.HSV_calib_event_flag) {
-		if (chessBoardFound)
-		{
+		if (chessBoardFound) {
 
 			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
 			cv::Mat grayFrame;
 			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
-			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11,11), cv::Size(-1,-1), termCriteria);
+			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 		}
 
@@ -257,7 +253,6 @@ bool CamCap::capture_and_show() {
 					// círculo verde nos desvios
 					circle(imageView, deviation1, 7, cv::Scalar(0, 255, 0), 2);
 					circle(imageView, deviation2, 7, cv::Scalar(0, 255, 0), 2);
-
 				}
 				if (Selec_index != -1) {
 					circle(imageView, interface.robot_list[Selec_index].position, 17, cv::Scalar(255, 255, 255), 2);
@@ -356,7 +351,6 @@ bool CamCap::capture_and_show() {
 		frameCounter = 0;
 	}
 
-
 	interface.robot_list[0].position = robot_kf_est[0];
 	interface.robot_list[1].position = robot_kf_est[1];
 	interface.robot_list[2].position = robot_kf_est[2];
@@ -370,9 +364,9 @@ bool CamCap::capture_and_show() {
 
 void CamCap::send_cmd_thread(vector<Robot> &robots) {
 	boost::unique_lock<boost::mutex> lock(data_ready_mutex);
-	while(true) {
+	while (true) {
 		try {
-			data_ready_cond.wait(lock, [this](){return data_ready_flag;});
+			data_ready_cond.wait(lock, [this]() { return data_ready_flag; });
 		} catch (...) {
 			lock.unlock();
 			return;
@@ -382,7 +376,7 @@ void CamCap::send_cmd_thread(vector<Robot> &robots) {
 	}
 }
 
-void CamCap::notify_data_ready(){
+void CamCap::notify_data_ready() {
 	data_ready_flag = true;
 	data_ready_cond.notify_all();
 }
@@ -420,7 +414,6 @@ void CamCap::PID_test() {
 			interface.robot_list[Selec_index].target = cv::Point(static_cast<int>(interface.imageView.tar_pos[0]),
 																 static_cast<int>(interface.imageView.tar_pos[1]));
 	}
-
 
 	for (int i = 0; i < interface.robot_list.size() && i < 3; i++) {
 		if (fixed_ball[i])
@@ -506,8 +499,9 @@ void CamCap::warp_transform(cv::Mat imageView) {
 } // warp_transform
 
 CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
-								   screenWidth(screenW), screenHeight(screenH),
-										   msg_thread(&CamCap::send_cmd_thread, this, boost::ref(interface.robot_list)){
+										   screenWidth(screenW), screenHeight(screenH),
+										   msg_thread(&CamCap::send_cmd_thread, this,
+													  boost::ref(interface.robot_list)) {
 
 	isLowRes = checkForLowRes();
 
@@ -515,7 +509,6 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 		interface.~V4LInterface();
 		new(&interface) capture::V4LInterface(isLowRes);
 	}
-
 
 	fixed_ball[0] = false;
 	fixed_ball[1] = false;
@@ -565,7 +558,7 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
 }
 
-CamCap::~CamCap(){
+CamCap::~CamCap() {
 	con.disconnect();
 	interface.imageView.disable_image_show();
 	free(data);
@@ -573,5 +566,5 @@ CamCap::~CamCap(){
 	data = nullptr;
 
 	msg_thread.interrupt();
-	if(msg_thread.joinable()) msg_thread.join();
+	if (msg_thread.joinable()) msg_thread.join();
 }
