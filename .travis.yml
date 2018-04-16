@@ -1,0 +1,21 @@
+language: cpp 
+ 
+sudo: required
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+      
+before_install:
+ - echo $DOCKER_PASS | docker login -u $DOCKER_ACC --password-stdin
+ - docker pull pequi/vsss-emc:latest
+
+script:
+  - docker build -t pequi/vsss-emc:latest --cache-from="pequi/vsss-emc:latest" .
+
+after_success:
+  - docker push pequi/vsss-emc:latest
