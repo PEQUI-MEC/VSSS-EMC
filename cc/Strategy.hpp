@@ -450,18 +450,18 @@ simplificar apenas uma outra função.
 		Output:			-----
 		*/
 		void set_Ball(cv::Point b);
-		/* vetor_velocidade
+		/* speed vector (vetor_velocidade)
 		Calcula a velocidade de um ponto
 		Input: 		Ponto anterior e ponto atual
 		Output: 	vetor velocidade (cv::Point)
 		 * */
-		cv::Point Strategy::vetor_velocidade(cv::Point P_ini, cv::Point P_final);
+		cv::Point speed_vector(cv::Point P_ini, cv::Point P_final);
 
 
-		double Strategy::hyperbolic_field(int i, cv::Point P, bool clockwise);
-		double Strategy::move_to_goal_field(int i, cv::Point P);
-		double Strategy::avoid_field(int i,cv::Point Obs,cv::Point Vrobo,cv::Point Vobs );
-		double Strategy::composed_field(int i,cv::Point P);
+		double hyperbolic_field(int i, cv::Point P, bool clockwise);
+		double move_to_goal_field(int i, cv::Point P);
+		double avoid_field(int i,cv::Point Obs,cv::Point Vrobo,cv::Point Vobs );
+		double composed_field(int i,cv::Point P);
 
 
 };

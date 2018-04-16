@@ -29,23 +29,23 @@ void CamCap::updateKalmanFilter() {
 	if (KF_FIRST) {
 		//KALMAN FILTER INIT
 		for (int i = 0; i < 3; i++) {
-			KF_RobotBall[i].KF_init(interface.visionGUI.vision->getRobotPos(i));
+			KF_Robot[i].KF_init(interface.visionGUI.vision->getRobotPos(i));
 		}
-		KF_RobotBall[3].KF_init(interface.visionGUI.vision->getBall());
+		KF_Robot[3].KF_init(interface.visionGUI.vision->getBall());
 		for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-			KF_RobotBall[i + 4].KF_init(interface.visionGUI.vision->getBall());
+			KF_Robot[i + 4].KF_init(interface.visionGUI.vision->getBall());
 		}
 		KF_FIRST = false;
 	}
 	robot_kf_est_ini = robot_kf_est;
 	Ball_kf_est_ini = Ball_kf_est;
-	robot_kf_est[0] = KF_RobotBall[0].KF_Prediction(interface.visionGUI.vision->getRobotPos(0));
-	robot_kf_est[1] = KF_RobotBall[1].KF_Prediction(interface.visionGUI.vision->getRobotPos(1));
-	robot_kf_est[2] = KF_RobotBall[2].KF_Prediction(interface.visionGUI.vision->getRobotPos(2));
-	Ball_kf_est = KF_RobotBall[3].KF_Prediction(interface.visionGUI.vision->getBall());
+	robot_kf_est[0] = KF_Robot[0].KF_Prediction(interface.visionGUI.vision->getRobotPos(0));
+	robot_kf_est[1] = KF_Robot[1].KF_Prediction(interface.visionGUI.vision->getRobotPos(1));
+	robot_kf_est[2] = KF_Robot[2].KF_Prediction(interface.visionGUI.vision->getRobotPos(2));
+	Ball_kf_est = KF_Robot[3].KF_Prediction(interface.visionGUI.vision->getBall());
 
 	for (int i = 4; i < 4 + interface.visionGUI.vision->getAdvListSize(); i++) {
-		robot_kf_est[i - 1] = KF_RobotBall[i].KF_Prediction(interface.visionGUI.vision->getRobotPos(2));
+		robot_kf_est[i - 1] = KF_Robot[i].KF_Prediction(interface.visionGUI.vision->getRobotPos(2));
 	}
 } // updateKalmanFilter
 
@@ -603,12 +603,12 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 	}
 
 	KalmanFilter kf;
-	KF_RobotBall.push_back(kf); // Robot 1
-	KF_RobotBall.push_back(kf); // Robot 2
-	KF_RobotBall.push_back(kf); // Robot 3
-	KF_RobotBall.push_back(kf); // Ball
+	KF_Robot.push_back(kf); // Robot 1
+	KF_Robot.push_back(kf); // Robot 2
+	KF_Robot.push_back(kf); // Robot 3
+	KF_Robot.push_back(kf); // Ball
 	for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-		KF_RobotBall.push_back(kf); // Adv
+		KF_Robot.push_back(kf); // Adv
 	}
 
 	for (int i = 0; i < 3; i++) {
