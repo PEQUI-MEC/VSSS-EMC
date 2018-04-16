@@ -20,6 +20,7 @@ class jsonSaveManager {
 		void save_camera();
 		void load_camera();
 		void config_matrix(json& mat_config, int (&mat)[4][2], bool save);
+		void config_dynamic_matrix(json& mat_config, cv::Mat& mat, bool save);
 		int read_configs_from_file(std::string file_path = "quicksave.json");
 		void write_configs_to_file(std::string file_path = "quicksave.json");
 		void load(std::string file_path = "quicksave.json");
