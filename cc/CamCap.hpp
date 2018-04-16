@@ -50,9 +50,9 @@ class CamCap : public Gtk::HBox {
 		unsigned char *data;
 
 		int frameCounter;
-		vector<cv::Point2f> robot_kf_est;
-		vector<cv::Point2f> robot_kf_est_ini;
-		vector<KalmanFilter> KF_Robot;
+		std::vector<cv::Point2f> robot_kf_est;
+		std::vector<cv::Point2f> robot_kf_est_ini;
+		std::vector<KalmanFilter> KF_Robot;
 
 		cv::Point2f Ball_Est;
 		cv::Point2f Ball_kf_est;
@@ -88,7 +88,7 @@ class CamCap : public Gtk::HBox {
 		void updateKalmanFilter();
 		bool start_signal(bool b);
 		bool capture_and_show();
-		void send_cmd_thread(vector<Robot> &robots);
+		void send_cmd_thread(std::vector<Robot> &robots);
 		void notify_data_ready();
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();

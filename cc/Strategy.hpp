@@ -63,7 +63,7 @@ class Strategy {
 		double ball_angle = 0;
 		double ball_mag = 0;
 
-		vector<Robot> robots;
+		std::vector<Robot> robots;
 		cv::Point *adv;
 		int collision_count[3];
 		double past_transangle[3];
@@ -175,7 +175,7 @@ simplificar apenas uma outra função.
 		Input: 			-----
 		Output:			-----
 		*/
-		void get_targets(vector<Robot> *pRobots, cv::Point *advRobots);
+		void get_targets(std::vector<Robot> *pRobots, cv::Point *advRobots);
 
 		/* overmind
 		Central --- Sobrescreve rotinas baseando-se no escopo total do jogo. Esta

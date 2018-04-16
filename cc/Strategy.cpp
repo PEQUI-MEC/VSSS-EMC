@@ -1,5 +1,9 @@
 #include "Strategy.hpp"
 
+using std::vector;
+using std::cout;
+using std::endl;
+
 Strategy::Strategy() {
 	LS_ball_x.init(PREDICAO_NUM_SAMPLES, 1);
 	LS_ball_y.init(PREDICAO_NUM_SAMPLES, 1);

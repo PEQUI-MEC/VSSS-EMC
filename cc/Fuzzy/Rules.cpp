@@ -1,6 +1,12 @@
 #include "Rules.hpp"
 #include <iostream>
 
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+using std::stringstream;
+
 Rules::Rules(std::string file_name) {
 	generate_baseRuleMatrix(file_name);
 }
@@ -12,7 +18,7 @@ void Rules::generate_baseRuleMatrix(std::string file_name) {
 	cout << "Importing Base Rule" << endl;
 
 	//Read from file_name
-	ifstream in(file_name);
+	std::ifstream in(file_name);
 	if (!in) {
 		printf("Erro na abertura do arquivo");
 		getchar();

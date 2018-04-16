@@ -1,5 +1,9 @@
 #include "CamCap.hpp"
 
+using std::cout;
+using std::endl;
+using std::vector;
+
 bool CamCap::checkForLowRes() {
 	return screenWidth < 1600;
 }

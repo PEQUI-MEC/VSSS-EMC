@@ -89,7 +89,7 @@ void jsonSaveManager::save_camera() {
 	camera_config["offsetR"] = interface->offsetR;
 
 	json &properties_config = camera_config["Camera Properties"];
-	for (capture::ControlHolder ctrl : interface->ctrl_list_default) {
+	for (ControlHolder ctrl : interface->ctrl_list_default) {
 		v4l2_control control{};
 		interface->vcap.get_control(&control, ctrl.qctrl.id);
 		string name = string((char *) ctrl.qctrl.name);
@@ -164,7 +164,7 @@ void jsonSaveManager::load_camera() {
 
 	if (exists(camera_config, "Camera Properties")) {
 		json &properties_config = camera_config["Camera Properties"];
-		for (capture::ControlHolder &ctrl : interface->ctrl_list_default) {
+		for (ControlHolder &ctrl : interface->ctrl_list_default) {
 			string name = string((char *) ctrl.qctrl.name);
 			if (exists(properties_config, name)) {
 				int value = properties_config[name];

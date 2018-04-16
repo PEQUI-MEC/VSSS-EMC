@@ -1,6 +1,14 @@
 #include "FuzzyController.hpp"
 #include <stdint.h>
 
+using std::string;
+using std::ifstream;
+using std::vector;
+using std::stringstream;
+using std::cout;
+using std::endl;
+using std::shared_ptr;
+
 FuzzyController::FuzzyController(void) {
 }
 
