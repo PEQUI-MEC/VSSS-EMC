@@ -527,6 +527,23 @@ void Vision::saveCamCalibFrame() {
     std::cout << "Saving picture "<< std::endl;
 }
 
+void Vision::collectImagesForCalibration(){
+	std::cout << "Collecting pictures "<< std::endl;
+	cv::String path("media/pictures/camCalib/*.png"); //select only png
+	std::vector<cv::String> fn;
+	std::vector<cv::Mat> data;
+	cv::glob(path,fn,true); // recurse
+	for (size_t k=0; k<fn.size(); ++k)
+	{
+		cv::Mat im = cv::imread(fn[k]);
+		if (im.empty()) continue; //only proceed if sucsessful
+		// you probably want to do some preprocessing
+		savedCamCalibFrames.push_back(im);
+	}
+	std::cout << "Pictures collected: "<< savedCamCalibFrames.size() <<std::endl;
+	cameraCalibration();
+}
+
 void Vision::cameraCalibration() {
 
     std::vector<std::vector<cv::Point2f>> checkerBoardImageSpacePoints;
@@ -540,15 +557,19 @@ void Vision::cameraCalibration() {
     std::vector<cv::Mat> rVectors, tVectors;
     distanceCoeficents = cv::Mat::zeros(8, 1, CV_64F);
 
-    cv::calibrateCamera(worldSpaceCornersPoints, checkerBoardImageSpacePoints, CHESSBOARD_DIMENSION, cameraMatrix, distanceCoeficents, rVectors, tVectors);
+	//root mean square (RMS) reprojection error and should be between 0.1 and 1.0 pixels in a good calibration.
+    double rms = cv::calibrateCamera(worldSpaceCornersPoints, checkerBoardImageSpacePoints, CHESSBOARD_DIMENSION, cameraMatrix, distanceCoeficents, rVectors, tVectors);
     savedCamCalibFrames.clear();
 
     flag_cam_calibrated = true;
+
 
     std::cout << "Camera parameters matrix." << std::endl;
     std::cout << cameraMatrix << std::endl;
     std::cout << "Camera distortion coefficients" << std::endl;
     std::cout << distanceCoeficents << std::endl;
+	std::cout << "RMS" << std::endl;
+	std::cout << rms << std::endl;
     std::cout << "End of calibration" << std::endl;
 
 }

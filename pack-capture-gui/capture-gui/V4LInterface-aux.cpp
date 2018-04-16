@@ -261,38 +261,6 @@ namespace capture {
                 sigc::mem_fun(*this, &V4LInterface::HScale_offsetL_value_changed));
     }
 
-    void V4LInterface::__create_frm_cam_calib(){
-
-        Gtk::Grid * grid;
-        Gtk::Label *label;
-        Gtk::VBox * vbox;
-
-        grid = new Gtk::Grid();
-        vbox = new Gtk::VBox();
-
-        frm_cam_calib.set_label("Camera calibration");
-
-        frm_cam_calib.add(*vbox);
-        vbox->pack_start(*grid, false, true, 5);
-        vbox->set_halign(Gtk::ALIGN_CENTER);
-        vbox->set_valign(Gtk::ALIGN_CENTER);
-
-        label = new Gtk::Label("Calibration Mode: ");
-        grid->attach(*label, 0, 0, 1, 1);
-        calib_online.set_label("Online");
-        grid->attach(calib_online, 1, 0, 1, 1);
-        calib_offline.set_label("Offline");
-        calib_offline.join_group(calib_online);
-        grid->attach(calib_offline, 2, 0, 1, 1);
-
-        calib_offline.set_state(Gtk::STATE_INSENSITIVE);
-        calib_online.set_state(Gtk::STATE_INSENSITIVE);
-
-
-        calib_offline.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_mode_clicked));
-        calib_online.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_mode_clicked));
-
-    }
 
 
     void V4LInterface::__update_cb_device() {
@@ -1058,14 +1026,8 @@ namespace capture {
         capture_vbox.pack_start(frm_warp, false, false, 10);
         __create_frm_warp();
 
-//        capture_vbox.pack_start(frm_cam_calib, false, false, 10);
-//        __create_frm_cam_calib();
-
-        capture_vbox.pack_start(fr_camCalib_online, false, false, 10);
-        __create_frm_CamCalibMode_Online();
-
-//        capture_vbox.pack_start(fr_camCalib_offline, false, false, 10);
-//        __create_frm_CamCalibMode_Offline();
+        capture_vbox.pack_start(frm_cam_calib, false, false, 10);
+        __create_frm_cam_calib();
 
 
 
@@ -1136,63 +1098,101 @@ namespace capture {
 
     }
 
-	void V4LInterface::__create_frm_CamCalibMode_Offline() {
+    void V4LInterface::__create_frm_cam_calib(){
 
-		Gtk::Grid * grid;
-		Gtk::VBox * vbox;
+        Gtk::Grid  * grid;
+        Gtk::Grid  * grid2;
+        Gtk::Label *label;
+        Gtk::VBox  *vbox;
+        Gtk::VBox  *vbox2;
+        Gtk::HBox  *hbox;
+		Gtk::HBox  *hbox2;
+        Gtk::HBox  *hbox3;
 
-		grid = new Gtk::Grid();
-		vbox = new Gtk::VBox();
+
+        grid = new Gtk::Grid();
+        grid2 = new Gtk::Grid();
+        vbox = new Gtk::VBox();
+        vbox2 = new Gtk::VBox();
+        hbox = new Gtk::HBox();
+		hbox2 = new Gtk::HBox();
+        hbox3 = new Gtk::HBox();
+
+
+
+        frm_cam_calib.set_label("Camera calibration");
+        fr_camCalib_offline.set_label("Offline Calibration");
+
+        frm_cam_calib.add(*vbox);
+        vbox->set_halign(Gtk::ALIGN_CENTER);
+        vbox->set_valign(Gtk::ALIGN_CENTER);
+		hbox->set_border_width(5);
+		hbox->set_halign(Gtk::ALIGN_CENTER);
+        hbox->pack_start(*grid, false, true, 5);
+        hbox->set_halign(Gtk::ALIGN_CENTER);
+        hbox->set_valign(Gtk::ALIGN_CENTER);
+        label = new Gtk::Label("Calibration Mode: ");
+        grid->attach(*label, 0, 0, 1, 1);
+        calib_online.set_label("Online");
+        grid->attach(calib_online, 1, 0, 1, 1);
+        calib_offline.set_label("Offline");
+        calib_offline.join_group(calib_online);
+        grid->attach(calib_offline, 2, 0, 1, 1);
+        vbox->pack_start(*hbox,false, true, 0);
 
 		fr_camCalib_offline.set_label("Offline Calibration");
+		hbox2->set_border_width(2);
+		hbox2->set_halign(Gtk::ALIGN_CENTER);
+		btn_camCalib_offline_start.set_label("Start");
+		hbox2->pack_start(btn_camCalib_offline_start, true, true, 5);
+        fr_camCalib_offline.add(*hbox2);
+        vbox->pack_start(fr_camCalib_offline, false, false, 10);
 
-		fr_camCalib_offline.add(*vbox);
-		vbox->pack_start(*grid, false, true, 5);
-		vbox->set_halign(Gtk::ALIGN_CENTER);
-		vbox->set_valign(Gtk::ALIGN_CENTER);
-	}
-
-	void V4LInterface::__create_frm_CamCalibMode_Online() {
-
-		Gtk::Grid * grid;
-
-		grid = new Gtk::Grid();
-		grid->set_margin_left(10);
-		grid->set_margin_right(10);
-		grid->set_margin_top(5);
-		grid->set_margin_bottom(5);
-		grid->set_column_spacing(5);
-		grid->set_column_homogeneous(true);
-
-		fr_camCalib_online.set_label("Online Calibration");
-		fr_camCalib_online.add(*grid);
-
-		btn_camCalib.set_label("Cam calib.");
-		grid->attach(btn_camCalib,0,0,1,1);
-		btn_camCalib_collect.set_label("Collect");
-		grid->attach(btn_camCalib_collect,0,1,1,1);
-		btn_camCalib_pop.set_label("Pop(0)");
-		grid->attach(btn_camCalib_pop,1,1,1,1);
-		btn_camCalib_reset.set_label("Reset");
-		grid->attach(btn_camCalib_reset,2,1,1,1);
-		btn_camCalib_start.set_label("Start");
-		grid->attach(btn_camCalib_start,3,1,1,1);
+        fr_camCalib_online.set_label("Online Calibration");
+        hbox3->set_border_width(2);
+        hbox3->set_halign(Gtk::ALIGN_CENTER);
+        btn_camCalib.set_label("Cam calib.");
+        hbox3->pack_start(btn_camCalib, false, false, 5);
+		vbox2->pack_start(*hbox3, false, true, 0);
+        grid2->set_margin_left(10);
+        grid2->set_margin_right(10);
+        grid2->set_margin_top(5);
+        grid2->set_margin_bottom(5);
+        grid2->set_column_spacing(5);
+        grid2->set_column_homogeneous(true);
+        btn_camCalib_collect.set_label("Collect");
+        grid2->attach(btn_camCalib_collect,0,0,1,1);
+        btn_camCalib_pop.set_label("Pop(0)");
+        grid2->attach(btn_camCalib_pop,1,0,1,1);
+        btn_camCalib_reset.set_label("Reset");
+        grid2->attach(btn_camCalib_reset,2,0,1,1);
+        btn_camCalib_start.set_label("Start");
+        grid2->attach(btn_camCalib_start,3,0,1,1);
+		vbox2->pack_start(*grid2, false, true, 0);
+		fr_camCalib_online.add(*vbox2);
+        vbox->pack_start(fr_camCalib_online, false, false, 10);
 
 
-		btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
-		btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
-		btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
-		btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
-		btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
+        btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+        calib_offline.set_state(Gtk::STATE_INSENSITIVE);
+        calib_online.set_state(Gtk::STATE_INSENSITIVE);
 
-		btn_camCalib_collect.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_collect_clicked));
-		btn_camCalib_pop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_pop_clicked));
-		btn_camCalib_reset.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_reset_clicked));
-		btn_camCalib_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_start_clicked));
-		btn_camCalib.signal_toggled().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_pressed));
+        btn_camCalib_collect.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_collect_clicked));
+        btn_camCalib_pop.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_pop_clicked));
+        btn_camCalib_reset.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_reset_clicked));
+        btn_camCalib_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_online_start_clicked));
+        btn_camCalib.signal_toggled().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_pressed));
+        btn_camCalib_offline_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_offline_start_clicked));
+        calib_offline.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_mode_clicked));
+        calib_online.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_camCalib_mode_clicked));
 
+    }
 
-	}
 
 
     // Constructor

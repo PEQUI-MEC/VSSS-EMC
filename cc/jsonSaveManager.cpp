@@ -71,6 +71,15 @@ void jsonSaveManager::save_camera() {
 		json &warp_mat = camera_config["warp_mat"];
 		config_matrix(warp_mat, interface->imageView.warp_mat, true);
 	}
+    if(interface->visionGUI.vision->flag_cam_calibrated){
+        //parâmetros intrínsecos e extrínsecos da câmera
+        json &camera_matrix = camera_config["cam_mat"];
+        config_dynamic_matrix(camera_matrix, interface->visionGUI.vision->cameraMatrix, true);
+
+        json &cam_dst_coefficients = camera_config["dst_coefficients"];
+        config_dynamic_matrix(cam_dst_coefficients, interface->visionGUI.vision->distanceCoeficents, true);
+
+    }
 
 	if(interface->imageView.adjust_rdy) {
 		json &adjust_mat = camera_config["adjust_mat"];
@@ -130,6 +139,19 @@ void jsonSaveManager::load_camera() {
 		interface->warped = false;
 	}
 
+    if(exists(camera_config, "cam_mat") && exists(camera_config, "dst_coefficients")){
+        json& camera_matrix = camera_config["cam_mat"];
+        json &cam_dst_coefficients = camera_config["dst_coefficients"];
+        if(exists(camera_matrix, "rows") && exists(camera_matrix, "cols") &&
+                exists(cam_dst_coefficients, "rows") && exists(cam_dst_coefficients, "cols")){
+            config_dynamic_matrix(camera_matrix, interface->visionGUI.vision->cameraMatrix, false);
+            config_dynamic_matrix(cam_dst_coefficients, interface->visionGUI.vision->distanceCoeficents, false);
+            interface->visionGUI.vision->flag_cam_calibrated = true;
+        }
+    }else{
+        interface->visionGUI.vision->flag_cam_calibrated = false;
+    }
+
 	if(exists(camera_config, "adjust_mat")) {
 		json &adjust_mat = camera_config["adjust_mat"];
 		config_matrix(adjust_mat, interface->imageView.adjust_mat, false);
@@ -161,6 +183,31 @@ void jsonSaveManager::config_matrix(json& mat_config, int (&mat)[4][2], bool sav
 			else mat[i][j] = mat_config[pos_string];
 		}
 	}
+}
+
+//método pode ser usado para matrizes do opencv (tipo double) que não possuem tamanhos fixos
+void jsonSaveManager::config_dynamic_matrix(json& mat_config, cv::Mat& mat, bool save){
+    if(save){
+        mat_config["rows"] = mat.rows;
+        mat_config["cols"] = mat.cols;
+        for (int i = 0; i < mat.rows; ++i) {
+            for (int j = 0; j < mat.cols; ++j) {
+                string pos_string = "["+std::to_string(i)+"]["+std::to_string(j)+"]";
+                mat_config[pos_string] = mat.at<double>(i,j);
+            }
+        }
+    }else{
+        mat = cv::Mat::zeros(mat_config["rows"], mat_config["cols"], cv::DataType<double>::type);
+        for (int i = 0; i < mat.rows; ++i) {
+            for (int j = 0; j < mat.cols; ++j) {
+                string pos_string = "["+std::to_string(i)+"]["+std::to_string(j)+"]";
+                double value = mat_config[pos_string];
+                mat.at<double>(i,j) = value;
+            }
+        }
+    }
+
+
 }
 
 int jsonSaveManager::read_configs_from_file(string file_path) {

@@ -141,8 +141,6 @@ bool CamCap::capture_and_show() {
 	}
 
     if(interface.visionGUI.vision->flag_cam_calibrated){
-        interface.btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
-        interface.btn_camCalib_pop.set_label("Pop(0)");
         cv::Mat temp;
         imageView.copyTo(temp);
         cv::undistort(temp,imageView, interface.visionGUI.vision->getcameraMatrix(), interface.visionGUI.vision->getdistanceCoeficents());
@@ -160,7 +158,7 @@ bool CamCap::capture_and_show() {
 		}
 	}
 
-    if(interface.CamCalib_flag_event && !interface.get_start_game_flag()){
+    if(interface.CamCalib_flag_event && !interface.get_start_game_flag() && !interface.visionGUI.vision->flag_cam_calibrated){
 
 		chessBoardFound = cv::findChessboardCorners(imageView,CHESSBOARD_DIMENSION, foundPoints, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
     }
@@ -219,6 +217,11 @@ bool CamCap::capture_and_show() {
 	if (!interface.visionGUI.HSV_calib_event_flag) {
 		if (chessBoardFound)
 		{
+
+			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+			cv::Mat grayFrame;
+			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
+			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11,11), cv::Size(-1,-1), termCriteria);
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 		}
 

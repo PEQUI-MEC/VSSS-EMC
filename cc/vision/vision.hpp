@@ -121,6 +121,7 @@ public:
     void setFlagCamCalibrated(bool value);
     void saveCamCalibFrame();
     void popCamCalibFrames();
+	void collectImagesForCalibration();
     void cameraCalibration();
     std::vector<cv::Point3f> createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght);
 	bool foundChessBoardCorners();
