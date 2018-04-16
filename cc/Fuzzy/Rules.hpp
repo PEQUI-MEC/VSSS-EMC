@@ -8,29 +8,26 @@
 #include <sstream>
 #include <memory>
 
-using namespace std;
+class Rules {
+	public:
+		Rules();
+		Rules(std::string file_name);
+		~Rules();
 
-class Rules{
-public:
-	Rules();
-	Rules(std::string file_name);
-	~Rules();
-	
-	float* inference(	float* inputs, 
-						std::vector<std::shared_ptr<FuzzyFunction>> &input_variables,
-						std::shared_ptr<FuzzyFunction> &output_variable);
-	vector<int> posicaoIgualdades(vector<string> ruleWords);
-	
-protected:
-private:
-	uint8_t input1, input2;
-	void generate_baseRuleMatrix(string file_name);
-	vector<string> split(const std::string str);
-	static double OR(double a, double b);
-	static double AND(double a, double b);
+		float *inference(float *inputs,
+						 std::vector<std::shared_ptr<FuzzyFunction>> &input_variables,
+						 std::shared_ptr<FuzzyFunction> &output_variable);
+		std::vector<int> posicaoIgualdades(std::vector<std::string> ruleWords);
 
-	vector<string> arrayRules;
+	protected:
+	private:
+		uint8_t input1, input2;
+		void generate_baseRuleMatrix(std::string file_name);
+		std::vector<std::string> split(const std::string str);
+		static double OR(double a, double b);
+		static double AND(double a, double b);
+
+		std::vector<std::string> arrayRules;
 };
-
 
 #endif

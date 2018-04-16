@@ -29,50 +29,50 @@ find_library(LIBXBEE libxbee.so libxbeep.so)
 
 #Define arquivos a serem compilados. Novos arquivos devem ser inclusos aqui
 set(SOURCE_FILES cc/main.cpp
-        cc/controlGUI.cpp
-        cc/filechooser.cpp
-        cc/CamCap.cpp
-        cc/KalmanFilter.cpp
-        cc/Strategy.cpp
-        cc/StrategyGUI.cpp
-        cc/Constants.hpp
-        cc/Xbee.cpp
-        cc/Messenger.cpp
-        cc/jsonSaveManager.cpp
-        cc/TestFrame.cpp
-		cc/LS.cpp
-		cc/CPUTimer.cpp
-        cc/Fuzzy/FuzzyController.cpp
-        cc/Fuzzy/FuzzyFunction.cpp
-        cc/Fuzzy/Rules.cpp
-		cc/vision/visionROI.cpp
-        cc/vision/gmm.cpp
-        cc/vision/tag.cpp
-        cc/vision/vision.cpp
-        cc/vision/visionGUI.cpp
-        pack-capture/capture/v4lcap.cpp
-		pack-capture/capture/v4ldev.hpp
-        pack-capture-gui/capture-gui/ImageView.cpp
-        pack-capture-gui/capture-gui/Robot.hpp
-        pack-capture-gui/capture-gui/V4LInterface-aux.cpp
-        pack-capture-gui/capture-gui/V4LInterface-events.cpp
-		pack-capture-gui/capture-gui/V4LInterface.hpp
-		cc/lib/json.hpp)
+    cc/controlGUI.cpp
+    cc/filechooser.cpp
+    cc/CamCap.cpp
+    cc/KalmanFilter.cpp
+    cc/Strategy.cpp
+    cc/StrategyGUI.cpp
+    cc/Constants.hpp
+    cc/Xbee.cpp
+    cc/Messenger.cpp
+    cc/jsonSaveManager.cpp
+    cc/TestFrame.cpp
+    cc/LS.cpp
+    cc/CPUTimer.cpp
+    cc/Fuzzy/FuzzyController.cpp
+    cc/Fuzzy/FuzzyFunction.cpp
+    cc/Fuzzy/Rules.cpp
+    cc/vision/visionROI.cpp
+    cc/vision/gmm.cpp
+    cc/vision/tag.cpp
+    cc/vision/vision.cpp
+    cc/vision/visionGUI.cpp
+    pack-capture/capture/v4lcap.cpp
+    pack-capture/capture/v4ldev.hpp
+    pack-capture-gui/capture-gui/ImageView.cpp
+    pack-capture-gui/capture-gui/Robot.hpp
+    pack-capture-gui/capture-gui/V4LInterface-aux.cpp
+    pack-capture-gui/capture-gui/V4LInterface-events.cpp
+    pack-capture-gui/capture-gui/V4LInterface.hpp
+    cc/lib/json.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
-                    cc/Fuzzy/
-                    cc/vision/
-                    cc/lib
-                    pack-capture/capture/
-                    pack-capture-gui/capture-gui/
-                    ${GTKMM_INCLUDE_DIRS}
-                    ${Boost_INCLUDE_DIRS}
-                    ${OpenCV_INCLUDE_DIRS}
-                    ${V4L2_INCLUDE_DIRS})
+    cc/Fuzzy/
+    cc/vision/
+    cc/lib
+    pack-capture/capture/
+    pack-capture-gui/capture-gui/
+    ${GTKMM_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
+    ${V4L2_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -g -m64 -pipe -pthread -lpthread -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")
-                    
+
 add_executable(VSSS ${SOURCE_FILES})
 
 target_link_libraries(VSSS ${GTKMM_LIBRARIES})

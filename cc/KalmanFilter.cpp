@@ -84,8 +84,7 @@ cv::Point KalmanFilter::KF_Prediction(cv::Point pos) {
 		KF_state.at<float>(5) = KF_meas.at<float>(3);
 		// <<<< Initialization
 		kf_found = true;
-	}
-	else {
+	} else {
 		//std::cout<<"KF3.2"<<std::endl;
 		KF.correct(KF_meas); // Kalman Correction
 	}

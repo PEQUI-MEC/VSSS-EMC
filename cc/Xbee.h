@@ -48,5 +48,4 @@ class Xbee {
 		bool is_ack_enabled(char id);
 };
 
-
 #endif //VSSS_XBEE_H

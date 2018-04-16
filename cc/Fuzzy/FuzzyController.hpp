@@ -8,41 +8,35 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 #include "FuzzyFunction.hpp"
 #include "Rules.hpp"
 
+class FuzzyController {
+	public:
+		FuzzyController(void);
+		~FuzzyController(void);
 
-class FuzzyController
-{
-public:
-	FuzzyController(void);
-	~FuzzyController(void);
-	
-	vector<float> ControladorFuzzy(vector<float> &input);
+		std::vector<float> ControladorFuzzy(std::vector<float> &input);
 
-	void defineVariables(string file_name);
-    void importRules(string file_name);
+		void defineVariables(std::string file_name);
+		void importRules(std::string file_name);
 
-private:
-	vector<shared_ptr<FuzzyFunction>> input_Variables;
-    vector<shared_ptr<FuzzyFunction>> output_Variables;    
-    
-    vector<vector<string>> inputVars;
-    vector<vector<string>> outputVars;
+	private:
+		std::vector<std::shared_ptr<FuzzyFunction>> input_Variables;
+		std::vector<std::shared_ptr<FuzzyFunction>> output_Variables;
 
-    vector<float> defuzzyfier(vector<float> &inputs);
-	shared_ptr<Rules> Regras;
-	
-	float centroidMax(std::shared_ptr<FuzzyFunction> &varOut, float *output);
-	int* heightMethod(std::shared_ptr<FuzzyFunction> &varOut, float *output);
-	//float centroidSum(FuzzyFunction *varOut, float *output);
+		std::vector<std::vector<std::string>> inputVars;
+		std::vector<std::vector<std::string>> outputVars;
 
-	void read_from_file(string file_name);
-	vector<string> split(const std::string str);
+		std::vector<float> defuzzyfier(std::vector<float> &inputs);
+		std::shared_ptr<Rules> Regras;
 
+		float centroidMax(std::shared_ptr<FuzzyFunction> &varOut, float *output);
+		int *heightMethod(std::shared_ptr<FuzzyFunction> &varOut, float *output);
+		//float centroidSum(FuzzyFunction *varOut, float *output);
 
+		void read_from_file(std::string file_name);
+		std::vector<std::string> split(const std::string str);
 };
 
 #endif

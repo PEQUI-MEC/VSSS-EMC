@@ -1,776 +1,774 @@
 #include "visionGUI.hpp"
 
 void VisionGUI::__create_frm_drawing_options() {
-    Gtk::Frame *frame;
-    Gtk::HBox *hbox;
+	Gtk::Frame *frame;
+	Gtk::HBox *hbox;
 
-    hbox = new Gtk::HBox();
-    frame = new Gtk::Frame();
+	hbox = new Gtk::HBox();
+	frame = new Gtk::Frame();
 
-    pack_start(*frame, false, true, 5);
-    frame->add(*hbox);
-    frame->set_label("Drawing Options");
-    hbox->set_halign(Gtk::ALIGN_CENTER);
-    hbox->pack_start(draw_info_checkbox, false, true, 5);
-    draw_info_checkbox.set_label("Disable Drawing");
-    draw_info_checkbox.set_can_focus(false);
-    draw_info_checkbox.set_margin_bottom(5);
+	pack_start(*frame, false, true, 5);
+	frame->add(*hbox);
+	frame->set_label("Drawing Options");
+	hbox->set_halign(Gtk::ALIGN_CENTER);
+	hbox->pack_start(draw_info_checkbox, false, true, 5);
+	draw_info_checkbox.set_label("Disable Drawing");
+	draw_info_checkbox.set_can_focus(false);
+	draw_info_checkbox.set_margin_bottom(5);
 
-    draw_info_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::event_draw_info_checkbox_signal_clicked));
+	draw_info_checkbox.signal_clicked().connect(
+			sigc::mem_fun(*this, &VisionGUI::event_draw_info_checkbox_signal_clicked));
 }
 
 void VisionGUI::__create_frm_calib_mode() {
-  Gtk::VBox * vbox;
-  Gtk::Grid * grid;
-  Gtk::Frame * frame;
-  Gtk::Label *label;
+	Gtk::VBox *vbox;
+	Gtk::Grid *grid;
+	Gtk::Frame *frame;
+	Gtk::Label *label;
 
-  vbox = new Gtk::VBox();
-  grid = new Gtk::Grid();
-  frame = new Gtk::Frame();
+	vbox = new Gtk::VBox();
+	grid = new Gtk::Grid();
+	frame = new Gtk::Frame();
 
-  pack_start(*frame, false, false, 5);
+	pack_start(*frame, false, false, 5);
 
-  frame->add(*vbox);
-  vbox->pack_start(*grid, false, true, 5);
-  vbox->set_halign(Gtk::ALIGN_CENTER);
-  vbox->set_valign(Gtk::ALIGN_CENTER);
+	frame->add(*vbox);
+	vbox->pack_start(*grid, false, true, 5);
+	vbox->set_halign(Gtk::ALIGN_CENTER);
+	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frame->set_label("Choose Your Destiny");
+	frame->set_label("Choose Your Destiny");
 
-  grid->set_border_width(5);
-  grid->set_column_spacing(10);
-  grid->set_row_spacing(5);
+	grid->set_border_width(5);
+	grid->set_column_spacing(10);
+	grid->set_row_spacing(5);
 
-  label = new Gtk::Label("Calibration Mode: ");
-  grid->attach(*label, 0, 0, 1, 1);
-  rb_mode_HSV.set_label("HSV/CIELAB");
-  grid->attach(rb_mode_HSV, 1, 0, 1, 1);
-  rb_mode_GMM.set_label("GMM");
-  rb_mode_GMM.join_group(rb_mode_HSV);
-  grid->attach(rb_mode_GMM, 2, 0, 1, 1);
+	label = new Gtk::Label("Calibration Mode: ");
+	grid->attach(*label, 0, 0, 1, 1);
+	rb_mode_HSV.set_label("HSV/CIELAB");
+	grid->attach(rb_mode_HSV, 1, 0, 1, 1);
+	rb_mode_GMM.set_label("GMM");
+	rb_mode_GMM.join_group(rb_mode_HSV);
+	grid->attach(rb_mode_GMM, 2, 0, 1, 1);
 
-  rb_mode_HSV.set_state(Gtk::STATE_INSENSITIVE);
-  rb_mode_GMM.set_state(Gtk::STATE_INSENSITIVE);
+	rb_mode_HSV.set_state(Gtk::STATE_INSENSITIVE);
+	rb_mode_GMM.set_state(Gtk::STATE_INSENSITIVE);
 
-  rb_mode_HSV.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
-  rb_mode_GMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
+	rb_mode_HSV.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
+	rb_mode_GMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
 }
 
 void VisionGUI::__event_rb_mode_clicked() {
-  if (rb_mode_GMM.get_active()) {
-    isHSV = false;
-    fr_HSV.hide();
-    fr_GMM.show();
-    fr_splitView.hide();
-    disableSplitView = true;
-  }
-  else {
-    fr_HSV.show();
-    fr_GMM.hide();
-    fr_splitView.show();
-    isHSV = true;
-    disableSplitView = false;
-  }
+	if (rb_mode_GMM.get_active()) {
+		isHSV = false;
+		fr_HSV.hide();
+		fr_GMM.show();
+		fr_splitView.hide();
+		disableSplitView = true;
+	} else {
+		fr_HSV.show();
+		fr_GMM.hide();
+		fr_splitView.show();
+		isHSV = true;
+		disableSplitView = false;
+	}
 }
 
 void VisionGUI::__create_frm_gmm() {
-  Gtk::VBox * vbox;
-  Gtk::Grid * grid;
-  Gtk::Frame * frame;
-  Gtk::Label *label;
-  Gtk::HBox * hbox;
+	Gtk::VBox *vbox;
+	Gtk::Grid *grid;
+	Gtk::Frame *frame;
+	Gtk::Label *label;
+	Gtk::HBox *hbox;
 
-  vbox = new Gtk::VBox();
-  grid = new Gtk::Grid();
+	vbox = new Gtk::VBox();
+	grid = new Gtk::Grid();
 
-  pack_start(fr_GMM, false, false, 5);
+	pack_start(fr_GMM, false, false, 5);
 
-  fr_GMM.add(*vbox);
-  vbox->set_halign(Gtk::ALIGN_CENTER);
-  vbox->set_valign(Gtk::ALIGN_CENTER);
+	fr_GMM.add(*vbox);
+	vbox->set_halign(Gtk::ALIGN_CENTER);
+	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  fr_GMM.set_label("GMM Calibration");
+	fr_GMM.set_label("GMM Calibration");
 
-  hbox = new Gtk::HBox();
-  vbox->pack_start(*hbox, false, true, 5);
-  hbox->set_halign(Gtk::ALIGN_CENTER);
-  hbox->set_valign(Gtk::ALIGN_CENTER);
+	hbox = new Gtk::HBox();
+	vbox->pack_start(*hbox, false, true, 5);
+	hbox->set_halign(Gtk::ALIGN_CENTER);
+	hbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frame = new Gtk::Frame();
-  grid = new Gtk::Grid();
-  grid->set_margin_left(10);
-  grid->set_margin_right(10);
-  grid->set_margin_top(5);
-  grid->set_margin_bottom(5);
-  grid->set_column_spacing(5);
-  grid->set_column_homogeneous(true);
-  frame->set_label("Samples");
-  frame->add(*grid);
-  hbox->pack_start(*frame, false, true, 5);
+	frame = new Gtk::Frame();
+	grid = new Gtk::Grid();
+	grid->set_margin_left(10);
+	grid->set_margin_right(10);
+	grid->set_margin_top(5);
+	grid->set_margin_bottom(5);
+	grid->set_column_spacing(5);
+	grid->set_column_homogeneous(true);
+	frame->set_label("Samples");
+	frame->add(*grid);
+	hbox->pack_start(*frame, false, true, 5);
 
-  bt_collectSamples.set_label("Collect");
-  grid->attach(bt_collectSamples, 0, 0, 1, 1);
-  bt_popSample.set_label("Pop (0)");
-  grid->attach(bt_popSample, 1, 0, 1, 1);
-  bt_clearSamples.set_label("Reset");
-  grid->attach(bt_clearSamples, 2, 0, 1, 1);
+	bt_collectSamples.set_label("Collect");
+	grid->attach(bt_collectSamples, 0, 0, 1, 1);
+	bt_popSample.set_label("Pop (0)");
+	grid->attach(bt_popSample, 1, 0, 1, 1);
+	bt_clearSamples.set_label("Reset");
+	grid->attach(bt_clearSamples, 2, 0, 1, 1);
 
-  frame = new Gtk::Frame();
-  grid = new Gtk::Grid();
-  grid->set_margin_left(10);
-  grid->set_margin_right(10);
-  grid->set_margin_top(5);
-  grid->set_margin_bottom(5);
-  grid->set_column_spacing(5);
-  grid->set_column_homogeneous(true);
-  frame->set_label("Save/Load");
-  frame->add(*grid);
-  hbox->pack_start(*frame, false, true, 5);
+	frame = new Gtk::Frame();
+	grid = new Gtk::Grid();
+	grid->set_margin_left(10);
+	grid->set_margin_right(10);
+	grid->set_margin_top(5);
+	grid->set_margin_bottom(5);
+	grid->set_column_spacing(5);
+	grid->set_column_homogeneous(true);
+	frame->set_label("Save/Load");
+	frame->add(*grid);
+	hbox->pack_start(*frame, false, true, 5);
 
-  bt_GMM_save.set_label("Save");
-  grid->attach(bt_GMM_save, 0, 0, 1, 1);
-  bt_GMM_load.set_label("Load");
-  grid->attach(bt_GMM_load, 3, 0, 1, 1);
+	bt_GMM_save.set_label("Save");
+	grid->attach(bt_GMM_save, 0, 0, 1, 1);
+	bt_GMM_load.set_label("Load");
+	grid->attach(bt_GMM_load, 3, 0, 1, 1);
 
-  frame = new Gtk::Frame();
-  grid = new Gtk::Grid();
-  grid->set_border_width(10);
-  grid->set_column_spacing(10);
-  grid->set_row_spacing(5);
-  grid->set_halign(Gtk::ALIGN_CENTER);
-  grid->set_valign(Gtk::ALIGN_CENTER);
-  frame->set_label("Training");
-  frame->add(*grid);
-  vbox->pack_start(*frame, false, true, 5);
+	frame = new Gtk::Frame();
+	grid = new Gtk::Grid();
+	grid->set_border_width(10);
+	grid->set_column_spacing(10);
+	grid->set_row_spacing(5);
+	grid->set_halign(Gtk::ALIGN_CENTER);
+	grid->set_valign(Gtk::ALIGN_CENTER);
+	frame->set_label("Training");
+	frame->add(*grid);
+	vbox->pack_start(*frame, false, true, 5);
 
-  label = new Gtk::Label("Clusters: ");
-  grid->attach(*label, 0, 0, 1, 1);
-  HScale_clusters.set_digits(0);
-  HScale_clusters.set_size_request(125);
-  HScale_clusters.set_increments(1,3);
-  HScale_clusters.set_range(1,15);
-  HScale_clusters.set_value_pos(Gtk::POS_RIGHT);
-  HScale_clusters.set_draw_value();
-  grid->attach(HScale_clusters, 1, 0, 2, 1);
-  bt_trainGMM.set_label("Train GMM");
-  grid->attach(bt_trainGMM, 4, 0, 1, 1);
+	label = new Gtk::Label("Clusters: ");
+	grid->attach(*label, 0, 0, 1, 1);
+	HScale_clusters.set_digits(0);
+	HScale_clusters.set_size_request(125);
+	HScale_clusters.set_increments(1, 3);
+	HScale_clusters.set_range(1, 15);
+	HScale_clusters.set_value_pos(Gtk::POS_RIGHT);
+	HScale_clusters.set_draw_value();
+	grid->attach(HScale_clusters, 1, 0, 2, 1);
+	bt_trainGMM.set_label("Train GMM");
+	grid->attach(bt_trainGMM, 4, 0, 1, 1);
 
-  frame = new Gtk::Frame();
-  Gtk::VBox * innerVbox = new Gtk::VBox();
-  frame->set_label("Frame");
-  frame->add(*innerVbox);
-  vbox->pack_start(*frame, false, true, 5);
+	frame = new Gtk::Frame();
+	Gtk::VBox *innerVbox = new Gtk::VBox();
+	frame->set_label("Frame");
+	frame->add(*innerVbox);
+	vbox->pack_start(*frame, false, true, 5);
 
-  hbox = new Gtk::HBox();
-  hbox->set_halign(Gtk::ALIGN_CENTER);
-  hbox->set_valign(Gtk::ALIGN_CENTER);
-  rb_GMM_original.set_label("Original");
-  hbox->pack_start(rb_GMM_original, false, true, 5);
-  rb_GMM_gaussians.set_label("Gaussians");
-  rb_GMM_gaussians.join_group(rb_GMM_original);
-  hbox->pack_start(rb_GMM_gaussians, false, true, 5);
-  rb_GMM_final.set_label("Final");
-  rb_GMM_final.join_group(rb_GMM_original);
-  hbox->pack_start(rb_GMM_final, false, true, 5);
-  rb_GMM_threshold.set_label("Threshold");
-  rb_GMM_threshold.join_group(rb_GMM_original);
-  hbox->pack_start(rb_GMM_threshold, false, true, 5);
-  innerVbox->pack_start(*hbox, false, true, 5);
+	hbox = new Gtk::HBox();
+	hbox->set_halign(Gtk::ALIGN_CENTER);
+	hbox->set_valign(Gtk::ALIGN_CENTER);
+	rb_GMM_original.set_label("Original");
+	hbox->pack_start(rb_GMM_original, false, true, 5);
+	rb_GMM_gaussians.set_label("Gaussians");
+	rb_GMM_gaussians.join_group(rb_GMM_original);
+	hbox->pack_start(rb_GMM_gaussians, false, true, 5);
+	rb_GMM_final.set_label("Final");
+	rb_GMM_final.join_group(rb_GMM_original);
+	hbox->pack_start(rb_GMM_final, false, true, 5);
+	rb_GMM_threshold.set_label("Threshold");
+	rb_GMM_threshold.join_group(rb_GMM_original);
+	hbox->pack_start(rb_GMM_threshold, false, true, 5);
+	innerVbox->pack_start(*hbox, false, true, 5);
 
-  hbox = new Gtk::HBox();
-  hbox->set_halign(Gtk::ALIGN_CENTER);
-  hbox->set_valign(Gtk::ALIGN_CENTER);
-  label = new Gtk::Label("Threshold: ");
-  hbox->pack_start(*label, false, true, 5);
-  bt_GMM_left.set_label("<");
-  hbox->pack_start(bt_GMM_left, false, true, 5);
-  lb_threshold.set_text(realColors.at(0));
-  hbox->pack_start(lb_threshold, false, true, 5);
-  bt_GMM_right.set_label(">");
-  hbox->pack_start(bt_GMM_right, false, true, 5);
-  innerVbox->pack_start(*hbox, false, true, 5);
+	hbox = new Gtk::HBox();
+	hbox->set_halign(Gtk::ALIGN_CENTER);
+	hbox->set_valign(Gtk::ALIGN_CENTER);
+	label = new Gtk::Label("Threshold: ");
+	hbox->pack_start(*label, false, true, 5);
+	bt_GMM_left.set_label("<");
+	hbox->pack_start(bt_GMM_left, false, true, 5);
+	lb_threshold.set_text(realColors.at(0));
+	hbox->pack_start(lb_threshold, false, true, 5);
+	bt_GMM_right.set_label(">");
+	hbox->pack_start(bt_GMM_right, false, true, 5);
+	innerVbox->pack_start(*hbox, false, true, 5);
 
-  hbox = new Gtk::HBox();
-  hbox->set_halign(Gtk::ALIGN_CENTER);
-  hbox->set_valign(Gtk::ALIGN_CENTER);
-  cb_gaussianColor.append("Select Gaus.:");
-  for (int i = 0; i < gmm->getClusters(); i++) {
-    cb_gaussianColor.append(gaussianColors.at(i));
-  }
-  cb_gaussianColor.set_active(0);
-  hbox->pack_start(cb_gaussianColor, false, true, 5);
-  cb_realColor.append("Select Color:");
-  cb_realColor.append("Background");
-  cb_realColor.append("Main");
-  cb_realColor.append("Green");
-  cb_realColor.append("Ball");
-  cb_realColor.append("Opponent");
-  cb_realColor.set_active(0);
-  hbox->pack_start(cb_realColor, false, true, 5);
-  bt_GMM_match.set_label("Match!");
-  hbox->pack_start(bt_GMM_match, false, true, 5);
-  bt_GMM_done.set_label("Done");
-  hbox->pack_start(bt_GMM_done, false, true, 5);
-  innerVbox->pack_start(*hbox, false, true, 5);
+	hbox = new Gtk::HBox();
+	hbox->set_halign(Gtk::ALIGN_CENTER);
+	hbox->set_valign(Gtk::ALIGN_CENTER);
+	cb_gaussianColor.append("Select Gaus.:");
+	for (int i = 0; i < gmm->getClusters(); i++) {
+		cb_gaussianColor.append(gaussianColors.at(i));
+	}
+	cb_gaussianColor.set_active(0);
+	hbox->pack_start(cb_gaussianColor, false, true, 5);
+	cb_realColor.append("Select Color:");
+	cb_realColor.append("Background");
+	cb_realColor.append("Main");
+	cb_realColor.append("Green");
+	cb_realColor.append("Ball");
+	cb_realColor.append("Opponent");
+	cb_realColor.set_active(0);
+	hbox->pack_start(cb_realColor, false, true, 5);
+	bt_GMM_match.set_label("Match!");
+	hbox->pack_start(bt_GMM_match, false, true, 5);
+	bt_GMM_done.set_label("Done");
+	hbox->pack_start(bt_GMM_done, false, true, 5);
+	innerVbox->pack_start(*hbox, false, true, 5);
 
-  frame = new Gtk::Frame();
-  grid = new Gtk::Grid();
-  grid->set_border_width(10);
-  grid->set_column_spacing(10);
-  grid->set_row_spacing(5);
-  grid->set_halign(Gtk::ALIGN_CENTER);
-  grid->set_valign(Gtk::ALIGN_CENTER);
-  frame->set_label("Pos-Processing");
-  frame->add(*grid);
-  vbox->pack_start(*frame, false, true, 5);  vbox->set_halign(Gtk::ALIGN_CENTER);
+	frame = new Gtk::Frame();
+	grid = new Gtk::Grid();
+	grid->set_border_width(10);
+	grid->set_column_spacing(10);
+	grid->set_row_spacing(5);
+	grid->set_halign(Gtk::ALIGN_CENTER);
+	grid->set_valign(Gtk::ALIGN_CENTER);
+	frame->set_label("Pos-Processing");
+	frame->add(*grid);
+	vbox->pack_start(*frame, false, true, 5);
+	vbox->set_halign(Gtk::ALIGN_CENTER);
 
-  label = new Gtk::Label("Blur: ");
-  grid->attach(*label, 4, 0, 1, 1);
-  HScale_GMM_blur.set_digits(0);
-  HScale_GMM_blur.set_size_request(50);
-  HScale_GMM_blur.set_increments(1,2);
-  HScale_GMM_blur.set_range(0,3);
-  HScale_GMM_blur.set_value_pos(Gtk::POS_RIGHT);
-  HScale_GMM_blur.set_draw_value();
-  grid->attach(HScale_GMM_blur, 5, 0, 1, 1);
-  label = new Gtk::Label("Erode: ");
-  grid->attach(*label, 6, 0, 1, 1);
-  HScale_GMM_erode.set_digits(0);
-  HScale_GMM_erode.set_size_request(50);
-  HScale_GMM_erode.set_increments(1,2);
-  HScale_GMM_erode.set_range(0,5);
-  HScale_GMM_erode.set_value_pos(Gtk::POS_RIGHT);
-  HScale_GMM_erode.set_draw_value();
-  grid->attach(HScale_GMM_erode, 7, 0, 1, 1);
-  label = new Gtk::Label("Dilate: ");
-  grid->attach(*label, 8, 0, 1, 1);
-  HScale_GMM_dilate.set_digits(0);
-  HScale_GMM_dilate.set_size_request(50);
-  HScale_GMM_dilate.set_increments(1,2);
-  HScale_GMM_dilate.set_range(0,5);
-  HScale_GMM_dilate.set_value_pos(Gtk::POS_RIGHT);
-  HScale_GMM_dilate.set_draw_value();
-  grid->attach(HScale_GMM_dilate, 9, 0, 1, 1);
+	label = new Gtk::Label("Blur: ");
+	grid->attach(*label, 4, 0, 1, 1);
+	HScale_GMM_blur.set_digits(0);
+	HScale_GMM_blur.set_size_request(50);
+	HScale_GMM_blur.set_increments(1, 2);
+	HScale_GMM_blur.set_range(0, 3);
+	HScale_GMM_blur.set_value_pos(Gtk::POS_RIGHT);
+	HScale_GMM_blur.set_draw_value();
+	grid->attach(HScale_GMM_blur, 5, 0, 1, 1);
+	label = new Gtk::Label("Erode: ");
+	grid->attach(*label, 6, 0, 1, 1);
+	HScale_GMM_erode.set_digits(0);
+	HScale_GMM_erode.set_size_request(50);
+	HScale_GMM_erode.set_increments(1, 2);
+	HScale_GMM_erode.set_range(0, 5);
+	HScale_GMM_erode.set_value_pos(Gtk::POS_RIGHT);
+	HScale_GMM_erode.set_draw_value();
+	grid->attach(HScale_GMM_erode, 7, 0, 1, 1);
+	label = new Gtk::Label("Dilate: ");
+	grid->attach(*label, 8, 0, 1, 1);
+	HScale_GMM_dilate.set_digits(0);
+	HScale_GMM_dilate.set_size_request(50);
+	HScale_GMM_dilate.set_increments(1, 2);
+	HScale_GMM_dilate.set_range(0, 5);
+	HScale_GMM_dilate.set_value_pos(Gtk::POS_RIGHT);
+	HScale_GMM_dilate.set_draw_value();
+	grid->attach(HScale_GMM_dilate, 9, 0, 1, 1);
 
-  bt_GMM_save.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_save_clicked));
-  bt_GMM_load.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_load_clicked));
-  bt_collectSamples.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_collectSamples_pressed));
-  bt_popSample.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_popSample_clicked));
-  bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
-  bt_trainGMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_trainGMM_clicked));
-  HScale_clusters.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_clusters_value_changed));
-  bt_GMM_match.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_match_clicked));
-  bt_GMM_done.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_done_clicked));
-  rb_GMM_original.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
-  rb_GMM_gaussians.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
-  rb_GMM_final.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
-  rb_GMM_threshold.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
-  bt_GMM_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_left_clicked));
-  bt_GMM_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_right_clicked));
-  HScale_GMM_blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_blur_value_changed));
-  HScale_GMM_erode.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_erode_value_changed));
-  HScale_GMM_dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_dilate_value_changed));
+	bt_GMM_save.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_save_clicked));
+	bt_GMM_load.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_load_clicked));
+	bt_collectSamples.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_collectSamples_pressed));
+	bt_popSample.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_popSample_clicked));
+	bt_clearSamples.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_clearSamples_clicked));
+	bt_trainGMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_trainGMM_clicked));
+	HScale_clusters.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_clusters_value_changed));
+	bt_GMM_match.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_match_clicked));
+	bt_GMM_done.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_done_clicked));
+	rb_GMM_original.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
+	rb_GMM_gaussians.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
+	rb_GMM_final.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
+	rb_GMM_threshold.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_GMM_frame_clicked));
+	bt_GMM_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_left_clicked));
+	bt_GMM_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_GMM_right_clicked));
+	HScale_GMM_blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_blur_value_changed));
+	HScale_GMM_erode.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_erode_value_changed));
+	HScale_GMM_dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_GMM_dilate_value_changed));
 }
 
 void VisionGUI::hideGMM() {
-    fr_GMM.hide();
+	fr_GMM.hide();
 }
 
 void VisionGUI::HScale_GMM_dilate_value_changed() {
-  gmm->setDilate(colorIndex, static_cast<int>(HScale_GMM_dilate.get_value()));
+	gmm->setDilate(colorIndex, static_cast<int>(HScale_GMM_dilate.get_value()));
 }
 
 void VisionGUI::HScale_GMM_blur_value_changed() {
-  int value = static_cast<int>(HScale_GMM_blur.get_value());
-  if (value%2 == 0 && value != 0) value++;
-  gmm->setBlur(colorIndex, value);
+	int value = static_cast<int>(HScale_GMM_blur.get_value());
+	if (value % 2 == 0 && value != 0) value++;
+	gmm->setBlur(colorIndex, value);
 }
 
 void VisionGUI::HScale_GMM_erode_value_changed() {
-  gmm->setErode(colorIndex, static_cast<int>(HScale_GMM_erode.get_value()));
+	gmm->setErode(colorIndex, static_cast<int>(HScale_GMM_erode.get_value()));
 }
 
 bool VisionGUI::getDrawSamples() {
-  return samplesEventFlag;
+	return samplesEventFlag;
 }
 
 bool VisionGUI::getGaussiansFrameFlag() {
-  return gaussiansFrame_flag;
+	return gaussiansFrame_flag;
 }
 
 bool VisionGUI::getFinalFrameFlag() {
-  return finalFrame_flag;
+	return finalFrame_flag;
 }
 
 bool VisionGUI::getThresholdFrameFlag() {
-  return thresholdFrame_flag;
+	return thresholdFrame_flag;
 }
 
 bool VisionGUI::getIsDrawing() {
-    return !draw_info_flag;
+	return !draw_info_flag;
 }
 
 void VisionGUI::__event_bt_GMM_save_clicked() {
-  FileChooser saveWindow;
+	FileChooser saveWindow;
 
-  if (saveWindow.result == Gtk::RESPONSE_OK) gmm->write(saveWindow.fileName);
-
+	if (saveWindow.result == Gtk::RESPONSE_OK) gmm->write(saveWindow.fileName);
 }
 
 void VisionGUI::__event_bt_GMM_load_clicked() {
-  FileChooser loadWindow;
+	FileChooser loadWindow;
 
-  if (loadWindow.result == Gtk::RESPONSE_OK) {
-    if (gmm->read(loadWindow.fileName)) {
-      rb_GMM_gaussians.set_active(true);
-      rb_GMM_gaussians.clicked();
-      HScale_clusters.set_value(gmm->getClusters());
-
-    }
-  }
+	if (loadWindow.result == Gtk::RESPONSE_OK) {
+		if (gmm->read(loadWindow.fileName)) {
+			rb_GMM_gaussians.set_active(true);
+			rb_GMM_gaussians.clicked();
+			HScale_clusters.set_value(gmm->getClusters());
+		}
+	}
 }
 
 void VisionGUI::quickLoadGMM() {
-  gmm->read("autoGMM.json");
-  HScale_clusters.set_value(gmm->getClusters());
-  HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
-  HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
-  HScale_GMM_dilate.set_value(gmm->getErode(colorIndex));
+	gmm->read("autoGMM.json");
+	HScale_clusters.set_value(gmm->getClusters());
+	HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
+	HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
+	HScale_GMM_dilate.set_value(gmm->getErode(colorIndex));
 }
 
 void VisionGUI::__event_bt_GMM_left_clicked() {
-  if (colorIndex-1 < 0) colorIndex = realColors.size()-1;
-  else colorIndex--;
+	if (colorIndex - 1 < 0) colorIndex = realColors.size() - 1;
+	else colorIndex--;
 
-  lb_threshold.set_text(realColors.at(colorIndex));
-  HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
-  HScale_GMM_dilate.set_value(gmm->getDilate(colorIndex));
-  HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
+	lb_threshold.set_text(realColors.at(colorIndex));
+	HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
+	HScale_GMM_dilate.set_value(gmm->getDilate(colorIndex));
+	HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
 }
 
 void VisionGUI::__event_bt_GMM_right_clicked() {
-  if (colorIndex+1 >= realColors.size()) colorIndex = 0;
-  else colorIndex++;
+	if (colorIndex + 1 >= realColors.size()) colorIndex = 0;
+	else colorIndex++;
 
-  lb_threshold.set_text(realColors.at(colorIndex));
-  HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
-  HScale_GMM_dilate.set_value(gmm->getDilate(colorIndex));
-  HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
+	lb_threshold.set_text(realColors.at(colorIndex));
+	HScale_GMM_blur.set_value(gmm->getBlur(colorIndex));
+	HScale_GMM_dilate.set_value(gmm->getDilate(colorIndex));
+	HScale_GMM_erode.set_value(gmm->getErode(colorIndex));
 }
 
 void VisionGUI::__event_rb_GMM_frame_clicked() {
-  if (rb_GMM_original.get_active()) {
-    gaussiansFrame_flag = false;
-    finalFrame_flag = false;
-    thresholdFrame_flag = false;
-  } else if (rb_GMM_gaussians.get_active()) {
-    gaussiansFrame_flag = true;
-    finalFrame_flag = false;
-    thresholdFrame_flag = false;
-  } else if (rb_GMM_final.get_active()){
-    gaussiansFrame_flag = false;
-    finalFrame_flag = true;
-    thresholdFrame_flag = false;
-  } else {
-    gaussiansFrame_flag = false;
-    finalFrame_flag = false;
-    thresholdFrame_flag = true;
-  }
+	if (rb_GMM_original.get_active()) {
+		gaussiansFrame_flag = false;
+		finalFrame_flag = false;
+		thresholdFrame_flag = false;
+	} else if (rb_GMM_gaussians.get_active()) {
+		gaussiansFrame_flag = true;
+		finalFrame_flag = false;
+		thresholdFrame_flag = false;
+	} else if (rb_GMM_final.get_active()) {
+		gaussiansFrame_flag = false;
+		finalFrame_flag = true;
+		thresholdFrame_flag = false;
+	} else {
+		gaussiansFrame_flag = false;
+		finalFrame_flag = false;
+		thresholdFrame_flag = true;
+	}
 }
 
 void VisionGUI::__event_bt_GMM_match_clicked() {
-  int gaussian = cb_gaussianColor.get_active_row_number();
-  int color = cb_realColor.get_active_row_number();
-  if (gaussian >= 0 && color >= 0) gmm->setMatchColor(gaussian-1, color-1);
+	int gaussian = cb_gaussianColor.get_active_row_number();
+	int color = cb_realColor.get_active_row_number();
+	if (gaussian >= 0 && color >= 0) gmm->setMatchColor(gaussian - 1, color - 1);
 }
 
 void VisionGUI::__event_bt_GMM_done_clicked() {
-  if (gmm->getDoneFlag() == false) {
-    gmm->setDone(true);
-    bt_GMM_done.set_label("Reset");
-    // rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
-  } else {
-    gmm->setDone(false);
-    bt_GMM_done.set_label("Done");
-    // rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
-  }
+	if (gmm->getDoneFlag() == false) {
+		gmm->setDone(true);
+		bt_GMM_done.set_label("Reset");
+		// rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
+	} else {
+		gmm->setDone(false);
+		bt_GMM_done.set_label("Done");
+		// rb_GMM_threshold.set_state(Gtk::STATE_INSENSITIVE);
+	}
 }
 
 void VisionGUI::HScale_clusters_value_changed() {
-  gmm->setClusters(HScale_clusters.get_value());
+	gmm->setClusters(HScale_clusters.get_value());
 
-  cb_gaussianColor.remove_all();
-  cb_gaussianColor.append("Select Gaussian:");
-  cb_gaussianColor.set_active(0);
-  for (int i = 0; i < gmm->getClusters(); i++) {
-    cb_gaussianColor.append(gaussianColors.at(i));
-  }
+	cb_gaussianColor.remove_all();
+	cb_gaussianColor.append("Select Gaussian:");
+	cb_gaussianColor.set_active(0);
+	for (int i = 0; i < gmm->getClusters(); i++) {
+		cb_gaussianColor.append(gaussianColors.at(i));
+	}
 }
 
 void VisionGUI::__event_bt_trainGMM_clicked() {
-  int res = gmm->train();
-  if (res == 0) {
-    rb_GMM_gaussians.set_active(true);
-    rb_GMM_gaussians.clicked();
-    bt_collectSamples.set_active(false);
-    bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
-    bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
-    bt_GMM_save.set_state(Gtk::STATE_NORMAL);
-    samplesEventFlag = false;
-  }
-  else HScale_clusters.set_state(Gtk::STATE_NORMAL);
+	int res = gmm->train();
+	if (res == 0) {
+		rb_GMM_gaussians.set_active(true);
+		rb_GMM_gaussians.clicked();
+		bt_collectSamples.set_active(false);
+		bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+		bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
+		bt_GMM_save.set_state(Gtk::STATE_NORMAL);
+		samplesEventFlag = false;
+	} else HScale_clusters.set_state(Gtk::STATE_NORMAL);
 }
 
 void VisionGUI::__event_bt_collectSamples_pressed() {
-  if (samplesEventFlag) {
-    bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
-    bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
-  } else {
-    bt_popSample.set_state(Gtk::STATE_NORMAL);
-    bt_clearSamples.set_state(Gtk::STATE_NORMAL);
-  }
+	if (samplesEventFlag) {
+		bt_popSample.set_state(Gtk::STATE_INSENSITIVE);
+		bt_clearSamples.set_state(Gtk::STATE_INSENSITIVE);
+	} else {
+		bt_popSample.set_state(Gtk::STATE_NORMAL);
+		bt_clearSamples.set_state(Gtk::STATE_NORMAL);
+	}
 
-  samplesEventFlag = !samplesEventFlag;
+	samplesEventFlag = !samplesEventFlag;
 }
 
 void VisionGUI::__event_bt_popSample_clicked() {
-  gmm->popSample();
-  decrementSamples();
-  std::cout << "GMM sample popped. Total left: " << gmm->getSamplesSize() << std::endl;
+	gmm->popSample();
+	decrementSamples();
+	std::cout << "GMM sample popped. Total left: " << gmm->getSamplesSize() << std::endl;
 }
 
 void VisionGUI::__event_bt_clearSamples_clicked() {
-  gmm->clearSamples();
-  totalSamples = 0;
-  bt_popSample.set_label("Pop (0)");
-  std::cout << "GMM samples cleared." << std::endl;
+	gmm->clearSamples();
+	totalSamples = 0;
+	bt_popSample.set_label("Pop (0)");
+	std::cout << "GMM samples cleared." << std::endl;
 }
 
 bool VisionGUI::getSamplesEventFlag() {
-  return samplesEventFlag;
+	return samplesEventFlag;
 }
 
 void VisionGUI::__create_frm_split_view() {
-  Gtk::VBox * vbox;
-  Gtk::Grid * grid;
-  Gtk::Label * label;
+	Gtk::VBox *vbox;
+	Gtk::Grid *grid;
+	Gtk::Label *label;
 
-  vbox = new Gtk::VBox();
-  grid = new Gtk::Grid();
+	vbox = new Gtk::VBox();
+	grid = new Gtk::Grid();
 
-  pack_start(fr_splitView, false, false, 5);
+	pack_start(fr_splitView, false, false, 5);
 
-  fr_splitView.add(*vbox);
-  vbox->pack_start(*grid, false, true, 5);
-  vbox->set_halign(Gtk::ALIGN_CENTER);
-  vbox->set_valign(Gtk::ALIGN_CENTER);
+	fr_splitView.add(*vbox);
+	vbox->pack_start(*grid, false, true, 5);
+	vbox->set_halign(Gtk::ALIGN_CENTER);
+	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  fr_splitView.set_label("Split View");
+	fr_splitView.set_label("Split View");
 
-  grid->set_border_width(5);
-  grid->set_column_spacing(10);
-  grid->set_row_spacing(5);
+	grid->set_border_width(5);
+	grid->set_column_spacing(10);
+	grid->set_row_spacing(5);
 
-  label = new Gtk::Label("Select Mode: ");
-  grid->attach(*label, 0, 0, 1, 1);
-  rb_original_view.set_label("Original");
-  grid->attach(rb_original_view, 1, 0, 1, 1);
-  rb_split_view.set_label("Split");
-  rb_split_view.join_group(rb_original_view);
-  grid->attach(rb_split_view, 2, 0, 1, 1);
+	label = new Gtk::Label("Select Mode: ");
+	grid->attach(*label, 0, 0, 1, 1);
+	rb_original_view.set_label("Original");
+	grid->attach(rb_original_view, 1, 0, 1, 1);
+	rb_split_view.set_label("Split");
+	rb_split_view.join_group(rb_original_view);
+	grid->attach(rb_split_view, 2, 0, 1, 1);
 
-  rb_original_view.set_state(Gtk::STATE_INSENSITIVE);
-  rb_split_view.set_state(Gtk::STATE_INSENSITIVE);
+	rb_original_view.set_state(Gtk::STATE_INSENSITIVE);
+	rb_split_view.set_state(Gtk::STATE_INSENSITIVE);
 
-  rb_original_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
-  rb_split_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
+	rb_original_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
+	rb_split_view.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_split_mode_clicked));
 }
 
 void VisionGUI::__event_rb_split_mode_clicked() {
-  if (rb_split_view.get_active())
-    isSplitView = true;
-  else
-    isSplitView = false;
+	if (rb_split_view.get_active())
+		isSplitView = true;
+	else
+		isSplitView = false;
 }
 
 bool VisionGUI::getIsSplitView() {
-  if (disableSplitView) return false;
-  else return isSplitView;
+	if (disableSplitView) return false;
+	else return isSplitView;
 }
 
 void VisionGUI::__create_frm_capture() {
-  Gtk::VBox * vbox;
-  Gtk::Grid * grid;
-  Gtk::Label * label;
-  Gtk::Frame * frame;
+	Gtk::VBox *vbox;
+	Gtk::Grid *grid;
+	Gtk::Label *label;
+	Gtk::Frame *frame;
 
-  vbox = new Gtk::VBox();
-  grid = new Gtk::Grid();
-  frame = new Gtk::Frame();
+	vbox = new Gtk::VBox();
+	grid = new Gtk::Grid();
+	frame = new Gtk::Frame();
 
-  pack_start(*frame, false, false, 5);
+	pack_start(*frame, false, false, 5);
 
-  frame->add(*vbox);
-  vbox->pack_start(*grid, false, true, 5);
-  vbox->set_halign(Gtk::ALIGN_CENTER);
-  vbox->set_valign(Gtk::ALIGN_CENTER);
+	frame->add(*vbox);
+	vbox->pack_start(*grid, false, true, 5);
+	vbox->set_halign(Gtk::ALIGN_CENTER);
+	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  frame->set_label("Video/Image Capture");
+	frame->set_label("Video/Image Capture");
 
-  grid->set_border_width(5);
-  grid->set_column_spacing(10);
-  grid->set_row_spacing(5);
+	grid->set_border_width(5);
+	grid->set_column_spacing(10);
+	grid->set_row_spacing(5);
 
-  label = new Gtk::Label("Picture Name:");
-  label->set_alignment(1.0);
-  grid->attach(*label, 0, 0, 1, 1);
-  label = new Gtk::Label("Video Name:");
-  label->set_alignment(1.0);
-  grid->attach(*label, 0, 1, 1, 1);
+	label = new Gtk::Label("Picture Name:");
+	label->set_alignment(1.0);
+	grid->attach(*label, 0, 0, 1, 1);
+	label = new Gtk::Label("Video Name:");
+	label->set_alignment(1.0);
+	grid->attach(*label, 0, 1, 1, 1);
 
-  grid->attach(en_picture_name, 1, 0, 1, 1);
-  grid->attach(en_video_name, 1, 1, 1, 1);
+	grid->attach(en_picture_name, 1, 0, 1, 1);
+	grid->attach(en_video_name, 1, 1, 1, 1);
 
-  bt_save_picture.set_label("Save");
-  bt_record_video.set_label("REC");
-  grid->attach(bt_save_picture, 2, 0, 1, 1);
-  grid->attach(bt_record_video, 2, 1, 1, 1);
+	bt_save_picture.set_label("Save");
+	bt_record_video.set_label("REC");
+	grid->attach(bt_save_picture, 2, 0, 1, 1);
+	grid->attach(bt_record_video, 2, 1, 1, 1);
 
-  en_video_name.set_state(Gtk::STATE_INSENSITIVE);
-  en_picture_name.set_state(Gtk::STATE_INSENSITIVE);
-  bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
-  bt_save_picture.set_state(Gtk::STATE_INSENSITIVE);
+	en_video_name.set_state(Gtk::STATE_INSENSITIVE);
+	en_picture_name.set_state(Gtk::STATE_INSENSITIVE);
+	bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
+	bt_save_picture.set_state(Gtk::STATE_INSENSITIVE);
 
-  bt_record_video.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::bt_record_video_pressed));
-  bt_save_picture.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::bt_save_picture_clicked));
+	bt_record_video.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::bt_record_video_pressed));
+	bt_save_picture.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::bt_save_picture_clicked));
 }
 
 void VisionGUI::bt_record_video_pressed() {
-  if (vision->isRecording()) {
-    vision->finishVideo();
-    bt_record_video.set_label("REC");
-    en_video_name.set_text("");
-    en_video_name.set_state(Gtk::STATE_NORMAL);
-  } else {
-    std::string name = en_video_name.get_text();
+	if (vision->isRecording()) {
+		vision->finishVideo();
+		bt_record_video.set_label("REC");
+		en_video_name.set_text("");
+		en_video_name.set_state(Gtk::STATE_NORMAL);
+	} else {
+		std::string name = en_video_name.get_text();
 
-    bt_record_video.set_label("Stop");
-    en_video_name.set_state(Gtk::STATE_INSENSITIVE);
-    if (name.empty()) {
-      vision->startNewVideo(std::to_string(vidIndex++));
-      en_video_name.set_text(std::to_string(vidIndex));
-    } else {
-      vision->startNewVideo(name);
-    }
-  }
+		bt_record_video.set_label("Stop");
+		en_video_name.set_state(Gtk::STATE_INSENSITIVE);
+		if (name.empty()) {
+			vision->startNewVideo(std::to_string(vidIndex++));
+			en_video_name.set_text(std::to_string(vidIndex));
+		} else {
+			vision->startNewVideo(name);
+		}
+	}
 }
 
 void VisionGUI::bt_save_picture_clicked() {
-  std::string name = en_picture_name.get_text();
-  if (name.empty()) {
-    vision->savePicture(std::to_string(picIndex++));
-  } else {
-    vision->savePicture(name);
-  }
-  en_picture_name.set_text("");
+	std::string name = en_picture_name.get_text();
+	if (name.empty()) {
+		vision->savePicture(std::to_string(picIndex++));
+	} else {
+		vision->savePicture(name);
+	}
+	en_picture_name.set_text("");
 }
 
 void VisionGUI::__create_frm_hsv() {
-  Gtk::VBox * vbox;
-  Gtk::Grid * grid;
-  Gtk::Label * label;
+	Gtk::VBox *vbox;
+	Gtk::Grid *grid;
+	Gtk::Label *label;
 
-  vbox = new Gtk::VBox();
-  grid = new Gtk::Grid();
+	vbox = new Gtk::VBox();
+	grid = new Gtk::Grid();
 
-  pack_start(fr_HSV, false, false, 5);
+	pack_start(fr_HSV, false, false, 5);
 
-  fr_HSV.add(*vbox);
-  vbox->pack_start(*grid, false, true, 5);
-  vbox->set_halign(Gtk::ALIGN_CENTER);
-  vbox->set_valign(Gtk::ALIGN_CENTER);
+	fr_HSV.add(*vbox);
+	vbox->pack_start(*grid, false, true, 5);
+	vbox->set_halign(Gtk::ALIGN_CENTER);
+	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-  fr_HSV.set_label("HSV/CIELAB Calibration");
+	fr_HSV.set_label("HSV/CIELAB Calibration");
 
-  grid->set_border_width(5);
-  grid->set_column_spacing(15);
-  grid->set_row_spacing(0);
-  // grid->set_column_homogeneous(true);
+	grid->set_border_width(5);
+	grid->set_column_spacing(15);
+	grid->set_row_spacing(0);
+	// grid->set_column_homogeneous(true);
 
-  bt_HSV_calib.set_label("HSV Calib.");
-  grid->attach(bt_HSV_calib, 0, 0, 1, 1);
+	bt_HSV_calib.set_label("HSV Calib.");
+	grid->attach(bt_HSV_calib, 0, 0, 1, 1);
 
-  bt_HSV_left.set_label(" < ");
-  grid->attach(bt_HSV_left, 2, 0, 1, 1);
-  HSV_label.set_text("Main");
-  grid->attach(HSV_label, 3, 0, 1, 1);
-  bt_HSV_right.set_label(" > ");
-  grid->attach(bt_HSV_right, 4, 0, 1, 1);
+	bt_HSV_left.set_label(" < ");
+	grid->attach(bt_HSV_left, 2, 0, 1, 1);
+	HSV_label.set_text("Main");
+	grid->attach(HSV_label, 3, 0, 1, 1);
+	bt_HSV_right.set_label(" > ");
+	grid->attach(bt_HSV_right, 4, 0, 1, 1);
 
-  bt_switchMainAdv.set_label("Main <-> Adv");
-  grid->attach(bt_switchMainAdv, 6, 0, 1, 1);
+	bt_switchMainAdv.set_label("Main <-> Adv");
+	grid->attach(bt_switchMainAdv, 6, 0, 1, 1);
 
 	cb_convertType.append("HSV");
 	cb_convertType.append("CIELAB");
 	cb_convertType.set_active(0);
 	grid->attach(cb_convertType, 7, 0, 1, 1);
 
-  grid = new Gtk::Grid();
-  grid->set_border_width(5);
-  grid->set_column_spacing(15);
-  grid->set_row_spacing(0);
-  grid->set_column_homogeneous(true);
-  vbox->pack_start(*grid, false, true, 5);
+	grid = new Gtk::Grid();
+	grid->set_border_width(5);
+	grid->set_column_spacing(15);
+	grid->set_row_spacing(0);
+	grid->set_column_homogeneous(true);
+	vbox->pack_start(*grid, false, true, 5);
 
 	lb_Hmin.set_text("Hmin");
-  lb_Hmin.set_alignment(1.0, 1.0);
-  grid->attach(lb_Hmin, 0, 0, 1, 1);
+	lb_Hmin.set_alignment(1.0, 1.0);
+	grid->attach(lb_Hmin, 0, 0, 1, 1);
 
-  HScale_Hmin.set_digits(0);
-  HScale_Hmin.set_increments(1,1);
-  HScale_Hmin.set_range(0,255);
-  HScale_Hmin.set_value_pos(Gtk::POS_TOP);
-  HScale_Hmin.set_draw_value();
-  grid->attach(HScale_Hmin, 1, 0, 2, 1);
+	HScale_Hmin.set_digits(0);
+	HScale_Hmin.set_increments(1, 1);
+	HScale_Hmin.set_range(0, 255);
+	HScale_Hmin.set_value_pos(Gtk::POS_TOP);
+	HScale_Hmin.set_draw_value();
+	grid->attach(HScale_Hmin, 1, 0, 2, 1);
 
 	lb_Hmax.set_text("Hmax");
 	lb_Hmax.set_alignment(1.0, 1.0);
-  grid->attach(lb_Hmax, 3, 0, 1, 1);
+	grid->attach(lb_Hmax, 3, 0, 1, 1);
 
-  HScale_Hmax.set_digits(0);
-  HScale_Hmax.set_increments(1,1);
-  HScale_Hmax.set_range(0,255);
-  HScale_Hmax.set_value_pos(Gtk::POS_TOP);
-  HScale_Hmax.set_draw_value();
-  grid->attach(HScale_Hmax, 4, 0, 2, 1);
+	HScale_Hmax.set_digits(0);
+	HScale_Hmax.set_increments(1, 1);
+	HScale_Hmax.set_range(0, 255);
+	HScale_Hmax.set_value_pos(Gtk::POS_TOP);
+	HScale_Hmax.set_draw_value();
+	grid->attach(HScale_Hmax, 4, 0, 2, 1);
 
 	lb_Smin.set_text("Smin");
 	lb_Smin.set_alignment(1.0, 1.0);
-   grid->attach(lb_Smin, 0, 1, 1, 1);
+	grid->attach(lb_Smin, 0, 1, 1, 1);
 
-  HScale_Smin.set_digits(0);
-  HScale_Smin.set_increments(1,1);
-  HScale_Smin.set_range(0,255);
-  HScale_Smin.set_value_pos(Gtk::POS_TOP);
-  HScale_Smin.set_draw_value();
-  grid->attach(HScale_Smin, 1, 1, 2, 1);
+	HScale_Smin.set_digits(0);
+	HScale_Smin.set_increments(1, 1);
+	HScale_Smin.set_range(0, 255);
+	HScale_Smin.set_value_pos(Gtk::POS_TOP);
+	HScale_Smin.set_draw_value();
+	grid->attach(HScale_Smin, 1, 1, 2, 1);
 
 	lb_Smax.set_text("Smax");
-  lb_Smax.set_alignment(1.0, 1.0);
-  grid->attach(lb_Smax, 3, 1, 1, 1);
+	lb_Smax.set_alignment(1.0, 1.0);
+	grid->attach(lb_Smax, 3, 1, 1, 1);
 
-  HScale_Smax.set_digits(0);
-  HScale_Smax.set_increments(1,1);
-  HScale_Smax.set_range(0,255);
-  HScale_Smax.set_value_pos(Gtk::POS_TOP);
-  HScale_Smax.set_draw_value();
+	HScale_Smax.set_digits(0);
+	HScale_Smax.set_increments(1, 1);
+	HScale_Smax.set_range(0, 255);
+	HScale_Smax.set_value_pos(Gtk::POS_TOP);
+	HScale_Smax.set_draw_value();
 
-  grid->attach(HScale_Smax,4, 1, 2, 1);
+	grid->attach(HScale_Smax, 4, 1, 2, 1);
 
 	lb_Vmin.set_text("Vmin");
-  lb_Vmin.set_alignment(1.0, 1.0);
-  grid->attach(lb_Vmin, 0, 2, 1, 1);
+	lb_Vmin.set_alignment(1.0, 1.0);
+	grid->attach(lb_Vmin, 0, 2, 1, 1);
 
-  HScale_Vmin.set_digits(0);
-  HScale_Vmin.set_increments(1,1);
-  HScale_Vmin.set_range(0,255);
-  HScale_Vmin.set_value_pos(Gtk::POS_TOP);
-  HScale_Vmin.set_draw_value();
-  grid->attach(HScale_Vmin, 1, 2, 2, 1);
+	HScale_Vmin.set_digits(0);
+	HScale_Vmin.set_increments(1, 1);
+	HScale_Vmin.set_range(0, 255);
+	HScale_Vmin.set_value_pos(Gtk::POS_TOP);
+	HScale_Vmin.set_draw_value();
+	grid->attach(HScale_Vmin, 1, 2, 2, 1);
 
 	lb_Vmax.set_text("Vmax");
-  lb_Vmax.set_alignment(1.0, 1.0);
-  grid->attach(lb_Vmax, 3, 2, 1, 1);
+	lb_Vmax.set_alignment(1.0, 1.0);
+	grid->attach(lb_Vmax, 3, 2, 1, 1);
 
-  HScale_Vmax.set_digits(0);
-  HScale_Vmax.set_increments(1,1);
-  HScale_Vmax.set_range(0,255);
-  HScale_Vmax.set_value_pos(Gtk::POS_TOP);
-  HScale_Vmax.set_draw_value();
+	HScale_Vmax.set_digits(0);
+	HScale_Vmax.set_increments(1, 1);
+	HScale_Vmax.set_range(0, 255);
+	HScale_Vmax.set_value_pos(Gtk::POS_TOP);
+	HScale_Vmax.set_draw_value();
 
-  grid->attach(HScale_Vmax, 4, 2, 2, 1);
+	grid->attach(HScale_Vmax, 4, 2, 2, 1);
 
-  label = new Gtk::Label("Erode:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0, 3, 1, 1);
+	label = new Gtk::Label("Erode:");
+	label->set_alignment(1.0, 1.0);
+	grid->attach(*label, 0, 3, 1, 1);
 
-  HScale_Erode.set_digits(0);
-  HScale_Erode.set_increments(1,1);
-  HScale_Erode.set_range(0,50);
-  HScale_Erode.set_value_pos(Gtk::POS_TOP);
-  HScale_Erode.set_draw_value();
-  grid->attach(HScale_Erode, 1, 3, 2, 1);
+	HScale_Erode.set_digits(0);
+	HScale_Erode.set_increments(1, 1);
+	HScale_Erode.set_range(0, 50);
+	HScale_Erode.set_value_pos(Gtk::POS_TOP);
+	HScale_Erode.set_draw_value();
+	grid->attach(HScale_Erode, 1, 3, 2, 1);
 
-  label = new Gtk::Label("Dilate:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 3, 1, 1);
+	label = new Gtk::Label("Dilate:");
+	label->set_alignment(1.0, 1.0);
+	grid->attach(*label, 3, 3, 1, 1);
 
-  HScale_Dilate.set_digits(0);
-  HScale_Dilate.set_increments(1,1);
-  HScale_Dilate.set_range(0,50);
-  HScale_Dilate.set_value_pos(Gtk::POS_TOP);
-  HScale_Dilate.set_draw_value();
-  grid->attach(HScale_Dilate, 4, 3, 2, 1);
+	HScale_Dilate.set_digits(0);
+	HScale_Dilate.set_increments(1, 1);
+	HScale_Dilate.set_range(0, 50);
+	HScale_Dilate.set_value_pos(Gtk::POS_TOP);
+	HScale_Dilate.set_draw_value();
+	grid->attach(HScale_Dilate, 4, 3, 2, 1);
 
-  label = new Gtk::Label("Blur:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 0, 4, 1, 1);
+	label = new Gtk::Label("Blur:");
+	label->set_alignment(1.0, 1.0);
+	grid->attach(*label, 0, 4, 1, 1);
 
-  HScale_Blur.set_digits(0);
-  HScale_Blur.set_increments(2,2);
-  HScale_Blur.set_range(3,9);
-  HScale_Blur.set_value_pos(Gtk::POS_TOP);
-  HScale_Blur.set_draw_value();
-  grid->attach(HScale_Blur, 1, 4, 2, 1);
+	HScale_Blur.set_digits(0);
+	HScale_Blur.set_increments(2, 2);
+	HScale_Blur.set_range(3, 9);
+	HScale_Blur.set_value_pos(Gtk::POS_TOP);
+	HScale_Blur.set_draw_value();
+	grid->attach(HScale_Blur, 1, 4, 2, 1);
 
-  label = new Gtk::Label("Amin:");
-  label->set_alignment(1.0, 1.0);
-  grid->attach(*label, 3, 4, 1, 1);
+	label = new Gtk::Label("Amin:");
+	label->set_alignment(1.0, 1.0);
+	grid->attach(*label, 3, 4, 1, 1);
 
-  HScale_Amin.set_digits(0);
-  HScale_Amin.set_increments(1,1);
-  HScale_Amin.set_range(0,200);
-  HScale_Amin.set_value_pos(Gtk::POS_TOP);
-  HScale_Amin.set_draw_value();
+	HScale_Amin.set_digits(0);
+	HScale_Amin.set_increments(1, 1);
+	HScale_Amin.set_range(0, 200);
+	HScale_Amin.set_value_pos(Gtk::POS_TOP);
+	HScale_Amin.set_draw_value();
 
-  grid->attach(HScale_Amin, 4, 4, 2, 1);
+	grid->attach(HScale_Amin, 4, 4, 2, 1);
 
-  bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
-  bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
+	bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+	bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
 	cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
-  HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-  bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-  bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
+	bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+	bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
 
-  bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_HSV_calib_pressed));
-  bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_HSV_calib_clicked));
-  bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_left_HSV_calib_clicked));
-  bt_switchMainAdv.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_switchMainAdv_clicked));
+	bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_HSV_calib_pressed));
+	bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_HSV_calib_clicked));
+	bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_left_HSV_calib_clicked));
+	bt_switchMainAdv.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_switchMainAdv_clicked));
 	cb_convertType.signal_changed().connect(sigc::mem_fun(*this, &VisionGUI::__event_cb_convertType_changed));
-  HScale_Hmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmin_value_changed));
-  HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmax_value_changed));
-  HScale_Smin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smin_value_changed));
-  HScale_Smax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smax_value_changed));
-  HScale_Vmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Vmin_value_changed));
-  HScale_Vmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Vmax_value_changed));
-  HScale_Erode.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Erode_value_changed));
-  HScale_Dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Dilate_value_changed));
-  HScale_Blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Blur_value_changed));
-  HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Amin_value_changed));
+	HScale_Hmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmin_value_changed));
+	HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmax_value_changed));
+	HScale_Smin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smin_value_changed));
+	HScale_Smax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smax_value_changed));
+	HScale_Vmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Vmin_value_changed));
+	HScale_Vmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Vmax_value_changed));
+	HScale_Erode.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Erode_value_changed));
+	HScale_Dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Dilate_value_changed));
+	HScale_Blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Blur_value_changed));
+	HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Amin_value_changed));
 }
 
 void VisionGUI::__event_cb_convertType_changed() {
-  int type = cb_convertType.get_active_row_number();
+	int type = cb_convertType.get_active_row_number();
 	vision->setConvertType(type);
 
 	HScale_Erode.set_value(vision->getErode(type, Img_id));
@@ -806,12 +804,10 @@ void VisionGUI::__event_cb_convertType_changed() {
 		lb_Vmin.set_text("Vmin");
 		lb_Vmax.set_text("Vmax");
 	}
-
-
 }
 
 void VisionGUI::__event_bt_switchMainAdv_clicked() {
-  vision->switchMainWithAdv();
+	vision->switchMainWithAdv();
 	if (vision->getConvertType()) { // CIELAB
 		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
 		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
@@ -836,7 +832,6 @@ void VisionGUI::__event_bt_switchMainAdv_clicked() {
 		HScale_Dilate.set_value(vision->getDilate(vision->HSV, Img_id));
 	}
 }
-
 
 void VisionGUI::HScale_Hmin_value_changed() {
 	if (vision->getConvertType()) { // CIELAB
@@ -887,135 +882,131 @@ void VisionGUI::HScale_Vmax_value_changed() {
 }
 
 void VisionGUI::HScale_Amin_value_changed() {
-  vision->setAmin(vision->getConvertType(), Img_id, static_cast<int>(HScale_Amin.get_value()));
+	vision->setAmin(vision->getConvertType(), Img_id, static_cast<int>(HScale_Amin.get_value()));
 }
 
 void VisionGUI::HScale_Dilate_value_changed() {
 
- if(HScale_Dilate.get_value()<0){
-   vision->setDilate(vision->getConvertType(), Img_id, 0);
- }else{
-   vision->setDilate(vision->getConvertType(), Img_id, static_cast<int>(HScale_Dilate.get_value()));
- }
-  //std::cout<<"=================================================="<<D[Img_id]<<std::endl;
+	if (HScale_Dilate.get_value() < 0) {
+		vision->setDilate(vision->getConvertType(), Img_id, 0);
+	} else {
+		vision->setDilate(vision->getConvertType(), Img_id, static_cast<int>(HScale_Dilate.get_value()));
+	}
+	//std::cout<<"=================================================="<<D[Img_id]<<std::endl;
 
 }
 
 void VisionGUI::HScale_Erode_value_changed() {
 
-
- if(HScale_Erode.get_value()<0){
-   vision->setErode(vision->getConvertType(), Img_id, 0);
- }else{
-   vision->setErode(vision->getConvertType(), Img_id, static_cast<int>(HScale_Erode.get_value()));
- }
-  //std::cout<<"=================================================="<<E[Img_id]<<std::endl;
+	if (HScale_Erode.get_value() < 0) {
+		vision->setErode(vision->getConvertType(), Img_id, 0);
+	} else {
+		vision->setErode(vision->getConvertType(), Img_id, static_cast<int>(HScale_Erode.get_value()));
+	}
+	//std::cout<<"=================================================="<<E[Img_id]<<std::endl;
 
 }
 
 void VisionGUI::HScale_Blur_value_changed() {
 
- if(HScale_Blur.get_value()<3){
-   vision->setBlur(vision->getConvertType(), Img_id, 3);
- }
- else if((int) HScale_Blur.get_value() % 2 == 0){
-   vision->setBlur(vision->getConvertType(), Img_id, (int) HScale_Blur.get_value()+1);
- }
- else{
-   vision->setBlur(vision->getConvertType(), Img_id, (int)HScale_Blur.get_value());
- }
-  //std::cout<<"====Blur: "<<B[Img_id]<<" id color: "<<Img_id<<std::endl;
+	if (HScale_Blur.get_value() < 3) {
+		vision->setBlur(vision->getConvertType(), Img_id, 3);
+	} else if ((int) HScale_Blur.get_value() % 2 == 0) {
+		vision->setBlur(vision->getConvertType(), Img_id, (int) HScale_Blur.get_value() + 1);
+	} else {
+		vision->setBlur(vision->getConvertType(), Img_id, (int) HScale_Blur.get_value());
+	}
+	//std::cout<<"====Blur: "<<B[Img_id]<<" id color: "<<Img_id<<std::endl;
 
 }
 
 void VisionGUI::__event_bt_HSV_calib_pressed() {
 
-  if (HSV_calib_event_flag) {
-    HSV_calib_event_flag=false;
-    // VisionGUI::__event_auto_save();
-    HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
-    HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-    bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
-    bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-    bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
-	  cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
-  } else {
-    HSV_calib_event_flag=true;
-    HScale_Hmin.set_state(Gtk::STATE_NORMAL);
-    HScale_Smin.set_state(Gtk::STATE_NORMAL);
-    HScale_Vmin.set_state(Gtk::STATE_NORMAL);
-    HScale_Hmax.set_state(Gtk::STATE_NORMAL);
-    HScale_Smax.set_state(Gtk::STATE_NORMAL);
-    HScale_Vmax.set_state(Gtk::STATE_NORMAL);
-    HScale_Dilate.set_state(Gtk::STATE_NORMAL);
-    HScale_Erode.set_state(Gtk::STATE_NORMAL);
-    HScale_Blur.set_state(Gtk::STATE_NORMAL);
-    HScale_Amin.set_state(Gtk::STATE_NORMAL);
-    bt_HSV_right.set_state(Gtk::STATE_NORMAL);
-    bt_HSV_left.set_state(Gtk::STATE_NORMAL);
-    bt_switchMainAdv.set_state(Gtk::STATE_NORMAL);
-	  cb_convertType.set_state(Gtk::STATE_NORMAL);
-  }
+	if (HSV_calib_event_flag) {
+		HSV_calib_event_flag = false;
+		// VisionGUI::__event_auto_save();
+		HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
+		bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+		bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+		bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
+		cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
+	} else {
+		HSV_calib_event_flag = true;
+		HScale_Hmin.set_state(Gtk::STATE_NORMAL);
+		HScale_Smin.set_state(Gtk::STATE_NORMAL);
+		HScale_Vmin.set_state(Gtk::STATE_NORMAL);
+		HScale_Hmax.set_state(Gtk::STATE_NORMAL);
+		HScale_Smax.set_state(Gtk::STATE_NORMAL);
+		HScale_Vmax.set_state(Gtk::STATE_NORMAL);
+		HScale_Dilate.set_state(Gtk::STATE_NORMAL);
+		HScale_Erode.set_state(Gtk::STATE_NORMAL);
+		HScale_Blur.set_state(Gtk::STATE_NORMAL);
+		HScale_Amin.set_state(Gtk::STATE_NORMAL);
+		bt_HSV_right.set_state(Gtk::STATE_NORMAL);
+		bt_HSV_left.set_state(Gtk::STATE_NORMAL);
+		bt_switchMainAdv.set_state(Gtk::STATE_NORMAL);
+		cb_convertType.set_state(Gtk::STATE_NORMAL);
+	}
 }
 
 void VisionGUI::selectFrame(int sector) {
-  switch (sector) {
-    case 0:
-    rb_original_view.set_active(true);
-    __event_rb_split_mode_clicked();
-    break;
+	switch (sector) {
+		case 0:
+			rb_original_view.set_active(true);
+			__event_rb_split_mode_clicked();
+			break;
 
-    case 1:
-    Img_id = 3;
-    rb_original_view.set_active(true);
-    __event_rb_split_mode_clicked();
-    __event_bt_right_HSV_calib_clicked();
-    if (!bt_HSV_calib.get_active()) {
-      bt_HSV_calib.set_active(true);
-      __event_bt_HSV_calib_pressed();
-    }
-    break;
-    case 2:
-    Img_id = 0;
-    rb_original_view.set_active(true);
-    __event_rb_split_mode_clicked();
-    __event_bt_right_HSV_calib_clicked();
-    if (!bt_HSV_calib.get_active()) {
-      bt_HSV_calib.set_active(true);
-      __event_bt_HSV_calib_pressed();
-    }
-    break;
-    case 3:
-    Img_id = 1;
-    rb_original_view.set_active(true);
-    __event_rb_split_mode_clicked();
-    __event_bt_right_HSV_calib_clicked();
-    if (!bt_HSV_calib.get_active()) {
-      bt_HSV_calib.set_active(true);
-      __event_bt_HSV_calib_pressed();
-    }
-    break;
-    default:
-    break;
-  }
+		case 1:
+			Img_id = 3;
+			rb_original_view.set_active(true);
+			__event_rb_split_mode_clicked();
+			__event_bt_right_HSV_calib_clicked();
+			if (!bt_HSV_calib.get_active()) {
+				bt_HSV_calib.set_active(true);
+				__event_bt_HSV_calib_pressed();
+			}
+			break;
+		case 2:
+			Img_id = 0;
+			rb_original_view.set_active(true);
+			__event_rb_split_mode_clicked();
+			__event_bt_right_HSV_calib_clicked();
+			if (!bt_HSV_calib.get_active()) {
+				bt_HSV_calib.set_active(true);
+				__event_bt_HSV_calib_pressed();
+			}
+			break;
+		case 3:
+			Img_id = 1;
+			rb_original_view.set_active(true);
+			__event_rb_split_mode_clicked();
+			__event_bt_right_HSV_calib_clicked();
+			if (!bt_HSV_calib.get_active()) {
+				bt_HSV_calib.set_active(true);
+				__event_bt_HSV_calib_pressed();
+			}
+			break;
+		default:
+			break;
+	}
 }
-
 
 void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 
 	int type = vision->getConvertType();
 
-  Img_id=Img_id+1;
+	Img_id = Img_id + 1;
 
-  if(Img_id>3) Img_id = 0;
+	if (Img_id > 3) Img_id = 0;
 
 	if (type == vision->HSV) {
 		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
@@ -1037,35 +1028,35 @@ void VisionGUI::__event_bt_right_HSV_calib_clicked() {
 		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
 	}
 
-  HScale_Dilate.set_value(vision->getDilate(vision->getConvertType(), Img_id));
-  HScale_Erode.set_value(vision->getErode(vision->getConvertType(), Img_id));
+	HScale_Dilate.set_value(vision->getDilate(vision->getConvertType(), Img_id));
+	HScale_Erode.set_value(vision->getErode(vision->getConvertType(), Img_id));
 
-  HScale_Blur.set_value(vision->getBlur(vision->getConvertType(), Img_id));
-  HScale_Amin.set_value(vision->getAmin(vision->getConvertType(), Img_id));
+	HScale_Blur.set_value(vision->getBlur(vision->getConvertType(), Img_id));
+	HScale_Amin.set_value(vision->getAmin(vision->getConvertType(), Img_id));
 
-  switch(Img_id) {
-  case 0:
-      HSV_label.set_text("Main");
-      break;
-  case 1:
-      HSV_label.set_text("Green");
-      break;
-  case 2:
-      HSV_label.set_text("Ball");
-      break;
-  case 3:
-      HSV_label.set_text("Opp.");
-      break;
-  }
+	switch (Img_id) {
+		case 0:
+			HSV_label.set_text("Main");
+			break;
+		case 1:
+			HSV_label.set_text("Green");
+			break;
+		case 2:
+			HSV_label.set_text("Ball");
+			break;
+		case 3:
+			HSV_label.set_text("Opp.");
+			break;
+	}
 }
 
 void VisionGUI::__event_bt_left_HSV_calib_clicked() {
 
 	int type = vision->getConvertType();
 
-  Img_id=Img_id-1;
+	Img_id = Img_id - 1;
 
-  if(Img_id<0) Img_id = 3;
+	if (Img_id < 0) Img_id = 3;
 
 	if (type == vision->HSV) {
 		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
@@ -1087,32 +1078,31 @@ void VisionGUI::__event_bt_left_HSV_calib_clicked() {
 		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
 	}
 
+	HScale_Dilate.set_value(vision->getDilate(type, Img_id));
+	HScale_Erode.set_value(vision->getErode(type, Img_id));
 
-  HScale_Dilate.set_value(vision->getDilate(type, Img_id));
-  HScale_Erode.set_value(vision->getErode(type, Img_id));
+	HScale_Blur.set_value(vision->getBlur(type, Img_id));
+	HScale_Amin.set_value(vision->getAmin(type, Img_id));
 
-  HScale_Blur.set_value(vision->getBlur(type, Img_id));
-  HScale_Amin.set_value(vision->getAmin(type, Img_id));
-
-  switch(Img_id) {
-  case 0:
-      HSV_label.set_text("Main");
-      break;
-  case 1:
-      HSV_label.set_text("Green");
-      break;
-  case 2:
-      HSV_label.set_text("Ball");
-      break;
-  case 3:
-      HSV_label.set_text("Opp.");
-      break;
-  }
+	switch (Img_id) {
+		case 0:
+			HSV_label.set_text("Main");
+			break;
+		case 1:
+			HSV_label.set_text("Green");
+			break;
+		case 2:
+			HSV_label.set_text("Ball");
+			break;
+		case 3:
+			HSV_label.set_text("Opp.");
+			break;
+	}
 }
 
-    void VisionGUI::event_draw_info_checkbox_signal_clicked() {
-        draw_info_flag = !draw_info_flag;
-    }
+void VisionGUI::event_draw_info_checkbox_signal_clicked() {
+	draw_info_flag = !draw_info_flag;
+}
 
 // void VisionGUI::__event_auto_save()
 // {
@@ -1125,74 +1115,85 @@ void VisionGUI::__event_bt_left_HSV_calib_clicked() {
 // }
 
 void VisionGUI::incrementSamples() {
-  totalSamples++;
-  std::string text = "Pop (" + std::to_string(totalSamples) + ")";
-  bt_popSample.set_label(text);
+	totalSamples++;
+	std::string text = "Pop (" + std::to_string(totalSamples) + ")";
+	bt_popSample.set_label(text);
 }
 
 void VisionGUI::decrementSamples() {
-  if (totalSamples-1 < 0) totalSamples = 0;
-  else totalSamples--;
-  std::string text = "Pop (" + std::to_string(totalSamples) + ")";
-  bt_popSample.set_label(text);
+	if (totalSamples - 1 < 0) totalSamples = 0;
+	else totalSamples--;
+	std::string text = "Pop (" + std::to_string(totalSamples) + ")";
+	bt_popSample.set_label(text);
 }
 
-void VisionGUI::init_calib_params()
-{
-  // Inicializar variáveis de calibração
-  int H[4][2] = { {0,180}, {0,180}, {0,180}, {0,180} };
-  int S[4][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255} };
-  int V[4][2] = { {0, 255}, {0, 255}, {0, 255}, {0, 255} };
-	int LAB[4][2] = { {0,255}, {0,255}, {0,255}, {0,255} };
-  int B[4] {3, 3, 3, 3};
-  int D[4] = {0, 0, 0, 0};
-  int E[4] = {0, 0, 0, 0};
-  int Amin[4] = {150, 90, 90, 115};
+void VisionGUI::init_calib_params() {
+	// Inicializar variáveis de calibração
+	int H[4][2] = {{0, 180},
+				   {0, 180},
+				   {0, 180},
+				   {0, 180}};
+	int S[4][2] = {{0, 255},
+				   {0, 255},
+				   {0, 255},
+				   {0, 255}};
+	int V[4][2] = {{0, 255},
+				   {0, 255},
+				   {0, 255},
+				   {0, 255}};
+	int LAB[4][2] = {{0, 255},
+					 {0, 255},
+					 {0, 255},
+					 {0, 255}};
+	int B[4]{3, 3, 3, 3};
+	int D[4] = {0, 0, 0, 0};
+	int E[4] = {0, 0, 0, 0};
+	int Amin[4] = {150, 90, 90, 115};
 
-  // Configurar os valores iniciais de calibração
-  vision->setCalibParams(vision->HSV, H, S, V, Amin, E, D, B);
+	// Configurar os valores iniciais de calibração
+	vision->setCalibParams(vision->HSV, H, S, V, Amin, E, D, B);
 	vision->setCalibParams(vision->CIELAB, LAB, S, V, Amin, E, D, B);
 
-  // Corrigir os valores mostrados na interface
-  HScale_Hmax.set_value(H[0][1]);
-  HScale_Smax.set_value(S[0][1]);
-  HScale_Vmax.set_value(V[0][1]);
-  HScale_Amin.set_value(Amin[0]);
+	// Corrigir os valores mostrados na interface
+	HScale_Hmax.set_value(H[0][1]);
+	HScale_Smax.set_value(S[0][1]);
+	HScale_Vmax.set_value(V[0][1]);
+	HScale_Amin.set_value(Amin[0]);
 }
 
 void VisionGUI::setFrameSize(int inWidth, int inHeight) {
-  vision->setFrameSize(inWidth, inHeight);
+	vision->setFrameSize(inWidth, inHeight);
 }
 
 int VisionGUI::getGMMColorIndex() {
-  return colorIndex;
+	return colorIndex;
 }
 
 bool VisionGUI::getIsHSV() {
-  return isHSV;
+	return isHSV;
 }
 
 VisionGUI::VisionGUI() :
-  HSV_calib_event_flag(false), Img_id(0),
-  vidIndex(0), picIndex(0), samplesEventFlag(false),
-  totalSamples(0), gaussiansFrame_flag(false),
-  finalFrame_flag(false), thresholdFrame_flag(false),
-  colorIndex(0), isHSV(true), isSplitView(false),
-  disableSplitView(false), draw_info_flag(false) {
+		HSV_calib_event_flag(false), Img_id(0),
+		vidIndex(0), picIndex(0), samplesEventFlag(false),
+		totalSamples(0), gaussiansFrame_flag(false),
+		finalFrame_flag(false), thresholdFrame_flag(false),
+		colorIndex(0), isHSV(true), isSplitView(false),
+		disableSplitView(false), draw_info_flag(false) {
 
-  vision = new Vision(640, 480);
-  gmm = new GMM(640, 480);
+	vision = new Vision(640, 480);
+	gmm = new GMM(640, 480);
 
-  __create_frm_calib_mode();
-  __create_frm_capture();
-  __create_frm_drawing_options();
-  __create_frm_split_view();
-  __create_frm_hsv();
-  __create_frm_gmm();
+	__create_frm_calib_mode();
+	__create_frm_capture();
+	__create_frm_drawing_options();
+	__create_frm_split_view();
+	__create_frm_hsv();
+	__create_frm_gmm();
 
-  init_calib_params();
+	init_calib_params();
 }
 
 VisionGUI::~VisionGUI() {
-  if (vision->isRecording()) vision->finishVideo();
+	if (vision->isRecording()) vision->finishVideo();
 }

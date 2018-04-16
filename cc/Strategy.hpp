@@ -63,7 +63,7 @@ class Strategy {
 		double ball_angle = 0;
 		double ball_mag = 0;
 
-		vector<Robot> robots;
+		std::vector<Robot> robots;
 		cv::Point *adv;
 		int collision_count[3];
 		double past_transangle[3];
@@ -96,7 +96,6 @@ class Strategy {
 		double kr;
 		double de;
 		double ticks;
-
 
 /*
 Tipos de funções da estratégia:
@@ -176,7 +175,7 @@ simplificar apenas uma outra função.
 		Input: 			-----
 		Output:			-----
 		*/
-		void get_targets(vector<Robot> *pRobots, cv::Point *advRobots);
+		void get_targets(std::vector<Robot> *pRobots, cv::Point *advRobots);
 
 		/* overmind
 		Central --- Sobrescreve rotinas baseando-se no escopo total do jogo. Esta
@@ -420,13 +419,10 @@ simplificar apenas uma outra função.
 		 * */
 		cv::Point speed_vector(cv::Point P_ini, cv::Point P_final);
 
-
 		double hyperbolic_field(int i, cv::Point P, bool clockwise);
 		double move_to_goal_field(int i, cv::Point P);
-		double avoid_field(int i,cv::Point Obs,cv::Point Vrobo,cv::Point Vobs );
-		double composed_field(int i,cv::Point P);
-
-
+		double avoid_field(int i, cv::Point Obs, cv::Point Vrobo, cv::Point Vobs);
+		double composed_field(int i, cv::Point P);
 };
 
 #endif /* STRATEGY_HPP_ */

@@ -15,8 +15,8 @@ Xbee::Xbee(const string &port, int baud) {
 	}
 }
 
-Xbee::~Xbee(){
-	for(pair<const char,robot_xbee>& r : robots){
+Xbee::~Xbee() {
+	for (pair<const char, robot_xbee> &r : robots) {
 		xbee_conEnd(r.second.con);
 	}
 	robots.clear();
@@ -38,12 +38,12 @@ void Xbee::add_robot(char id, uint16_t addr) {
 		return;
 	}
 
-	robots[id] = {id,addr,con,{0,0,0}};
+	robots[id] = {id, addr, con, {0, 0, 0}};
 	set_ack_enabled(id, false);
 }
 
 int Xbee::send(char id, const string &message) {
-	if(robots.count(id) == 0) return -1;
+	if (robots.count(id) == 0) return -1;
 
 	uint8_t ack;
 	xbee_conTx(robots[id].con, &ack, message.c_str());
@@ -54,16 +54,16 @@ int Xbee::send(char id, const string &message) {
 vector<message> Xbee::get_messages() {
 	struct xbee_pkt *pkt;
 	vector<message> msgs;
-	for(auto& r : robots){
-		if(xbee_conRx(r.second.con, &pkt, nullptr) == XBEE_ENONE && pkt->dataLen > 0){
-			msgs.push_back({r.second.id,get_string(pkt)});
+	for (auto &r : robots) {
+		if (xbee_conRx(r.second.con, &pkt, nullptr) == XBEE_ENONE && pkt->dataLen > 0) {
+			msgs.push_back({r.second.id, get_string(pkt)});
 		}
 	}
 	return msgs;
 }
 
 string Xbee::send_get_answer(char id, const string &message) {
-	if(robots.count(id) == 0) return "erro";
+	if (robots.count(id) == 0) return "erro";
 	struct xbee_pkt *pkt;
 	uint8_t ack;
 	bool ack_enabled = is_ack_enabled(id);
@@ -81,32 +81,32 @@ string Xbee::send_get_answer(char id, const string &message) {
 
 vector<message> Xbee::send_get_answer(const std::string &message) {
 	vector<struct message> msgs;
-	for(auto& r : robots){
-		string ret = send_get_answer(r.second.id,message);
-		if(!ret.empty()) msgs.push_back({r.second.id,ret});
+	for (auto &r : robots) {
+		string ret = send_get_answer(r.second.id, message);
+		if (!ret.empty()) msgs.push_back({r.second.id, ret});
 	}
 	return msgs;
 }
 
 void Xbee::set_ack_enabled(char id, bool enable) {
-	if(robots.count(id) == 0) return;
-	struct xbee_con* con = robots[id].con;
+	if (robots.count(id) == 0) return;
+	struct xbee_con *con = robots[id].con;
 	struct xbee_conSettings settings{};
 
 	xbee_conSettings(con, nullptr, &settings);
 	settings.disableAck = (uint8_t) !enable;
 	xbee_conSettings(con, &settings, nullptr);
-	if(!enable) robots[id].acks = {0,0,0};
+	if (!enable) robots[id].acks = {0, 0, 0};
 }
 
 void Xbee::set_ack_enabled(bool enable) {
-	for(auto& robot : robots) {
+	for (auto &robot : robots) {
 		set_ack_enabled(robot.second.id, enable);
 	}
 }
 
 bool Xbee::is_ack_enabled(char id) {
-	if(robots.count(id) == 0) return false;
+	if (robots.count(id) == 0) return false;
 	struct xbee_conSettings settings{};
 
 	xbee_conSettings(robots[id].con, nullptr, &settings);
@@ -114,15 +114,15 @@ bool Xbee::is_ack_enabled(char id) {
 }
 
 void Xbee::update_ack(char id, int ack) {
-	if(!is_ack_enabled(id)) return;
-	ack_count& acks = robots[id].acks;
-	if(ack != 0) acks.lost++;
+	if (!is_ack_enabled(id)) return;
+	ack_count &acks = robots[id].acks;
+	if (ack != 0) acks.lost++;
 	acks.total++;
-	acks.lost_rate = double(acks.lost)/double(acks.total)*100;
+	acks.lost_rate = double(acks.lost) / double(acks.total) * 100;
 }
 
-string Xbee::get_string(struct xbee_pkt *pkt){
-	string str(pkt->data, pkt->data+pkt->dataLen);
+string Xbee::get_string(struct xbee_pkt *pkt) {
+	string str(pkt->data, pkt->data + pkt->dataLen);
 	return str;
 }
 
@@ -131,7 +131,7 @@ ack_count Xbee::get_ack_count(char id) {
 }
 
 void Xbee::reset_lost_acks() {
-	for(auto& r : robots){
-		r.second.acks = {0,0,0};
+	for (auto &r : robots) {
+		r.second.acks = {0, 0, 0};
 	}
 }
