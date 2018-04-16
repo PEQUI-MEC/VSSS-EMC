@@ -15,7 +15,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
 #include "../../pack-capture-gui/capture-gui/Robot.hpp"
-#include <iostream>     // std::cout
+#include <iostream>
 #include "tag.hpp"
 #include "visionROI.hpp"
 
@@ -126,8 +126,6 @@ public:
     std::vector<cv::Point3f> createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght);
 	bool foundChessBoardCorners();
   	void switchMainWithAdv();
-    cv::Mat rawFrameCamcalib;
-    void setRawFrameCamcalib(cv::Mat frame);
 
   cv::Point getBall();
   Robot getRobot(int index);
@@ -139,7 +137,6 @@ public:
   int getRobotListSize();
   int getAdvListSize();
   cv::Mat getThreshold(int index);
-  void setAllThresholds(cv::Mat input);
 
   int getHue(int index0, int index1);
   int getSaturation(int index0, int index1);
@@ -168,10 +165,6 @@ public:
   void setDilate(int convertType, int index, int inValue);
   void setBlur(int convertType, int index, int inValue);
   void setAmin(int convertType, int index, int inValue);
-
-
-
-
 };
 
 #endif /* VISION_HPP_ */

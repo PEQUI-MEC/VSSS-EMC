@@ -17,7 +17,6 @@ public:
 
     bool left;
 
-    // eu tentei implementar num cpp mas deu muita merda
     /// <summary>
     /// Constroi a tag
     /// </summary>

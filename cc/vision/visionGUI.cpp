@@ -295,10 +295,6 @@ bool VisionGUI::getDrawSamples() {
   return samplesEventFlag;
 }
 
-bool VisionGUI::getOriginalFrameFlag() {
-  return originalFrame_flag;
-}
-
 bool VisionGUI::getGaussiansFrameFlag() {
   return gaussiansFrame_flag;
 }
@@ -365,22 +361,18 @@ void VisionGUI::__event_bt_GMM_right_clicked() {
 
 void VisionGUI::__event_rb_GMM_frame_clicked() {
   if (rb_GMM_original.get_active()) {
-    originalFrame_flag = true;
     gaussiansFrame_flag = false;
     finalFrame_flag = false;
     thresholdFrame_flag = false;
   } else if (rb_GMM_gaussians.get_active()) {
-    originalFrame_flag = false;
     gaussiansFrame_flag = true;
     finalFrame_flag = false;
     thresholdFrame_flag = false;
   } else if (rb_GMM_final.get_active()){
-    originalFrame_flag = false;
     gaussiansFrame_flag = false;
     finalFrame_flag = true;
     thresholdFrame_flag = false;
   } else {
-    originalFrame_flag = false;
     gaussiansFrame_flag = false;
     finalFrame_flag = false;
     thresholdFrame_flag = true;
@@ -1172,14 +1164,6 @@ void VisionGUI::setFrameSize(int inWidth, int inHeight) {
   vision->setFrameSize(inWidth, inHeight);
 }
 
-int VisionGUI::getFrameHeight() {
-  return vision->getFrameHeight();
-}
-
-int VisionGUI::getFrameWidth() {
-  return vision->getFrameWidth();
-}
-
 int VisionGUI::getGMMColorIndex() {
   return colorIndex;
 }
@@ -1191,11 +1175,10 @@ bool VisionGUI::getIsHSV() {
 VisionGUI::VisionGUI() :
   HSV_calib_event_flag(false), Img_id(0),
   vidIndex(0), picIndex(0), samplesEventFlag(false),
-  originalFrame_flag(true), totalSamples(0),
-  gaussiansFrame_flag(false), finalFrame_flag(false),
-  thresholdFrame_flag(false), colorIndex(0), isHSV(true),
-  isSplitView(false), disableSplitView(false),
-   draw_info_flag(false) {
+  totalSamples(0), gaussiansFrame_flag(false),
+  finalFrame_flag(false), thresholdFrame_flag(false),
+  colorIndex(0), isHSV(true), isSplitView(false),
+  disableSplitView(false), draw_info_flag(false) {
 
   vision = new Vision(640, 480);
   gmm = new GMM(640, 480);
