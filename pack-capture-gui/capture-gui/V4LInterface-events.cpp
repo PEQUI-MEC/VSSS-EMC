@@ -727,8 +727,7 @@ namespace capture {
         btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
-		btn_camCalib_offline_start.set_state(Gtk::STATE_NORMAL);
-
+		btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
     }
 
     void V4LInterface::__event_camCalib_online_start_clicked() {
@@ -737,6 +736,12 @@ namespace capture {
         btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
         btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
         visionGUI.vision->cameraCalibration();
+        if(visionGUI.vision->flag_cam_calibrated){
+            btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+            btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
+            btn_camCalib_pop.set_label("Pop(0)");
+        }
 
     }
 
@@ -748,9 +753,16 @@ namespace capture {
     void V4LInterface::__event_camCalib_pressed() {
 
         if(btn_camCalib.get_active()){
-            visionGUI.vision->flag_cam_calibrated = false;
-            btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
-            CamCalib_flag_event = true;
+            if(visionGUI.vision->flag_cam_calibrated){
+                btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
+                btn_camCalib_offline_start.set_state(Gtk::STATE_INSENSITIVE);
+                btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);
+                btn_camCalib_pop.set_label("Pop(0)");
+                CamCalib_flag_event = true;
+            }
+//            visionGUI.vision->flag_cam_calibrated = false;
+//            btn_camCalib_collect.set_state(Gtk::STATE_NORMAL);
+//            CamCalib_flag_event = true;
         }else{
             btn_camCalib_collect.set_state(Gtk::STATE_INSENSITIVE);
             btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
