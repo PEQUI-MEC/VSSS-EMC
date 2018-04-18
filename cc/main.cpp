@@ -3,6 +3,12 @@
 
 int main(int argc, char **argv) {
 
+	#ifdef CUDA_FOUND
+		std::cout << "encontrei cuda" << std::endl;
+	#else
+		std::cout << "nao encontrei" << std::endl;
+	#endif
+
 	Gtk::Main kit(argc, argv);
 	Gtk::Window window;
 
