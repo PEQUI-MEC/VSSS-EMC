@@ -4,9 +4,9 @@
 int main(int argc, char **argv) {
 
 	#ifdef CUDA_FOUND
-		std::cout << "encontrei cuda" << std::endl;
+		std::cout << "CUDA is enabled." << std::endl;
 	#else
-		std::cout << "nao encontrei" << std::endl;
+		std::cout << "CUDA not found." << std::endl;
 	#endif
 
 	Gtk::Main kit(argc, argv);
