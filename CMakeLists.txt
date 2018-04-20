@@ -86,4 +86,7 @@ target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
 target_link_libraries(VSSS ${LIBXBEE})
-target_link_libraries(VSSS ${CUDA_LIBRARIES}) 
+if(CUDA_FOUND)
+	target_link_libraries(VSSS ${CUDA_LIBRARIES}) 
+endif()
+
