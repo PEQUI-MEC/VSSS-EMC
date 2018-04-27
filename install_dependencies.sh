@@ -1,15 +1,6 @@
 #!/bin/bash
 set -e
 
-while true; do
-    read -p "Do you wish to install CUDA (CUDA only works with a Nvidia GPU)? [y/n] \n" yn
-    case $yn in
-        [Yy]* ) sh install_cuda.sh; break;;
-        [Nn]* ) break;; then break
-        * ) echo "Please answer yes or no.";;
-    esac
-done
-
 mkdir dependencies/
 cd dependencies/
 
