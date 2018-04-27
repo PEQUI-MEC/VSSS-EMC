@@ -334,10 +334,15 @@ bool CamCap::capture_and_show() {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 		strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
 		for (int i = 0; i < 3; i++) {
-			circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
-			putText(imageView, std::to_string(i + 1),
-					cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
-					cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+			if (interface.robot_list.at(i).cmdType != VECTOR) {
+				circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
+				putText(imageView, std::to_string(i + 1),
+						cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
+						cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+			} else {
+				line(imageView, interface.robot_list.at(i).position, interface.robot_list.at(i).secundary,
+					 cv::Scalar(127, 255, 127), 3);
+			} // if cmdType != VECTOR
 		} // for
 
 		interface.update_speed_progressBars();
