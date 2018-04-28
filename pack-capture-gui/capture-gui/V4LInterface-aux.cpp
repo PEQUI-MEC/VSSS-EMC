@@ -1030,14 +1030,30 @@ void V4LInterface::initInterface() {
 	createFunctionsFrame();
 	createSpeedsFrame();
 
+	Gtk::VBox *vbox = new Gtk::VBox();
+	vbox->set_halign(Gtk::ALIGN_CENTER);
+	vbox->set_valign(Gtk::ALIGN_CENTER);
+
+	record_video_checkbox.set_label("Disable Recording");
+	record_video_checkbox.set_can_focus(false);
+	record_video_checkbox.set_margin_bottom(5);
+
+	vbox->pack_start(start_game_bt, false, true, 0);
+	vbox->pack_start(record_video_checkbox, false, true, 0);
+	visionGUI.vision->video_rec_enable = true;
+
 	info_hbox.pack_end(buttons_vbox, false, true, 5);
 	buttons_vbox.pack_start(start_game_hbox, false, true, 5);
-	start_game_hbox.pack_start(start_game_bt, false, true, 5);
+	start_game_hbox.pack_start(*vbox, false, true, 5);
 	buttons_vbox.set_valign(Gtk::ALIGN_CENTER);
 	start_game_bt.property_always_show_image();
 	start_game_bt.set_size_request(50, 100);
 	start_game_bt.set_image(red_button_released);
 
+
+
+	record_video_checkbox.signal_clicked().connect(
+			sigc::mem_fun(*this, &capture::V4LInterface::event_disable_video_record));
 	start_game_bt.signal_clicked().connect(
 			sigc::mem_fun(*this, &capture::V4LInterface::event_start_game_bt_signal_clicked));
 
