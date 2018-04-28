@@ -105,6 +105,9 @@ class Vision {
 		bool isRecording();
 		void savePicture(std::string in_name);
 
+		//video
+		bool video_rec_enable;
+
 		//Cam calib
 		std::vector<cv::Mat> savedCamCalibFrames;
 		cv::Mat cameraMatrix;

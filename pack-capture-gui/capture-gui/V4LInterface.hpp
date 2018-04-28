@@ -74,6 +74,8 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::HBox fps_hbox;
 		Gtk::Label *fps_label;
 
+		Gtk::CheckButton record_video_checkbox;
+
 		bool reset_warp_flag;
 
 		char robotsIDs[6] = {'A', 'B', 'C', 'D', 'E', 'F'};
@@ -169,6 +171,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		void event_robots_function_done_bt_signal_clicked();
 		void event_robots_function_edit_bt_signal_clicked();
 		void event_start_game_bt_signal_clicked();
+		void event_disable_video_record();
 		void event_robots_speed_done_bt_signal_clicked();
 		void event_robots_speed_edit_bt_signal_pressed();
 		void event_robots_id_done_bt_signal_clicked();
