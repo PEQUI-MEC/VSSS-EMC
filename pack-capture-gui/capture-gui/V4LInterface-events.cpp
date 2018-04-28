@@ -492,8 +492,13 @@ void V4LInterface::event_robots_speed_done_bt_signal_clicked() {
 	robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
 }
 
+void V4LInterface::event_disable_video_record(){
+	visionGUI.vision->video_rec_enable = !visionGUI.vision->video_rec_enable;
+}
+
 void V4LInterface::event_start_game_bt_signal_clicked() {
 	if (!start_game_flag) {
+		record_video_checkbox.set_sensitive(false);
 		start_game_flag = true;
 		start_game_bt.set_image(red_button_pressed);
 		btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
@@ -519,10 +524,13 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		visionGUI.bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
 		visionGUI.en_video_name.set_state(Gtk::STATE_INSENSITIVE);
 		visionGUI.en_video_name.set_text(dateString);
-		visionGUI.vision->startNewVideo(dateString);
+		if(visionGUI.vision->video_rec_enable)
+			visionGUI.vision->startNewVideo(dateString);
 	} else {
+		record_video_checkbox.set_sensitive(true);
 		btn_camCalib.set_state(Gtk::STATE_NORMAL);
-		visionGUI.vision->finishVideo();
+		if(visionGUI.vision->video_rec_enable)
+			visionGUI.vision->finishVideo();
 		visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_text("");
