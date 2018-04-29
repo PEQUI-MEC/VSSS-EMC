@@ -97,6 +97,9 @@ class Strategy {
 		double de;
 		double ticks;
 
+//		Ativa ou desativa transitions, controlada pela interface
+		bool enable_transtions = true;
+
 /*
 Tipos de funções da estratégia:
 
@@ -307,14 +310,14 @@ simplificar apenas uma outra função.
 		Input: 			índice(int) do robô e o valor da velocidade(double) de giro
 		Output:			-----
 		*/
-		void spin_anti_clockwise(int i, double speed);
+		void spin_anti_clockwise(int i, double speed = 0.8);
 
 		/* spin_clockwise
 		Comportamento --- Gira o robô no sentido horário
 		Input: 			índice(int) do robô e o valor da velocidade(double) de giro
 		Output:			-----
 		*/
-		void spin_clockwise(int i, double speed);
+		void spin_clockwise(int i, double speed = 0.8);
 
 		/* def_wait
 		Comportamento --- Espera o robô chegar ao alvo(não determinado na função)
@@ -417,6 +420,23 @@ simplificar apenas uma outra função.
 		Input: 		Ponto anterior e ponto atual
 		Output: 	vetor velocidade (cv::Point)
 		 * */
+
+
+		/**	@brief Configura full_transition_enaled, permitindo que seja verdadeira
+		 *	apenas se enable_transitions for verdadeiro (controlado pela interface)
+		 *	@param enable Valor desejado de full_transition_enable */
+		void set_full_transition_enabled(bool enable);
+
+		/**	@brief Configura half_transition_enaled, permitindo que seja verdadeira
+		 *	apenas se enable_transitions for verdadeiro (controlado pela interface)
+		 *	@param enable Valor desejado de half_transition_enable */
+		void set_half_transition_enabled(bool enable);
+
+		/**	@brief Configura transition_mindcontrol_enaled, permitindo que seja verdadeira
+		 *	apenas se enable_transitions for verdadeiro (controlado pela interface)
+		 *	@param enable Valor desejado de transition_mindcontrol_enable */
+		void set_transition_mindcontrol_enabled(bool enable);
+
 		cv::Point speed_vector(cv::Point P_ini, cv::Point P_final);
 
 		double hyperbolic_field(int i, cv::Point P, bool clockwise);

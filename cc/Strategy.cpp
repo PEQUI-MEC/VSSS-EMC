@@ -174,7 +174,7 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 		if (half_transition && half_transition_enabled && transition_timeout == 0) {
 
 			half_transition = false;
-			half_transition_enabled = false;
+			set_half_transition_enabled(false);
 			transition_timeout = 90; //3 segundos
 			for (int i = 0; i < 3; i++) {
 				robots[i].status = NORMAL_STATE;
@@ -199,7 +199,7 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 		if (full_transition && full_transition_enabled && transition_timeout == 0) {
 
 			full_transition = false;
-			full_transition_enabled = false;
+			set_full_transition_enabled(false);
 			transition_timeout = 90; //3 segundos
 			for (int i = 0; i < 3; i++) {
 				robots[i].status = NORMAL_STATE;
@@ -350,10 +350,10 @@ void Strategy::set_flags() {
 	half_transition = false;
 	full_transition = false;
 	if (Ball.x > COORD_MID_FIELD_X / 3) {
-		full_transition_enabled = true;
-		half_transition_enabled = true;
+		set_full_transition_enabled(true);
+		set_half_transition_enabled(true);
 	} else {
-		half_transition_enabled = false;
+		set_half_transition_enabled(false);
 	}
 	if (Ball.x < robots[atk].position.x - ABS_ROBOT_SIZE * 2 && Ball.x > robots[def].position.x) {
 		danger_zone_1 = true;
@@ -702,14 +702,14 @@ int Strategy::pot_rotation_decision(int robot_index, cv::Point goal, cv::Point o
 	}
 }
 
-void Strategy::spin_anti_clockwise(int i, double speed = 0.8) {
+void Strategy::spin_anti_clockwise(int i, double speed) {
 	robots[i].cmdType = SPEED;
 	robots[i].vmax = speed;
 	robots[i].Vr = robots[i].vmax;
 	robots[i].Vl = -robots[i].vmax;
 }
 
-void Strategy::spin_clockwise(int i, double speed = 0.8) {
+void Strategy::spin_clockwise(int i, double speed) {
 	robots[i].cmdType = SPEED;
 	robots[i].vmax = speed;
 	robots[i].Vr = -robots[i].vmax;
@@ -1132,6 +1132,18 @@ void Strategy::set_Ball(cv::Point b) {
 
 	Ball_Est.x = static_cast<int>(LS_ball_x.estimate(10));
 	Ball_Est.y = static_cast<int>(LS_ball_y.estimate(10));
+}
+
+void Strategy::set_half_transition_enabled(bool enable) {
+	if(enable_transtions || !enable) half_transition_enabled = enable;
+}
+
+void Strategy::set_full_transition_enabled(bool enable) {
+	if(enable_transtions || !enable) full_transition_enabled = enable;
+}
+
+void Strategy::set_transition_mindcontrol_enabled(bool enable) {
+	if(enable_transtions || !enable) transition_mindcontrol_enabled = enable;
 }
 
 //double Strategy::hyperbolic_field(int i, cv::Point P, bool clockwise){ //de = raio do espiral , p distancia da origem ate o ponteiro
