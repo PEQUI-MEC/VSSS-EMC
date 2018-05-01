@@ -1,0 +1,2 @@
+# VSSS-EMC
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6efea129dd53489489bf4c8c880581f9)](https://app.codacy.com/app/danielfaleiro/VSSS-EMC?utm_source=github.com&utm_medium=referral&utm_content=PEQUI-VSSS/VSSS-EMC&utm_campaign=badger)
