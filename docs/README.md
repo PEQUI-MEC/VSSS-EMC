@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/50a821a8fea34b4eab95ec7b89be8287)](https://www.codacy.com/app/danielfaleiro/VSSS-EMC?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PEQUI-VSSS/VSSS-EMC&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC.svg?branch=master)](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC)
 
 # Introdução
