@@ -333,11 +333,19 @@ bool CamCap::capture_and_show() {
 		Ball_Est = strategyGUI.strategy.get_Ball_Est();
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 		strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
-		for (int i = 0; i < 3; i++) {
-			circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
-			putText(imageView, std::to_string(i + 1),
-					cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
-					cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+		for (unsigned long i = 0; i < 3; i++) {
+			if (interface.robot_list.at(i).cmdType != VECTOR) {
+				circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
+				putText(imageView, std::to_string(i + 1),
+						cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
+						cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+			} else {
+				auto angle = interface.robot_list.at(i).transAngle;
+				auto x2 = static_cast<int>(interface.robot_list.at(i).position.x + 16*cos(angle));
+				auto y2 = static_cast<int>(interface.robot_list.at(i).position.y - 16*sin(angle));
+				line(imageView, interface.robot_list.at(i).position, cv::Point(x2, y2),
+					 cv::Scalar(127, 255, 127), 3);
+			} // if cmdType != VECTOR
 		} // for
 
 		interface.update_speed_progressBars();

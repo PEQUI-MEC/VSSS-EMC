@@ -10,8 +10,10 @@ class Robot {
 		cv::Point rearPoint;
 		char ID;
 		bool isOdd;
+//		Orientation: positivo no sentido horário
 		double orientation, targetOrientation;
 		double orientation2;
+//		TransAngle: positivo no sentido anti-horário
 		double transAngle;
 		int cmdType;
 		double vdefault;

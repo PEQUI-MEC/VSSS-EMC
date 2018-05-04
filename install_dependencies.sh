@@ -14,11 +14,11 @@ echo "Installing GTKmm"
 sudo apt-get install libgtkmm-3.0-dev
 
 echo "Installing OpenCV"
-git clone https://github.com/opencv/opencv.git
+git clone -b 3.4.1 https://github.com/opencv/opencv.git
 cd opencv/
 mkdir build/
 cd build/
-cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local ..
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_CUDA=ON -D WITH_CUBLAS=ON -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D BUILD_opencv_java=OFF -D CUDA_GENERATION=Auto -D CUDA_NVCC_FLAGS="-D_FORCE_INLINES" ..
 thread_num=$(nproc)
 make -j$((++thread_num))
 sudo make install
@@ -38,4 +38,4 @@ rm -rf libxbee3
 cd ../
 rm -rf dependencies/
 
-echo "All dependencies were installed. Run ./buildVSSS.sh to build"
+echo "All dependencies were installed. Run ./buildVSSS.sh to build the project."

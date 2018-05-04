@@ -244,7 +244,7 @@ void Strategy::overmind() {
 		robots[atk].transAngle = lock_angle;
 		robots[atk].vmax = 1.4;
 		timeout++;
-		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5) {
+		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5 || Ball.x < robots[atk].position.x) {
 			timeout = 0;
 			atk_mindcontrol = false;
 			robots[atk].vmax = robots[atk].vdefault;
@@ -896,10 +896,8 @@ void Strategy::atk_routine(int i) {
 		case CORNER_STATE:
 			if (Ball.x > corner_atk_limit) {
 				if (Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
-					if (Ball.y <
-						COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
-						if (Ball.x > robots[i].position.x &&
-							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+					if (Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
+						if (Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
 							spin_clockwise(i); // giro que leva a bola ao gol
 						else
 							go_to(i,
@@ -907,7 +905,7 @@ void Strategy::atk_routine(int i) {
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
-							spin_anti_clockwise(i); // giro para faze-la entrar
+							spin_anti_clockwise(i, 1.4); // giro para faze-la entrar
 						else go_to(i, Ball);
 					}
 				} else {
@@ -921,7 +919,7 @@ void Strategy::atk_routine(int i) {
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
-							spin_clockwise(i); // giro para faze-la entrar
+							spin_clockwise(i, 1.4); // giro para faze-la entrar
 						else go_to(i, Ball);
 					}
 				}
@@ -1039,8 +1037,8 @@ void Strategy::gk_routine(int i) {
 
 			if (robots[i].target.y < COORD_GOAL_UP_Y) go_to(i, cv::Point(goalie_line, COORD_GOAL_UP_Y));
 
-			robots[i].vmax = 0.3 + ((robots[i].vdefault - 0.3) * (distance(robots[i].position, robots[i].target)) /
-									ABS_GOAL_SIZE_Y);
+			//robots[i].vmax = 0.3 + ((robots[i].vdefault - 0.3) * (distance(robots[i].position, robots[i].target)) /
+			//						ABS_GOAL_SIZE_Y);
 			if (robots[i].vmax > robots[i].vdefault) robots[i].vmax = robots[i].vdefault;
 			if (robots[i].vmax < 0.35) robots[i].vmax = 0.35;
 			// fixed_lookup(i);
@@ -1054,7 +1052,7 @@ void Strategy::gk_routine(int i) {
 					spin_anti_clockwise(i, 0.8);
 				}
 			}
-			if (distance(robots[i].position, Ball) < ABS_ROBOT_SIZE) {
+			if (distance(robots[i].position, Ball) < ABS_ROBOT_SIZE * 1.2) {
 				if (Ball.y <= robots[i].position.y) {
 					spin_clockwise(i, 0.8);
 				} else if (Ball.y >= robots[i].position.y) {
