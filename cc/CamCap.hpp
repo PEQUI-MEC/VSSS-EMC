@@ -41,7 +41,7 @@ class CamCap : public Gtk::HBox {
 
 		int width, height;
 		int Selec_index = -1;
-		int fps_average = 0;
+		double fps_average = 0;
 		CPUTimer timer;
 
 		bool fixed_ball[3];
@@ -92,7 +92,11 @@ class CamCap : public Gtk::HBox {
 		void notify_data_ready();
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();
+		#ifdef CUDA_FOUND
+		void warp_transform(cv::cuda::GpuMat imageView);
+		#else
 		void warp_transform(cv::Mat imageView);
+		#endif
 		CamCap(int screenW, int screenH);
 		~CamCap() override;
 };

@@ -177,7 +177,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		void event_robots_id_done_bt_signal_clicked();
 		void event_robots_id_edit_bt_signal_pressed();
 		void updateRobotLabels();
-		void updateFPS(int fps);
+		void updateFPS(double fps);
 		bool get_start_game_flag();
 		void update_interface_robots();
 		void update_interface_camera();

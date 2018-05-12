@@ -1184,13 +1184,16 @@ VisionGUI::VisionGUI() :
 	vision = new Vision(640, 480);
 	gmm = new GMM(640, 480);
 
+	#ifndef CUDA_FOUND
 	__create_frm_calib_mode();
+	#endif
 	__create_frm_capture();
 	__create_frm_drawing_options();
 	__create_frm_split_view();
 	__create_frm_hsv();
+	#ifndef CUDA_FOUND
 	__create_frm_gmm();
-
+	#endif
 	init_calib_params();
 }
 

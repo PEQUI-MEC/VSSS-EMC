@@ -24,7 +24,9 @@ int main(int argc, char **argv) {
 
 	window.show_all();
 
+	#ifndef CUDA_FOUND
 	camcap.interface.visionGUI.hideGMM();
+	#endif
 	camcap.interface.fr_camCalib_offline.hide();
 	camcap.control.update_ack_interface();
 

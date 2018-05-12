@@ -660,9 +660,9 @@ void V4LInterface::updateRobotLabels() {
 	ball_pos_lb.set_text(ss.str());
 }
 
-void V4LInterface::updateFPS(int fps) {
+void V4LInterface::updateFPS(double fps) {
 	std::stringstream aux;
-	aux << "FPS: " << fps;
+	aux << "FPS: " << round(fps);
 	fps_label->set_text(aux.str());
 }
 

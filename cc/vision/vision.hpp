@@ -5,10 +5,16 @@
 // número de intersecções do tabuleiro
 #define CHESSBOARD_DIMENSION cv::Size(6,9)
 
+#ifdef CUDA_FOUND
+#include "opencv2/cudafilters.hpp"
+#include "opencv2/cudaimgproc.hpp"
+#else
+#include <opencv2/imgproc/imgproc.hpp>
+#endif
+
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/video/video.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <boost/thread/thread.hpp>
@@ -34,9 +40,15 @@ class Vision {
 		static const int MAX = 1;
 
 		// Frames
+		#ifdef CUDA_FOUND
+		cv::cuda::GpuMat in_frame, hsv_frame;
+		std::vector<cv::cuda::GpuMat> threshold_frame;
+		cv::cuda::GpuMat splitFrame;
+		#else
 		cv::Mat in_frame, hsv_frame;
 		std::vector<cv::Mat> threshold_frame;
 		cv::Mat splitFrame;
+		#endif
 
 		// Robots
 		std::vector<Robot> robot_list;
@@ -75,9 +87,9 @@ class Vision {
 		boost::thread_group threshold_threads;
 
 		void preProcessing();
-		void posProcessing(int color);
-		void segmentAndSearch(int color);
-		void searchTags(int color);
+		void posProcessing(unsigned long color);
+		void segmentAndSearch(unsigned long color);
+		void searchTags(unsigned long color);
 		void searchGMMTags(std::vector<cv::Mat> thresholds);
 		void findTags();
 		// void findElements();
@@ -92,10 +104,14 @@ class Vision {
 
 		Vision(int w, int h);
 		~Vision();
-
+		#ifdef CUDA_FOUND
+		void run(const cv::cuda::GpuMat &raw_frame);
+		void recordVideo(const cv::cuda::GpuMat &frame);
+		#else
 		void run(cv::Mat raw_frame);
-		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
+		#endif
+		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4]);
 		double calcDistance(cv::Point p1, cv::Point p2);
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
@@ -127,15 +143,15 @@ class Vision {
 		void switchMainWithAdv();
 
 		cv::Point getBall();
-		Robot getRobot(int index);
-		cv::Point getRobotPos(int index);
+		Robot getRobot(unsigned long index);
+		cv::Point getRobotPos(unsigned long index);
 		cv::Point getAdvRobot(int index);
 		cv::Point *getAllAdvRobots();
 		cv::Mat getSplitFrame();
 
 		int getRobotListSize();
 		int getAdvListSize();
-		cv::Mat getThreshold(int index);
+		cv::Mat getThreshold(unsigned long index);
 
 		int getHue(int index0, int index1);
 		int getSaturation(int index0, int index1);
@@ -150,8 +166,6 @@ class Vision {
 		int getAmin(int convertType, int index);
 
 		void setFrameSize(int inWidth, int inHeight);
-		int getFrameHeight();
-		int getFrameWidth();
 
 		void setHue(int index0, int index1, int inValue);
 		void setSaturation(int index0, int index1, int inValue);

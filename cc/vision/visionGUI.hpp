@@ -12,7 +12,7 @@ class VisionGUI : public Gtk::VBox {
 		GMM *gmm;
 		Gtk::ToggleButton bt_HSV_calib;
 
-		int Img_id;
+		unsigned long Img_id;
 
 		bool HSV_calib_event_flag;
 

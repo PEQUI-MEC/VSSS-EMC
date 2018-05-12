@@ -57,8 +57,6 @@ void CamCap::updateKalmanFilter() {
 
 bool CamCap::start_signal(bool b) {
 	if (b) {
-		cout << "Start Clicked!" << endl;
-
 		if (data) {
 			interface.imageView.disable_image_show();
 			free(data);
@@ -90,9 +88,7 @@ bool CamCap::start_signal(bool b) {
 		interface.imageView.set_size_request(width, height);
 		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
 
-		cout << "Start Clicked! 1" << endl;
 	} else {
-		cout << "Stop Button Clicked!" << endl;
 		con.disconnect();
 
 		// Travar os botões de edit
@@ -123,8 +119,6 @@ bool CamCap::capture_and_show() {
 	interface.imageView.set_data(data, width, height);
 	interface.imageView.refresh();
 
-	cv::Mat imageView(height, width, CV_8UC3, data);
-
 	if (interface.imageView.hold_warp) {
 		interface.warped = true;
 		interface.bt_adjust.set_state(Gtk::STATE_NORMAL);
@@ -148,12 +142,45 @@ bool CamCap::capture_and_show() {
 		interface.imageView.sector = -1;
 	}
 
+	#ifdef CUDA_FOUND
+	cv::Mat mat(height, width, CV_8UC3, data);
+	#else
+	cv::Mat imageView(height, width, CV_8UC3, data);
+	#endif
+
 	if (interface.visionGUI.vision->flag_cam_calibrated) {
 		cv::Mat temp;
+
+		#ifdef CUDA_FOUND
+		mat.copyTo(temp);
+		cv::undistort(temp, mat, interface.visionGUI.vision->getcameraMatrix(),
+					  interface.visionGUI.vision->getdistanceCoeficents());
+		#else
 		imageView.copyTo(temp);
 		cv::undistort(temp, imageView, interface.visionGUI.vision->getcameraMatrix(),
 					  interface.visionGUI.vision->getdistanceCoeficents());
+		#endif
+
 	}
+
+	if (interface.CamCalib_flag_event && !interface.get_start_game_flag() &&
+		!interface.visionGUI.vision->flag_cam_calibrated) {
+
+		#ifdef CUDA_FOUND
+		chessBoardFound = cv::findChessboardCorners(mat, CHESSBOARD_DIMENSION, foundPoints,
+													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
+		#else
+		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
+													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
+		#endif
+	}
+
+	#ifdef CUDA_FOUND
+	// upload mat to GPU
+	cv::cuda::GpuMat imageView;
+	imageView.upload(mat);
+	#endif
+
 
 	if (interface.warped) {
 		interface.bt_warp.set_active(false);
@@ -162,19 +189,16 @@ bool CamCap::capture_and_show() {
 		interface.imageView.warp_event_flag = false;
 
 		if (interface.invert_image_flag) {
+			#ifdef CUDA_FOUND
+			cv::cuda::flip(imageView, imageView, -1);
+			#else
 			cv::flip(imageView, imageView, -1);
+			#endif
 		}
 	}
 
-	if (interface.CamCalib_flag_event && !interface.get_start_game_flag() &&
-		!interface.visionGUI.vision->flag_cam_calibrated) {
-
-		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
-													CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
-	}
-
 	if (interface.imageView.gmm_ready_flag) {
-		interface.visionGUI.gmm->setFrame(imageView);
+//		interface.visionGUI.gmm->setFrame(imageView);
 		interface.visionGUI.gmm->pushSample(interface.imageView.gmm_clicks);
 		interface.visionGUI.incrementSamples();
 		interface.imageView.gmm_ready_flag = false;
@@ -184,7 +208,7 @@ bool CamCap::capture_and_show() {
 
 	if (!interface.visionGUI.getIsHSV()) { // GMM
 		if (interface.visionGUI.gmm->getIsTrained()) {
-			interface.visionGUI.gmm->run(imageView);
+//			interface.visionGUI.gmm->run(imageView);
 			interface.visionGUI.vision->recordVideo(imageView);
 			if (interface.visionGUI.gmm->getDoneFlag()) {
 				for (auto &window : interface.visionGUI.gmm->windowsList) {
@@ -221,14 +245,25 @@ bool CamCap::capture_and_show() {
 		}
 	}
 
+	#ifdef CUDA_FOUND
+	// get frame back from GPU
+	imageView.download(mat);
+	#endif
+
 	if (!interface.visionGUI.HSV_calib_event_flag) {
 		if (chessBoardFound) {
 
 			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
 			cv::Mat grayFrame;
+			#ifdef CUDA_FOUND
+			cv::cvtColor(mat, grayFrame, cv::COLOR_RGB2GRAY);
+			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
+			cv::drawChessboardCorners(mat, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
+			#else
 			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
 			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
+			#endif
 		}
 
 		if (interface.visionGUI.getIsDrawing() && !interface.visionGUI.getIsSplitView()) {
@@ -237,6 +272,16 @@ bool CamCap::capture_and_show() {
 			if (interface.imageView.PID_test_flag) {
 				for (auto &robot : interface.robot_list) {
 					if (robot.target.x != -1 && robot.target.y != -1) {
+						#ifdef CUDA_FOUND
+						// linha branca no alvo sendo executado
+						line(mat, robot.position, robot.target,
+							 cv::Scalar(255, 255, 255), 2);
+						// linha roxa no alvo final
+						line(mat, robot.position,
+							 cv::Point(static_cast<int>(interface.imageView.tar_pos[0]),
+									   static_cast<int>(interface.imageView.tar_pos[1])),
+							 cv::Scalar(255, 0, 255), 2);
+						#else
 						// linha branca no alvo sendo executado
 						line(imageView, robot.position, robot.target,
 							 cv::Scalar(255, 255, 255), 2);
@@ -245,7 +290,21 @@ bool CamCap::capture_and_show() {
 							 cv::Point(static_cast<int>(interface.imageView.tar_pos[0]),
 									   static_cast<int>(interface.imageView.tar_pos[1])),
 							 cv::Scalar(255, 0, 255), 2);
+						#endif
 					}
+					#ifdef CUDA_FOUND
+					// círculo branco no alvo sendo executado
+					circle(mat, robot.target, 9, cv::Scalar(255, 255, 255), 2);
+					// círculo roxo no alvo final
+					circle(mat, cv::Point(static_cast<int>(interface.imageView.tar_pos[0]),
+												static_cast<int>(interface.imageView.tar_pos[1])), 7,
+						   cv::Scalar(255, 0, 255), 2);
+					// círculo vermelho no obstáculo
+					circle(mat, obstacle, 17, cv::Scalar(255, 0, 0), 2);
+					// círculo verde nos desvios
+					circle(mat, deviation1, 7, cv::Scalar(0, 255, 0), 2);
+					circle(mat, deviation2, 7, cv::Scalar(0, 255, 0), 2);
+					#else
 					// círculo branco no alvo sendo executado
 					circle(imageView, robot.target, 9, cv::Scalar(255, 255, 255), 2);
 					// círculo roxo no alvo final
@@ -257,23 +316,46 @@ bool CamCap::capture_and_show() {
 					// círculo verde nos desvios
 					circle(imageView, deviation1, 7, cv::Scalar(0, 255, 0), 2);
 					circle(imageView, deviation2, 7, cv::Scalar(0, 255, 0), 2);
+					#endif
 				}
 				if (Selec_index != -1) {
+					#ifdef CUDA_FOUND
+					circle(mat, interface.robot_list[Selec_index].position, 17, cv::Scalar(255, 255, 255), 2);
+					#else
 					circle(imageView, interface.robot_list[Selec_index].position, 17, cv::Scalar(255, 255, 255), 2);
+					#endif
 				}
 			}
 
 			if (interface.visionGUI.getDrawSamples()) {
 				std::vector<cv::Point> points = interface.visionGUI.gmm->getSamplePoints();
 				for (unsigned long i = 0; i < points.size(); i = i + 2) {
+					#ifdef CUDA_FOUND
+					rectangle(mat, points.at(i), points.at(i + 1), cv::Scalar(0, 255, 255));
+					#else
 					rectangle(imageView, points.at(i), points.at(i + 1), cv::Scalar(0, 255, 255));
+					#endif
 				}
 			}
 
+			#ifdef CUDA_FOUND
+			circle(mat, interface.visionGUI.vision->getBall(), 7, cv::Scalar(255, 255, 255), 2);
+			#else
 			circle(imageView, interface.visionGUI.vision->getBall(), 7, cv::Scalar(255, 255, 255), 2);
+			#endif
 
 			for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
-				// robo 1
+				#ifdef CUDA_FOUND
+				// robo
+				line(mat, interface.visionGUI.vision->getRobot(i).position,
+					 interface.visionGUI.vision->getRobot(i).secundary, cv::Scalar(255, 255, 0), 2);
+				putText(mat, std::to_string(i + 1),
+						cv::Point(interface.visionGUI.vision->getRobot(i).position.x - 5,
+								  interface.visionGUI.vision->getRobot(i).position.y - 17), cv::FONT_HERSHEY_PLAIN,
+						1, cv::Scalar(255, 255, 0), 2);
+				circle(mat, interface.visionGUI.vision->getRobot(i).position, 15, cv::Scalar(255, 255, 0), 2);
+				#else
+				// robo
 				line(imageView, interface.visionGUI.vision->getRobot(i).position,
 					 interface.visionGUI.vision->getRobot(i).secundary, cv::Scalar(255, 255, 0), 2);
 				putText(imageView, std::to_string(i + 1),
@@ -281,10 +363,19 @@ bool CamCap::capture_and_show() {
 								  interface.visionGUI.vision->getRobot(i).position.y - 17), cv::FONT_HERSHEY_PLAIN,
 						1, cv::Scalar(255, 255, 0), 2);
 				circle(imageView, interface.visionGUI.vision->getRobot(i).position, 15, cv::Scalar(255, 255, 0), 2);
+				#endif
+
+				#ifdef CUDA_FOUND
+				// linha da pick-a
+				if (interface.visionGUI.vision->getRobot(i).rearPoint != cv::Point(-1, -1))
+					line(mat, interface.visionGUI.vision->getRobot(i).secundary,
+						 interface.visionGUI.vision->getRobot(i).rearPoint, cv::Scalar(255, 0, 0), 2);
+				#else
 				// linha da pick-a
 				if (interface.visionGUI.vision->getRobot(i).rearPoint != cv::Point(-1, -1))
 					line(imageView, interface.visionGUI.vision->getRobot(i).secundary,
 						 interface.visionGUI.vision->getRobot(i).rearPoint, cv::Scalar(255, 0, 0), 2);
+				#endif
 
 
 				// vetor que todos os robos estão executando
@@ -304,8 +395,14 @@ bool CamCap::capture_and_show() {
 			aux_point.y = static_cast<int>(-round(100 * sin(strategyGUI.strategy.pot_goalTheta)));
 			aux_point += interface.robot_list[2].position;
 
-			for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++)
+			for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
+				#ifdef CUDA_FOUND
+				circle(mat, interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0, 0, 255), 2);
+				#else
 				circle(imageView, interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0, 0, 255), 2);
+				#endif
+			}
+
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
 
@@ -331,20 +428,36 @@ bool CamCap::capture_and_show() {
 	if (interface.get_start_game_flag()) {
 		strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
 		Ball_Est = strategyGUI.strategy.get_Ball_Est();
+		#ifdef CUDA_FOUND
+		circle(mat, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
+		#else
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
+		#endif
 		strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
 		for (unsigned long i = 0; i < 3; i++) {
 			if (interface.robot_list.at(i).cmdType != VECTOR) {
+				#ifdef CUDA_FOUND
+				circle(mat, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
+				putText(mat, std::to_string(i + 1),
+						cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
+						cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+				#else
 				circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
 				putText(imageView, std::to_string(i + 1),
 						cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
 						cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+				#endif
 			} else {
 				auto angle = interface.robot_list.at(i).transAngle;
 				auto x2 = static_cast<int>(interface.robot_list.at(i).position.x + 16*cos(angle));
 				auto y2 = static_cast<int>(interface.robot_list.at(i).position.y - 16*sin(angle));
+				#ifdef CUDA_FOUND
+				line(mat, interface.robot_list.at(i).position, cv::Point(x2, y2),
+					 cv::Scalar(127, 255, 127), 3);
+				#else
 				line(imageView, interface.robot_list.at(i).position, cv::Point(x2, y2),
 					 cv::Scalar(127, 255, 127), 3);
+				#endif
 			} // if cmdType != VECTOR
 		} // for
 
@@ -353,12 +466,11 @@ bool CamCap::capture_and_show() {
 	} // if start_game_flag
 	// ----------------------------------------//
 
-
 	if (frameCounter == 30) {
 		timer.stop();
-		fps_average = static_cast<int>(30 / timer.getCronoTotalSecs());
+		fps_average = (30 / timer.getCronoTotalSecs());
 		// cout<<"CPU Time: "<<timer.getCPUTotalSecs()<<",	\"CPU FPS\": "<<30/timer.getCPUTotalSecs()<<endl;
-		// cout<<"FPS Time: "<<timer.getCronoTotalSecs()<<", FPS: "<<30/timer.getCronoTotalSecs()<<endl;
+//		cout<<"FPS Time: "<<timer.getCronoTotalSecs()<<", FPS: "<<30/timer.getCronoTotalSecs()<<endl;
 		timer.reset();
 		frameCounter = 0;
 	}
@@ -457,6 +569,63 @@ void CamCap::PID_test() {
 	}
 } // PID_test
 
+#ifdef CUDA_FOUND
+void CamCap::warp_transform(cv::cuda::GpuMat imageView) {
+	cv::Point2f inputQuad[4];
+	cv::Point2f outputQuad[4];
+	cv::Mat lambda = cv::Mat::zeros(imageView.rows, imageView.cols, imageView.type());
+
+	inputQuad[0] = cv::Point2f(interface.imageView.warp_mat[0][0] - interface.offsetL,
+							   interface.imageView.warp_mat[0][1]);
+	inputQuad[1] = cv::Point2f(interface.imageView.warp_mat[1][0] + interface.offsetR,
+							   interface.imageView.warp_mat[1][1]);
+	inputQuad[2] = cv::Point2f(interface.imageView.warp_mat[2][0] + interface.offsetR,
+							   interface.imageView.warp_mat[2][1]);
+	inputQuad[3] = cv::Point2f(interface.imageView.warp_mat[3][0] - interface.offsetL,
+							   interface.imageView.warp_mat[3][1]);
+
+	outputQuad[0] = cv::Point2f(0, 0);
+	outputQuad[1] = cv::Point2f(width - 1, 0);
+	outputQuad[2] = cv::Point2f(width - 1, height - 1);
+	outputQuad[3] = cv::Point2f(0, height - 1);
+	lambda = getPerspectiveTransform(inputQuad, outputQuad);
+	cv::cuda::warpPerspective(imageView, imageView, lambda, imageView.size());
+
+	if (interface.imageView.adjust_rdy) {
+		interface.bt_adjust.set_active(false);
+		interface.bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+		interface.adjust_event_flag = false;
+		interface.imageView.adjust_event_flag = false;
+
+		cv::Mat mat;
+		imageView.download(mat);
+
+		for (int i = 0; i < interface.imageView.adjust_mat[0][1]; i++) {
+			for (int j = 0; j < 3 * interface.imageView.adjust_mat[0][0]; j++) {
+				mat.at<uchar>(i, j) = 0;
+			}
+		}
+
+		for (int i = height; i > interface.imageView.adjust_mat[1][1]; i--) {
+			for (int j = 0; j < 3 * interface.imageView.adjust_mat[1][0]; j++) {
+				mat.at<uchar>(i, j) = 0;
+			}
+		}
+
+		for (int i = 0; i < interface.imageView.adjust_mat[2][1]; i++) {
+			for (int j = 3 * width; j > 3 * interface.imageView.adjust_mat[2][0]; j--) {
+				mat.at<uchar>(i, j) = 0;
+			}
+		}
+
+		for (int i = height; i > interface.imageView.adjust_mat[3][1]; i--) {
+			for (int j = 3 * width; j > 3 * interface.imageView.adjust_mat[3][0]; j--) {
+				mat.at<uchar>(i, j) = 0;
+			}
+		}
+	}
+} // warp_transform
+#else
 void CamCap::warp_transform(cv::Mat imageView) {
 	cv::Point2f inputQuad[4];
 	cv::Point2f outputQuad[4];
@@ -509,6 +678,7 @@ void CamCap::warp_transform(cv::Mat imageView) {
 		}
 	}
 } // warp_transform
+#endif
 
 CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
 										   screenWidth(screenW), screenHeight(screenH),
