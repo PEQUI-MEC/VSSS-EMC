@@ -20,4 +20,4 @@ O PROJETO NÃO POSSUI FINS LUCRATIVOS E QUALQUER ARRECADAÇÃO SERÁ TOTALMENTE 
 
 # Primeiros Passos
 
-Consulte nossa [Wiki](https://github.com/PEQUI-VSSS/VSSS-EMC/wiki) para ver como começar a usar o código.
+Consulte nossa [Wiki](https://github.com/PEQUI-MEC/VSSS-EMC/wiki) para ver como começar a usar o código.
