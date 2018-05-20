@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC.svg?branch=master)](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC)
+[![Travis build](https://img.shields.io/travis/PEQUI-MEC/VSSS-EMC/master.svg)](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC)
 
 # Introdução
 
