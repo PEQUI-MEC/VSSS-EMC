@@ -12,10 +12,10 @@ addons:
       
 before_install:
  - echo $DOCKER_PASS | docker login -u $DOCKER_ACC --password-stdin
- - docker pull pequi/vsss-emc:latest
+ - docker pull pequimecanico/vsss-emc:latest
 
 script:
-  - docker build -t pequi/vsss-emc:latest --cache-from="pequi/vsss-emc:latest" .
+  - docker build -t pequimecanico/vsss-emc:latest .
 
 after_success:
-  - docker push pequi/vsss-emc:latest
+  - docker push pequimecanico/vsss-emc:latest
