@@ -17,6 +17,16 @@ class StrategyGUI : public Gtk::VBox {
 	public:
 		Strategy strategy;
 
+		Gtk::VBox options_vbox;
+		Gtk::Frame options_frame;
+
+		Gtk::HBox transitions_hbox;
+		Gtk::CheckButton transitions_button;
+		Gtk::Label transitions_label;
+
+		void configure_options_frame();
+		void set_transitions();
+
 		void configureTestFrame();
 		StrategyGUI();
 		~StrategyGUI() override = default;;

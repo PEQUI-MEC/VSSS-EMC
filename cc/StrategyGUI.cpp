@@ -1,8 +1,11 @@
 #include "StrategyGUI.hpp"
 
 StrategyGUI::StrategyGUI() {
-	pack_start(strategy.testFrame, false, true, 5);
+	configure_options_frame();
+	pack_start(options_frame, false, true);
 	configureTestFrame();
+	pack_start(strategy.testFrame, false, true, 5);
+	transitions_button.clicked();
 }
 
 void StrategyGUI::configureTestFrame() {
@@ -17,4 +20,25 @@ void StrategyGUI::configureTestFrame() {
 		strategy.testFrame.setLabel(i, labels[i]);
 		strategy.testFrame.configureHScale(i, currentValue[i], min[i], max[i], digits[i], steps[i]);
 	}
+}
+
+void StrategyGUI::configure_options_frame() {
+	transitions_label.set_label("Transitions (full, half e mindcontrol)");
+	transitions_hbox.pack_start(transitions_button, false, false, 5);
+	transitions_button.signal_clicked().connect(sigc::mem_fun(*this, &StrategyGUI::set_transitions));
+	transitions_hbox.pack_start(transitions_label, false, false, 0);
+
+	options_vbox.pack_start(transitions_hbox, false, false, 5);
+	options_frame.set_label("Options");
+	options_frame.add(options_vbox);
+}
+
+void StrategyGUI::set_transitions() {
+	bool is_active = transitions_button.get_active();
+	strategy.enable_transtions = is_active;
+	strategy.set_transition_mindcontrol_enabled(is_active);
+
+//	Desativa full_transtion_enabled e half_transition_enabled caso estejam setadas
+	if(strategy.full_transition_enabled) strategy.set_full_transition_enabled(false);
+	if(strategy.half_transition_enabled) strategy.set_half_transition_enabled(false);
 }

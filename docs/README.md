@@ -1,5 +1,6 @@
-[![Build Status](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC.svg?branch=master)](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC)
+[![Travis build](https://img.shields.io/travis/PEQUI-MEC/VSSS-EMC/master.svg)](https://travis-ci.org/PEQUI-VSSS/VSSS-EMC)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7646cb63b79d4188b5b8dbec8fe8fd02)](https://www.codacy.com/app/danielfaleiro/VSSS-EMC?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PEQUI-MEC/VSSS-EMC&amp;utm_campaign=Badge_Grade)
+
 
 # Introdução
 
@@ -21,4 +22,4 @@ O PROJETO NÃO POSSUI FINS LUCRATIVOS E QUALQUER ARRECADAÇÃO SERÁ TOTALMENTE 
 
 # Primeiros Passos
 
-Consulte nossa [Wiki](https://github.com/PEQUI-VSSS/VSSS-EMC/wiki) para ver como começar a usar o código.
+Consulte nossa [Wiki](https://github.com/PEQUI-MEC/VSSS-EMC/wiki) para ver como começar a usar o código.
