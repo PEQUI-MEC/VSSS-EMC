@@ -23,6 +23,7 @@
 #define SPEED 1
 #define ORIENTATION 2
 #define VECTOR 3
+#define UVF 4
 
 //state
 #define NORMAL_STATE 0
@@ -443,6 +444,7 @@ simplificar apenas uma outra função.
 		double move_to_goal_field(int i, cv::Point P);
 		double avoid_field(int i, cv::Point Obs, cv::Point Vrobo, cv::Point Vobs);
 		double composed_field(int i, cv::Point P);
+		void get_uvf_targets(std::vector<Robot> &pRobots);
 };
 
 #endif /* STRATEGY_HPP_ */

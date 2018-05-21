@@ -71,6 +71,28 @@ void Strategy::get_past(int i) {
 	past_transangle[i] = robots[i].transAngle;
 }
 
+
+void Strategy::get_uvf_targets(vector<Robot> &pRobots) {
+	Robot& robot = pRobots.at(0);
+
+	robot.cmdType = UVF;
+	robot.uvf_n = 1.5;
+
+	double ball_offset = 0.1 * distance(Ball_Est, Ball);
+	double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
+									  Ball_Est.x - Ball.x);
+	robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
+							  int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
+
+	double distance = 70;
+	double theta = std::atan2(COORD_GOAL_MID_Y - Ball.y,
+							  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
+	robot.uvf_ref = cv::Point(int(distance * std::cos(theta)) + Ball.x,
+							  int(distance * std::sin(theta)) + Ball.y);
+
+	robot.vmax = robot.vdefault;
+}
+
 void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 
 	robots = *pRobots;

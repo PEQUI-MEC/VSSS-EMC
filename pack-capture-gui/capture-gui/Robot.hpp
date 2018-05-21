@@ -7,7 +7,7 @@
 class Robot {
 	public:
 		cv::Point position, secundary, target;
-		cv::Point rearPoint;
+		cv::Point rearPoint, uvf_ref;
 		char ID;
 		bool isOdd;
 //		Orientation: positivo no sentido horário
@@ -20,6 +20,7 @@ class Robot {
 		double vmax; // m/s
 		double Vl;
 		double Vr;  // RPS
+		double uvf_n;
 		bool fixedPos;
 		bool using_pot_field;
 		int role;

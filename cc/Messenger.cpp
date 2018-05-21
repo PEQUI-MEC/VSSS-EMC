@@ -54,6 +54,9 @@ void Messenger::send_cmds(const vector<Robot> &robots) {
 			case VECTOR:
 				msg = vector_msg(robot);
 				break;
+			case UVF:
+				msg = ufv_msg(robot);
+				break;
 			default:
 				if (robot.target.x != -1 && robot.target.y != -1)
 					msg = position_msg(robot);
@@ -64,9 +67,9 @@ void Messenger::send_cmds(const vector<Robot> &robots) {
 	send_cmd_count = 0;
 }
 
-string Messenger::position_msg(Robot robot) {
-	double diff_x = robot.target.x - robot.position.x;
-	double diff_y = robot.target.y - robot.position.y;
+Messenger::point Messenger::relative_point(Robot robot, cv::Point in_point) {
+	double diff_x = in_point.x - robot.position.x;
+	double diff_y = in_point.y - robot.position.y;
 
 	double transTarget_x = cos(robot.orientation) * diff_x + sin(robot.orientation) * diff_y;
 	double transTarget_y = -(-sin(robot.orientation) * diff_x + cos(robot.orientation) * diff_y);
@@ -74,7 +77,12 @@ string Messenger::position_msg(Robot robot) {
 	double pos_x = transTarget_x * (150.0 / 640.0);
 	double pos_y = transTarget_y * (130.0 / 480.0);
 
-	return ("P" + rounded_str(pos_x) + ";" + rounded_str(pos_y) + ";" + rounded_str(robot.vmax));
+	return {pos_x, pos_y};
+}
+
+string Messenger::position_msg(Robot robot) {
+	auto target = relative_point(robot, robot.target);
+	return ("P" + rounded_str(target.x) + ";" + rounded_str(target.y) + ";" + rounded_str(robot.vmax));
 }
 
 string Messenger::speed_msg(Robot robot) {
@@ -91,6 +99,14 @@ string Messenger::vector_msg(Robot robot) {
 							   cos(robot.orientation + robot.transAngle));
 	orientation = orientation * (180.0 / M_PI);
 	return ("V" + rounded_str(orientation) + ";" + rounded_str(robot.vmax));
+}
+
+string Messenger::ufv_msg(Robot robot) {
+	auto target = relative_point(robot, robot.target);
+	auto ufv_ref = relative_point(robot, robot.uvf_ref);
+	return ( "U" + rounded_str(target.x) + ";" + rounded_str(target.y) + ";"
+			+ rounded_str(ufv_ref.x) + ";" + rounded_str(ufv_ref.y) + ";" +
+			rounded_str(robot.uvf_n) + ";" + rounded_str(robot.vmax) );
 }
 
 double Messenger::get_battery(char id) {

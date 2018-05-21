@@ -12,11 +12,18 @@
 #define SPEED 1
 #define ORIENTATION 2
 #define VECTOR 3
+#define UVF 4
 
 #define DEFAULT_FRAMESKIP 5
 
 class Messenger {
 	private:
+		struct point {
+			double x;
+			double y;
+		};
+
+
 		Xbee *xbee = nullptr;
 
 		double time_between_msgs;
@@ -48,6 +55,9 @@ class Messenger {
 		int get_frameskipper() { return frameskip; }
 
 		double get_time() { return time_between_msgs; }
+
+		std::string ufv_msg(Robot robot);
+		point relative_point(Robot robot, cv::Point in_point);
 };
 
 #endif //VSSS_MESSENGER_H
