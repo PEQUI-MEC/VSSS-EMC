@@ -17,6 +17,12 @@
 
 class Messenger {
 	private:
+		struct pose {
+			double x;
+			double y;
+			double theta;
+		};
+
 		Xbee *xbee = nullptr;
 
 		double time_between_msgs;
@@ -50,6 +56,7 @@ class Messenger {
 		double get_time() { return time_between_msgs; }
 
 		void send_ekf_data(std::vector<Robot> &robots);
+		pose to_robot_reference(const cv::Point &point, double theta);
 };
 
 #endif //VSSS_MESSENGER_H

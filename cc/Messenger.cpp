@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Messenger.h"
 
 using std::string;
@@ -58,19 +59,30 @@ bool Messenger::send_cmds(const vector<Robot> &robots) {
 				if (robot.target.x != -1 && robot.target.y != -1)
 					msg = position_msg(robot);
 		}
-		if (!msg.empty()) xbee->send(robot.ID, msg);
+//		if (!msg.empty()) xbee->send(robot.ID, msg);
+	}
+	auto msgs = xbee->get_messages();
+	for(auto& msg : msgs) {
+		std::cout << msg.data << std::endl;
 	}
 	update_msg_time();
 	send_cmd_count = 0;
 	return true;
 }
 
+ Messenger::pose Messenger::to_robot_reference(const cv::Point &point, double theta) {
+	 double x = point.x * (150.0 / 640.0);
+	 double y = 130.0 - point.y * (130.0 / 480.0);
+	 double orientation = -theta * 180/M_PI;
+	 return {x, y, orientation};
+ }
+
 void Messenger::send_ekf_data(vector<Robot>& robots) {
 	for (Robot& robot :robots) {
-		double x = robot.position.x * (150.0 / 640.0);
-		double y = robot.position.y * (130.0 / 640.0);
-		double orientation = robot.orientation;
-		string msg = "E" + std::to_string(x) + ";" + std::to_string(y) + ";" + std::to_string(orientation);
+		pose robot_pose = to_robot_reference(robot.position, robot.orientation);
+		string msg = "E" + rounded_str(robot_pose.x) + ";"
+					 	 + rounded_str(robot_pose.y) + ";" + rounded_str(robot_pose.theta);
+//		if(robot.ID == 'E') std::cout << msg << std::endl;
 		xbee->send(robot.ID, msg);
 	}
 }
