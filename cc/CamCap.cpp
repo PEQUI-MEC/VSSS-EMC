@@ -384,7 +384,8 @@ void CamCap::send_cmd_thread(vector<Robot> &robots) {
 			return;
 		}
 		data_ready_flag = false;
-		control.messenger.send_cmds(robots);
+		bool sent = control.messenger.send_cmds(robots);
+		if(!sent) control.messenger.send_ekf_data(robots);
 	}
 }
 

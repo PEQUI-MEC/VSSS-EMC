@@ -36,8 +36,8 @@ void Messenger::send_old_format(string cmd) {
 	xbee->send(id, msg);
 }
 
-void Messenger::send_cmds(const vector<Robot> &robots) {
-	if (!xbee || ++send_cmd_count <= frameskip) return;
+bool Messenger::send_cmds(const vector<Robot> &robots) {
+	if (!xbee || ++send_cmd_count <= frameskip) return false;
 	for (Robot robot : robots) {
 		string msg;
 		switch (robot.cmdType) {
@@ -62,6 +62,17 @@ void Messenger::send_cmds(const vector<Robot> &robots) {
 	}
 	update_msg_time();
 	send_cmd_count = 0;
+	return true;
+}
+
+void Messenger::send_ekf_data(vector<Robot>& robots) {
+	for (Robot& robot :robots) {
+		double x = robot.position.x * (150.0 / 640.0);
+		double y = robot.position.y * (130.0 / 640.0);
+		double orientation = robot.orientation;
+		string msg = "E" + std::to_string(x) + ";" + std::to_string(y) + ";" + std::to_string(orientation);
+		xbee->send(robot.ID, msg);
+	}
 }
 
 string Messenger::position_msg(Robot robot) {

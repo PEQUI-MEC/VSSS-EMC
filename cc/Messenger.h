@@ -32,7 +32,7 @@ class Messenger {
 
 	public:
 		Messenger();
-		void send_cmds(const std::vector<Robot> &robots);
+		bool send_cmds(const std::vector<Robot> &robots);
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);
 		double get_battery(char id);
@@ -48,6 +48,8 @@ class Messenger {
 		int get_frameskipper() { return frameskip; }
 
 		double get_time() { return time_between_msgs; }
+
+		void send_ekf_data(std::vector<Robot> &robots);
 };
 
 #endif //VSSS_MESSENGER_H
