@@ -59,11 +59,7 @@ bool Messenger::send_cmds(const vector<Robot> &robots) {
 				if (robot.target.x != -1 && robot.target.y != -1)
 					msg = position_msg(robot);
 		}
-//		if (!msg.empty()) xbee->send(robot.ID, msg);
-	}
-	auto msgs = xbee->get_messages();
-	for(auto& msg : msgs) {
-		std::cout << msg.data << std::endl;
+		if (!msg.empty()) xbee->send(robot.ID, msg);
 	}
 	update_msg_time();
 	send_cmd_count = 0;
@@ -82,38 +78,30 @@ void Messenger::send_ekf_data(vector<Robot>& robots) {
 		pose robot_pose = to_robot_reference(robot.position, robot.orientation);
 		string msg = "E" + rounded_str(robot_pose.x) + ";"
 					 	 + rounded_str(robot_pose.y) + ";" + rounded_str(robot_pose.theta);
-//		if(robot.ID == 'E') std::cout << msg << std::endl;
 		xbee->send(robot.ID, msg);
+//		if(robot.ID == 'A')
+//			std::cout << xbee->send_get_answer(robot.ID, msg) << std::endl;
 	}
 }
 
 string Messenger::position_msg(Robot robot) {
-	double diff_x = robot.target.x - robot.position.x;
-	double diff_y = robot.target.y - robot.position.y;
-
-	double transTarget_x = cos(robot.orientation) * diff_x + sin(robot.orientation) * diff_y;
-	double transTarget_y = -(-sin(robot.orientation) * diff_x + cos(robot.orientation) * diff_y);
-
-	double pos_x = transTarget_x * (150.0 / 640.0);
-	double pos_y = transTarget_y * (130.0 / 480.0);
-
-	return ("P" + rounded_str(pos_x) + ";" + rounded_str(pos_y) + ";" + rounded_str(robot.vmax));
+	auto target_pos = to_robot_reference(robot.target, 0);
+	return "P" + rounded_str(target_pos.x) + ";" + rounded_str(target_pos.y)
+		       + ";" + rounded_str(robot.vmax);
 }
 
 string Messenger::speed_msg(Robot robot) {
-	return (rounded_str(robot.Vr) + ";" + rounded_str(robot.Vl));
+	return rounded_str(robot.Vr) + ";" + rounded_str(robot.Vl);
 }
 
 string Messenger::orientation_msg(Robot robot) {
-	double orientation = (robot.orientation + robot.targetOrientation) * 180 / M_PI;
-	return ("O" + rounded_str(orientation) + ";" + rounded_str(robot.vmax));
+	double orientation = to_robot_reference({0,0},robot.targetOrientation).theta;
+	return "O" + rounded_str(orientation) + ";" + rounded_str(robot.vmax);
 }
 
 string Messenger::vector_msg(Robot robot) {
-	double orientation = atan2(sin(robot.orientation + robot.transAngle),
-							   cos(robot.orientation + robot.transAngle));
-	orientation = orientation * (180.0 / M_PI);
-	return ("V" + rounded_str(orientation) + ";" + rounded_str(robot.vmax));
+	double theta = robot.transAngle * (180.0/M_PI);
+	return ("V" + rounded_str(theta) + ";" + rounded_str(robot.vmax));
 }
 
 double Messenger::get_battery(char id) {
