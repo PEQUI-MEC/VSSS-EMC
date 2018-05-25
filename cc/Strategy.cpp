@@ -74,21 +74,30 @@ void Strategy::get_past(int i) {
 
 void Strategy::get_uvf_targets(vector<Robot> &pRobots) {
 	Robot& robot = pRobots.at(0);
+	cv::Point pos = robot.position;
+	double m = (pos.y - Ball.y)/(pos.x - Ball.x);
+	double proj_y = -m*(pos.x - COORD_GOAL_ATK_FRONT_X) + pos.y;
 
-	robot.cmdType = UVF;
-	robot.uvf_n = 1.5;
+	if(proj_y > COORD_GOAL_UP_Y && proj_y < COORD_GOAL_DWN_Y) {
+		robot.transAngle = std::atan2(proj_y, COORD_GOAL_ATK_FRONT_X);
+		robot.cmdType = VECTOR;
+		robot.using_pot_field = true;
+	} else {
+		robot.cmdType = UVF;
+		robot.uvf_n = 1.5;
 
-	double ball_offset = 0.1 * distance(Ball_Est, Ball);
-	double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
-									  Ball_Est.x - Ball.x);
-	robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
-							  int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
+		double ball_offset = 0.1 * distance(Ball_Est, Ball);
+		double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
+										  Ball_Est.x - Ball.x);
+		robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
+								 int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
 
-	double distance = 70;
-	double theta = std::atan2(COORD_GOAL_MID_Y - Ball.y,
-							  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
-	robot.uvf_ref = cv::Point(int(distance * std::cos(theta)) + Ball.x,
-							  int(distance * std::sin(theta)) + Ball.y);
+		double distance = 70;
+		double theta = std::atan2(COORD_GOAL_MID_Y - Ball.y,
+								  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
+		robot.uvf_ref = cv::Point(int(distance * std::cos(theta)) + Ball.x,
+								  int(distance * std::sin(theta)) + Ball.y);
+	}
 
 	robot.vmax = robot.vdefault;
 }
@@ -135,7 +144,7 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 
 	gk_routine(gk);
 	def_routine(def);
-	atk_routine(atk);
+	atk_uvf_routine(atk);
 
 	// opp_gk_routine(opp);
 
@@ -254,39 +263,39 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 
 void Strategy::overmind() {
 	cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
-	double m1 = double(goal.y - Ball.y) / double(goal.x - Ball.x);
-	double m2 = double(robots[atk].position.y - Ball.y) / double(robots[atk].position.x - Ball.x);
+//	double m1 = double(goal.y - Ball.y) / double(goal.x - Ball.x);
+//	double m2 = double(robots[atk].position.y - Ball.y) / double(robots[atk].position.x - Ball.x);
 
-	double phi = atan((m2 - m1) / (1 + m2 * m1));
+//	double phi = atan((m2 - m1) / (1 + m2 * m1));
 
-	if (robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
+//	if (robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
-	if (atk_mindcontrol) {
-		robots[atk].cmdType = VECTOR;
-		robots[atk].transAngle = lock_angle;
-		robots[atk].vmax = 1.4;
-		timeout++;
-		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5 || Ball.x < robots[atk].position.x) {
-			timeout = 0;
-			atk_mindcontrol = false;
-			robots[atk].vmax = robots[atk].vdefault;
-		}
-	}
-
-	if ((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE * 2) && (abs(phi) * 180 / PI < 20) &&
-		(Ball.x > robots[atk].position.x) &&
-		((((robots[atk].orientation - atan(m1)) * 180 / PI) < 20 &&
-		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > -20) ||
-		 (((robots[atk].orientation - atan(m1)) * 180 / PI) < -165 ||
-		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > 165))
-			) {
-
-		if (!atk_mindcontrol) {
-			lock_angle = atan2(double(robots[atk].position.y - Ball.y), -double(robots[atk].position.x - Ball.x));
-		}
-
-		atk_mindcontrol = true;
-	}
+//	if (atk_mindcontrol) {
+//		robots[atk].cmdType = VECTOR;
+//		robots[atk].transAngle = lock_angle;
+//		robots[atk].vmax = 1.4;
+//		timeout++;
+//		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5 || Ball.x < robots[atk].position.x) {
+//			timeout = 0;
+//			atk_mindcontrol = false;
+//			robots[atk].vmax = robots[atk].vdefault;
+//		}
+//	}
+//
+//	if ((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE * 2) && (abs(phi) * 180 / PI < 20) &&
+//		(Ball.x > robots[atk].position.x) &&
+//		((((robots[atk].orientation - atan(m1)) * 180 / PI) < 20 &&
+//		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > -20) ||
+//		 (((robots[atk].orientation - atan(m1)) * 180 / PI) < -165 ||
+//		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > 165))
+//			) {
+//
+//		if (!atk_mindcontrol) {
+//			lock_angle = atan2(double(robots[atk].position.y - Ball.y), -double(robots[atk].position.x - Ball.x));
+//		}
+//
+//		atk_mindcontrol = true;
+//	}
 
 	//Defender Overmind-------------------------
 	if (def_mindcontrol) {
@@ -866,6 +875,44 @@ void Strategy::smart_ball(int i, int max_distance) {
 												  (max_distance)); // porcentagem que a distancia do roboà bola representa da máxima
 	robots[i].target.x = static_cast<int>(Ball.x - (v.x / vector_module) * approach);
 	robots[i].target.y = static_cast<int>(Ball.y - (v.y / vector_module) * approach);
+}
+
+void Strategy::atk_uvf_routine(int i) {
+	Robot& robot = robots[i];
+	double m;
+	cv::Point pos = robot.position;
+	if(pos.x - Ball.x == 0) {
+		m = double(pos.y - Ball.y)/double(pos.x - Ball.x + 1);
+	} else {
+		m = double(pos.y - Ball.y)/double(pos.x - Ball.x);
+	}
+
+	double proj_y = -m*(pos.x - COORD_GOAL_ATK_FRONT_X) + pos.y;
+
+	robot.proj_to_ball = cv::Point(COORD_GOAL_ATK_FRONT_X, static_cast<int>(proj_y));
+
+	if(proj_y > COORD_GOAL_UP_Y && proj_y < COORD_GOAL_DWN_Y && pos.x < Ball.x) {
+		robot.transAngle = std::atan2(-double(Ball.y - pos.y), double(Ball.x - pos.x));
+		robot.cmdType = VECTOR;
+		robot.using_pot_field = true;
+	} else {
+		robot.cmdType = UVF;
+		robot.uvf_n = 1.5;
+
+		double ball_offset = 0.1 * distance(Ball_Est, Ball);
+		double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
+										  Ball_Est.x - Ball.x);
+		robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
+								 int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
+
+		double distance = 70;
+		double theta = std::atan2(COORD_GOAL_MID_Y - Ball.y,
+								  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
+		robot.uvf_ref = cv::Point(int(distance * std::cos(theta)) + Ball.x,
+								  int(distance * std::sin(theta)) + Ball.y);
+	}
+
+	robot.vmax = robot.vdefault;
 }
 
 void Strategy::atk_routine(int i) {

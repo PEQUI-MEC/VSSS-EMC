@@ -8,6 +8,7 @@ class Robot {
 	public:
 		cv::Point position, secundary, target;
 		cv::Point rearPoint, uvf_ref;
+		cv::Point proj_to_ball;
 		char ID;
 		bool isOdd;
 //		Orientation: positivo no sentido horário

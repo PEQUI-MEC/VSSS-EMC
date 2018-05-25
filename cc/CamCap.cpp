@@ -235,6 +235,7 @@ bool CamCap::capture_and_show() {
 			cv::Point aux_point;
 
 			cv::circle(imageView, interface.robot_list.at(0).uvf_ref, 9, cv::Scalar(255, 0, 255), 2);
+			cv::circle(imageView, interface.robot_list.at(0).proj_to_ball, 9, cv::Scalar(255, 0, 255), 2);
 
 			if (interface.imageView.PID_test_flag) {
 				for (auto &robot : interface.robot_list) {
@@ -334,8 +335,8 @@ bool CamCap::capture_and_show() {
 		strategyGUI.strategy.set_Ball(interface.visionGUI.vision->getBall());
 		Ball_Est = strategyGUI.strategy.get_Ball_Est();
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
-		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
-//		strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
+//		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
+		strategyGUI.strategy.get_targets(&(interface.robot_list), (interface.visionGUI.vision->getAllAdvRobots()));
 		for (unsigned long i = 0; i < 3; i++) {
 			if (interface.robot_list.at(i).cmdType != VECTOR) {
 				circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
