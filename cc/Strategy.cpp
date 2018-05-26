@@ -434,11 +434,12 @@ bool Strategy::player_blocked() {
 	if (!at_least_one_blocked) {
 		frames_blocked = 0;
 	} else {
-		frames_blocked++;
-		if (frames_blocked > 15) {
-			transition_overmind_timeout = 60; // dois segundos
-			return true;
-		}
+//		frames_blocked++;
+//		if (frames_blocked >= 15) {
+//			transition_overmind_timeout = 60; // dois segundos
+//			return true;
+//		}
+		return true;
 	}
 
 	return false;
