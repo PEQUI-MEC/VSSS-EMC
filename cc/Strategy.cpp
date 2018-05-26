@@ -71,37 +71,6 @@ void Strategy::get_past(int i) {
 	past_transangle[i] = robots[i].transAngle;
 }
 
-
-void Strategy::get_uvf_targets(vector<Robot> &pRobots) {
-	Robot& robot = pRobots.at(0);
-	cv::Point pos = robot.position;
-	double m = (pos.y - Ball.y)/(pos.x - Ball.x);
-	double proj_y = -m*(pos.x - COORD_GOAL_ATK_FRONT_X) + pos.y;
-
-	if(proj_y > COORD_GOAL_UP_Y && proj_y < COORD_GOAL_DWN_Y) {
-		robot.transAngle = std::atan2(proj_y, COORD_GOAL_ATK_FRONT_X);
-		robot.cmdType = VECTOR;
-		robot.using_pot_field = true;
-	} else {
-		robot.cmdType = UVF;
-		robot.uvf_n = 1.5;
-
-		double ball_offset = 0.1 * distance(Ball_Est, Ball);
-		double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
-										  Ball_Est.x - Ball.x);
-		robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
-								 int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
-
-		double distance = 70;
-		double theta = std::atan2(COORD_GOAL_MID_Y - Ball.y,
-								  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
-		robot.uvf_ref = cv::Point(int(distance * std::cos(theta)) + Ball.x,
-								  int(distance * std::sin(theta)) + Ball.y);
-	}
-
-	robot.vmax = robot.vdefault;
-}
-
 void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 
 	robots = *pRobots;
@@ -154,7 +123,7 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 		collision_check(i);
 	}
 
-	overmind();
+//	overmind();
 	Transitions();
 
 	transition_timeout--;
@@ -881,35 +850,39 @@ void Strategy::atk_uvf_routine(int i) {
 	Robot& robot = robots[i];
 	double m;
 	cv::Point pos = robot.position;
+
 	if(pos.x - Ball.x == 0) {
 		m = double(pos.y - Ball.y)/double(pos.x - Ball.x + 1);
 	} else {
 		m = double(pos.y - Ball.y)/double(pos.x - Ball.x);
 	}
-
 	double proj_y = -m*(pos.x - COORD_GOAL_ATK_FRONT_X) + pos.y;
 
+//	Usado para desenhar projeção
 	robot.proj_to_ball = cv::Point(COORD_GOAL_ATK_FRONT_X, static_cast<int>(proj_y));
 
-	if(proj_y > COORD_GOAL_UP_Y && proj_y < COORD_GOAL_DWN_Y && pos.x < Ball.x) {
+	if(proj_y > (COORD_GOAL_UP_Y) && proj_y < (COORD_GOAL_DWN_Y) && pos.x < Ball.x) {
+//		Vai em direção a bola se o robo estiver alinhado com a bola e com o gol
 		robot.transAngle = std::atan2(-double(Ball.y - pos.y), double(Ball.x - pos.x));
 		robot.cmdType = VECTOR;
 		robot.using_pot_field = true;
 	} else {
 		robot.cmdType = UVF;
-		robot.uvf_n = 1.5;
+		robot.uvf_n = 2;
 
-		double ball_offset = 0.1 * distance(Ball_Est, Ball);
+//		Target: Bola, deslocado um pouco na direção da posição predita
+		double ball_offset = 0.3 * distance(Ball_Est, Ball);
 		double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
 										  Ball_Est.x - Ball.x);
 		robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
 								 int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
 
-		double distance = 70;
-		double theta = std::atan2(COORD_GOAL_MID_Y - Ball.y,
-								  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
-		robot.uvf_ref = cv::Point(int(distance * std::cos(theta)) + Ball.x,
-								  int(distance * std::sin(theta)) + Ball.y);
+//		Referência: 50px a partir da bola, em direção ao gol
+		double theta_to_ball = std::atan2(COORD_GOAL_MID_Y - Ball.y,
+										  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
+		double distance = 50;
+		robot.uvf_ref = cv::Point(int(distance * std::cos(theta_to_ball)) + Ball.x,
+								  int(distance * std::sin(theta_to_ball)) + Ball.y);
 	}
 
 	robot.vmax = robot.vdefault;
