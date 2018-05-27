@@ -123,7 +123,7 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 		collision_check(i);
 	}
 
-//	overmind();
+	overmind();
 	Transitions();
 
 	transition_timeout--;
@@ -232,59 +232,59 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 
 void Strategy::overmind() {
 	cv::Point goal = cv::Point(COORD_GOAL_ATK_FRONT_X, COORD_GOAL_MID_Y);
-//	double m1 = double(goal.y - Ball.y) / double(goal.x - Ball.x);
-//	double m2 = double(robots[atk].position.y - Ball.y) / double(robots[atk].position.x - Ball.x);
+	double m1 = double(goal.y - Ball.y) / double(goal.x - Ball.x);
+	double m2 = double(robots[atk].position.y - Ball.y) / double(robots[atk].position.x - Ball.x);
 
-//	double phi = atan((m2 - m1) / (1 + m2 * m1));
+	double phi = atan((m2 - m1) / (1 + m2 * m1));
 
 //	if (robots[atk].cmdType == SPEED || robots[atk].status == CORNER_STATE) atk_mindcontrol = false;
 
-//	if (atk_mindcontrol) {
-//		robots[atk].cmdType = VECTOR;
-//		robots[atk].transAngle = lock_angle;
-//		robots[atk].vmax = 1.4;
-//		timeout++;
-//		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5 || Ball.x < robots[atk].position.x) {
-//			timeout = 0;
-//			atk_mindcontrol = false;
-//			robots[atk].vmax = robots[atk].vdefault;
-//		}
-//	}
-//
-//	if ((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE * 2) && (abs(phi) * 180 / PI < 20) &&
-//		(Ball.x > robots[atk].position.x) &&
-//		((((robots[atk].orientation - atan(m1)) * 180 / PI) < 20 &&
-//		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > -20) ||
-//		 (((robots[atk].orientation - atan(m1)) * 180 / PI) < -165 ||
-//		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > 165))
-//			) {
-//
-//		if (!atk_mindcontrol) {
-//			lock_angle = atan2(double(robots[atk].position.y - Ball.y), -double(robots[atk].position.x - Ball.x));
-//		}
-//
-//		atk_mindcontrol = true;
-//	}
-
-	//Defender Overmind-------------------------
-	if (def_mindcontrol) {
-
-		cv::Point v = cv::Point(Ball.x - Ball_Est.x, Ball.y - Ball_Est.y);
-		double module = sqrt(pow(v.x, 2) + pow(v.y, 2));
-		double approach = distance(Ball, Ball_Est) *
-						  (distance(Ball, robots[atk].position) / (COORD_MID_FIELD_X + COORD_MID_FIELD_X / 4));
-		robots[atk].target.x = static_cast<int>(Ball.x - (v.x / module) * approach);
-		robots[atk].target.y = static_cast<int>(Ball.y - (v.y / module) * approach);
+	if (atk_mindcontrol) {
 		robots[atk].cmdType = VECTOR;
-		position_to_vector(atk);
+		robots[atk].transAngle = lock_angle;
 		robots[atk].vmax = 1.4;
 		timeout++;
-		if (timeout >= 30 || Ball.x < robots[atk].position.x) {
+		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5 || Ball.x < robots[atk].position.x) {
 			timeout = 0;
-			def_mindcontrol = false;
+			atk_mindcontrol = false;
 			robots[atk].vmax = robots[atk].vdefault;
 		}
 	}
+
+	if ((distance(robots[atk].position, Ball) < ABS_ROBOT_SIZE * 2) && (abs(phi) * 180 / PI < 20) &&
+		(Ball.x > robots[atk].position.x) &&
+		((((robots[atk].orientation - atan(m1)) * 180 / PI) < 20 &&
+		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > -20) ||
+		 (((robots[atk].orientation - atan(m1)) * 180 / PI) < -165 ||
+		  ((robots[atk].orientation - atan(m1)) * 180 / PI) > 165))
+			) {
+
+		if (!atk_mindcontrol) {
+			lock_angle = atan2(double(robots[atk].position.y - Ball.y), -double(robots[atk].position.x - Ball.x));
+		}
+
+		atk_mindcontrol = true;
+	}
+
+//	//Defender Overmind-------------------------
+//	if (def_mindcontrol) {
+//
+//		cv::Point v = cv::Point(Ball.x - Ball_Est.x, Ball.y - Ball_Est.y);
+//		double module = sqrt(pow(v.x, 2) + pow(v.y, 2));
+//		double approach = distance(Ball, Ball_Est) *
+//						  (distance(Ball, robots[atk].position) / (COORD_MID_FIELD_X + COORD_MID_FIELD_X / 4));
+//		robots[atk].target.x = static_cast<int>(Ball.x - (v.x / module) * approach);
+//		robots[atk].target.y = static_cast<int>(Ball.y - (v.y / module) * approach);
+//		robots[atk].cmdType = VECTOR;
+//		position_to_vector(atk);
+//		robots[atk].vmax = 1.4;
+//		timeout++;
+//		if (timeout >= 30 || Ball.x < robots[atk].position.x) {
+//			timeout = 0;
+//			def_mindcontrol = false;
+//			robots[atk].vmax = robots[atk].vdefault;
+//		}
+//	}
 
 	// Goalkeeper overmind-------------------
 	if (!full_transition_enabled && robots[atk].position.x < COORD_BOX_DEF_X + ABS_ROBOT_SIZE / 2 &&
