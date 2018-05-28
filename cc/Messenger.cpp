@@ -37,8 +37,8 @@ void Messenger::send_old_format(string cmd) {
 	xbee->send(id, msg);
 }
 
-bool Messenger::send_cmds(const vector<Robot> &robots) {
-	if (!xbee || ++send_cmd_count <= frameskip) return false;
+void Messenger::send_cmds(const vector<Robot> &robots) {
+	if (!xbee || ++send_cmd_count <= frameskip) return;
 	for (Robot robot : robots) {
 		string msg;
 		switch (robot.cmdType) {
@@ -63,11 +63,10 @@ bool Messenger::send_cmds(const vector<Robot> &robots) {
 	}
 	update_msg_time();
 	send_cmd_count = 0;
-	return true;
 }
 
  Messenger::pose Messenger::to_robot_reference(const cv::Point &point, double theta) {
-	 double x = point.x * (150.0 / 640.0);
+	 double x = point.x * (170.0 / 640.0);
 	 double y = 130.0 - point.y * (130.0 / 480.0);
 	 double orientation = -theta * 180/M_PI;
 	 return {x, y, orientation};
@@ -79,7 +78,7 @@ void Messenger::send_ekf_data(vector<Robot>& robots) {
 		string msg = "E" + rounded_str(robot_pose.x) + ";"
 					 	 + rounded_str(robot_pose.y) + ";" + rounded_str(robot_pose.theta);
 		xbee->send(robot.ID, msg);
-//		if(robot.ID == 'A')
+//		if(robot.ID == 'E')
 //			std::cout << xbee->send_get_answer(robot.ID, msg) << std::endl;
 	}
 }
@@ -95,8 +94,7 @@ string Messenger::speed_msg(Robot robot) {
 }
 
 string Messenger::orientation_msg(Robot robot) {
-	double orientation = to_robot_reference({0,0},robot.targetOrientation).theta;
-	return "O" + rounded_str(orientation) + ";" + rounded_str(robot.vmax);
+	return "O" + rounded_str(robot.targetOrientation * 180/M_PI) + ";" + rounded_str(robot.vmax);
 }
 
 string Messenger::vector_msg(Robot robot) {

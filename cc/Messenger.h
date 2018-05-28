@@ -38,7 +38,7 @@ class Messenger {
 
 	public:
 		Messenger();
-		bool send_cmds(const std::vector<Robot> &robots);
+		void send_cmds(const std::vector<Robot> &robots);
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);
 		double get_battery(char id);

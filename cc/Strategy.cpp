@@ -471,7 +471,7 @@ void Strategy::go_to(int i, cv::Point point) {
 }
 
 double Strategy::look_at_ball(int i) {
-	double target_angle = angle_atan2(Ball, robots[i].position); // ângulo da bola em relação ao robô
+	double target_angle = angle_atan2(robots[i].position, Ball); // ângulo da bola em relação ao robô
 	robots[i].cmdType = ORIENTATION;
 	robots[i].targetOrientation = target_angle;
 }

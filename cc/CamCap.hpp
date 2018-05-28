@@ -82,6 +82,7 @@ class CamCap : public Gtk::HBox {
 		boost::condition_variable data_ready_cond;
 		boost::mutex data_ready_mutex;
 		bool data_ready_flag = false;
+		bool ekf_data_ready = false;
 
 		bool checkForLowRes();
 		void updateAllPositions();
@@ -89,7 +90,7 @@ class CamCap : public Gtk::HBox {
 		bool start_signal(bool b);
 		bool capture_and_show();
 		void send_cmd_thread(std::vector<Robot> &robots);
-		void notify_data_ready();
+		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();
 		void warp_transform(cv::Mat imageView);

@@ -185,6 +185,10 @@ bool CamCap::capture_and_show() {
 	if (!interface.visionGUI.getIsHSV()) { // GMM
 		if (interface.visionGUI.gmm->getIsTrained()) {
 			interface.visionGUI.gmm->run(imageView);
+			if (interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
+				notify_data_ready(true);
+			}
+			updateAllPositions();
 			interface.visionGUI.vision->recordVideo(imageView);
 			if (interface.visionGUI.gmm->getDoneFlag()) {
 				for (auto &window : interface.visionGUI.gmm->windowsList) {
@@ -211,6 +215,10 @@ bool CamCap::capture_and_show() {
 		}
 	} else { // HSV Simples
 		interface.visionGUI.vision->run(imageView);
+		if (interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
+			notify_data_ready(true);
+		}
+		updateAllPositions();
 		if (interface.visionGUI.getIsSplitView()) {
 			interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);
 			interface.imageView.refresh();
@@ -309,7 +317,7 @@ bool CamCap::capture_and_show() {
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
 
-	updateAllPositions();
+
 	control.update_dropped_frames();
 
 	if (interface.imageView.PID_test_flag && !interface.get_start_game_flag()) {
@@ -368,7 +376,7 @@ bool CamCap::capture_and_show() {
 	interface.robot_list[2].position = robot_kf_est[2];
 	if (interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
 		control.update_msg_time();
-		notify_data_ready();
+		notify_data_ready(false);
 	}
 
 	return true;
@@ -384,13 +392,18 @@ void CamCap::send_cmd_thread(vector<Robot> &robots) {
 			return;
 		}
 		data_ready_flag = false;
-		bool sent = control.messenger.send_cmds(robots);
-		if(!sent) control.messenger.send_ekf_data(robots);
+		if(ekf_data_ready) {
+			control.messenger.send_ekf_data(robots);
+			ekf_data_ready = false;
+		} else {
+			control.messenger.send_cmds(robots);
+		}
 	}
 }
 
-void CamCap::notify_data_ready() {
+void CamCap::notify_data_ready(bool send_ekf_data) {
 	data_ready_flag = true;
+	ekf_data_ready = send_ekf_data;
 	data_ready_cond.notify_all();
 }
 
