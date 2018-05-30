@@ -408,6 +408,9 @@ simplificar apenas uma outra função.
 		Input: 			-----
 		Output:			Estimativa da bola(cv::Point)
 		*/
+		void uvf_routine(int i);
+
+
 		cv::Point get_Ball_Est();
 
 		/* set_Ball

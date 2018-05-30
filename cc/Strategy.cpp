@@ -113,7 +113,8 @@ void Strategy::get_targets(vector<Robot> *pRobots, cv::Point *advRobots) {
 
 	gk_routine(gk);
 	def_routine(def);
-	atk_uvf_routine(atk);
+	atk_routine(atk);
+	//atk_uvf_routine(atk);
 
 	// opp_gk_routine(opp);
 
@@ -847,46 +848,68 @@ void Strategy::smart_ball(int i, int max_distance) {
 	robots[i].target.y = static_cast<int>(Ball.y - (v.y / vector_module) * approach);
 }
 
-void Strategy::atk_uvf_routine(int i) {
+//void Strategy::atk_uvf_routine(int i) {
+//	Robot& robot = robots[i];
+//	double m;
+//	cv::Point pos = robot.position;
+//
+//	if(pos.x - Ball.x == 0) {
+//		m = double(pos.y - Ball.y)/double(pos.x - Ball.x + 1);
+//	} else {
+//		m = double(pos.y - Ball.y)/double(pos.x - Ball.x);
+//	}
+//	double proj_y = -m*(pos.x - COORD_GOAL_ATK_FRONT_X) + pos.y;
+//
+////	Usado para desenhar projeção
+//	robot.proj_to_ball = cv::Point(COORD_GOAL_ATK_FRONT_X, static_cast<int>(proj_y));
+//
+//	if(proj_y > (COORD_GOAL_UP_Y) && proj_y < (COORD_GOAL_DWN_Y) && pos.x < Ball.x) {
+////		Vai em direção a bola se o robo estiver alinhado com a bola e com o gol
+//		robot.transAngle = std::atan2(-double(Ball.y - pos.y), double(Ball.x - pos.x));
+//		robot.cmdType = VECTOR;
+//		robot.using_pot_field = true;
+//	} else {
+//		robot.cmdType = UVF;
+//		robot.uvf_n = 2;
+//
+////		Target: Bola, deslocado um pouco na direção da posição predita
+//		double ball_offset = 0.3 * distance(Ball_Est, Ball);
+//		double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
+//										  Ball_Est.x - Ball.x);
+//		robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
+//								 int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
+//
+////		Referência: 50px a partir da bola, em direção ao gol
+//		double theta_to_ball = std::atan2(COORD_GOAL_MID_Y - Ball.y,
+//										  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
+//		double distance = 50;
+//		robot.uvf_ref = cv::Point(int(distance * std::cos(theta_to_ball)) + Ball.x,
+//								  int(distance * std::sin(theta_to_ball)) + Ball.y);
+//	}
+//
+//	robot.vmax = robot.vdefault;
+//}
+
+void Strategy::uvf_routine(int i){
 	Robot& robot = robots[i];
-	double m;
-	cv::Point pos = robot.position;
-
-	if(pos.x - Ball.x == 0) {
-		m = double(pos.y - Ball.y)/double(pos.x - Ball.x + 1);
-	} else {
-		m = double(pos.y - Ball.y)/double(pos.x - Ball.x);
-	}
-	double proj_y = -m*(pos.x - COORD_GOAL_ATK_FRONT_X) + pos.y;
-
-//	Usado para desenhar projeção
-	robot.proj_to_ball = cv::Point(COORD_GOAL_ATK_FRONT_X, static_cast<int>(proj_y));
-
-	if(proj_y > (COORD_GOAL_UP_Y) && proj_y < (COORD_GOAL_DWN_Y) && pos.x < Ball.x) {
-//		Vai em direção a bola se o robo estiver alinhado com a bola e com o gol
-		robot.transAngle = std::atan2(-double(Ball.y - pos.y), double(Ball.x - pos.x));
-		robot.cmdType = VECTOR;
-		robot.using_pot_field = true;
-	} else {
-		robot.cmdType = UVF;
-		robot.uvf_n = 2;
+	robot.cmdType = UVF;
+	robot.uvf_n = 2;
 
 //		Target: Bola, deslocado um pouco na direção da posição predita
-		double ball_offset = 0.3 * distance(Ball_Est, Ball);
-		double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
-										  Ball_Est.x - Ball.x);
-		robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
-								 int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
+	double ball_offset = 0.3 * distance(Ball_Est, Ball);
+	double theta_to_pred = std::atan2(Ball_Est.y - Ball.y,
+									  Ball_Est.x - Ball.x);
+	robot.target = cv::Point(int(ball_offset * std::cos(theta_to_pred)) + Ball.x,
+							 int(ball_offset * std::sin(theta_to_pred)) + Ball.y);
 
 //		Referência: 50px a partir da bola, em direção ao gol
-		double theta_to_ball = std::atan2(COORD_GOAL_MID_Y - Ball.y,
-										  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
-		double distance = 50;
-		robot.uvf_ref = cv::Point(int(distance * std::cos(theta_to_ball)) + Ball.x,
-								  int(distance * std::sin(theta_to_ball)) + Ball.y);
-	}
-
-	robot.vmax = robot.vdefault;
+	double theta_to_ball = std::atan2(COORD_GOAL_MID_Y - Ball.y,
+									  ABS_GOAL_TO_GOAL_WIDTH - Ball.x);
+	double distance = 50;
+	robot.uvf_ref = cv::Point(int(distance * std::cos(theta_to_ball)) + Ball.x,
+							  int(distance * std::sin(theta_to_ball)) + Ball.y);
+	robot.using_pot_field = true;
+	crop_targets(i);
 }
 
 void Strategy::atk_routine(int i) {
@@ -898,10 +921,11 @@ void Strategy::atk_routine(int i) {
 				robots[i].status = CORNER_STATE; // bola no canto
 			} else if (Ball.x < def_corner_line) {
 				robots[i].status = DEF_CORNER_STATE;
-			} else if (Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE * 1.5 || Ball.y < ABS_ROBOT_SIZE * 1.5) {
-				robots[i].status = SIDEWAYS;
+//			} else if (Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE * 1.5 || Ball.y < ABS_ROBOT_SIZE * 1.5) {
+//				robots[i].status = SIDEWAYS;
 			}
-			pot_field_around(i);
+			uvf_routine(i);
+			//pot_field_around(i);
 			crop_targets(i);
 
 			break;
@@ -943,13 +967,15 @@ void Strategy::atk_routine(int i) {
 						if (Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
 							spin_clockwise(i); // giro que leva a bola ao gol
 						else
-							go_to(i,
-								  Ball); // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
+							uvf_routine(i);
+//							go_to(i,
+//								  Ball); // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
 							spin_anti_clockwise(i, 1.4); // giro para faze-la entrar
-						else go_to(i, Ball);
+						else
+							go_to(i, Ball);
 					}
 				} else {
 					if (Ball.y > COORD_GOAL_DWN_Y) {
@@ -957,8 +983,9 @@ void Strategy::atk_routine(int i) {
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
 							spin_anti_clockwise(i);
 						else
-							go_to(i,
-								  Ball); // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
+							uvf_routine(i);
+//							go_to(i,
+//								  Ball); // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
