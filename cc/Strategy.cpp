@@ -921,14 +921,45 @@ void Strategy::atk_routine(int i) {
 				robots[i].status = CORNER_STATE; // bola no canto
 			} else if (Ball.x < def_corner_line) {
 				robots[i].status = DEF_CORNER_STATE;
-//			} else if (Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE * 1.5 || Ball.y < ABS_ROBOT_SIZE * 1.5) {
-//				robots[i].status = SIDEWAYS;
+			} else if (Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE * 1.5 || Ball.y < ABS_ROBOT_SIZE * 1.5) {
+				robots[i].status = SIDEWAYS;
 			}
+			if(Ball.y < ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE * 1.5 || Ball.y > ABS_ROBOT_SIZE * 1.5)
 			uvf_routine(i);
 			//pot_field_around(i);
 			crop_targets(i);
 
 			break;
+
+//		case SIDEWAYS:
+//			if (Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE * 1.5) {
+//				if (distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+//					go_to(i, Ball);
+//				} else if (Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE / 2) {
+//					// smart_ball(i, COORD_GOAL_MID_Y);
+//					go_to(i, Ball);
+//				} else {
+//					spin_anti_clockwise(i);
+//				}
+//				if (Ball.x < robots[i].position.x) {
+//					go_to(i, cv::Point(Ball.x - max_approach, Ball.y - max_approach / 2));
+//				}
+//			} else if (Ball.y < ABS_ROBOT_SIZE * 1.5) {
+//				if (distance(robots[i].position, Ball) > ABS_ROBOT_SIZE) {
+//					go_to(i, Ball);
+//				} else if (Ball.x >= robots[i].position.x + ABS_ROBOT_SIZE / 2) {
+//					// smart_ball(i, COORD_GOAL_MID_Y);
+//					go_to(i, Ball);
+//				} else {
+//					spin_clockwise(i);
+//				}
+//				if (Ball.x < robots[i].position.x) {
+//					go_to(i, cv::Point(Ball.x - max_approach, Ball.y - max_approach / 2));
+//				}
+//			} else {
+//				robots[i].status = NORMAL_STATE; // voltar ao estado normal
+//			}
+//			break;
 
 		case SIDEWAYS:
 			if (Ball.y > ABS_FIELD_HEIGHT - ABS_ROBOT_SIZE * 1.5) {
@@ -960,16 +991,59 @@ void Strategy::atk_routine(int i) {
 			}
 			break;
 
+
+//		case CORNER_STATE:
+//			if (Ball.x > corner_atk_limit) {
+//				if (Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
+//					if (Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
+//						if (Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+//							spin_clockwise(i); // giro que leva a bola ao gol
+//						else
+//
+//							go_to(i,
+//								  Ball); // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
+//					} else {
+//						if (Ball.y > robots[i].position.y &&
+//							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+//							spin_anti_clockwise(i, 1.4); // giro para faze-la entrar
+//						else
+//							go_to(i, Ball);
+//					}
+//				} else {
+//					if (Ball.y > COORD_GOAL_DWN_Y) {
+//						if (Ball.x > robots[i].position.x &&
+//							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+//							spin_anti_clockwise(i);
+//						else
+//							uvf_routine(i);
+//							go_to(i,
+//								  Ball); // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
+//					} else {
+//						if (Ball.y > robots[i].position.y &&
+//							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+//							spin_clockwise(i, 1.4); // giro para faze-la entrar
+//						else go_to(i, Ball);
+//					}
+//				}
+//			} else {
+//				robots[i].status = NORMAL_STATE; // voltar ao estado normal
+//			}
+//			break;
+			
 		case CORNER_STATE:
 			if (Ball.x > corner_atk_limit) {
 				if (Ball.y < COORD_GOAL_MID_Y) { // acima ou abaixo do gol, para saber para qual lado girar
 					if (Ball.y < COORD_GOAL_UP_Y) { // acima ou abaixo da trave, escolher o giro para levar a bola para o gol ou para faze-la entrar
 						if (Ball.x > robots[i].position.x && distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
 							spin_clockwise(i); // giro que leva a bola ao gol
-						else
-							uvf_routine(i);
-//							go_to(i,
-//								  Ball); // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
+						else{
+							if(robots[i].position.y > ABS_ROBOT_SIZE*1.5) {//verifica se o robô está perto da parede
+								uvf_routine(i);
+							}else {
+							go_to(i,
+								  Ball); // se Ball.y < robots[i].position.y -> faz a bola travar no canto pra girar certo
+							}
+						}
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
@@ -980,12 +1054,16 @@ void Strategy::atk_routine(int i) {
 				} else {
 					if (Ball.y > COORD_GOAL_DWN_Y) {
 						if (Ball.x > robots[i].position.x &&
-							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
+							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE) {
 							spin_anti_clockwise(i);
-						else
+						}else {
+							if(robots[i].position.y < ABS_FIELD_HEIGHT - (ABS_ROBOT_SIZE*1.5)){
 							uvf_routine(i);
-//							go_to(i,
-//								  Ball); // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
+							}else{
+							go_to(i,
+								  Ball); // se Ball.y > robots[i].position.y -> faz a bola travar no canto pra girar certo
+						    }
+						}
 					} else {
 						if (Ball.y > robots[i].position.y &&
 							distance(Ball, robots[i].position) < ABS_ROBOT_SIZE)
