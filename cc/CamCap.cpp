@@ -12,7 +12,7 @@ void CamCap::updateAllPositions() {
 	Robot robot;
 	cv::Point ballPosition;
 
-	for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
+	for (unsigned long i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
 		robot = interface.visionGUI.vision->getRobot(i);
 		interface.robot_list[i].position = robot.position;
 		interface.robot_list[i].orientation = robot.orientation;
@@ -31,7 +31,7 @@ void CamCap::updateKalmanFilter() {
 	// KALMAN FILTER
 	if (KF_FIRST) {
 		//KALMAN FILTER INIT
-		for (int i = 0; i < 3; i++) {
+		for (unsigned long i = 0; i < 3; i++) {
 			KF_Robot[i].KF_init(interface.visionGUI.vision->getRobotPos(i));
 		}
 		KF_Robot[3].KF_init(interface.visionGUI.vision->getBall());
@@ -62,7 +62,7 @@ bool CamCap::start_signal(bool b) {
 		if (data) {
 			interface.imageView.disable_image_show();
 			free(data);
-			data = 0;
+			data = nullptr;
 		}
 		/*GdkScreen* screen = gdk_screen_get_default();
 		if (interface.vcap.format_dest.fmt.pix.width > gdk_screen_get_width(screen)/2 || interface.vcap.format_dest.fmt.pix.height > gdk_screen_get_height(screen)/2)
@@ -182,7 +182,7 @@ bool CamCap::capture_and_show() {
 
 	updateKalmanFilter();
 
-	if (!interface.visionGUI.getIsHSV()) { // GMM
+	if (!interface.visionGUI.getIsCIELAB()) { // GMM
 		if (interface.visionGUI.gmm->getIsTrained()) {
 			interface.visionGUI.gmm->run(imageView);
 			interface.visionGUI.vision->recordVideo(imageView);
@@ -214,14 +214,14 @@ bool CamCap::capture_and_show() {
 		if (interface.visionGUI.getIsSplitView()) {
 			interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);
 			interface.imageView.refresh();
-		} else if (interface.visionGUI.HSV_calib_event_flag) {
+		} else if (interface.visionGUI.CIELAB_calib_event_flag) {
 			interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data,
 										 width, height);
 			interface.imageView.refresh();
 		}
 	}
 
-	if (!interface.visionGUI.HSV_calib_event_flag) {
+	if (!interface.visionGUI.CIELAB_calib_event_flag) {
 		if (chessBoardFound) {
 
 			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
@@ -272,7 +272,7 @@ bool CamCap::capture_and_show() {
 
 			circle(imageView, interface.visionGUI.vision->getBall(), 7, cv::Scalar(255, 255, 255), 2);
 
-			for (int i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
+			for (unsigned long i = 0; i < interface.visionGUI.vision->getRobotListSize(); i++) {
 				// robo 1
 				line(imageView, interface.visionGUI.vision->getRobot(i).position,
 					 interface.visionGUI.vision->getRobot(i).secundary, cv::Scalar(255, 255, 0), 2);
@@ -401,8 +401,6 @@ void CamCap::PID_test() {
 	if (interface.get_start_game_flag()) return;
 
 	double dist;
-	int old_Selec_index;
-	old_Selec_index = Selec_index;
 	for (int i = 0; i < interface.robot_list.size() && i < 3; i++) {
 		dist = sqrt(pow((interface.imageView.robot_pos[0] - interface.robot_list[i].position.x), 2) +
 					pow((interface.imageView.robot_pos[1] - interface.robot_list[i].position.y), 2));
@@ -510,7 +508,7 @@ void CamCap::warp_transform(cv::Mat imageView) {
 	}
 } // warp_transform
 
-CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
+CamCap::CamCap(int screenW, int screenH) : data(nullptr), width(0), height(0), frameCounter(0),
 										   screenWidth(screenW), screenHeight(screenH),
 										   msg_thread(&CamCap::send_cmd_thread, this,
 													  boost::ref(interface.robot_list)) {

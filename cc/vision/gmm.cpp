@@ -37,7 +37,7 @@ void GMM::joinWindowsToFrames() {
 	finalFrame = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
 	preThreshold = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
 
-	for (int i = 0; i < TOTAL_WINDOWS; i++) {
+	for (unsigned long i = 0; i < TOTAL_WINDOWS; i++) {
 		int x = windowsList.at(i).getX();
 		int y = windowsList.at(i).getY();
 		int size = windowsList.at(i).getSize();
@@ -47,7 +47,7 @@ void GMM::joinWindowsToFrames() {
 	}
 }
 
-void GMM::posProcessing(int index) {
+void GMM::posProcessing(unsigned long index) {
 
 	cv::Mat erodeElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat dilateElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
@@ -100,7 +100,7 @@ cv::Mat GMM::crop(cv::Point p1, cv::Point p2) {
 	return out;
 }
 
-void GMM::classifyWindows(int index) {
+void GMM::classifyWindows(unsigned long index) {
 	cv::Mat input = predictWindows(index);
 	int rows = input.rows;
 	int cols = input.cols;
@@ -109,7 +109,7 @@ void GMM::classifyWindows(int index) {
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < cols; j++) {
-			int label = static_cast<int>(input.at<float>(i, j));
+			auto label = static_cast<int>(input.at<float>(i, j));
 			partialGaussians[index].at<cv::Vec3b>(i, j)[0] = colors[label][0];
 			partialGaussians[index].at<cv::Vec3b>(i, j)[1] = colors[label][1];
 			partialGaussians[index].at<cv::Vec3b>(i, j)[2] = colors[label][2];
@@ -118,7 +118,7 @@ void GMM::classifyWindows(int index) {
 }
 
 // Classifica cada pixel quanto a cor de sua gaussiana
-void GMM::classify(int index) {
+void GMM::classify(unsigned long index) {
 	cv::Mat input = predict(index);
 
 	int rows = input.rows;
@@ -126,7 +126,7 @@ void GMM::classify(int index) {
 	partialFrames[index] = cv::Mat::zeros(rows, cols, CV_8UC3);
 	for (int x = 0; x < rows; x++) {
 		for (int y = 0; y < cols; y++) {
-			int label = static_cast<int>(input.at<float>(x, y));
+			auto label = static_cast<int>(input.at<float>(x, y));
 			partialFrames[index].at<cv::Vec3b>(x, y)[0] = colors[label][0];
 			partialFrames[index].at<cv::Vec3b>(x, y)[1] = colors[label][1];
 			partialFrames[index].at<cv::Vec3b>(x, y)[2] = colors[label][2];
@@ -135,18 +135,18 @@ void GMM::classify(int index) {
 }
 
 void GMM::paintWindows() {
-	for (int k = 0; k < windowsList.size(); k++) {
+	for (unsigned long k = 0; k < windowsList.size(); k++) {
 		partialFinals[k] = cv::Mat::zeros(partialGaussians[k].rows, partialGaussians[k].cols, CV_8UC3);
 		partialPreThresholds[k] = cv::Mat::zeros(partialGaussians[k].rows, partialGaussians[k].cols, CV_8UC3);
 		for (int i = 0; i < windowsList.at(k).getSize(); i++) {
 			for (int j = 0; j < windowsList.at(k).getSize(); j++) {
-				int label = static_cast<int>(partialPredicts[k].at<float>(i, j));
+				auto label = static_cast<unsigned long>(partialPredicts[k].at<float>(i, j));
 				partialFinals[k].at<cv::Vec3b>(i, j)[0] = colors[matchColor.at(label)][0];
 				partialFinals[k].at<cv::Vec3b>(i, j)[1] = colors[matchColor.at(label)][1];
 				partialFinals[k].at<cv::Vec3b>(i, j)[2] = colors[matchColor.at(label)][2];
-				partialPreThresholds[k].at<cv::Vec3b>(i, j)[0] = matchColor.at(label);
-				partialPreThresholds[k].at<cv::Vec3b>(i, j)[1] = matchColor.at(label);
-				partialPreThresholds[k].at<cv::Vec3b>(i, j)[2] = matchColor.at(label);
+				partialPreThresholds[k].at<cv::Vec3b>(i, j)[0] = static_cast<uchar>(matchColor.at(label));
+				partialPreThresholds[k].at<cv::Vec3b>(i, j)[1] = static_cast<uchar>(matchColor.at(label));
+				partialPreThresholds[k].at<cv::Vec3b>(i, j)[2] = static_cast<uchar>(matchColor.at(label));
 			}
 		}
 	}
@@ -162,19 +162,19 @@ void GMM::paint() {
 
 	for (int x = 0; x < predictFrame.rows; x++) {
 		for (int y = 0; y < predictFrame.cols; y++) {
-			int label = static_cast<int>(predictFrame.at<float>(x, y));
+			auto label = static_cast<unsigned long>(predictFrame.at<float>(x, y));
 			finalFrame.at<cv::Vec3b>(x, y)[0] = colors[matchColor.at(label)][0];
 			finalFrame.at<cv::Vec3b>(x, y)[1] = colors[matchColor.at(label)][1];
 			finalFrame.at<cv::Vec3b>(x, y)[2] = colors[matchColor.at(label)][2];
-			preThreshold.at<cv::Vec3b>(x, y)[0] = matchColor.at(label);
-			preThreshold.at<cv::Vec3b>(x, y)[1] = matchColor.at(label);
-			preThreshold.at<cv::Vec3b>(x, y)[2] = matchColor.at(label);
+			preThreshold.at<cv::Vec3b>(x, y)[0] = static_cast<uchar>(matchColor.at(label));
+			preThreshold.at<cv::Vec3b>(x, y)[1] = static_cast<uchar>(matchColor.at(label));
+			preThreshold.at<cv::Vec3b>(x, y)[2] = static_cast<uchar>(matchColor.at(label));
 		}
 	}
 }
 
-cv::Mat GMM::predictWindows(int index) {
-	cv::Mat input = formatFrameForEM(index);
+cv::Mat GMM::predictWindows(unsigned long index) {
+	cv::Mat input = formatFrameForEM(static_cast<int>(index));
 
 	int windowSize = windowsList.at(index).getSize();
 
@@ -197,7 +197,7 @@ cv::Mat GMM::predictWindows(int index) {
 }
 
 // Associa cada pixel com uma gaussiana do modelo
-cv::Mat GMM::predict(int index) {
+cv::Mat GMM::predict(unsigned long index) {
 	cv::Mat input = formatFrameForEM(index);
 
 	partialPredicts[index] = cv::Mat(inFrame.rows / TOTAL_THREADS, inFrame.cols, CV_32F);
@@ -219,7 +219,7 @@ cv::Mat GMM::predict(int index) {
 }
 
 // Formata o Frame para o tipo de variável requerido pelo EM
-cv::Mat GMM::formatFrameForEM(int index) {
+cv::Mat GMM::formatFrameForEM(unsigned long index) {
 	if (inFrame.empty()) return cv::Mat::zeros(1, 1, CV_32F);
 
 	cv::Rect roi;
@@ -239,7 +239,7 @@ cv::Mat GMM::formatFrameForEM(int index) {
 		int rows = inFrame.rows / TOTAL_THREADS;
 
 		roi.x = 0;
-		roi.y = index * rows;
+		roi.y = static_cast<int>(index * rows);
 		roi.width = cols;
 		roi.height = rows;
 	}
@@ -287,7 +287,7 @@ int GMM::train() {
 	std::cout << means << std::endl;
 
 	std::cout << "-------- COVS" << std::endl;
-	for (int i = 0; i < covs.size(); i++) {
+	for (unsigned long i = 0; i < covs.size(); i++) {
 		std::cout << ">> " << i << std::endl;
 		std::cout << covs.at(i) << std::endl;
 	}
@@ -403,7 +403,7 @@ bool GMM::read(std::string fileName) {
 		std::cout << means << std::endl;
 
 		std::cout << "-------- COVS" << std::endl;
-		for (int i = 0; i < covs.size(); i++) {
+		for (unsigned long i = 0; i < covs.size(); i++) {
 			std::cout << ">> " << i << std::endl;
 			std::cout << covs.at(i) << std::endl;
 		}
@@ -492,7 +492,7 @@ bool GMM::getIsTrained() {
 	return isTrained;
 }
 
-void GMM::setMatchColor(int gaussian, int color) {
+void GMM::setMatchColor(unsigned long gaussian, int color) {
 	matchColor.at(gaussian) = color;
 }
 
@@ -512,13 +512,13 @@ void GMM::setDone(bool flag) {
 // Usa o preThreshold para fazer um threshold para cada cor
 void GMM::setAllThresholds() {
 
-	for (int i = 0; i < TOTAL_COLORS; i++) {
+	for (unsigned long i = 0; i < TOTAL_COLORS; i++) {
 		threshold_frame.at(i) = cv::Mat::zeros(inFrame.rows, inFrame.cols, CV_8UC3);
 	}
 
 	for (int i = 0; i < preThreshold.rows; i++) {
 		for (int j = 0; j < preThreshold.cols; j++) {
-			int label = preThreshold.at<cv::Vec3b>(i, j)[0];
+			unsigned long label = preThreshold.at<cv::Vec3b>(i, j)[0];
 			if (label > 0 && label < TOTAL_COLORS + 1) {
 				threshold_frame.at(label - 1).at<cv::Vec3b>(i, j)[0] = 255;
 				threshold_frame.at(label - 1).at<cv::Vec3b>(i, j)[1] = 255;
@@ -528,31 +528,31 @@ void GMM::setAllThresholds() {
 	}
 }
 
-cv::Mat GMM::getThresholdFrame(int color) {
+cv::Mat GMM::getThresholdFrame(unsigned long color) {
 	return threshold_frame.at(color);
 }
 
-void GMM::setBlur(int index, int value) {
+void GMM::setBlur(unsigned long index, int value) {
 	blur[index] = value;
 }
 
-void GMM::setErode(int index, int value) {
+void GMM::setErode(unsigned long index, int value) {
 	erode[index] = value;
 }
 
-void GMM::setDilate(int index, int value) {
+void GMM::setDilate(unsigned long index, int value) {
 	dilate[index] = value;
 }
 
-int GMM::getBlur(int index) {
+int GMM::getBlur(unsigned long index) {
 	return blur[index];
 }
 
-int GMM::getErode(int index) {
+int GMM::getErode(unsigned long index) {
 	return erode[index];
 }
 
-int GMM::getDilate(int index) {
+int GMM::getDilate(unsigned long index) {
 	return dilate[index];
 }
 

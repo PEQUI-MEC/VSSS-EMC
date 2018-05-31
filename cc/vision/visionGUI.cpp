@@ -45,31 +45,31 @@ void VisionGUI::__create_frm_calib_mode() {
 
 	label = new Gtk::Label("Calibration Mode: ");
 	grid->attach(*label, 0, 0, 1, 1);
-	rb_mode_HSV.set_label("HSV/CIELAB");
-	grid->attach(rb_mode_HSV, 1, 0, 1, 1);
+	rb_mode_CIELAB.set_label("CIELAB");
+	grid->attach(rb_mode_CIELAB, 1, 0, 1, 1);
 	rb_mode_GMM.set_label("GMM");
-	rb_mode_GMM.join_group(rb_mode_HSV);
+	rb_mode_GMM.join_group(rb_mode_CIELAB);
 	grid->attach(rb_mode_GMM, 2, 0, 1, 1);
 
-	rb_mode_HSV.set_state(Gtk::STATE_INSENSITIVE);
+	rb_mode_CIELAB.set_state(Gtk::STATE_INSENSITIVE);
 	rb_mode_GMM.set_state(Gtk::STATE_INSENSITIVE);
 
-	rb_mode_HSV.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
+	rb_mode_CIELAB.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
 	rb_mode_GMM.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_rb_mode_clicked));
 }
 
 void VisionGUI::__event_rb_mode_clicked() {
 	if (rb_mode_GMM.get_active()) {
-		isHSV = false;
-		fr_HSV.hide();
+		isCIELAB = false;
+		fr_CIELAB.hide();
 		fr_GMM.show();
 		fr_splitView.hide();
 		disableSplitView = true;
 	} else {
-		fr_HSV.show();
+		fr_CIELAB.show();
 		fr_GMM.hide();
 		fr_splitView.show();
-		isHSV = true;
+		isCIELAB = true;
 		disableSplitView = false;
 	}
 }
@@ -82,7 +82,6 @@ void VisionGUI::__create_frm_gmm() {
 	Gtk::HBox *hbox;
 
 	vbox = new Gtk::VBox();
-	grid = new Gtk::Grid();
 
 	pack_start(fr_GMM, false, false, 5);
 
@@ -157,7 +156,7 @@ void VisionGUI::__create_frm_gmm() {
 	grid->attach(bt_trainGMM, 4, 0, 1, 1);
 
 	frame = new Gtk::Frame();
-	Gtk::VBox *innerVbox = new Gtk::VBox();
+	auto *innerVbox = new Gtk::VBox();
 	frame->set_label("Frame");
 	frame->add(*innerVbox);
 	vbox->pack_start(*frame, false, true, 5);
@@ -195,7 +194,7 @@ void VisionGUI::__create_frm_gmm() {
 	hbox->set_halign(Gtk::ALIGN_CENTER);
 	hbox->set_valign(Gtk::ALIGN_CENTER);
 	cb_gaussianColor.append("Select Gaus.:");
-	for (int i = 0; i < gmm->getClusters(); i++) {
+	for (unsigned long i = 0; i < gmm->getClusters(); i++) {
 		cb_gaussianColor.append(gaussianColors.at(i));
 	}
 	cb_gaussianColor.set_active(0);
@@ -283,7 +282,7 @@ void VisionGUI::HScale_GMM_dilate_value_changed() {
 }
 
 void VisionGUI::HScale_GMM_blur_value_changed() {
-	int value = static_cast<int>(HScale_GMM_blur.get_value());
+	auto value = static_cast<int>(HScale_GMM_blur.get_value());
 	if (value % 2 == 0 && value != 0) value++;
 	gmm->setBlur(colorIndex, value);
 }
@@ -339,7 +338,7 @@ void VisionGUI::quickLoadGMM() {
 }
 
 void VisionGUI::__event_bt_GMM_left_clicked() {
-	if (colorIndex - 1 < 0) colorIndex = realColors.size() - 1;
+	if (colorIndex - 1 == 0) colorIndex = realColors.size() - 1;
 	else colorIndex--;
 
 	lb_threshold.set_text(realColors.at(colorIndex));
@@ -381,11 +380,11 @@ void VisionGUI::__event_rb_GMM_frame_clicked() {
 void VisionGUI::__event_bt_GMM_match_clicked() {
 	int gaussian = cb_gaussianColor.get_active_row_number();
 	int color = cb_realColor.get_active_row_number();
-	if (gaussian >= 0 && color >= 0) gmm->setMatchColor(gaussian - 1, color - 1);
+	if (gaussian >= 0 && color >= 0) gmm->setMatchColor(static_cast<unsigned long>(gaussian - 1), color - 1);
 }
 
 void VisionGUI::__event_bt_GMM_done_clicked() {
-	if (gmm->getDoneFlag() == false) {
+	if (!gmm->getDoneFlag()) {
 		gmm->setDone(true);
 		bt_GMM_done.set_label("Reset");
 		// rb_GMM_threshold.set_state(Gtk::STATE_NORMAL);
@@ -397,12 +396,12 @@ void VisionGUI::__event_bt_GMM_done_clicked() {
 }
 
 void VisionGUI::HScale_clusters_value_changed() {
-	gmm->setClusters(HScale_clusters.get_value());
+	gmm->setClusters(static_cast<int>(HScale_clusters.get_value()));
 
 	cb_gaussianColor.remove_all();
 	cb_gaussianColor.append("Select Gaussian:");
 	cb_gaussianColor.set_active(0);
-	for (int i = 0; i < gmm->getClusters(); i++) {
+	for (unsigned long i = 0; i < gmm->getClusters(); i++) {
 		cb_gaussianColor.append(gaussianColors.at(i));
 	}
 }
@@ -486,10 +485,7 @@ void VisionGUI::__create_frm_split_view() {
 }
 
 void VisionGUI::__event_rb_split_mode_clicked() {
-	if (rb_split_view.get_active())
-		isSplitView = true;
-	else
-		isSplitView = false;
+	isSplitView = rb_split_view.get_active();
 }
 
 bool VisionGUI::getIsSplitView() {
@@ -574,7 +570,7 @@ void VisionGUI::bt_save_picture_clicked() {
 	en_picture_name.set_text("");
 }
 
-void VisionGUI::__create_frm_hsv() {
+void VisionGUI::__create_frm_cielab() {
 	Gtk::VBox *vbox;
 	Gtk::Grid *grid;
 	Gtk::Label *label;
@@ -582,37 +578,32 @@ void VisionGUI::__create_frm_hsv() {
 	vbox = new Gtk::VBox();
 	grid = new Gtk::Grid();
 
-	pack_start(fr_HSV, false, false, 5);
+	pack_start(fr_CIELAB, false, false, 5);
 
-	fr_HSV.add(*vbox);
+	fr_CIELAB.add(*vbox);
 	vbox->pack_start(*grid, false, true, 5);
 	vbox->set_halign(Gtk::ALIGN_CENTER);
 	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-	fr_HSV.set_label("HSV/CIELAB Calibration");
+	fr_CIELAB.set_label("CIELAB Calibration");
 
 	grid->set_border_width(5);
 	grid->set_column_spacing(15);
 	grid->set_row_spacing(0);
 	// grid->set_column_homogeneous(true);
 
-	bt_HSV_calib.set_label("HSV Calib.");
-	grid->attach(bt_HSV_calib, 0, 0, 1, 1);
+	bt_LAB_calib.set_label("CIELAB Calib.");
+	grid->attach(bt_LAB_calib, 0, 0, 1, 1);
 
-	bt_HSV_left.set_label(" < ");
-	grid->attach(bt_HSV_left, 2, 0, 1, 1);
-	HSV_label.set_text("Main");
-	grid->attach(HSV_label, 3, 0, 1, 1);
-	bt_HSV_right.set_label(" > ");
-	grid->attach(bt_HSV_right, 4, 0, 1, 1);
+	bt_CIELAB_left.set_label(" < ");
+	grid->attach(bt_CIELAB_left, 2, 0, 1, 1);
+	CIELAB_label.set_text("Main");
+	grid->attach(CIELAB_label, 3, 0, 1, 1);
+	bt_CIELAB_right.set_label(" > ");
+	grid->attach(bt_CIELAB_right, 4, 0, 1, 1);
 
 	bt_switchMainAdv.set_label("Main <-> Adv");
 	grid->attach(bt_switchMainAdv, 6, 0, 1, 1);
-
-	cb_convertType.append("HSV");
-	cb_convertType.append("CIELAB");
-	cb_convertType.set_active(0);
-	grid->attach(cb_convertType, 7, 0, 1, 1);
 
 	grid = new Gtk::Grid();
 	grid->set_border_width(5);
@@ -621,73 +612,73 @@ void VisionGUI::__create_frm_hsv() {
 	grid->set_column_homogeneous(true);
 	vbox->pack_start(*grid, false, true, 5);
 
-	lb_Hmin.set_text("Hmin");
-	lb_Hmin.set_alignment(1.0, 1.0);
-	grid->attach(lb_Hmin, 0, 0, 1, 1);
+	lb_cieL_min.set_text("Black");
+	lb_cieL_min.set_alignment(1.0, 1.0);
+	grid->attach(lb_cieL_min, 0, 0, 1, 1);
 
-	HScale_Hmin.set_digits(0);
-	HScale_Hmin.set_increments(1, 1);
-	HScale_Hmin.set_range(0, 255);
-	HScale_Hmin.set_value_pos(Gtk::POS_TOP);
-	HScale_Hmin.set_draw_value();
-	grid->attach(HScale_Hmin, 1, 0, 2, 1);
+	HScale_cieL_min.set_digits(0);
+	HScale_cieL_min.set_increments(1, 1);
+	HScale_cieL_min.set_range(0, 255);
+	HScale_cieL_min.set_value_pos(Gtk::POS_TOP);
+	HScale_cieL_min.set_draw_value();
+	grid->attach(HScale_cieL_min, 1, 0, 2, 1);
 
-	lb_Hmax.set_text("Hmax");
-	lb_Hmax.set_alignment(1.0, 1.0);
-	grid->attach(lb_Hmax, 3, 0, 1, 1);
+	lb_cieL_max.set_text("White");
+	lb_cieL_max.set_alignment(1.0, 1.0);
+	grid->attach(lb_cieL_max, 3, 0, 1, 1);
 
-	HScale_Hmax.set_digits(0);
-	HScale_Hmax.set_increments(1, 1);
-	HScale_Hmax.set_range(0, 255);
-	HScale_Hmax.set_value_pos(Gtk::POS_TOP);
-	HScale_Hmax.set_draw_value();
-	grid->attach(HScale_Hmax, 4, 0, 2, 1);
+	HScale_cieL_max.set_digits(0);
+	HScale_cieL_max.set_increments(1, 1);
+	HScale_cieL_max.set_range(0, 255);
+	HScale_cieL_max.set_value_pos(Gtk::POS_TOP);
+	HScale_cieL_max.set_draw_value();
+	grid->attach(HScale_cieL_max, 4, 0, 2, 1);
 
-	lb_Smin.set_text("Smin");
-	lb_Smin.set_alignment(1.0, 1.0);
-	grid->attach(lb_Smin, 0, 1, 1, 1);
+	lb_cieA_min.set_text("Green");
+	lb_cieA_min.set_alignment(1.0, 1.0);
+	grid->attach(lb_cieA_min, 0, 1, 1, 1);
 
-	HScale_Smin.set_digits(0);
-	HScale_Smin.set_increments(1, 1);
-	HScale_Smin.set_range(0, 255);
-	HScale_Smin.set_value_pos(Gtk::POS_TOP);
-	HScale_Smin.set_draw_value();
-	grid->attach(HScale_Smin, 1, 1, 2, 1);
+	HScale_cieA_min.set_digits(0);
+	HScale_cieA_min.set_increments(1, 1);
+	HScale_cieA_min.set_range(0, 255);
+	HScale_cieA_min.set_value_pos(Gtk::POS_TOP);
+	HScale_cieA_min.set_draw_value();
+	grid->attach(HScale_cieA_min, 1, 1, 2, 1);
 
-	lb_Smax.set_text("Smax");
-	lb_Smax.set_alignment(1.0, 1.0);
-	grid->attach(lb_Smax, 3, 1, 1, 1);
+	lb_cieA_max.set_text("Red");
+	lb_cieA_max.set_alignment(1.0, 1.0);
+	grid->attach(lb_cieA_max, 3, 1, 1, 1);
 
-	HScale_Smax.set_digits(0);
-	HScale_Smax.set_increments(1, 1);
-	HScale_Smax.set_range(0, 255);
-	HScale_Smax.set_value_pos(Gtk::POS_TOP);
-	HScale_Smax.set_draw_value();
+	HScale_cieA_max.set_digits(0);
+	HScale_cieA_max.set_increments(1, 1);
+	HScale_cieA_max.set_range(0, 255);
+	HScale_cieA_max.set_value_pos(Gtk::POS_TOP);
+	HScale_cieA_max.set_draw_value();
 
-	grid->attach(HScale_Smax, 4, 1, 2, 1);
+	grid->attach(HScale_cieA_max, 4, 1, 2, 1);
 
-	lb_Vmin.set_text("Vmin");
-	lb_Vmin.set_alignment(1.0, 1.0);
-	grid->attach(lb_Vmin, 0, 2, 1, 1);
+	lb_cieB_min.set_text("Blue");
+	lb_cieB_min.set_alignment(1.0, 1.0);
+	grid->attach(lb_cieB_min, 0, 2, 1, 1);
 
-	HScale_Vmin.set_digits(0);
-	HScale_Vmin.set_increments(1, 1);
-	HScale_Vmin.set_range(0, 255);
-	HScale_Vmin.set_value_pos(Gtk::POS_TOP);
-	HScale_Vmin.set_draw_value();
-	grid->attach(HScale_Vmin, 1, 2, 2, 1);
+	HScale_cieB_min.set_digits(0);
+	HScale_cieB_min.set_increments(1, 1);
+	HScale_cieB_min.set_range(0, 255);
+	HScale_cieB_min.set_value_pos(Gtk::POS_TOP);
+	HScale_cieB_min.set_draw_value();
+	grid->attach(HScale_cieB_min, 1, 2, 2, 1);
 
-	lb_Vmax.set_text("Vmax");
-	lb_Vmax.set_alignment(1.0, 1.0);
-	grid->attach(lb_Vmax, 3, 2, 1, 1);
+	lb_cieB_max.set_text("Yellow");
+	lb_cieB_max.set_alignment(1.0, 1.0);
+	grid->attach(lb_cieB_max, 3, 2, 1, 1);
 
-	HScale_Vmax.set_digits(0);
-	HScale_Vmax.set_increments(1, 1);
-	HScale_Vmax.set_range(0, 255);
-	HScale_Vmax.set_value_pos(Gtk::POS_TOP);
-	HScale_Vmax.set_draw_value();
+	HScale_cieB_max.set_digits(0);
+	HScale_cieB_max.set_increments(1, 1);
+	HScale_cieB_max.set_range(0, 255);
+	HScale_cieB_max.set_value_pos(Gtk::POS_TOP);
+	HScale_cieB_max.set_draw_value();
 
-	grid->attach(HScale_Vmax, 4, 2, 2, 1);
+	grid->attach(HScale_cieB_max, 4, 2, 2, 1);
 
 	label = new Gtk::Label("Erode:");
 	label->set_alignment(1.0, 1.0);
@@ -734,227 +725,155 @@ void VisionGUI::__create_frm_hsv() {
 
 	grid->attach(HScale_Amin, 4, 4, 2, 1);
 
-	bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+	bt_LAB_calib.set_state(Gtk::STATE_INSENSITIVE);
 	bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
-	cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
-	HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-	HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-	HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-	HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-	HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-	HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_cieL_min.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_cieA_min.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_cieB_min.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_cieL_max.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_cieA_max.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_cieB_max.set_state(Gtk::STATE_INSENSITIVE);
 	HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
 	HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
 	HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
 	HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-	bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
-	bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
+	bt_CIELAB_left.set_state(Gtk::STATE_INSENSITIVE);
+	bt_CIELAB_right.set_state(Gtk::STATE_INSENSITIVE);
 
-	bt_HSV_calib.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_HSV_calib_pressed));
-	bt_HSV_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_HSV_calib_clicked));
-	bt_HSV_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_left_HSV_calib_clicked));
+	bt_LAB_calib.signal_pressed().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_CIELAB_calib_pressed));
+	bt_CIELAB_right.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_right_CIELAB_clicked));
+	bt_CIELAB_left.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_left_CIELAB_clicked));
 	bt_switchMainAdv.signal_clicked().connect(sigc::mem_fun(*this, &VisionGUI::__event_bt_switchMainAdv_clicked));
-	cb_convertType.signal_changed().connect(sigc::mem_fun(*this, &VisionGUI::__event_cb_convertType_changed));
-	HScale_Hmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmin_value_changed));
-	HScale_Hmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Hmax_value_changed));
-	HScale_Smin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smin_value_changed));
-	HScale_Smax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Smax_value_changed));
-	HScale_Vmin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Vmin_value_changed));
-	HScale_Vmax.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Vmax_value_changed));
+	HScale_cieL_min.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_cieL_min_value_changed));
+	HScale_cieL_max.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_cieL_max_value_changed));
+	HScale_cieA_min.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_cieA_min_value_changed));
+	HScale_cieA_max.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_cieA_max_value_changed));
+	HScale_cieB_min.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_cieB_min_value_changed));
+	HScale_cieB_max.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_cieB_max_value_changed));
 	HScale_Erode.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Erode_value_changed));
 	HScale_Dilate.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Dilate_value_changed));
 	HScale_Blur.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Blur_value_changed));
 	HScale_Amin.signal_value_changed().connect(sigc::mem_fun(*this, &VisionGUI::HScale_Amin_value_changed));
 }
 
-void VisionGUI::__event_cb_convertType_changed() {
-	int type = cb_convertType.get_active_row_number();
-	vision->setConvertType(type);
-
-	HScale_Erode.set_value(vision->getErode(type, Img_id));
-	HScale_Dilate.set_value(vision->getDilate(type, Img_id));
-	HScale_Blur.set_value(vision->getBlur(type, Img_id));
-	HScale_Amin.set_value(vision->getAmin(type, Img_id));
-
-	if (type == vision->CIELAB) {
-		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
-		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
-		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
-		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
-		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
-		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
-		lb_Hmin.set_text("Lmin");
-		lb_Hmax.set_text("Lmax");
-		lb_Smin.set_text("Green");
-		lb_Smax.set_text("Red");
-		lb_Vmin.set_text("Blue");
-		lb_Vmax.set_text("Yellow");
-	} else {
-		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
-		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
-		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
-		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
-		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
-		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
-
-		lb_Hmin.set_text("Hmin");
-		lb_Hmax.set_text("Hmax");
-		lb_Smin.set_text("Smin");
-		lb_Smax.set_text("Smax");
-		lb_Vmin.set_text("Vmin");
-		lb_Vmax.set_text("Vmax");
-	}
-}
-
 void VisionGUI::__event_bt_switchMainAdv_clicked() {
 	vision->switchMainWithAdv();
-	if (vision->getConvertType()) { // CIELAB
-		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
-		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
-		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
-		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
-		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
-		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
-		HScale_Amin.set_value(vision->getAmin(vision->CIELAB, Img_id));
-		HScale_Blur.set_value(vision->getBlur(vision->CIELAB, Img_id));
-		HScale_Erode.set_value(vision->getErode(vision->CIELAB, Img_id));
-		HScale_Dilate.set_value(vision->getDilate(vision->CIELAB, Img_id));
-	} else { // HSV
-		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
-		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
-		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
-		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
-		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
-		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
-		HScale_Amin.set_value(vision->getAmin(vision->HSV, Img_id));
-		HScale_Blur.set_value(vision->getBlur(vision->HSV, Img_id));
-		HScale_Erode.set_value(vision->getErode(vision->HSV, Img_id));
-		HScale_Dilate.set_value(vision->getDilate(vision->HSV, Img_id));
-	}
+	HScale_cieL_min.set_value(vision->getCIE_L(Img_id, 0));
+	HScale_cieL_max.set_value(vision->getCIE_L(Img_id, 1));
+	HScale_cieA_min.set_value(vision->getCIE_A(Img_id, 0));
+	HScale_cieA_max.set_value(vision->getCIE_A(Img_id, 1));
+	HScale_cieB_min.set_value(vision->getCIE_B(Img_id, 0));
+	HScale_cieB_max.set_value(vision->getCIE_B(Img_id, 1));
+	HScale_Amin.set_value(vision->getAmin(Img_id));
+	HScale_Blur.set_value(vision->getBlur(Img_id));
+	HScale_Erode.set_value(vision->getErode(Img_id));
+	HScale_Dilate.set_value(vision->getDilate(Img_id));
 }
 
-void VisionGUI::HScale_Hmin_value_changed() {
-	if (vision->getConvertType()) { // CIELAB
-		vision->setCIE_L(Img_id, 0, static_cast<int>(HScale_Hmin.get_value()));
-	} else { // HSV
-		vision->setHue(Img_id, 0, static_cast<int>(HScale_Hmin.get_value()));
-	}
+void VisionGUI::update_vision_hscale_values() {
+	HScale_Erode.set_value(vision->getErode(Img_id));
+	HScale_Dilate.set_value(vision->getDilate(Img_id));
+	HScale_Blur.set_value(vision->getBlur(Img_id));
+	HScale_Amin.set_value(vision->getAmin(Img_id));
+
+	HScale_cieL_min.set_value(vision->getCIE_L(Img_id, 0));
+	HScale_cieL_max.set_value(vision->getCIE_L(Img_id, 1));
+	HScale_cieA_min.set_value(vision->getCIE_A(Img_id, 0));
+	HScale_cieA_max.set_value(vision->getCIE_A(Img_id, 1));
+	HScale_cieB_min.set_value(vision->getCIE_B(Img_id, 0));
+	HScale_cieB_max.set_value(vision->getCIE_B(Img_id, 1));
 }
 
-void VisionGUI::HScale_Smin_value_changed() {
-	if (vision->getConvertType()) { // CIELAB
-		vision->setCIE_A(Img_id, 0, static_cast<int>(HScale_Smin.get_value()));
-	} else { // HSV
-		vision->setSaturation(Img_id, 0, static_cast<int>(HScale_Smin.get_value()));
-	}
+void VisionGUI::HScale_cieL_min_value_changed() {
+	vision->setCIE_L(Img_id, 0, static_cast<int>(HScale_cieL_min.get_value()));
 }
 
-void VisionGUI::HScale_Vmin_value_changed() {
-	if (vision->getConvertType()) { // CIELAB
-		vision->setCIE_B(Img_id, 0, static_cast<int>(HScale_Vmin.get_value()));
-	} else { // HSV
-		vision->setValue(Img_id, 0, static_cast<int>(HScale_Vmin.get_value()));
-	}
+void VisionGUI::HScale_cieA_min_value_changed() {
+	vision->setCIE_A(Img_id, 0, static_cast<int>(HScale_cieA_min.get_value()));
 }
 
-void VisionGUI::HScale_Hmax_value_changed() {
-	if (vision->getConvertType()) { // CIELAB
-		vision->setCIE_L(Img_id, 1, static_cast<int>(HScale_Hmax.get_value()));
-	} else { // HSV
-		vision->setHue(Img_id, 1, static_cast<int>(HScale_Hmax.get_value()));
-	}
+void VisionGUI::HScale_cieB_min_value_changed() {
+	vision->setCIE_B(Img_id, 0, static_cast<int>(HScale_cieB_min.get_value()));
 }
 
-void VisionGUI::HScale_Smax_value_changed() {
-	if (vision->getConvertType()) { // CIELAB
-		vision->setCIE_A(Img_id, 1, static_cast<int>(HScale_Smax.get_value()));
-	} else { // HSV
-		vision->setSaturation(Img_id, 1, static_cast<int>(HScale_Smax.get_value()));
-	}
+void VisionGUI::HScale_cieL_max_value_changed() {
+	vision->setCIE_L(Img_id, 1, static_cast<int>(HScale_cieL_max.get_value()));
 }
 
-void VisionGUI::HScale_Vmax_value_changed() {
-	if (vision->getConvertType()) { // CIELAB
-		vision->setCIE_B(Img_id, 1, static_cast<int>(HScale_Vmax.get_value()));
-	} else { // HSV
-		vision->setValue(Img_id, 1, static_cast<int>(HScale_Vmax.get_value()));
-	}
+void VisionGUI::HScale_cieA_max_value_changed() {
+	vision->setCIE_A(Img_id, 1, static_cast<int>(HScale_cieA_max.get_value()));
+}
+
+void VisionGUI::HScale_cieB_max_value_changed() {
+	vision->setCIE_B(Img_id, 1, static_cast<int>(HScale_cieB_max.get_value()));
 }
 
 void VisionGUI::HScale_Amin_value_changed() {
-	vision->setAmin(vision->getConvertType(), Img_id, static_cast<int>(HScale_Amin.get_value()));
+	vision->setAmin(Img_id, static_cast<int>(HScale_Amin.get_value()));
 }
 
 void VisionGUI::HScale_Dilate_value_changed() {
 
 	if (HScale_Dilate.get_value() < 0) {
-		vision->setDilate(vision->getConvertType(), Img_id, 0);
+		vision->setDilate(Img_id, 0);
 	} else {
-		vision->setDilate(vision->getConvertType(), Img_id, static_cast<int>(HScale_Dilate.get_value()));
+		vision->setDilate(Img_id, static_cast<int>(HScale_Dilate.get_value()));
 	}
-	//std::cout<<"=================================================="<<D[Img_id]<<std::endl;
-
 }
 
 void VisionGUI::HScale_Erode_value_changed() {
 
 	if (HScale_Erode.get_value() < 0) {
-		vision->setErode(vision->getConvertType(), Img_id, 0);
+		vision->setErode(Img_id, 0);
 	} else {
-		vision->setErode(vision->getConvertType(), Img_id, static_cast<int>(HScale_Erode.get_value()));
+		vision->setErode(Img_id, static_cast<int>(HScale_Erode.get_value()));
 	}
-	//std::cout<<"=================================================="<<E[Img_id]<<std::endl;
-
 }
 
 void VisionGUI::HScale_Blur_value_changed() {
 
 	if (HScale_Blur.get_value() < 3) {
-		vision->setBlur(vision->getConvertType(), Img_id, 3);
+		vision->setBlur(Img_id, 3);
 	} else if ((int) HScale_Blur.get_value() % 2 == 0) {
-		vision->setBlur(vision->getConvertType(), Img_id, (int) HScale_Blur.get_value() + 1);
+		vision->setBlur(Img_id, (int) HScale_Blur.get_value() + 1);
 	} else {
-		vision->setBlur(vision->getConvertType(), Img_id, (int) HScale_Blur.get_value());
+		vision->setBlur(Img_id, (int) HScale_Blur.get_value());
 	}
-	//std::cout<<"====Blur: "<<B[Img_id]<<" id color: "<<Img_id<<std::endl;
-
 }
 
-void VisionGUI::__event_bt_HSV_calib_pressed() {
+void VisionGUI::__event_bt_CIELAB_calib_pressed() {
 
-	if (HSV_calib_event_flag) {
-		HSV_calib_event_flag = false;
+	if (CIELAB_calib_event_flag) {
+		CIELAB_calib_event_flag = false;
 		// VisionGUI::__event_auto_save();
-		HScale_Hmin.set_state(Gtk::STATE_INSENSITIVE);
-		HScale_Smin.set_state(Gtk::STATE_INSENSITIVE);
-		HScale_Vmin.set_state(Gtk::STATE_INSENSITIVE);
-		HScale_Hmax.set_state(Gtk::STATE_INSENSITIVE);
-		HScale_Smax.set_state(Gtk::STATE_INSENSITIVE);
-		HScale_Vmax.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_cieL_min.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_cieA_min.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_cieB_min.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_cieL_max.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_cieA_max.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_cieB_max.set_state(Gtk::STATE_INSENSITIVE);
 		HScale_Dilate.set_state(Gtk::STATE_INSENSITIVE);
 		HScale_Erode.set_state(Gtk::STATE_INSENSITIVE);
 		HScale_Blur.set_state(Gtk::STATE_INSENSITIVE);
 		HScale_Amin.set_state(Gtk::STATE_INSENSITIVE);
-		bt_HSV_right.set_state(Gtk::STATE_INSENSITIVE);
-		bt_HSV_left.set_state(Gtk::STATE_INSENSITIVE);
+		bt_CIELAB_right.set_state(Gtk::STATE_INSENSITIVE);
+		bt_CIELAB_left.set_state(Gtk::STATE_INSENSITIVE);
 		bt_switchMainAdv.set_state(Gtk::STATE_INSENSITIVE);
-		cb_convertType.set_state(Gtk::STATE_INSENSITIVE);
 	} else {
-		HSV_calib_event_flag = true;
-		HScale_Hmin.set_state(Gtk::STATE_NORMAL);
-		HScale_Smin.set_state(Gtk::STATE_NORMAL);
-		HScale_Vmin.set_state(Gtk::STATE_NORMAL);
-		HScale_Hmax.set_state(Gtk::STATE_NORMAL);
-		HScale_Smax.set_state(Gtk::STATE_NORMAL);
-		HScale_Vmax.set_state(Gtk::STATE_NORMAL);
+		CIELAB_calib_event_flag = true;
+		HScale_cieL_min.set_state(Gtk::STATE_NORMAL);
+		HScale_cieA_min.set_state(Gtk::STATE_NORMAL);
+		HScale_cieB_min.set_state(Gtk::STATE_NORMAL);
+		HScale_cieL_max.set_state(Gtk::STATE_NORMAL);
+		HScale_cieA_max.set_state(Gtk::STATE_NORMAL);
+		HScale_cieB_max.set_state(Gtk::STATE_NORMAL);
 		HScale_Dilate.set_state(Gtk::STATE_NORMAL);
 		HScale_Erode.set_state(Gtk::STATE_NORMAL);
 		HScale_Blur.set_state(Gtk::STATE_NORMAL);
 		HScale_Amin.set_state(Gtk::STATE_NORMAL);
-		bt_HSV_right.set_state(Gtk::STATE_NORMAL);
-		bt_HSV_left.set_state(Gtk::STATE_NORMAL);
+		bt_CIELAB_right.set_state(Gtk::STATE_NORMAL);
+		bt_CIELAB_left.set_state(Gtk::STATE_NORMAL);
 		bt_switchMainAdv.set_state(Gtk::STATE_NORMAL);
-		cb_convertType.set_state(Gtk::STATE_NORMAL);
 	}
 }
 
@@ -969,30 +888,30 @@ void VisionGUI::selectFrame(int sector) {
 			Img_id = 3;
 			rb_original_view.set_active(true);
 			__event_rb_split_mode_clicked();
-			__event_bt_right_HSV_calib_clicked();
-			if (!bt_HSV_calib.get_active()) {
-				bt_HSV_calib.set_active(true);
-				__event_bt_HSV_calib_pressed();
+			__event_bt_right_CIELAB_clicked();
+			if (!bt_LAB_calib.get_active()) {
+				bt_LAB_calib.set_active(true);
+				__event_bt_CIELAB_calib_pressed();
 			}
 			break;
 		case 2:
 			Img_id = 0;
 			rb_original_view.set_active(true);
 			__event_rb_split_mode_clicked();
-			__event_bt_right_HSV_calib_clicked();
-			if (!bt_HSV_calib.get_active()) {
-				bt_HSV_calib.set_active(true);
-				__event_bt_HSV_calib_pressed();
+			__event_bt_right_CIELAB_clicked();
+			if (!bt_LAB_calib.get_active()) {
+				bt_LAB_calib.set_active(true);
+				__event_bt_CIELAB_calib_pressed();
 			}
 			break;
 		case 3:
 			Img_id = 1;
 			rb_original_view.set_active(true);
 			__event_rb_split_mode_clicked();
-			__event_bt_right_HSV_calib_clicked();
-			if (!bt_HSV_calib.get_active()) {
-				bt_HSV_calib.set_active(true);
-				__event_bt_HSV_calib_pressed();
+			__event_bt_right_CIELAB_clicked();
+			if (!bt_LAB_calib.get_active()) {
+				bt_LAB_calib.set_active(true);
+				__event_bt_CIELAB_calib_pressed();
 			}
 			break;
 		default:
@@ -1000,119 +919,89 @@ void VisionGUI::selectFrame(int sector) {
 	}
 }
 
-void VisionGUI::__event_bt_right_HSV_calib_clicked() {
+void VisionGUI::__event_bt_right_CIELAB_clicked() {
 
-	int type = vision->getConvertType();
+	if (Img_id == 3)
+		Img_id = 0;
+	else
+		Img_id++;
 
-	Img_id = Img_id + 1;
+	HScale_cieL_min.set_value(vision->getCIE_L(Img_id, 0));
+	HScale_cieL_max.set_value(vision->getCIE_L(Img_id, 1));
 
-	if (Img_id > 3) Img_id = 0;
+	HScale_cieA_min.set_value(vision->getCIE_A(Img_id, 0));
+	HScale_cieA_max.set_value(vision->getCIE_A(Img_id, 1));
 
-	if (type == vision->HSV) {
-		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
-		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
+	HScale_cieB_min.set_value(vision->getCIE_B(Img_id, 0));
+	HScale_cieB_max.set_value(vision->getCIE_B(Img_id, 1));
 
-		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
-		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
 
-		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
-		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
-	} else { // CIELAB
-		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
-		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
+	HScale_Dilate.set_value(vision->getDilate(Img_id));
+	HScale_Erode.set_value(vision->getErode(Img_id));
 
-		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
-		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
-
-		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
-		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
-	}
-
-	HScale_Dilate.set_value(vision->getDilate(vision->getConvertType(), Img_id));
-	HScale_Erode.set_value(vision->getErode(vision->getConvertType(), Img_id));
-
-	HScale_Blur.set_value(vision->getBlur(vision->getConvertType(), Img_id));
-	HScale_Amin.set_value(vision->getAmin(vision->getConvertType(), Img_id));
+	HScale_Blur.set_value(vision->getBlur(Img_id));
+	HScale_Amin.set_value(vision->getAmin(Img_id));
 
 	switch (Img_id) {
 		case 0:
-			HSV_label.set_text("Main");
+			CIELAB_label.set_text("Main");
 			break;
 		case 1:
-			HSV_label.set_text("Green");
+			CIELAB_label.set_text("Green");
 			break;
 		case 2:
-			HSV_label.set_text("Ball");
+			CIELAB_label.set_text("Ball");
 			break;
 		case 3:
-			HSV_label.set_text("Opp.");
+			CIELAB_label.set_text("Opp.");
 			break;
+		default:break;
 	}
 }
 
-void VisionGUI::__event_bt_left_HSV_calib_clicked() {
+void VisionGUI::__event_bt_left_CIELAB_clicked() {
 
-	int type = vision->getConvertType();
+	if (Img_id == 0)
+		Img_id = 3;
+	else
+		Img_id--;
 
-	Img_id = Img_id - 1;
+	HScale_cieL_min.set_value(vision->getCIE_L(Img_id, 0));
+	HScale_cieL_max.set_value(vision->getCIE_L(Img_id, 1));
 
-	if (Img_id < 0) Img_id = 3;
+	HScale_cieA_min.set_value(vision->getCIE_A(Img_id, 0));
+	HScale_cieA_max.set_value(vision->getCIE_A(Img_id, 1));
 
-	if (type == vision->HSV) {
-		HScale_Hmin.set_value(vision->getHue(Img_id, 0));
-		HScale_Hmax.set_value(vision->getHue(Img_id, 1));
+	HScale_cieB_min.set_value(vision->getCIE_B(Img_id, 0));
+	HScale_cieB_max.set_value(vision->getCIE_B(Img_id, 1));
 
-		HScale_Smin.set_value(vision->getSaturation(Img_id, 0));
-		HScale_Smax.set_value(vision->getSaturation(Img_id, 1));
 
-		HScale_Vmin.set_value(vision->getValue(Img_id, 0));
-		HScale_Vmax.set_value(vision->getValue(Img_id, 1));
-	} else { // CIELAB
-		HScale_Hmin.set_value(vision->getCIE_L(Img_id, 0));
-		HScale_Hmax.set_value(vision->getCIE_L(Img_id, 1));
+	HScale_Dilate.set_value(vision->getDilate(Img_id));
+	HScale_Erode.set_value(vision->getErode(Img_id));
 
-		HScale_Smin.set_value(vision->getCIE_A(Img_id, 0));
-		HScale_Smax.set_value(vision->getCIE_A(Img_id, 1));
-
-		HScale_Vmin.set_value(vision->getCIE_B(Img_id, 0));
-		HScale_Vmax.set_value(vision->getCIE_B(Img_id, 1));
-	}
-
-	HScale_Dilate.set_value(vision->getDilate(type, Img_id));
-	HScale_Erode.set_value(vision->getErode(type, Img_id));
-
-	HScale_Blur.set_value(vision->getBlur(type, Img_id));
-	HScale_Amin.set_value(vision->getAmin(type, Img_id));
+	HScale_Blur.set_value(vision->getBlur(Img_id));
+	HScale_Amin.set_value(vision->getAmin(Img_id));
 
 	switch (Img_id) {
 		case 0:
-			HSV_label.set_text("Main");
+			CIELAB_label.set_text("Main");
 			break;
 		case 1:
-			HSV_label.set_text("Green");
+			CIELAB_label.set_text("Green");
 			break;
 		case 2:
-			HSV_label.set_text("Ball");
+			CIELAB_label.set_text("Ball");
 			break;
 		case 3:
-			HSV_label.set_text("Opp.");
+			CIELAB_label.set_text("Opp.");
 			break;
+		default:break;
 	}
 }
 
 void VisionGUI::event_draw_info_checkbox_signal_clicked() {
 	draw_info_flag = !draw_info_flag;
 }
-
-// void VisionGUI::__event_auto_save()
-// {
-//   std::cout << "AUTO SAVE" << std::endl;
-//
-//   if(!VisionGUI::__core_save("autosave.txt"))
-//   {
-//     std::cout<<"Error: could not auto save."<<std::endl;
-//   }
-// }
 
 void VisionGUI::incrementSamples() {
 	totalSamples++;
@@ -1127,71 +1016,35 @@ void VisionGUI::decrementSamples() {
 	bt_popSample.set_label(text);
 }
 
-void VisionGUI::init_calib_params() {
-	// Inicializar variáveis de calibração
-	int H[4][2] = {{0, 180},
-				   {0, 180},
-				   {0, 180},
-				   {0, 180}};
-	int S[4][2] = {{0, 255},
-				   {0, 255},
-				   {0, 255},
-				   {0, 255}};
-	int V[4][2] = {{0, 255},
-				   {0, 255},
-				   {0, 255},
-				   {0, 255}};
-	int LAB[4][2] = {{0, 255},
-					 {0, 255},
-					 {0, 255},
-					 {0, 255}};
-	int B[4]{3, 3, 3, 3};
-	int D[4] = {0, 0, 0, 0};
-	int E[4] = {0, 0, 0, 0};
-	int Amin[4] = {150, 90, 90, 115};
-
-	// Configurar os valores iniciais de calibração
-	vision->setCalibParams(vision->HSV, H, S, V, Amin, E, D, B);
-	vision->setCalibParams(vision->CIELAB, LAB, S, V, Amin, E, D, B);
-
-	// Corrigir os valores mostrados na interface
-	HScale_Hmax.set_value(H[0][1]);
-	HScale_Smax.set_value(S[0][1]);
-	HScale_Vmax.set_value(V[0][1]);
-	HScale_Amin.set_value(Amin[0]);
-}
-
 void VisionGUI::setFrameSize(int inWidth, int inHeight) {
 	vision->setFrameSize(inWidth, inHeight);
 }
 
-int VisionGUI::getGMMColorIndex() {
+unsigned long VisionGUI::getGMMColorIndex() {
 	return colorIndex;
 }
 
-bool VisionGUI::getIsHSV() {
-	return isHSV;
+bool VisionGUI::getIsCIELAB() {
+	return isCIELAB;
 }
 
 VisionGUI::VisionGUI() :
-		HSV_calib_event_flag(false), Img_id(0),
+		CIELAB_calib_event_flag(false), Img_id(0),
 		vidIndex(0), picIndex(0), samplesEventFlag(false),
 		totalSamples(0), gaussiansFrame_flag(false),
 		finalFrame_flag(false), thresholdFrame_flag(false),
-		colorIndex(0), isHSV(true), isSplitView(false),
+		colorIndex(0), isCIELAB(true), isSplitView(false),
 		disableSplitView(false), draw_info_flag(false) {
 
 	vision = new Vision(640, 480);
 	gmm = new GMM(640, 480);
 
-	__create_frm_calib_mode();
+	//__create_frm_calib_mode();
 	__create_frm_capture();
 	__create_frm_drawing_options();
 	__create_frm_split_view();
-	__create_frm_hsv();
-	__create_frm_gmm();
-
-	init_calib_params();
+	__create_frm_cielab();
+	//__create_frm_gmm();
 }
 
 VisionGUI::~VisionGUI() {

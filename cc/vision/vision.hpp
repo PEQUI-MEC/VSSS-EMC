@@ -28,13 +28,12 @@ class Vision {
 		static const int GREEN = 1;
 		static const int BALL = 2;
 		static const int ADV = 3;
-		static const int MAX_ADV = 3;
-		static const int TOTAL_COLORS = 4;
 		static const int MIN = 0;
 		static const int MAX = 1;
+		static const int MAX_ADV = 3;
 
 		// Frames
-		cv::Mat in_frame, hsv_frame;
+		cv::Mat in_frame, lab_frame;
 		std::vector<cv::Mat> threshold_frame;
 		cv::Mat splitFrame;
 
@@ -49,17 +48,13 @@ class Vision {
 		std::vector<std::vector<Tag>> tags;
 
 		// HSV/CIELAB Calibration Parameters
-		int hue[4][2];
-		int saturation[4][2];
-		int value[4][2];
 		int cieL[4][2];
 		int cieA[4][2];
 		int cieB[4][2];
-		int dilate[2][4];
-		int erode[2][4];
-		int blur[2][4];
-		int areaMin[2][4];
-		int convertType;
+		int dilate[4];
+		int erode[4];
+		int blur[4];
+		int areaMin[4];
 
 		// image size
 		int width;
@@ -75,20 +70,19 @@ class Vision {
 		boost::thread_group threshold_threads;
 
 		void preProcessing();
-		void posProcessing(int color);
-		void segmentAndSearch(int color);
-		void searchTags(int color);
+		void posProcessing(unsigned long color);
+		void segmentAndSearch(unsigned long color);
+		void searchTags(unsigned long color);
 		void searchGMMTags(std::vector<cv::Mat> thresholds);
 		void findTags();
-		// void findElements();
 		void pick_a_tag(std::vector<VisionROI> *windowsList);
 		void pick_a_tag();
 		int inSphere(Robot *robot, std::vector<Tag> *tempTags, cv::Point secondary);
 
 	public:
-		// Public constants
-		static const int HSV = 0;
-		static const int CIELAB = 1;
+
+		// Public Constants
+		static const int TOTAL_COLORS = 4;
 
 		Vision(int w, int h);
 		~Vision();
@@ -96,7 +90,8 @@ class Vision {
 		void run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
-		void setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4]);
+		void setCalibParams(const int H[4][2], const int S[4][2], const int V[4][2], const int Amin[4], const int E[4],
+							const int D[4], const int B[4]);
 		double calcDistance(cv::Point p1, cv::Point p2);
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
 		void startNewVideo(std::string videoName);
@@ -127,43 +122,33 @@ class Vision {
 		void switchMainWithAdv();
 
 		cv::Point getBall();
-		Robot getRobot(int index);
-		cv::Point getRobotPos(int index);
+		Robot getRobot(unsigned long index);
+		cv::Point getRobotPos(unsigned long index);
 		cv::Point getAdvRobot(int index);
 		cv::Point *getAllAdvRobots();
 		cv::Mat getSplitFrame();
 
 		int getRobotListSize();
 		int getAdvListSize();
-		cv::Mat getThreshold(int index);
+		cv::Mat getThreshold(unsigned long index);
 
-		int getHue(int index0, int index1);
-		int getSaturation(int index0, int index1);
-		int getValue(int index0, int index1);
-		int getCIE_L(int index0, int index1);
-		int getCIE_A(int index0, int index1);
-		int getCIE_B(int index0, int index1);
-		int getConvertType();
-		int getErode(int convertType, int index);
-		int getDilate(int convertType, int index);
-		int getBlur(int convertType, int index);
-		int getAmin(int convertType, int index);
+		int getCIE_L(unsigned long index0, int index1);
+		int getCIE_A(unsigned long index0, int index1);
+		int getCIE_B(unsigned long index0, int index1);
+		int getErode(unsigned long index);
+		int getDilate(unsigned long index);
+		int getBlur(unsigned long index);
+		int getAmin(unsigned long index);
 
 		void setFrameSize(int inWidth, int inHeight);
-		int getFrameHeight();
-		int getFrameWidth();
 
-		void setHue(int index0, int index1, int inValue);
-		void setSaturation(int index0, int index1, int inValue);
-		void setValue(int index0, int index1, int inValue);
-		void setCIE_L(int index0, int index1, int inValue);
-		void setCIE_A(int index0, int index1, int inValue);
-		void setCIE_B(int index0, int index1, int inValue);
-		void setConvertType(int type);
-		void setErode(int convertType, int index, int inValue);
-		void setDilate(int convertType, int index, int inValue);
-		void setBlur(int convertType, int index, int inValue);
-		void setAmin(int convertType, int index, int inValue);
+		void setCIE_L(unsigned long index0, int index1, int inValue);
+		void setCIE_A(unsigned long index0, int index1, int inValue);
+		void setCIE_B(unsigned long index0, int index1, int inValue);
+		void setErode(unsigned long index, int inValue);
+		void setDilate(unsigned long index, int inValue);
+		void setBlur(unsigned long index, int inValue);
+		void setAmin(unsigned long index, int inValue);
 };
 
 #endif /* VISION_HPP_ */
