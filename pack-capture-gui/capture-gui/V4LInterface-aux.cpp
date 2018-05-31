@@ -1040,7 +1040,6 @@ void V4LInterface::initInterface() {
 
 	vbox->pack_start(start_game_bt, false, true, 0);
 	vbox->pack_start(record_video_checkbox, false, true, 0);
-	visionGUI.vision->video_rec_enable = true;
 
 	info_hbox.pack_end(buttons_vbox, false, true, 5);
 	buttons_vbox.pack_start(start_game_hbox, false, true, 5);
