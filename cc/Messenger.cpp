@@ -40,25 +40,22 @@ void Messenger::send_old_format(string cmd) {
 void Messenger::send_cmds(const vector<Robot> &robots) {
 	if (!xbee || ++send_cmd_count <= frameskip) return;
 	for (Robot robot : robots) {
-		string msg;
-		switch (robot.cmdType) {
-			case POSITION:
-				if (robot.target.x != -1 && robot.target.y != -1)
-					msg = position_msg(robot);
-				break;
-			case SPEED:
-				msg = speed_msg(robot);
-				break;
-			case ORIENTATION:
-				msg = orientation_msg(robot);
-				break;
-			case VECTOR:
-				msg = vector_msg(robot);
-				break;
-			default:
-				if (robot.target.x != -1 && robot.target.y != -1)
-					msg = position_msg(robot);
-		}
+		const string msg = [&] {
+			switch (robot.cmdType) {
+				case POSITION:
+					if (robot.target.x != -1 && robot.target.y != -1)
+						return position_msg(robot);
+					else return string();
+				case SPEED:
+					return speed_msg(robot);
+				case ORIENTATION:
+					return orientation_msg(robot);
+				case VECTOR:
+					return vector_msg(robot);
+				default:
+					return string();
+			}
+		}();
 		if (!msg.empty()) xbee->send(robot.ID, msg);
 	}
 	update_msg_time();

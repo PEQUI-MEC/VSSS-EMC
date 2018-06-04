@@ -13,7 +13,7 @@
 #define ORIENTATION 2
 #define VECTOR 3
 
-#define DEFAULT_FRAMESKIP 5
+#define DEFAULT_FRAMESKIP 0
 
 class Messenger {
 	private:
@@ -48,13 +48,9 @@ class Messenger {
 		void start_xbee(const std::string &port, int baud = 115200);
 		void stop_xbee();
 		void update_msg_time();
-
 		void set_frameskipper(int frames) { frameskip = frames; }
-
 		int get_frameskipper() { return frameskip; }
-
 		double get_time() { return time_between_msgs; }
-
 		void send_ekf_data(std::vector<Robot> &robots);
 		pose to_robot_reference(const cv::Point &point, double theta);
 };
