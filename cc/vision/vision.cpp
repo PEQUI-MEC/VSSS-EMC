@@ -326,7 +326,7 @@ void Vision::pick_a_tag() {
 
 		// Cálculo da orientação de acordo com os pontos rear e front
 		robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
-								  (tags.at(MAIN).at(i).frontPoint.x - robot.position.x) * 1.5 / width);
+								  (tags.at(MAIN).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
 
 		// Armazena a tag
 		tempTags.push_back(tags.at(MAIN).at(i));

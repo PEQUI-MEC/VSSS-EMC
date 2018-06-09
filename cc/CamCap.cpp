@@ -218,8 +218,6 @@ bool CamCap::capture_and_show() {
 		updateAllPositions();
 		if (control.ekf_always_send || interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
 			notify_data_ready(true);
-		} else {
-			control.messenger.ekf_data_file << std::flush;
 		}
 
 		if (interface.visionGUI.getIsSplitView()) {

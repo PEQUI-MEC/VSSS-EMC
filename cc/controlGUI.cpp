@@ -324,7 +324,8 @@ void ControlGUI::update_ack_interface() {
 }
 
 void ControlGUI::ekf_always_send_enable() {
-	ekf_always_send = ack_enable_button.get_active();
+	ekf_always_send = ekf_always_send_button.get_active();
+	if(!ekf_always_send) messenger.ekf_data_file << std::flush;
 }
 
 void ControlGUI::update_dropped_frames() {
