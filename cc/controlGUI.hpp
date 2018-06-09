@@ -38,7 +38,7 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Frame Serial_fm;
 		Gtk::HBox Top_hbox;
 		Gtk::VBox Serial_vbox;
-		Gtk::HBox Serial_hbox[4];
+		Gtk::HBox Serial_hbox[5];
 		Gtk::Label *label;
 		Gtk::Button bt_send_cmd;
 		Gtk::Entry send_cmd_box;
@@ -62,6 +62,10 @@ class ControlGUI : public Gtk::VBox {
 
 		Gtk::CheckButton ack_enable_button;
 		Gtk::Label ack_enable_label;
+
+		bool ekf_always_send = false;
+		Gtk::CheckButton ekf_always_send_button;
+		Gtk::Label ekf_always_send_label;
 
 		Gtk::Grid status_grid;
 		Gtk::Frame status_fm;
@@ -103,6 +107,7 @@ class ControlGUI : public Gtk::VBox {
 		void update_ack_interface();
 		void set_frameskipper();
 		void update_msg_time();
+		void ekf_always_send_enable();
 };
 
 #endif /* CONTROLGUI_HPP_ */

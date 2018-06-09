@@ -41,6 +41,11 @@ ControlGUI::ControlGUI() {
 	Serial_hbox[3].pack_start(time_msgs, false, false, 5);
 	Serial_vbox.pack_start(Serial_hbox[3], false, false, 5);
 
+	ekf_always_send_label.set_label("Always send ekf data");
+	Serial_hbox[4].pack_start(ekf_always_send_button, false, false, 5);
+	Serial_hbox[4].pack_start(ekf_always_send_label, false, false, 0);
+	Serial_vbox.pack_start(Serial_hbox[4], false, false, 5);
+
 	Tbox_V1.set_max_length(6);
 	Tbox_V2.set_max_length(6);
 	Tbox_V1.set_width_chars(6);
@@ -86,6 +91,7 @@ ControlGUI::ControlGUI() {
 	bt_reset_ack.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::reset_lost_acks));
 	bt_send_cmd.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
 	ack_enable_button.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
+	ekf_always_send_button.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::ekf_always_send_enable));
 	bt_set_frameskip.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::set_frameskipper));
 }
 
@@ -315,6 +321,10 @@ void ControlGUI::update_ack_interface() {
 		}
 		bt_reset_ack.hide();
 	}
+}
+
+void ControlGUI::ekf_always_send_enable() {
+	ekf_always_send = ack_enable_button.get_active();
 }
 
 void ControlGUI::update_dropped_frames() {

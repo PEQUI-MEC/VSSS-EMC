@@ -37,6 +37,7 @@ class Messenger {
 		std::string rounded_str(double num);
 
 	public:
+		std::ofstream ekf_data_file;
 		Messenger();
 		void send_cmds(const std::vector<Robot> &robots);
 		void send_msg(char id, std::string msg);

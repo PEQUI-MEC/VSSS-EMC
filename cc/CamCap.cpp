@@ -186,7 +186,7 @@ bool CamCap::capture_and_show() {
 		if (interface.visionGUI.gmm->getIsTrained()) {
 			interface.visionGUI.gmm->run(imageView);
 			updateAllPositions();
-			if (interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
+			if (control.ekf_always_send || interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
 				notify_data_ready(true);
 			}
 			interface.visionGUI.vision->recordVideo(imageView);
@@ -216,9 +216,12 @@ bool CamCap::capture_and_show() {
 	} else { // HSV Simples
 		interface.visionGUI.vision->run(imageView);
 		updateAllPositions();
-		if (interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
+		if (control.ekf_always_send || interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
 			notify_data_ready(true);
+		} else {
+			control.messenger.ekf_data_file << std::flush;
 		}
+
 		if (interface.visionGUI.getIsSplitView()) {
 			interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);
 			interface.imageView.refresh();

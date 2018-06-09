@@ -62,18 +62,21 @@ void Messenger::send_cmds(const vector<Robot> &robots) {
 	send_cmd_count = 0;
 }
 
- Messenger::pose Messenger::to_robot_reference(const cv::Point &point, double theta) {
-	 double x = point.x * (170.0 / 640.0);
-	 double y = 130.0 - point.y * (130.0 / 480.0);
-	 double orientation = -theta * 180/M_PI;
-	 return {x, y, orientation};
- }
+Messenger::pose Messenger::to_robot_reference(const cv::Point &point, double theta) {
+	double x = point.x * (170.0 / 640.0);
+	double y = 130.0 - point.y * (130.0 / 480.0);
+	double orientation = -theta * 180/M_PI;
+	return {x, y, orientation};
+}
 
 void Messenger::send_ekf_data(vector<Robot>& robots) {
 	for (Robot& robot :robots) {
 		pose robot_pose = to_robot_reference(robot.position, robot.orientation);
 		string msg = "E" + rounded_str(robot_pose.x) + ";"
 					 	 + rounded_str(robot_pose.y) + ";" + rounded_str(robot_pose.theta);
+
+		if(robot.ID == 'E') ekf_data_file << rounded_str(robot_pose.x) << ',' << rounded_str(robot_pose.y)
+										  << ',' << rounded_str(robot_pose.theta) << '\n';
 		xbee->send(robot.ID, msg);
 //		if(robot.ID == 'E')
 //			std::cout << xbee->send_get_answer(robot.ID, msg) << std::endl;
@@ -135,7 +138,7 @@ void Messenger::update_msg_time() {
 	previous_msg_time = now;
 }
 
-Messenger::Messenger() {
+Messenger::Messenger() : ekf_data_file("ekf_data.csv") {
 	setlocale(LC_ALL, "C");
 	send_cmd_count = 0;
 	frameskip = DEFAULT_FRAMESKIP;
