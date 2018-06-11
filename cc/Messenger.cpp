@@ -1,4 +1,3 @@
-#include <math.h>
 #include "Messenger.h"
 
 using std::string;
@@ -52,6 +51,8 @@ void Messenger::send_cmds(const vector<Robot> &robots) {
 					return orientation_msg(robot);
 				case VECTOR:
 					return vector_msg(robot);
+				case UVF:
+					return uvf_msg(robot);
 				default:
 					return string();
 			}
@@ -75,8 +76,8 @@ void Messenger::send_ekf_data(vector<Robot>& robots) {
 		string msg = "E" + rounded_str(robot_pose.x) + ";"
 					 	 + rounded_str(robot_pose.y) + ";" + rounded_str(robot_pose.theta);
 
-		if(robot.ID == 'E') ekf_data_file << rounded_str(robot_pose.x) << ',' << rounded_str(robot_pose.y)
-										  << ',' << rounded_str(robot_pose.theta) << '\n';
+//		if(robot.ID == 'E') ekf_data_file << rounded_str(robot_pose.x) << ',' << rounded_str(robot_pose.y)
+//										  << ',' << rounded_str(robot_pose.theta) << '\n';
 		xbee->send(robot.ID, msg);
 //		if(robot.ID == 'E')
 //			std::cout << xbee->send_get_answer(robot.ID, msg) << std::endl;
@@ -100,6 +101,14 @@ string Messenger::orientation_msg(Robot robot) {
 string Messenger::vector_msg(Robot robot) {
 	double theta = robot.transAngle * (180.0/M_PI);
 	return ("V" + rounded_str(theta) + ";" + rounded_str(robot.vmax));
+}
+
+string Messenger::uvf_msg(Robot robot) {
+	auto target = to_robot_reference(robot.target, 0);
+	auto ufv_ref = to_robot_reference(robot.uvf_ref, 0);
+	return "U" + rounded_str(target.x) + ";" + rounded_str(target.y)
+		   + ";" + rounded_str(ufv_ref.x) + ";" + rounded_str(ufv_ref.y)
+		   + ";" + rounded_str(robot.uvf_n) + ";" + rounded_str(robot.vmax);
 }
 
 double Messenger::get_battery(char id) {
@@ -138,7 +147,9 @@ void Messenger::update_msg_time() {
 	previous_msg_time = now;
 }
 
-Messenger::Messenger() : ekf_data_file("ekf_data.csv") {
+Messenger::Messenger()
+//		: ekf_data_file("ekf_data.csv")
+{
 	setlocale(LC_ALL, "C");
 	send_cmd_count = 0;
 	frameskip = DEFAULT_FRAMESKIP;

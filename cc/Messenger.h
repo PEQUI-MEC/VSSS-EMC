@@ -12,6 +12,7 @@
 #define SPEED 1
 #define ORIENTATION 2
 #define VECTOR 3
+#define UVF 4
 
 #define DEFAULT_FRAMESKIP 0
 
@@ -34,10 +35,11 @@ class Messenger {
 		std::string speed_msg(Robot robot);
 		std::string orientation_msg(Robot robot);
 		std::string vector_msg(Robot robot);
+		std::string uvf_msg(Robot robot);
 		std::string rounded_str(double num);
 
 	public:
-		std::ofstream ekf_data_file;
+//		std::ofstream ekf_data_file;
 		Messenger();
 		void send_cmds(const std::vector<Robot> &robots);
 		void send_msg(char id, std::string msg);
