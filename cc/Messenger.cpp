@@ -71,6 +71,7 @@ Messenger::pose Messenger::to_robot_reference(const cv::Point &point, double the
 }
 
 void Messenger::send_ekf_data(vector<Robot>& robots) {
+	if(!xbee) return;
 	for (Robot& robot :robots) {
 		pose robot_pose = to_robot_reference(robot.position, robot.orientation);
 		string msg = "E" + rounded_str(robot_pose.x) + ";"

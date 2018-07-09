@@ -18,6 +18,7 @@
 #include "v4lcap.hpp"
 #include "Robot.hpp"
 #include "ImageView.hpp"
+#include "Messenger.h"
 #include "../../cc/vision/visionGUI.hpp"
 #include <ctime>
 #include <chrono>
@@ -45,6 +46,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool warped = false;
 
 		ImageView imageView;
+		Messenger* messenger;
 
 		std::list<ControlHolder> ctrl_list_default;
 
@@ -82,6 +84,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::VBox robots_id_vbox;
 		Gtk::HBox robots_id_hbox[4];
 		Gtk::Button robots_id_edit_bt;
+		Gtk::Button robots_auto_bt;
 		Gtk::Button robots_id_done_bt;
 		Gtk::ComboBoxText robots_id_box[3];
 		int robots_id_tmp[3];
@@ -108,8 +111,8 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		capture::v4lcap vcap;
 
-		V4LInterface();
-		explicit V4LInterface(bool isLow);
+		V4LInterface(Messenger* messenger_ptr);
+		explicit V4LInterface(bool isLow, Messenger* messenger_ptr);
 		void initInterface();
 
 		int offsetL;
@@ -176,6 +179,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		void event_robots_speed_edit_bt_signal_pressed();
 		void event_robots_id_done_bt_signal_clicked();
 		void event_robots_id_edit_bt_signal_pressed();
+		void event_robots_auto_bt_signal_pressed();
 		void updateRobotLabels();
 		void updateFPS(int fps);
 		bool get_start_game_flag();
@@ -291,6 +295,8 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __block_control_signals(std::list<ControlHolder> &list, bool block);
 		bool __set_control_hscale(int type, double val, std::list<ControlHolder> *list, Gtk::Widget *wctrl);
 		void __set_control(std::list<ControlHolder> *list, Gtk::Widget *wctrl);
+		void discover_robot_ids();
+		void update_robots_id_box();
 };
 
 #endif /* V4LINTERFACE_HPP_ */

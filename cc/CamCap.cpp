@@ -81,6 +81,7 @@ bool CamCap::start_signal(bool b) {
 		interface.visionGUI.setFrameSize(width, height);
 
 		// Liberar os botões de edit
+		interface.robots_auto_bt.set_state(Gtk::STATE_NORMAL);
 		interface.robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
 		interface.robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
 		interface.robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
@@ -96,6 +97,7 @@ bool CamCap::start_signal(bool b) {
 		con.disconnect();
 
 		// Travar os botões de edit
+		interface.robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
 		interface.robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 		interface.robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 		interface.robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
@@ -532,13 +534,14 @@ void CamCap::warp_transform(cv::Mat imageView) {
 CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
 										   screenWidth(screenW), screenHeight(screenH),
 										   msg_thread(&CamCap::send_cmd_thread, this,
-													  boost::ref(interface.robot_list)) {
+													  boost::ref(interface.robot_list)),
+										   interface(&control.messenger) {
 
 	isLowRes = checkForLowRes();
 
 	if (isLowRes) {
 		interface.~V4LInterface();
-		new(&interface) capture::V4LInterface(isLowRes);
+		new(&interface) capture::V4LInterface(isLowRes, &control.messenger);
 	}
 
 	fixed_ball[0] = false;

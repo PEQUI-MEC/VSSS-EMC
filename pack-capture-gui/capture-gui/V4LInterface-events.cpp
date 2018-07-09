@@ -7,6 +7,7 @@
 
 #include "V4LInterface.hpp"
 #include <jsonSaveManager.h>
+#include <thread>
 
 #define DEFAULT_STR " - "
 
@@ -418,6 +419,7 @@ void V4LInterface::event_robots_id_edit_bt_signal_pressed() {
 		robots_id_box[1].set_state(Gtk::STATE_NORMAL);
 		robots_id_box[2].set_state(Gtk::STATE_NORMAL);
 		robots_id_done_bt.set_state(Gtk::STATE_NORMAL);
+		robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
 		robots_id_tmp[0] = robots_id_box[0].get_active_row_number();
 		robots_id_tmp[1] = robots_id_box[1].get_active_row_number();
 		robots_id_tmp[2] = robots_id_box[2].get_active_row_number();
@@ -428,9 +430,53 @@ void V4LInterface::event_robots_id_edit_bt_signal_pressed() {
 		robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
 		robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 		robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+		robots_auto_bt.set_state(Gtk::STATE_NORMAL);
 		robots_id_box[0].set_active(robots_id_tmp[0]);
 		robots_id_box[1].set_active(robots_id_tmp[1]);
 		robots_id_box[2].set_active(robots_id_tmp[2]);
+	}
+}
+
+void V4LInterface::discover_robot_ids() {
+	std::array<char, 3> robot_ids{'A', 'B', 'E'};
+	for (char id : robot_ids) {
+		auto initial_robots = robot_list;
+		messenger->send_msg(id, "O90:0.8");
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		int robot_index = 0;
+		bool robot_found = false;
+		for (int i = 0; i < 3; i++) {
+			double theta = robot_list[i].orientation;
+			double prev_theta = initial_robots[i].orientation;
+			if (std::abs(theta - prev_theta) * (180/PI) > 60) {
+				robot_index = i;
+				robot_found = true;
+			}
+		}
+		if(robot_found) {
+			std::cout << "Robot " << robot_index + 1 << ": " << id << std::endl;
+			robot_list[robot_index].ID = id;
+		} else std::cout << "Robot " << id << " not found" << std::endl;
+	}
+	messenger->send_ekf_data(robot_list);
+	for(auto& robot : robot_list)
+		messenger->send_msg(robot.ID, "O0;0.8");
+	update_robots_id_box();
+	robots_auto_bt.set_state(Gtk::STATE_NORMAL);
+	robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
+}
+
+void V4LInterface::event_robots_auto_bt_signal_pressed() {
+	robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	std::thread discover_robots_thread(&V4LInterface::discover_robot_ids, this);
+	discover_robots_thread.detach();
+}
+
+void V4LInterface::update_robots_id_box() {
+	for(int i = 0; i < 3; i++) {
+		int index = (robot_list[i].ID - 'A');
+		robots_id_box[i].set_active(index);
 	}
 }
 
@@ -450,6 +496,7 @@ void V4LInterface::event_robots_id_done_bt_signal_clicked() {
 	robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
 	robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 	robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_auto_bt.set_state(Gtk::STATE_NORMAL);
 }
 
 void V4LInterface::event_robots_speed_edit_bt_signal_pressed() {

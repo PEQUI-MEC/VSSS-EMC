@@ -681,7 +681,9 @@ void V4LInterface::createIDsFrame() {
 	}
 
 	robots_id_hbox[0].pack_start(robots_id_edit_bt, false, true, 5);
+	robots_id_hbox[0].pack_start(robots_auto_bt, false, true, 5);
 	robots_id_hbox[0].pack_end(robots_id_done_bt, false, true, 5);
+	robots_auto_bt.set_label("Auto");
 	robots_id_edit_bt.set_label("Edit");
 	robots_id_done_bt.set_label("Done");
 
@@ -705,9 +707,12 @@ void V4LInterface::createIDsFrame() {
 	robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 	robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
 	robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 	robots_id_edit_bt.signal_pressed().connect(
 			sigc::mem_fun(*this, &capture::V4LInterface::event_robots_id_edit_bt_signal_pressed));
+	robots_auto_bt.signal_pressed().connect(
+			sigc::mem_fun(*this, &capture::V4LInterface::event_robots_auto_bt_signal_pressed));
 	robots_id_done_bt.signal_clicked().connect(
 			sigc::mem_fun(*this, &capture::V4LInterface::event_robots_id_done_bt_signal_clicked));
 }
@@ -1180,16 +1185,18 @@ void V4LInterface::__create_frm_cam_calib() {
 
 // Constructor
 
-V4LInterface::V4LInterface() :
+V4LInterface::V4LInterface(Messenger* messenger_ptr) :
 		Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(false),
 		offsetL(0), offsetR(0), robot_pos_lb_list(3), CamCalib_flag_event(false) {
 
+	messenger = messenger_ptr;
 	initInterface();
 }
 
-V4LInterface::V4LInterface(bool isLow) :
+V4LInterface::V4LInterface(bool isLow, Messenger* messenger_ptr) :
 		Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(isLow),
 		offsetL(0), offsetR(0), robot_pos_lb_list(3) {
 
+	messenger = messenger_ptr;
 	initInterface();
 }
