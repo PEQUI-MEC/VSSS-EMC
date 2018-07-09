@@ -441,7 +441,7 @@ void V4LInterface::discover_robot_ids() {
 	std::array<char, 3> robot_ids{'A', 'B', 'E'};
 	for (char id : robot_ids) {
 		auto initial_robots = robot_list;
-		messenger->send_msg(id, "O90:0.8");
+		messenger->send_msg(id, "O90;0.8");
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		int robot_index = 0;
 		bool robot_found = false;
