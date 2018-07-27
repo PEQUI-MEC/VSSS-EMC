@@ -4,6 +4,9 @@ set -e
 mkdir dependencies/
 cd dependencies/
 
+echo "Installing compilation tools"
+sudo apt-get install build-essential cmake
+
 echo "Installing Boost"
 sudo apt-get install libboost-all-dev
 
