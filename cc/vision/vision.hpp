@@ -19,18 +19,35 @@
 #include "tag.hpp"
 #include "visionROI.hpp"
 
-class Vision {
 
+namespace vision
+{
+	// Todas as cores que serão encontradas pela visão:
+	enum Color
+	{
+		Main,
+		Green,
+		Ball,
+		Adv
+	};
+
+	// Limites Min e Max dos tresholds:
+	enum Limit
+	{
+		Min,
+		Max
+	};
+
+	class Vision {
 	private:
 
-		// Constants
-		static const int MAIN = 0;
-		static const int GREEN = 1;
-		static const int BALL = 2;
-		static const int ADV = 3;
-		static const int MIN = 0;
-		static const int MAX = 1;
 		static const int MAX_ADV = 3;
+
+	public:
+
+		static const unsigned long MAX_COLORS = Color::Adv - Color::Main + 1;
+
+	private:
 
 		// Frames
 		cv::Mat in_frame, lab_frame;
@@ -48,13 +65,13 @@ class Vision {
 		std::vector<std::vector<Tag>> tags;
 
 		// HSV/CIELAB Calibration Parameters
-		int cieL[4][2];
-		int cieA[4][2];
-		int cieB[4][2];
-		int dilate[4];
-		int erode[4];
-		int blur[4];
-		int areaMin[4];
+		int cieL[MAX_COLORS][2];
+		int cieA[MAX_COLORS][2];
+		int cieB[MAX_COLORS][2];
+		int dilate[MAX_COLORS];
+		int erode[MAX_COLORS];
+		int blur[MAX_COLORS];
+		int areaMin[MAX_COLORS];
 
 		// image size
 		int width;
@@ -81,23 +98,25 @@ class Vision {
 
 	public:
 
-		// Public Constants
-		static const int TOTAL_COLORS = 4;
-
 		Vision(int w, int h);
 		~Vision();
 
 		void run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
-		void setCalibParams(const int H[4][2], const int S[4][2], const int V[4][2], const int Amin[4], const int E[4],
-							const int D[4], const int B[4]);
-		double calcDistance(cv::Point p1, cv::Point p2);
+		void setCalibParams(const int H[MAX_COLORS][2],
+							const int S[MAX_COLORS][2],
+							const int V[MAX_COLORS][2],
+							const int Amin[MAX_COLORS],
+							const int E[MAX_COLORS],
+							const int D[MAX_COLORS],
+							const int B[MAX_COLORS]);
+		double calcDistance(cv::Point p1, cv::Point p2) const;
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
 		void startNewVideo(std::string videoName);
 		bool recordToVideo();
 		bool finishVideo();
-		bool isRecording();
+		bool isRecording() const { return bOnAir; };
 		void savePicture(std::string in_name);
 
 		//video
@@ -108,37 +127,37 @@ class Vision {
 		cv::Mat cameraMatrix;
 		cv::Mat distanceCoeficents;
 		bool flag_cam_calibrated = false;
-		std::vector<std::vector<cv::Point2f>> getChessBoardCorners(std::vector<cv::Mat> images);
-		std::vector<cv::Mat> getCamCalibFrames();
-		cv::Mat getcameraMatrix();
-		cv::Mat getdistanceCoeficents();
+		std::vector<std::vector<cv::Point2f>> getChessBoardCorners(std::vector<cv::Mat> images) const;
+		std::vector<cv::Mat> getCamCalibFrames() const { return savedCamCalibFrames; };
+		cv::Mat getcameraMatrix() const { return distanceCoeficents; };
+		cv::Mat getdistanceCoeficents() const { return distanceCoeficents; };
 		void setFlagCamCalibrated(bool value);
 		void saveCamCalibFrame();
 		void popCamCalibFrames();
 		void collectImagesForCalibration();
 		void cameraCalibration();
 		std::vector<cv::Point3f> createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght);
-		bool foundChessBoardCorners();
+		bool foundChessBoardCorners() const;
 		void switchMainWithAdv();
 
-		cv::Point getBall();
-		Robot getRobot(unsigned long index);
-		cv::Point getRobotPos(unsigned long index);
-		cv::Point getAdvRobot(int index);
-		cv::Point *getAllAdvRobots();
+		cv::Point getBall() const { return ball; };
+		Robot getRobot(unsigned long index) const { return robot_list.at(index); };
+		cv::Point getRobotPos(unsigned long index) const { return robot_list.at(index).position; };
+		cv::Point getAdvRobot(int index) const;
+		cv::Point* getAllAdvRobots() const { return const_cast<cv::Point*>(advRobots); };
 		cv::Mat getSplitFrame();
 
 		int getRobotListSize();
-		int getAdvListSize();
+		int getAdvListSize() const { return MAX_ADV; };
 		cv::Mat getThreshold(unsigned long index);
 
-		int getCIE_L(unsigned long index0, int index1);
-		int getCIE_A(unsigned long index0, int index1);
-		int getCIE_B(unsigned long index0, int index1);
-		int getErode(unsigned long index);
-		int getDilate(unsigned long index);
-		int getBlur(unsigned long index);
-		int getAmin(unsigned long index);
+		int getCIE_L(unsigned long index0, int index1) const { return cieL[index0][index1]; };
+		int getCIE_A(unsigned long index0, int index1) const { return cieA[index0][index1]; };
+		int getCIE_B(unsigned long index0, int index1) const { return cieB[index0][index1]; };
+		int getErode(unsigned long index) const { return erode[index]; };
+		int getDilate(unsigned long index) const { return dilate[index]; };
+		int getBlur(unsigned long index) const { return blur[index]; };
+		int getAmin(unsigned long index) const { return areaMin[index]; };
 
 		void setFrameSize(int inWidth, int inHeight);
 
@@ -149,6 +168,8 @@ class Vision {
 		void setDilate(unsigned long index, int inValue);
 		void setBlur(unsigned long index, int inValue);
 		void setAmin(unsigned long index, int inValue);
-};
+	};
+}
+
 
 #endif /* VISION_HPP_ */

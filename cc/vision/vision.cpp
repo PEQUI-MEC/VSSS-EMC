@@ -1,5 +1,7 @@
 #include "vision.hpp"
 
+using namespace vision;
+
 void Vision::run(cv::Mat raw_frame) {
 	in_frame = raw_frame.clone();
 
@@ -11,7 +13,7 @@ void Vision::run(cv::Mat raw_frame) {
 	pick_a_tag();
 }
 
-void Vision::recordVideo(cv::Mat frame) {
+void Vision::recordVideo(const cv::Mat frame) {
 	in_frame = frame.clone();
 	if (bOnAir) recordToVideo();
 }
@@ -26,23 +28,23 @@ void Vision::preProcessing() {
 }
 
 void Vision::findTags() {
-	for (int i = 0; i < TOTAL_COLORS; i++) {
-		threshold_threads.add_thread(new boost::thread(&Vision::segmentAndSearch, this, i));
+	for (int color = 0; color < MAX_COLORS; color++) {
+		threshold_threads.add_thread(new boost::thread(&Vision::segmentAndSearch, this, color));
 	}
 	threshold_threads.join_all();
 }
 
-void Vision::segmentAndSearch(unsigned long color) {
+void Vision::segmentAndSearch(const unsigned long color) {
 	cv::Mat frame = lab_frame.clone();
 
-	inRange(frame, cv::Scalar(cieL[color][MIN], cieA[color][MIN], cieB[color][MIN]),
-			cv::Scalar(cieL[color][MAX], cieA[color][MAX], cieB[color][MAX]), threshold_frame.at(color));
+	inRange(frame, cv::Scalar(cieL[color][Limit::Min], cieA[color][Limit::Min], cieB[color][Limit::Min]),
+			cv::Scalar(cieL[color][Limit::Max], cieA[color][Limit::Max], cieB[color][Limit::Max]), threshold_frame.at(color));
 
 	posProcessing(color);
 	searchTags(color);
 }
 
-void Vision::posProcessing(unsigned long color) {
+void Vision::posProcessing(const unsigned long color) {
 	cv::Mat erodeElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat dilateElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 
@@ -57,7 +59,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
-	for (unsigned long color = 0; color < TOTAL_COLORS; color++) {
+	for (unsigned long color = 0; color < MAX_COLORS; color++) {
 		tags.at(color).clear();
 
 		cv::Mat tmp;
@@ -73,7 +75,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 													  static_cast<int>(moment.m01 / area)), area);
 
 				// seta as linhas para as tags principais do pick-a-tag
-				if (color == MAIN) {
+				if (color == Color::Main) {
 					cv::Vec4f line;
 					cv::fitLine(cv::Mat(contour), line, 2, 0, 0.01, 0.01);
 					unsigned long tagsInVec = tags.at(color).size() - 1;
@@ -84,7 +86,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 	}
 }
 
-void Vision::searchTags(unsigned long color) {
+void Vision::searchTags(const unsigned long color) {
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
 
@@ -99,7 +101,7 @@ void Vision::searchTags(unsigned long color) {
 			auto moment_x = static_cast<int>(moment.m10 / area);
 			auto moment_y = static_cast<int>(moment.m01 / area);
 			// seta as linhas para as tags principais do pick-a-tag
-			if (color == MAIN) {
+			if (color == Color::Main) {
 				tags.at(color).emplace_back(cv::Point(moment_x, moment_y), area);
 
 				// tem que ter jogado a tag no vetor antes de mexer nos valores dela
@@ -107,7 +109,7 @@ void Vision::searchTags(unsigned long color) {
 				cv::fitLine(cv::Mat(contour), line, 2, 0, 0.01, 0.01);
 				unsigned long tagsInVec = tags.at(color).size() - 1;
 				tags.at(color).at(tagsInVec).setLine(line);
-			} else if (color == ADV) {
+			} else if (color == Color::Adv) {
 				if (tags.at(color).size() >= 3) {
 					// pega o menor índice
 					unsigned long smaller = 0;
@@ -142,23 +144,23 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 	}
 
 	// OUR ROBOTS
-	for (unsigned long i = 0; i < tags.at(MAIN).size() && i < 3; i++) {
+	for (unsigned long i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
 		// cria um robô temporário para armazenar nossas descobertas
 		Robot robot;
 		std::vector<Tag> tempTags;
 
 		// Posição do robô
-		robot.position = tags.at(MAIN).at(i).position;
+		robot.position = tags.at(Color::Main).at(i).position;
 
 		// Cálculo da orientação de acordo com os pontos rear e front
-		robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
-								  (tags.at(MAIN).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
+		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
+								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
 
 		// Armazena a tag
-		tempTags.push_back(tags.at(MAIN).at(i));
+		tempTags.push_back(tags.at(Color::Main).at(i));
 
 		// Para cada tag principal, verifica quais são as secundárias correspondentes
-		for (auto &j : tags.at(GREEN)) {
+		for (auto &j : tags.at(Color::Green)) {
 			// já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
 			tmpSide = inSphere(&robot, &tempTags, j.position);
 			if (tmpSide) {
@@ -199,15 +201,15 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 	} // OUR ROBOTS
 
 	// ADV ROBOTS
-	for (unsigned long i = 0; i < tags.at(ADV).size() && i < MAX_ADV; i++) {
-		advRobots[i] = tags.at(ADV).at(i).position;
+	for (unsigned long i = 0; i < tags.at(Color::Adv).size() && i < MAX_ADV; i++) {
+		advRobots[i] = tags.at(Color::Adv).at(i).position;
 		windowsList->at(4 + i).setIsLost(false);
 		windowsList->at(4 + i).setCenter(advRobots[i]);
 	}
 
 	// BALL POSITION
-	if (!tags[BALL].empty()) {
-		ball = tags.at(BALL).at(0).position;
+	if (!tags[Color::Ball].empty()) {
+		ball = tags.at(Color::Ball).at(0).position;
 		windowsList->at(3).setIsLost(false);
 		windowsList->at(3).setCenter(ball);
 	}
@@ -223,23 +225,23 @@ void Vision::pick_a_tag() {
 	int tmpSide;
 
 	// OUR ROBOTS
-	for (unsigned long i = 0; i < tags.at(MAIN).size() && i < 3; i++) {
+	for (unsigned long i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
 		// cria um robô temporário para armazenar nossas descobertas
 		Robot robot;
 		std::vector<Tag> tempTags;
 
 		// Posição do robô
-		robot.position = tags.at(MAIN).at(i).position;
+		robot.position = tags.at(Color::Main).at(i).position;
 
 		// Cálculo da orientação de acordo com os pontos rear e front
-		robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
-								  (tags.at(MAIN).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
+		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
+								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
 
 		// Armazena a tag
-		tempTags.push_back(tags.at(MAIN).at(i));
+		tempTags.push_back(tags.at(Color::Main).at(i));
 
 		// Para cada tag principal, verifica quais são as secundárias correspondentes
-		for (auto &green : tags.at(GREEN)) {
+		for (auto &green : tags.at(Color::Green)) {
 			// já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
 			tmpSide = inSphere(&robot, &tempTags, green.position);
 			if (tmpSide) {
@@ -275,15 +277,15 @@ void Vision::pick_a_tag() {
 
 	// ADV ROBOTS
 	for (unsigned long i = 0; i < MAX_ADV; i++) {
-		if (i < tags.at(ADV).size())
-			advRobots[i] = tags.at(ADV).at(i).position;
+		if (i < tags.at(Color::Adv).size())
+			advRobots[i] = tags.at(Color::Adv).at(i).position;
 		else
 			advRobots[i] = cv::Point(-1, -1);
 	}
 
 	// BALL POSITION
-	if (!tags[BALL].empty()) {
-		ball = tags.at(BALL).at(0).position;
+	if (!tags[Color::Ball].empty()) {
+		ball = tags.at(Color::Ball).at(0).position;
 	}
 }
 
@@ -298,7 +300,7 @@ void Vision::pick_a_tag() {
 /// -1, caso a secundária esteja à esquerda;
 /// 1, caso a secundária esteja à direita
 /// </returns>
-int Vision::inSphere(Robot *robot, std::vector<Tag> *tempTags, cv::Point secondary) {
+int Vision::inSphere(Robot *robot, std::vector<Tag> *tempTags, const cv::Point secondary) {
 	// se esta secundária faz parte do robô
 	if (calcDistance(robot->position, secondary) <= ROBOT_RADIUS) {
 		if (calcDistance(tempTags->at(0).frontPoint, secondary) < calcDistance(tempTags->at(0).rearPoint, secondary)) {
@@ -318,42 +320,42 @@ int Vision::inSphere(Robot *robot, std::vector<Tag> *tempTags, cv::Point seconda
 	return 0;
 }
 
-double Vision::calcDistance(cv::Point p1, cv::Point p2) {
+double Vision::calcDistance(const cv::Point p1, const cv::Point p2) const {
 	return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
 }
 
 void Vision::switchMainWithAdv() {
 	int tmp;
 
-	for (int i = MIN; i <= MAX; i++) {
-		tmp = cieL[MAIN][i];
-		cieL[MAIN][i] = cieL[ADV][i];
-		cieL[ADV][i] = tmp;
+	for (int i = Limit::Min; i <= Limit::Max; i++) {
+		tmp = cieL[Color::Main][i];
+		cieL[Color::Main][i] = cieL[Color::Adv][i];
+		cieL[Color::Adv][i] = tmp;
 
-		tmp = cieA[MAIN][i];
-		cieA[MAIN][i] = cieA[ADV][i];
-		cieA[ADV][i] = tmp;
+		tmp = cieA[Color::Main][i];
+		cieA[Color::Main][i] = cieA[Color::Adv][i];
+		cieA[Color::Adv][i] = tmp;
 
-		tmp = cieB[MAIN][i];
-		cieB[MAIN][i] = cieB[ADV][i];
-		cieB[ADV][i] = tmp;
+		tmp = cieB[Color::Main][i];
+		cieB[Color::Main][i] = cieB[Color::Adv][i];
+		cieB[Color::Adv][i] = tmp;
 	}
 
-	tmp = areaMin[MAIN];
-	areaMin[MAIN] = areaMin[ADV];
-	areaMin[ADV] = tmp;
+	tmp = areaMin[Color::Main];
+	areaMin[Color::Main] = areaMin[Color::Adv];
+	areaMin[Color::Adv] = tmp;
 
-	tmp = erode[MAIN];
-	erode[MAIN] = erode[ADV];
-	erode[ADV] = tmp;
+	tmp = erode[Color::Main];
+	erode[Color::Main] = erode[Color::Adv];
+	erode[Color::Adv] = tmp;
 
-	tmp = dilate[MAIN];
-	dilate[MAIN] = dilate[ADV];
-	dilate[ADV] = tmp;
+	tmp = dilate[Color::Main];
+	dilate[Color::Main] = dilate[Color::Adv];
+	dilate[Color::Adv] = tmp;
 
-	tmp = blur[MAIN];
-	blur[MAIN] = blur[ADV];
-	blur[ADV] = tmp;
+	tmp = blur[Color::Main];
+	blur[Color::Main] = blur[Color::Adv];
+	blur[Color::Adv] = tmp;
 }
 
 cv::Mat Vision::getSplitFrame() {
@@ -381,7 +383,7 @@ cv::Mat Vision::getSplitFrame() {
 void
 Vision::setCalibParams(const int H[4][2], const int S[4][2], const int V[4][2], const int Amin[4], const int E[4],
 					   const int D[4], const int B[4]) {
-	for (int i = 0; i < TOTAL_COLORS; i++) {
+	for (int i = 0; i < MAX_COLORS; i++) {
 		areaMin[i] = Amin[i];
 		erode[i] = E[i];
 		dilate[i] = D[i];
@@ -461,7 +463,7 @@ std::vector<cv::Point3f> Vision::createKnownBoardPosition(cv::Size boardSize, fl
 	return corners;
 }
 
-std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<cv::Mat> images) {
+std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<cv::Mat> images) const {
 	cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
 	cv::Mat grayFrame;
 	std::vector<std::vector<cv::Point2f>> allFoundCorners;
@@ -479,7 +481,7 @@ std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<c
 	return allFoundCorners;
 }
 
-bool Vision::foundChessBoardCorners() {
+bool Vision::foundChessBoardCorners() const {
 	std::vector<cv::Vec2f> foundPoints;
 	cv::Mat temp;
 	temp = in_frame.clone();
@@ -488,7 +490,7 @@ bool Vision::foundChessBoardCorners() {
 									 CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
 }
 
-void Vision::saveCameraCalibPicture(std::string in_name, std::string directory) {
+void Vision::saveCameraCalibPicture(const std::string in_name, const std::string directory) {
 	cv::Mat frame = in_frame.clone();
 	std::string picName = directory + in_name + ".png";
 
@@ -496,7 +498,7 @@ void Vision::saveCameraCalibPicture(std::string in_name, std::string directory) 
 	cv::imwrite(picName, frame);
 }
 
-void Vision::savePicture(std::string in_name) {
+void Vision::savePicture(const std::string in_name) {
 	cv::Mat frame = in_frame.clone();
 	std::string picName = "media/pictures/" + in_name + ".png";
 
@@ -504,7 +506,7 @@ void Vision::savePicture(std::string in_name) {
 	cv::imwrite(picName, frame);
 }
 
-void Vision::startNewVideo(std::string in_name) {
+void Vision::startNewVideo(const std::string in_name) {
 	std::string videoName = "media/videos/" + in_name + ".avi";
 
 	video.open(videoName, CV_FOURCC('M', 'J', 'P', 'G'), 30, cv::Size(width, height));
@@ -530,23 +532,7 @@ bool Vision::finishVideo() {
 	return true;
 }
 
-bool Vision::isRecording() {
-	return bOnAir;
-}
-
-cv::Point Vision::getBall() {
-	return ball;
-}
-
-Robot Vision::getRobot(unsigned long index) {
-	return robot_list.at(index);
-}
-
-cv::Point Vision::getRobotPos(unsigned long index) {
-	return robot_list.at(index).position;
-}
-
-cv::Point Vision::getAdvRobot(int index) {
+cv::Point Vision::getAdvRobot(const int index) const {
 	if (index < 0 || index >= MAX_ADV) {
 		std::cout << "Vision::getAdvRobot: index argument is invalid." << std::endl;
 		return cv::Point(-1, -1);
@@ -559,28 +545,12 @@ int Vision::getRobotListSize() {
 	return (int) robot_list.size();
 }
 
-int Vision::getAdvListSize() {
-	return MAX_ADV;
-}
-
-cv::Mat Vision::getThreshold(unsigned long index) {
+cv::Mat Vision::getThreshold(const unsigned long index) {
 	cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
 	return threshold_frame.at(index);
 }
 
-std::vector<cv::Mat> Vision::getCamCalibFrames() {
-	return savedCamCalibFrames;
-}
-
-cv::Mat Vision::getcameraMatrix() {
-	return cameraMatrix;
-}
-
-cv::Mat Vision::getdistanceCoeficents() {
-	return distanceCoeficents;
-}
-
-void Vision::setFlagCamCalibrated(bool value) {
+void Vision::setFlagCamCalibrated(const bool value) {
 	this->flag_cam_calibrated = value;
 }
 
@@ -588,86 +558,54 @@ void Vision::popCamCalibFrames() {
 	savedCamCalibFrames.pop_back();
 }
 
-int Vision::getCIE_L(unsigned long index0, int index1) {
-	return cieL[index0][index1];
-}
-
-int Vision::getCIE_A(unsigned long index0, int index1) {
-	return cieA[index0][index1];
-}
-
-int Vision::getCIE_B(unsigned long index0, int index1) {
-	return cieB[index0][index1];
-}
-
-int Vision::getErode(unsigned long index) {
-	return erode[index];
-}
-
-int Vision::getDilate(unsigned long index) {
-	return dilate[index];
-}
-
-int Vision::getBlur(unsigned long index) {
-	return blur[index];
-}
-
-int Vision::getAmin(unsigned long index) {
-	return areaMin[index];
-}
-
-void Vision::setCIE_L(unsigned long index0, int index1, int inValue) {
-	if (index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) cieL[index0][index1] = inValue;
+void Vision::setCIE_L(const unsigned long index0, const int index1, const int inValue) {
+	if (index0 < MAX_COLORS && (index1 == Limit::Min || index1 == Limit::Max)) cieL[index0][index1] = inValue;
 	else std::cout << "Vision:setCIE_L: could not set (invalid index)" << std::endl;
 }
 
-void Vision::setCIE_A(unsigned long index0, int index1, int inValue) {
-	if (index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) cieA[index0][index1] = inValue;
+void Vision::setCIE_A(const unsigned long index0, const int index1, const int inValue) {
+	if (index0 < MAX_COLORS && (index1 == Limit::Min || index1 == Limit::Max)) cieA[index0][index1] = inValue;
 	else std::cout << "Vision:setCIE_A: could not set (invalid index)" << std::endl;
 }
 
-void Vision::setCIE_B(unsigned long index0, int index1, int inValue) {
-	if (index0 < TOTAL_COLORS && (index1 == 0 || index1 == 1)) cieB[index0][index1] = inValue;
+void Vision::setCIE_B(const unsigned long index0, const int index1, const int inValue) {
+	if (index0 < MAX_COLORS && (index1 == Limit::Min || index1 == Limit::Max)) cieB[index0][index1] = inValue;
 	else std::cout << "Vision:setCIE_B: could not set (invalid index)" << std::endl;
 }
 
-void Vision::setErode(unsigned long index, int inValue) {
-	if (index < TOTAL_COLORS)
+void Vision::setErode(const unsigned long index, const int inValue) {
+	if (index < MAX_COLORS)
 		erode[index] = inValue;
 	else std::cout << "Vision:setErode: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setDilate(unsigned long index, int inValue) {
-	if (index < TOTAL_COLORS)
+void Vision::setDilate(const unsigned long index, const int inValue) {
+	if (index < MAX_COLORS)
 		dilate[index] = inValue;
 	else std::cout << "Vision:setDilate: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setBlur(unsigned long index, int inValue) {
-	if (index < TOTAL_COLORS)
+void Vision::setBlur(const unsigned long index, const int inValue) {
+	if (index < MAX_COLORS)
 		blur[index] = inValue;
 	else std::cout << "Vision:setBlur: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setAmin(unsigned long index, int inValue) {
-	if (index < TOTAL_COLORS)
+void Vision::setAmin(const unsigned long index, const int inValue) {
+	if (index < MAX_COLORS)
 		areaMin[index] = inValue;
 	else std::cout << "Vision:setAmin: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setFrameSize(int inWidth, int inHeight) {
+void Vision::setFrameSize(const int inWidth, const int inHeight) {
 	if (inWidth >= 0) width = inWidth;
 	if (inHeight >= 0) height = inHeight;
-}
-
-cv::Point *Vision::getAllAdvRobots() {
-	return advRobots;
 }
 
 Vision::Vision(int w, int h) : width(w), height(h), cieL{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
 							   cieA{{0, 255}, {0, 255}, {0, 255}, {0, 255}}, video_rec_enable(true),
 							   cieB{{0, 255}, {0, 255}, {0, 255}, {0, 255}}, bOnAir(false),
-							   robot_list(3), threshold_frame(TOTAL_COLORS), tags(TOTAL_COLORS),
+							   robot_list(3), threshold_frame(MAX_COLORS), tags(MAX_COLORS),
 							   areaMin{0, 0, 0, 0}, dilate{0, 0, 0, 0}, erode{0, 0, 0, 0}, blur{3, 3, 3, 3} {
 }
 
