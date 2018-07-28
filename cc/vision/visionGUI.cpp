@@ -1,5 +1,7 @@
 #include "visionGUI.hpp"
 
+using namespace vision;
+
 void VisionGUI::__create_frm_drawing_options() {
 	Gtk::Frame *frame;
 	Gtk::HBox *hbox;

@@ -8,7 +8,7 @@
 
 class VisionGUI : public Gtk::VBox {
 	public:
-		Vision *vision;
+		vision::Vision *vision;
 		GMM *gmm;
 		Gtk::ToggleButton bt_LAB_calib;
 

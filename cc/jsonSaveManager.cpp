@@ -3,6 +3,7 @@
 using std::string;
 using std::cout;
 using std::endl;
+using vision::Vision;
 
 void jsonSaveManager::save_robots() {
 	for (int i = 0; i < 3; ++i) {
@@ -39,7 +40,7 @@ void jsonSaveManager::save_camera() {
 	string cielab_calibs[4] = {"Main", "Green", "Ball", "Opp."};
 
 	Vision &vision = *(interface->visionGUI.vision);
-	for (unsigned int i = 0; i < vision.TOTAL_COLORS; ++i) {
+	for (unsigned int i = 0; i < vision.MAX_COLORS; ++i) {
 		json &lab = camera_config["CIELAB Calibration"][cielab_calibs[i]];
 
 		lab["L_min"] = vision.getCIE_L(i, 0);
@@ -90,7 +91,7 @@ void jsonSaveManager::load_camera() {
 
 	string cielab_calibs[4] = {"Main", "Green", "Ball", "Opp."};
 	Vision &vision = *(interface->visionGUI.vision);
-	for (unsigned int i = 0; i < vision.TOTAL_COLORS; ++i) {
+	for (unsigned int i = 0; i < vision.MAX_COLORS; ++i) {
 		json &lab = camera_config["CIELAB Calibration"][cielab_calibs[i]];
 
 		if (exists(lab, "L_min")) vision.setCIE_L(i, 0, lab["L_min"]);
