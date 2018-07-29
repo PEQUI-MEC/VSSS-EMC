@@ -8,11 +8,14 @@ namespace Geometry {
 	struct Point;
 
 	struct Vector {
-		double theta;
 		double size;
+		double theta;
 
-		Vector(const double theta, const double size): theta(theta), size(size) {}
+		Vector(const double size, const double theta) : size(size), theta(theta) {}
 		explicit Vector(const Point &p);
+		Vector operator*(double value);
+		Vector unitary();
+		Vector with_size(double new_size);
 	};
 
 	struct Point {
@@ -26,6 +29,7 @@ namespace Geometry {
 
 		constexpr Point(double x, double y) noexcept : x(x), y(y) {};
 		Vector operator-(const Point &p2) const;
+		Point operator+(const Vector &v) const;
 	};
 
 	struct Pose {
@@ -55,6 +59,9 @@ namespace Geometry {
 	constexpr Point middle(const Point& p1, const Point &p2) noexcept {
 		return {(p1.x + p2.x)/2, (p1.y + p2.y)/2};
 	}
+
+//	Define operator* de forma associativa (value * v == v * value)
+//	Vector operator*(double value, Vector v) {return v * value;}
 
 	double distance(const Point &a, const Point &b);
 	Point intersection(const Line &l1, const Line &l2);

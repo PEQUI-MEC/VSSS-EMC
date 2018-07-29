@@ -15,24 +15,45 @@ Point Geometry::intersection(const Line &l1, const Line &l2) {
 }
 
 Vector Point::operator-(const Point &p2) const {
-	return {std::atan2(y - p2.y, x - p2.x), distance(*this, p2)};
+	return {distance(*this, p2), std::atan2(y - p2.y, x - p2.x)};
+}
+
+Point Point::operator+(const Vector &v) const {
+	return {x + v.size * std::sin(v.theta),
+			y + v.size * std::cos(v.theta)};
 }
 
 Vector::Vector(const Point &p) {
-	theta = std::atan2(p.y, p.x);
 	size = distance(p, {0,0});
+	theta = std::atan2(p.y, p.x);
 }
 
-static const Point upper_corner(10, 10);
-static const Point lower_corner(10, 0);
-static const Line goal_line(upper_corner, lower_corner);
+Vector Vector::unitary() {
+	return {1, theta};
+}
 
-Point test1() {
+Vector Vector::with_size(double new_size) {
+	return {new_size, theta};
+}
+
+Vector Vector::operator*(double value) {
+	return {size * value, theta};
+}
+
+//	Exemplos de uso de Geometry
+Point tests() {
 	Point p3{0, 0};
 	Point p4{2, 3};
 	Line robot_line(p3, p4);
-	Point inter = intersection(goal_line, robot_line);
+
+//	Teste de ponto na direção de vetor
+	Vector v1 = p4 - p3;
+	Point x = p3 + v1.unitary() * 2;
+//	ou
+	Point x2 = p3 + v1.with_size(2);
+
+//	Teste de intersecção
+	Line test_line(x, p3);
+	Point inter = intersection(test_line, robot_line);
 	return inter;
 }
-
-
