@@ -53,6 +53,8 @@ set(SOURCE_FILES cc/main.cpp
     cc/vision/vision.cpp
     cc/vision/visionGUI.cpp
     cc/Geometry/Geometry.cpp
+	cc/Strategy2/Robot2.cpp
+	cc/Strategy2/Attacker.cpp
     cc/lib/json.hpp
     pack-capture/capture/v4lcap.cpp
     pack-capture/capture/v4ldev.hpp
@@ -67,7 +69,9 @@ set(SOURCE_FILES cc/main.cpp
 include_directories(cc/
     cc/Fuzzy/
     cc/vision/
-    cc/lib
+    cc/lib/
+	cc/Strategy2/
+	cc/Geometry/
     pack-capture/capture/
     pack-capture-gui/capture-gui/
     ${GTKMM_INCLUDE_DIRS}
