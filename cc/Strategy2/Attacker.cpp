@@ -16,6 +16,6 @@ void Attacker::execute_behavior(Attacker::Behavior behavior) {
 
 void Attacker::uvf_to_goal(Point ball) {
 	Vector ball_to_goal = goal_center - ball;
-	go_to(ball, ball_to_goal.with_size(0.1));
+	go_to_pose(ball, ball_to_goal);
 //	Inserir corrida para o gol ao chegar na bola
 }
