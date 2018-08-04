@@ -15,7 +15,7 @@ void Strategy::set_constants(int w, int h) {
 	height = h;
 
 	ABS_GOAL_TO_GOAL_WIDTH = width;
-	ABS_ROBOT_SIZE = static_cast<int>(round(0.08 * float(width) / 1.70));
+	ABS_ROBOT_SIZE = static_cast<int>(round(0.08 * float(width) / 1.70));sx
 	COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH / 2;
 
 	ABS_FIELD_HEIGHT = height;
@@ -247,7 +247,7 @@ void Strategy::overmind() {
 		timeout++;
 		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5 || Ball.x < robots[atk].position.x) {
 			timeout = 0;
-			atk_mindcontrol = false;
+			atk_mindcontrol = fa lse;
 			robots[atk].vmax = robots[atk].vdefault;
 		}
 	}

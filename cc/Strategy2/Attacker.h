@@ -12,6 +12,9 @@ class Attacker : Robot2 {
 
 		void execute_behavior(Behavior behavior);
 		void uvf_to_goal(Geometry::Point ball);
+		void Attacker::spin_shot(bool clockwise, double speed);
+		void Attacker::hang_in_the_corner(Geometry::Point ball);
+
 };
 
 #endif //VSSS_ATTACKER_H
