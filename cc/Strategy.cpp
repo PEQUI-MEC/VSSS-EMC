@@ -247,7 +247,7 @@ void Strategy::overmind() {
 		timeout++;
 		if (timeout >= 30 || distance(robots[atk].position, Ball) > ABS_ROBOT_SIZE * 1.5 || Ball.x < robots[atk].position.x) {
 			timeout = 0;
-			atk_mindcontrol = fa lse;
+			atk_mindcontrol = false;
 			robots[atk].vmax = robots[atk].vdefault;
 		}
 	}
