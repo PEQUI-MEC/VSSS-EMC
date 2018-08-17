@@ -63,7 +63,7 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/Robot.hpp
     pack-capture-gui/capture-gui/V4LInterface-aux.cpp
     pack-capture-gui/capture-gui/V4LInterface-events.cpp
-    pack-capture-gui/capture-gui/V4LInterface.hpp)
+    cc/Strategy2/Goalkeeper.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
