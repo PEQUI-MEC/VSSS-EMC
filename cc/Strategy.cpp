@@ -15,7 +15,7 @@ void Strategy::set_constants(int w, int h) {
 	height = h;
 
 	ABS_GOAL_TO_GOAL_WIDTH = width;
-	ABS_ROBOT_SIZE = static_cast<int>(round(0.08 * float(width) / 1.70));sx
+	ABS_ROBOT_SIZE = static_cast<int>(round(0.08 * float(width) / 1.70));
 	COORD_MID_FIELD_X = ABS_GOAL_TO_GOAL_WIDTH / 2;
 
 	ABS_FIELD_HEIGHT = height;
