@@ -17,16 +17,15 @@ class Attacker : Robot2 {
 		 *	robô se move com velocidade "default_target_velocity" */
 		void uvf_to_goal(Geometry::Point ball);
 
-		/**	Chuta girando em velocidade máxima
-		 *	@param clockwise sentido do giro
+		/** Robô gira com sentido horário ou anti-horário dependendo da posição da bola
+		 *	@param ball posição da bola
 		 */
-		void spin_shot(bool clockwise);
+		void spin_shot(Geometry:: Point ball);
 
 		/**	Robô trava a bola no canto e faz um cruzamento
-		 *	@param ball posição da bola
-		 *	@param clockwise sentido do giro no cruzamento
-		 */
-		void crossing(Geometry::Point ball, bool clockwise);
+		 * @param ball posição da bola
+		*/
+		void crossing(Geometry::Point ball);
 
 		/**	Chuta em velocidade máxima carregando a bola ("torar o pau")
 		 *	@param ball_to_goal vetor travado na direção e sentido que o robô terá que correr
