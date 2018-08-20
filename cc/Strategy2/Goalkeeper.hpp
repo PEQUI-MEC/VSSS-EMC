@@ -17,8 +17,7 @@ class Goalkeeper : Robot2 {
 
 		// Beahviors
 		void protect_goal(const Geometry::Point ball, const Geometry::Point ball_est);
-		void spin_shot( Geometry::Point ball);
-
+		void spin_shot(Geometry::Point ball);
 };
 
 #endif //VSSS_GOALKEEPER_HPP
