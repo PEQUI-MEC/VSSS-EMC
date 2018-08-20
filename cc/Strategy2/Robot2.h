@@ -5,6 +5,9 @@
 
 class Robot2 {
 	public:
+		Robot2();
+		~Robot2();
+
 		struct Pose {	// Define as variáveis de estado do robô.
 			Geometry::Point position;
 			double orientation;
@@ -22,11 +25,11 @@ class Robot2 {
 			Position, Vector, UVF, Orientation, Angular_Vel, None
 		};
 
-		Pose pose;	// Pose atual do robô
-		Pose target; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
+		Pose pose = { {0, 0}, 0, 1.0, 0.0 };	// Pose atual do robô
+		Pose target = { {0, 0}, 0, 1.0, 0.0 }; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
 		Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
 		double default_target_velocity = 0.8; // Velocidade padrão do robô
-		UVF_params uvf_data = {1, 0.1}; // Parâmetros utilizados no UVF
+		UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
 
 	public:
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
