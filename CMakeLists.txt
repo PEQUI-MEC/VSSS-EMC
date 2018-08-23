@@ -63,7 +63,7 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/Robot.hpp
     pack-capture-gui/capture-gui/V4LInterface-aux.cpp
     pack-capture-gui/capture-gui/V4LInterface-events.cpp
-    cc/Strategy2/Goalkeeper.cpp)
+    cc/Strategy2/Goalkeeper.cpp
     cc/Strategy2/Defender.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
