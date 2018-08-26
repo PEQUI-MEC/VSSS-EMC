@@ -6,6 +6,10 @@
 // número de intersecções do tabuleiro
 #define CHESSBOARD_DIMENSION cv::Size(6,9)
 
+#include "Strategy2/Strategy2.h"
+#include "Strategy2/Attacker.h"
+#include "Strategy2/Defender.hpp"
+#include "Strategy2/Goalkeeper.hpp"
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -36,6 +40,17 @@
 class CamCap : public Gtk::HBox {
 
 	public:
+		Attacker attacker;
+		Defender defender;
+		Goalkeeper goalkeeper;
+
+		Geometry::Point ball;
+		Geometry::Point ball_est;
+
+		std::array<Robot2 *, 3> robots;
+
+		Strategy2 strategy;
+
 		int screenWidth, screenHeight;
 		bool isLowRes;
 
@@ -85,11 +100,11 @@ class CamCap : public Gtk::HBox {
 		bool ekf_data_ready = false;
 
 		bool checkForLowRes();
-		void updateAllPositions();
-		void updateKalmanFilter();
+		void update_positions(const std::array<Vision::RecognizedTag, 3> &tags);
+		void draw_tags(cv::Mat &imageView, const std::array<Vision::RecognizedTag, 3> &tags);
 		bool start_signal(bool b);
 		bool capture_and_show();
-		void send_cmd_thread(std::vector<Robot> &robots);
+		void send_cmd_thread();
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();

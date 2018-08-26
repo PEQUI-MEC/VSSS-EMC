@@ -2,6 +2,7 @@
 #define VSSS_FIELD_H
 
 #include "Geometry/Geometry.h"
+#include "Strategy2/Robot2.h"
 
 // A unidade de medida usada aqui é sempre me metros
 
@@ -26,6 +27,8 @@ namespace field {
 			OurGoal,
 			TheirGoal,
 			OurBox, // Pequena área
+			TheirBox,
+			TheirCornerAny, // Qualquer um dos cantos do time oponente
 	};
 	// -----------------------------------------------------------------------------------------------------------------
 
@@ -74,6 +77,17 @@ namespace field {
 				// Adicione aqui as geometrias de interesse do fundo do gol adversário
 			}
 		}
+		namespace area {
+			namespace front {
+				Geometry::Point center( {field_width-goal_width-area_width, field_height/2} );
+			}
+			namespace lower {
+				Geometry::Point center({field_width-goal_width-area_width/2, corner_height});
+			}
+			namespace upper {
+				Geometry::Point center({field_width-goal_width-area_width/2, area_height+corner_height});
+			}
+		}
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 
@@ -96,9 +110,21 @@ namespace field {
 			case Location::OurBox:
 				return position.x >= our::goal::front::center.x && position.x <= our::area::front::center.x
 					&& position.y >= our::area::lower::center.y && position.y <= our::area::upper::center.y;
+			case Location::TheirBox:
+				return position.x <= their::goal::front::center.x && position.x >= their::area::front::center.x
+					&& position.y >= their::area::lower::center.y && position.x >= their::area::lower::center.y;
+			case Location::TheirCornerAny:
+				return position.x >= their::area::front::center.x && (position.y >= their::area::upper::center.y
+					|| position.y <= their::area::lower::center.y);
+
 			default:
 				return false;
 		}
+	}
+
+	bool at_location(const Robot2& robot, const Location location)
+	{
+		at_location(robot.get_position(), location);
 	}
 }
 

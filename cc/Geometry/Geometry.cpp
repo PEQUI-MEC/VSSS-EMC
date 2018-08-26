@@ -6,6 +6,10 @@ double Geometry::distance(const Point &a, const Point &b) {
 	return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
 }
 
+double Geometry::distance_x(const Point &a, const Point &b) {
+	return fabs(a.x - b.x);
+}
+
 Point Geometry::intersection(const Line &l1, const Line &l2) {
 	if(l1.a == l2.a && l1.b == l2.b) return {0, l1.b};
 	else {
@@ -21,6 +25,11 @@ Vector Point::operator-(const Point &p2) const {
 Point Point::operator+(const Vector &v) const {
 	return {x + v.size * std::sin(v.theta),
 			y + v.size * std::cos(v.theta)};
+}
+
+Point Geometry::from_cv_point(cv::Point cv_point) {
+	return {cv_point.x * (1.7 / 640.0),
+			1.3 - cv_point.y * (1.3 / 480.0)};
 }
 
 Vector::Vector(const Point &p) {
@@ -57,3 +66,7 @@ Point tests() {
 	Point inter = intersection(test_line, robot_line);
 	return inter;
 }
+
+Pose::Pose(cv::Point cv_position, double cv_orientation) :
+		position(from_cv_point(cv_position)),
+		orientation(-cv_orientation) {}

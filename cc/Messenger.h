@@ -2,6 +2,7 @@
 #define VSSS_MESSENGER_H
 
 #include <Robot.hpp>
+#include "Robot2.h"
 #include "Xbee.h"
 #include <string>
 #include <vector>
@@ -38,9 +39,16 @@ class Messenger {
 		std::string uvf_msg(Robot robot);
 		std::string rounded_str(double num);
 
+		void send_target_pose(char ID, Robot2::Pose target);
+		void send_target_ang_vel(char ID, Robot2::Pose target);
+
 	public:
 //		std::ofstream ekf_data_file;
 		Messenger();
+		void send_commands(const std::array<Robot2 *, 3> &robots);
+		void send_command(char id, Robot2::Pose target, Robot2::Command command);
+		void send_ekf_data(const Robot2 &robot);
+
 		void send_cmds(const std::vector<Robot> &robots);
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);

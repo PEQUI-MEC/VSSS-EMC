@@ -8,7 +8,7 @@
 #include "Robot2.h"
 #include "Geometry/Geometry.h"
 
-class Goalkeeper : Robot2 {
+class Goalkeeper : public Robot2 {
 	private:
 		enum Behavior {
 			Protect_Goal,
@@ -16,8 +16,10 @@ class Goalkeeper : Robot2 {
 		};
 
 		// Beahviors
-		void protect_goal(const Geometry::Point ball, const Geometry::Point ball_est);
+		void protect_goal(Geometry::Point ball, Geometry::Point ball_est);
 		void spin_shot(Geometry::Point ball);
+		Role get_role() override { return Role::Goalkeeper; };
+		std::string get_role_name() override { return "Goalkeeper"; };
 };
 
 #endif //VSSS_GOALKEEPER_HPP

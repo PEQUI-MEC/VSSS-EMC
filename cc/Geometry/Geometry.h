@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <opencv2/opencv.hpp>
 
 namespace Geometry {
 	struct Point;
@@ -28,13 +29,9 @@ namespace Geometry {
 		}
 
 		constexpr Point(double x, double y) noexcept : x(x), y(y) {};
+		constexpr Point() noexcept : x(0), y(0) {};
 		Vector operator-(const Point &p2) const;
 		Point operator+(const Vector &v) const;
-	};
-
-	struct Pose {
-		Point position;
-		Vector orientation;
 	};
 
 	struct Line {
@@ -56,6 +53,13 @@ namespace Geometry {
 		Point b;
 	};
 
+	struct Pose {
+		Point position;
+		double orientation;
+
+		Pose(cv::Point cv_position, double cv_orientation);
+	};
+
 	constexpr Point middle(const Point& p1, const Point &p2) noexcept {
 		return {(p1.x + p2.x)/2, (p1.y + p2.y)/2};
 	}
@@ -64,7 +68,9 @@ namespace Geometry {
 //	Vector operator*(double value, Vector v) {return v * value;}
 
 	double distance(const Point &a, const Point &b);
+	double distance_x(const Point &a, const Point &b);
 	Point intersection(const Line &l1, const Line &l2);
+	Point from_cv_point(cv::Point cv_point);
 }
 
 #endif //VSSS_GEOMETRY_H

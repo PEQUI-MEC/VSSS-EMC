@@ -4,7 +4,7 @@ StrategyGUI::StrategyGUI() {
 	configure_options_frame();
 	pack_start(options_frame, false, true);
 	configureTestFrame();
-	pack_start(strategy.testFrame, false, true, 5);
+	pack_start(testFrame, false, true, 5);
 	transitions_button.clicked();
 }
 
@@ -17,8 +17,8 @@ void StrategyGUI::configureTestFrame() {
 	double steps[5] = {5, 1, 1, 1, 1};
 
 	for (int i = 0; i < 5; i++) {
-		strategy.testFrame.setLabel(i, labels[i]);
-		strategy.testFrame.configureHScale(i, currentValue[i], min[i], max[i], digits[i], steps[i]);
+		testFrame.setLabel(i, labels[i]);
+		testFrame.configureHScale(i, currentValue[i], min[i], max[i], digits[i], steps[i]);
 	}
 }
 
@@ -34,11 +34,11 @@ void StrategyGUI::configure_options_frame() {
 }
 
 void StrategyGUI::set_transitions() {
-	bool is_active = transitions_button.get_active();
-	strategy.enable_transtions = is_active;
-	strategy.set_transition_mindcontrol_enabled(is_active);
-
-//	Desativa full_transtion_enabled e half_transition_enabled caso estejam setadas
-	if(strategy.full_transition_enabled) strategy.set_full_transition_enabled(false);
-	if(strategy.half_transition_enabled) strategy.set_half_transition_enabled(false);
+//	bool is_active = transitions_button.get_active();
+//	strategy.enable_transtions = is_active;
+//	strategy.set_transition_mindcontrol_enabled(is_active);
+//
+////	Desativa full_transtion_enabled e half_transition_enabled caso estejam setadas
+//	if(strategy.full_transition_enabled) strategy.set_full_transition_enabled(false);
+//	if(strategy.half_transition_enabled) strategy.set_half_transition_enabled(false);
 }

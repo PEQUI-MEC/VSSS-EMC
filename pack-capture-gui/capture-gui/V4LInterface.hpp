@@ -8,6 +8,9 @@
 #ifndef V4LINTERFACE_HPP_
 #define V4LINTERFACE_HPP_
 
+#include <Goalkeeper.hpp>
+#include <Defender.hpp>
+#include <Attacker.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -39,6 +42,8 @@ typedef struct capture::__ctrl_holder {
 class capture::V4LInterface : public Gtk::VBox {
 
 	public:
+		const std::array<Robot2*, 3>& robots;
+
 		bool isLowRes;
 
 		VisionGUI visionGUI;
@@ -51,8 +56,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		std::list<ControlHolder> ctrl_list_default;
 
 		double ballX, ballY;
-
-		std::vector<Robot> robot_list;
 
 		std::string camera_card;
 
@@ -100,6 +103,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::Button robots_speed_done_bt;
 		bool robots_speed_edit_flag = false;
 
+		Gtk::Label robot_label[3];
 		Gtk::Frame robots_function_fm;
 		Gtk::VBox robots_function_vbox;
 		Gtk::HBox robots_function_hbox[4];
@@ -111,8 +115,8 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		capture::v4lcap vcap;
 
-		V4LInterface(Messenger* messenger_ptr);
-		explicit V4LInterface(bool isLow, Messenger* messenger_ptr);
+		V4LInterface(Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots);
+		explicit V4LInterface(bool isLow, Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots);
 		void initInterface();
 
 		int offsetL;
