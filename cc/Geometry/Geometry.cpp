@@ -23,6 +23,11 @@ Point Point::operator+(const Vector &v) const {
 			y + v.size * std::cos(v.theta)};
 }
 
+Point Geometry::from_cv_point(cv::Point cv_point) {
+	return {cv_point.x * (1.7 / 640.0),
+			1.3 - cv_point.y * (1.3 / 480.0)};
+}
+
 Vector::Vector(const Point &p) {
 	size = distance(p, {0,0});
 	theta = std::atan2(p.y, p.x);
@@ -57,3 +62,7 @@ Point tests() {
 	Point inter = intersection(test_line, robot_line);
 	return inter;
 }
+
+Pose::Pose(cv::Point cv_position, double cv_orientation) :
+		position(from_cv_point(cv_position)),
+		orientation(-cv_orientation) {}

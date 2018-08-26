@@ -10,19 +10,19 @@
 
 #include <gtkmm.h>
 #include <boost/algorithm/string.hpp>
-#include "Strategy.hpp"
 #include "filechooser.hpp"
+#include "TestFrame.hpp"
 
 class StrategyGUI : public Gtk::VBox {
 	public:
-		Strategy strategy;
-
 		Gtk::VBox options_vbox;
 		Gtk::Frame options_frame;
 
 		Gtk::HBox transitions_hbox;
 		Gtk::CheckButton transitions_button;
 		Gtk::Label transitions_label;
+
+		TestFrame testFrame;
 
 		void configure_options_frame();
 		void set_transitions();

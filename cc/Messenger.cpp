@@ -2,8 +2,10 @@
 
 using std::string;
 using std::vector;
+using Pose = Robot2::Pose;
+using Command = Robot2::Command;
 
-void Messenger::start_xbee(const std::string &port, int baud) {
+void Messenger::start_xbee(const string &port, int baud) {
 	xbee = new Xbee(port, baud);
 	add_robots();
 }
@@ -34,6 +36,49 @@ void Messenger::send_old_format(string cmd) {
 	char id = cmd[0];
 	string msg = cmd.substr(2, cmd.find('#') - 2);
 	xbee->send(id, msg);
+}
+
+void Messenger::send_commands(const std::array<Robot2*, 3> &robots) {
+	if (!xbee || ++send_cmd_count <= frameskip) return;
+	for (Robot2* robot : robots) {
+		send_command(robot->ID, robot->get_target(), robot->get_command());
+	}
+	update_msg_time();
+	send_cmd_count = 0;
+}
+
+#undef UVF
+void Messenger::send_command(char id, Pose target, Command command) {
+	if(!xbee) return;
+	switch (command) {
+		case Command::Position:break;
+		case Command::Vector:break;
+		case Command::UVF:
+			send_target_pose(id, target);
+			break;
+		case Command::Orientation:break;
+		case Command::Angular_Vel:
+			send_target_ang_vel(id, target);
+			break;
+		case Command::None:break;
+	}
+}
+#define UVF 4
+
+void Messenger::send_ekf_data(const Robot2 &robot) {
+	if(!xbee) return;
+	Robot2::Pose pose = robot.get_pose();
+	xbee->send(robot.ID, 0, float(pose.position.x),
+			   float(pose.position.y), float(pose.orientation));
+}
+
+void Messenger::send_target_pose(char ID, Pose target) {
+	xbee->send(ID, 1, float(target.position.x), float(target.position.y),
+			   float(target.orientation), float(target.velocity));
+}
+
+void Messenger::send_target_ang_vel(char ID, Pose target) {
+	xbee->send(ID, 3, float(target.angular_velocity));
 }
 
 void Messenger::send_cmds(const vector<Robot> &robots) {
