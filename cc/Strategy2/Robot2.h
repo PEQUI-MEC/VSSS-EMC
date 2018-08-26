@@ -27,13 +27,13 @@ class Robot2 {
 
 		Pose pose = { {0, 0}, 0, 0, 0.0 };	// Pose atual do robô
 		Pose target = { {0, 0}, 0, 0, 0.0 }; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
+
 		const double size = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;
 		Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
 		double default_target_velocity = 0.8; // Velocidade padrão do robô
 		UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
-		char ID = 'Z'; // ID do robô definida pelo hardware
 
 	public:
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
@@ -80,9 +80,13 @@ class Robot2 {
 		void go_in_direction(Geometry::Vector vector);
 
 		Pose get_pose() const { return  pose; };
+		char get_ID() const { return ID; };
+		void set_ID(char new_ID);
+		Geometry::Point get_position() const { return pose.position; };
 		Pose get_target() const { return target; }
 		Command get_command() const { return command; }
 		void set_pose(cv::Point position, double orientation);
+		void set_pose(Pose new_pose);
 		virtual Role get_role() { return Role::None; };
 		virtual std::string get_role_name() { return "None"; };
 };

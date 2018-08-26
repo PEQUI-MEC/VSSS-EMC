@@ -52,10 +52,10 @@ set(SOURCE_FILES cc/main.cpp
     cc/vision/vision.cpp
     cc/vision/visionGUI.cpp
     cc/Geometry/Geometry.cpp
-	cc/Strategy2/Field.h
 	cc/Strategy2/Robot2.cpp
 	cc/Strategy2/Attacker.cpp
     cc/lib/json.hpp
+	cc/Strategy2/Field.cpp
 	cc/Strategy2/Strategy2.cpp
     pack-capture/capture/v4lcap.cpp
     pack-capture/capture/v4ldev.hpp

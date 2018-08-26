@@ -7,7 +7,7 @@ double Geometry::distance(const Point &a, const Point &b) {
 }
 
 double Geometry::distance_x(const Point &a, const Point &b) {
-	return fabs(a.x - b.x);
+	return abs(a.x - b.x);
 }
 
 Point Geometry::intersection(const Line &l1, const Line &l2) {
@@ -25,6 +25,10 @@ Vector Point::operator-(const Point &p2) const {
 Point Point::operator+(const Vector &v) const {
 	return {x + v.size * std::sin(v.theta),
 			y + v.size * std::cos(v.theta)};
+}
+
+double Geometry::degree_to_rad(double degree) {
+	return degree * 0.0174533;
 }
 
 Point Geometry::from_cv_point(cv::Point cv_point) {

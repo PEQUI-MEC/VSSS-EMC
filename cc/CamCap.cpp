@@ -502,7 +502,7 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 										   screenWidth(screenW), screenHeight(screenH),
 										   msg_thread(&CamCap::send_cmd_thread, this),
 										   interface(&control.messenger, robots),
-										   strategy(attacker, ball),
+										   strategy(attacker, defender, goalkeeper, ball),
 										   robots {&attacker, &defender, &goalkeeper} {
 
 	isLowRes = checkForLowRes();

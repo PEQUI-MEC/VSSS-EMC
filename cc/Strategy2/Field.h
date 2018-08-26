@@ -16,6 +16,8 @@ namespace field {
 	const double area_width = 0.15;
 	const double area_height = 0.7;
 	const double corner_height = 0.3;
+	const double free_ball_dist = 0.2; // distância de cobrança de falta entre bola e robô
+	const double free_ball_height = 0.25; // distância entre a lateral do campo em y e o ponto de falta
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Enumera todas as localizações do campo de interesse
@@ -29,36 +31,46 @@ namespace field {
 			OurBox, // Pequena área
 			TheirBox,
 			TheirCornerAny, // Qualquer um dos cantos do time oponente
+			WideDangerZone, // região do nosso campo a esquerda da linha onde os robôs oponentes cobram falta
 	};
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Namespaces que com os pontos, restas etc que serão avaliados na função at_position()
 	namespace center {
-		Geometry::Point point( {field_width, field_height/2} );
+		const Geometry::Point point( {field_width, field_height/2} );
 	}
 
 	namespace our {
 		namespace area {
 			namespace goalkeeper {
-				Geometry::Line line( {goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height} );
-				Geometry::Point lower_limit( {goal_width+area_width/2, corner_height+(area_height-goal_height)/2} );
-				Geometry::Point upper_limit( {goal_width+area_width/2, lower_limit.x + goal_height} );
+				const Geometry::Line line( {goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height} );
+				const Geometry::Point lower_limit( {goal_width+area_width/2, corner_height+(area_height-goal_height)/2} );
+				const Geometry::Point upper_limit( {goal_width+area_width/2, lower_limit.x + goal_height} );
 			}
 			namespace upper {
-				Geometry::Point center( {goal_width+area_width/2, area_height+corner_height} );
+				const Geometry::Point center( {goal_width+area_width/2, area_height+corner_height} );
 			}
 			namespace lower {
-				Geometry::Point center( {goal_width+area_width/2, corner_height} );
+				const Geometry::Point center( {goal_width+area_width/2, corner_height} );
 			}
 			namespace front {
-				Geometry::Point center( {goal_width+area_width, field_height/2} );
+				const Geometry::Point center( {goal_width+area_width, field_height/2} );
+			}
+		}
+
+		namespace free_ball {
+			namespace upper {
+				const Geometry::Point point( {field_width/4+free_ball_dist, field_height-free_ball_height} );
+			}
+			namespace lower {
+				const Geometry::Point point( {field_width/4+free_ball_dist, free_ball_height} );
 			}
 		}
 
 		namespace goal {
 			namespace front {
-				Geometry::Line line( {goal_width, 0.0}, {goal_width, field_height});
-				Geometry::Point center( {goal_width, field_height/2} );
+				const Geometry::Line line( {goal_width, 0.0}, {goal_width, field_height});
+				const Geometry::Point center( {goal_width, field_height/2} );
 			}
 
 			namespace back {
@@ -70,8 +82,8 @@ namespace field {
 	namespace their {
 		namespace goal {
 			namespace front {
-				Geometry::Line line( {field_width-goal_width, 0.0}, {field_width-goal_width, field_height} );
-				Geometry::Point center( {field_width-goal_width, field_height/2} );
+				const Geometry::Line line( {field_width-goal_width, 0.0}, {field_width-goal_width, field_height} );
+				const Geometry::Point center( {field_width-goal_width, field_height/2} );
 			}
 			namespace back {
 				// Adicione aqui as geometrias de interesse do fundo do gol adversário
@@ -79,53 +91,21 @@ namespace field {
 		}
 		namespace area {
 			namespace front {
-				Geometry::Point center( {field_width-goal_width-area_width, field_height/2} );
+				const Geometry::Point center( {field_width-goal_width-area_width, field_height/2} );
 			}
 			namespace lower {
-				Geometry::Point center({field_width-goal_width-area_width/2, corner_height});
+				const Geometry::Point center({field_width-goal_width-area_width/2, corner_height});
 			}
 			namespace upper {
-				Geometry::Point center({field_width-goal_width-area_width/2, area_height+corner_height});
+				const Geometry::Point center({field_width-goal_width-area_width/2, area_height+corner_height});
 			}
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Função que será chamada pela estratégia para saber a localização dos agentes
-	bool at_location( const Geometry::Point& position, const Location location ) {
-		switch( location )
-		{
-			case Location::OurField:
-				return position.x < center::point.x;
-			case Location::TheirField:
-				return position.x >= center::point.x;
-			case Location::UpperField:
-				return position.y >= center::point.y;
-			case Location::LowerField:
-				return position.y < center::point.y;
-			case Location::OurGoal:
-				return position.x < our::goal::front::center.x;
-			case Location::TheirGoal:
-				return position.x > their::goal::front::center.x;
-			case Location::OurBox:
-				return position.x >= our::goal::front::center.x && position.x <= our::area::front::center.x
-					&& position.y >= our::area::lower::center.y && position.y <= our::area::upper::center.y;
-			case Location::TheirBox:
-				return position.x <= their::goal::front::center.x && position.x >= their::area::front::center.x
-					&& position.y >= their::area::lower::center.y && position.x >= their::area::lower::center.y;
-			case Location::TheirCornerAny:
-				return position.x >= their::area::front::center.x && (position.y >= their::area::upper::center.y
-					|| position.y <= their::area::lower::center.y);
-
-			default:
-				return false;
-		}
-	}
-
-	bool at_location(const Robot2& robot, const Location location)
-	{
-		at_location(robot.get_position(), location);
-	}
+	bool at_location( const Geometry::Point& position, Location location );
+	bool at_location(const Robot2& robot, Location location);
 }
 
 

@@ -58,14 +58,10 @@ void Robot2::set_pose(cv::Point position, double orientation) {
 	pose.orientation = -orientation;
 }
 
-Geometry::Point Robot2::get_position() const {
-	return pose.position;
+void Robot2::set_pose(Robot2::Pose new_pose) {
+	pose = new_pose;
 }
 
-char Robot2::get_ID() const {
-	return ID;
-}
-
-void Robot2::set_ID(char newID) {
-	ID = newID;
+void Robot2::set_ID(char new_ID) {
+	ID = new_ID;
 }

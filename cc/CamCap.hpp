@@ -6,7 +6,7 @@
 // número de intersecções do tabuleiro
 #define CHESSBOARD_DIMENSION cv::Size(6,9)
 
-#include "Strategy2/Strategy2.h"
+#include "Strategy2/Strategy2.hpp"
 #include "Strategy2/Attacker.h"
 #include "Strategy2/Defender.hpp"
 #include "Strategy2/Goalkeeper.hpp"
