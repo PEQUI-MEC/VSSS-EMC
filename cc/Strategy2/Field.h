@@ -35,7 +35,7 @@ namespace field {
 	};
 	// -----------------------------------------------------------------------------------------------------------------
 
-	// Namespaces que com os pontos, restas etc que serão avaliados na função at_position()
+	// Namespaces que com os pontos, retas etc que serão avaliados na função at_position()
 	namespace center {
 		const Geometry::Point point( {field_width, field_height/2} );
 	}
