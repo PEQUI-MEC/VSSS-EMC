@@ -1,6 +1,7 @@
 #include "Attacker.h"
 
 using namespace Geometry;
+using namespace field;
 
 //	Placeholders, devem ser substituidos pelas constantes do Field
 const static Line back_line({10,10}, {10, 0});
@@ -54,4 +55,24 @@ void Attacker::crossing(Point ball){
 
 void Attacker::atk_mindcontrol(Point ball){
 
+}
+
+void Attacker::protect_goal(const Geometry::Point &ball) {
+	if (distance(pose.position, ball) < 0.1) {
+		 // Se a bola chegar perto, gira para jogar a bola longe
+		if (at_location(ball, Location::UpperField))
+			spin(-35); // horário
+		else
+			spin(35); // anti-horário
+	} else if (at_location(ball, Location::UpperField)) {
+		// bloquear area (cima)
+		go_to_and_stop(our::corner::upper::attacker::point);
+	} else {
+		// bloquear area (baixo)
+		go_to_and_stop(our::corner::lower::attacker::point);
+	}
+}
+
+void Attacker::charged_shot(const Geometry::Point &ball) {
+	go_in_direction(ball - pose.position, 1.2);
 }

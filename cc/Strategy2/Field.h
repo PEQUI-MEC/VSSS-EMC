@@ -32,6 +32,7 @@ namespace field {
 			TheirBox,
 			TheirCornerAny, // Qualquer um dos cantos do time oponente
 			WideDangerZone, // região do nosso campo a esquerda da linha onde os robôs oponentes cobram falta
+			TheirAreaSideAny,  // laterais da área adversária (regiões da área que não ficam em frente ao gol)
 	};
 	// -----------------------------------------------------------------------------------------------------------------
 
@@ -67,6 +68,19 @@ namespace field {
 			}
 		}
 
+		namespace corner {
+			namespace upper {
+				namespace attacker {
+					const Geometry::Point point({goal_width+area_width/2, corner_height+area_height+0.08});
+				}
+			}
+			namespace lower {
+				namespace attacker {
+					const Geometry::Point point({goal_width+area_width/2, corner_height-0.08});
+				}
+			}
+		}
+
 		namespace goal {
 			namespace front {
 				const Geometry::Line line( {goal_width, 0.0}, {goal_width, field_height});
@@ -84,6 +98,8 @@ namespace field {
 			namespace front {
 				const Geometry::Line line( {field_width-goal_width, 0.0}, {field_width-goal_width, field_height} );
 				const Geometry::Point center( {field_width-goal_width, field_height/2} );
+				const Geometry::Point upper_limit({field_width-goal_width, field_height/2+goal_height/2});
+				const Geometry::Point lower_limit({field_width-goal_width, field_height/2-goal_height/2});
 			}
 			namespace back {
 				// Adicione aqui as geometrias de interesse do fundo do gol adversário

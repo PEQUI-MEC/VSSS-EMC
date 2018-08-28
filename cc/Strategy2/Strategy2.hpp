@@ -22,6 +22,7 @@ class Strategy2 {
 		void check_for_transitions();
 		void swap_robots(Robot2& robot1, Robot2& robot2);
 		void swap_all_robots();
+		bool has_ball(const Robot2& robot);
 		bool is_ball_behind(const Geometry::Point& point);
 		bool is_ball_behind(const Robot2& robot);
 		bool is_ball_est_ahead(const Geometry::Point& point, double offset = 0);

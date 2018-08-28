@@ -4,9 +4,10 @@
 #include "boost/variant.hpp"
 #include "Robot2.h"
 #include "Geometry/Geometry.h"
+#include "Field.h"
 
 class Attacker : public Robot2 {
-	private:
+	public:
 		/**	Robô vai para a bola usando o UVF
 		 *	@param ball posição da bola
 		 *	robô se move com velocidade "default_target_velocity" */
@@ -25,7 +26,12 @@ class Attacker : public Robot2 {
 		/**	Chuta em velocidade máxima carregando a bola ("torar o pau")
 		 *	@param ball_to_goal vetor travado na direção e sentido que o robô terá que correr
 		 */
-        void atk_mindcontrol(Geometry::Vector ball_to_goal);
+        void atk_mindcontrol(Geometry::Point ball);
+
+
+        void protect_goal(const Geometry::Point& ball);
+        void charged_shot(const Geometry::Point& ball);
+	private:
 		Role get_role() override { return Role::Attacker; };
 		std::string get_role_name() override { return "Attacker"; };
 };
