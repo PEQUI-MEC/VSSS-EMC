@@ -7,11 +7,6 @@
 
 class Attacker : public Robot2 {
 	private:
-		enum Behavior {
-			UVF_To_Goal
-		};
-
-		void execute_behavior(Behavior behavior);
 		void uvf_to_goal(Geometry::Point ball);
 		Role get_role() override { return Role::Attacker; };
 		std::string get_role_name() override { return "Attacker"; };

@@ -43,27 +43,27 @@ namespace field {
 	namespace our {
 		namespace area {
 			namespace goalkeeper {
-				const Geometry::Line line( {goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height} );
-				const Geometry::Point lower_limit( {goal_width+area_width/2, corner_height+(area_height-goal_height)/2} );
-				const Geometry::Point upper_limit( {goal_width+area_width/2, lower_limit.x + goal_height} );
+				const Geometry::Line line({goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height});
+				const Geometry::Point lower_limit({goal_width+area_width/2, corner_height+(area_height-goal_height)/2});
+				const Geometry::Point upper_limit({goal_width+area_width/2, lower_limit.x + goal_height});
 			}
 			namespace upper {
-				const Geometry::Point center( {goal_width+area_width/2, area_height+corner_height} );
+				const Geometry::Point center({goal_width+area_width/2, area_height+corner_height});
 			}
 			namespace lower {
-				const Geometry::Point center( {goal_width+area_width/2, corner_height} );
+				const Geometry::Point center({goal_width+area_width/2, corner_height});
 			}
 			namespace front {
-				const Geometry::Point center( {goal_width+area_width, field_height/2} );
+				const Geometry::Point center({goal_width+area_width, field_height/2});
 			}
 		}
 
 		namespace free_ball {
 			namespace upper {
-				const Geometry::Point point( {field_width/4+free_ball_dist, field_height-free_ball_height} );
+				const Geometry::Point point({field_width/4+free_ball_dist, field_height-free_ball_height});
 			}
 			namespace lower {
-				const Geometry::Point point( {field_width/4+free_ball_dist, free_ball_height} );
+				const Geometry::Point point({field_width/4+free_ball_dist, free_ball_height});
 			}
 		}
 
@@ -101,10 +101,29 @@ namespace field {
 			}
 		}
 	}
+
+	namespace defender {
+		namespace back {
+			const Geometry::Line line({area_width+0.08, 0.0}, {area_width+0.08, field_height});
+			const Geometry::Point upper_limit({area_width+0.08, field_height/2 + goal_height/2});
+			const Geometry::Point lower_limit({area_width+0.08, field_height/2 - goal_height/2});
+		}
+		namespace front {
+			namespace upper {
+				const Geometry::Point wait_point({0.75 * field_width, field_height/2+goal_height/2});
+			}
+			namespace lower {
+				const Geometry::Point wait_point({0.75 * field_width, field_height/2-goal_height/2});
+			}
+		}
+		namespace middle {
+			const Geometry::Point wait_point(0.25 * field_width, field_height/2 );
+		}
+	}
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Função que será chamada pela estratégia para saber a localização dos agentes
-	bool at_location( const Geometry::Point& position, Location location );
+	bool at_location(const Geometry::Point& position, Location location);
 	bool at_location(const Robot2& robot, Location location);
 }
 

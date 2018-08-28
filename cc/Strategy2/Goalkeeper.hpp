@@ -10,16 +10,14 @@
 
 class Goalkeeper : public Robot2 {
 	private:
-		enum Behavior {
-			Protect_Goal,
-			Spin_Shot,
-		};
-
-		// Beahviors
-		void protect_goal(Geometry::Point ball, Geometry::Point ball_est);
-		void spin_shot(Geometry::Point ball);
 		Role get_role() override { return Role::Goalkeeper; };
 		std::string get_role_name() override { return "Goalkeeper"; };
+
+	public:
+		// Beahviors
+		void protect_goal(const Geometry::Point& ball, const Geometry::Point& ball_est);
+		void spin_shot(const Geometry::Point& ball);
+
 };
 
 #endif //VSSS_GOALKEEPER_HPP
