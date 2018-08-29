@@ -61,10 +61,3 @@ void Attacker::crossing(Point ball){
 		//ele vai só entrar nesse else em caso de ser chamado em hora indevida.
 	}
 }
-
-//void Attacker::atk_mindcontrol(Point ball){
-
-	//Verificar esse comando pois há dúvidas sobre vetor projeção na linha de fundo}
-
-
-
