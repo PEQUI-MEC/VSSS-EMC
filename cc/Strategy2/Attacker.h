@@ -26,11 +26,6 @@ class Attacker : Robot2 {
 		 * @param ball posição da bola
 		*/
 		void crossing(Geometry::Point ball);
-
-		/**	Chuta em velocidade máxima carregando a bola ("torar o pau")
-		 *	@param ball_to_goal vetor travado na direção e sentido que o robô terá que correr
-		 */
-        void atk_mindcontrol(Geometry::Vector ball_to_goal);
 };
 
 #endif //VSSS_ATTACKER_H
