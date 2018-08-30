@@ -53,6 +53,7 @@ void Robot2::go_in_direction(Geometry::Vector vector) {
 	go_in_direction(vector, default_target_velocity);
 }
 
-Robot2::Pose Robot2::get_pose() const {
-	return pose;
+void Robot2::set_pose(cv::Point position, double orientation) {
+	pose.position = Geometry::from_cv_point(position);
+	pose.orientation = -orientation;
 }

@@ -1,11 +1,12 @@
 #ifndef VSSS_ATTACKER_H
 #define VSSS_ATTACKER_H
 
+#include "boost/variant.hpp"
 #include "Robot2.h"
 #include "Geometry/Geometry.h"
 
-class Attacker : Robot2 {
-	private:
+class Attacker : public Robot2 {
+	public:
 		enum Behavior {
 			UVF_To_Goal, Spin_Shot, Crossing, Atk_Mindcontrol
 		};
@@ -26,6 +27,9 @@ class Attacker : Robot2 {
 		 * @param ball posição da bola
 		*/
 		void crossing(Geometry::Point ball);
+    
+    Role get_role() override { return Role::Attacker; };
+    std::string get_role_name() override { return "Attacker"; };
 };
 
 #endif //VSSS_ATTACKER_H

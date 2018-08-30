@@ -5,17 +5,13 @@
 
 class Robot2 {
 	public:
-		Robot2();
-		~Robot2();
-
 		struct Pose {	// Define as variáveis de estado do robô.
 			Geometry::Point position;
 			double orientation;
 			double velocity;
 			double angular_velocity;
 		};
-	public: const double size=0.08;
-	private:
+
 		struct UVF_params {	// Parametros utilizados no UVF
 			double n;
 			double reference_distance;
@@ -25,13 +21,22 @@ class Robot2 {
 			Position, Vector, UVF, Orientation, Angular_Vel, None
 		};
 
-		Pose pose = { {0, 0}, 0, 1.0, 0.0 };	// Pose atual do robô
-		Pose target = { {0, 0}, 0, 1.0, 0.0 }; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
-		Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
-		double default_target_velocity = 0.8; // Velocidade padrão do robô
-		UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
-
+		enum class Role {
+				Attacker = 0, Defender = 1, Goalkeeper = 2, None = 3
+		};
+  
+  private:
+		Pose pose = { {0, 0}, 0, 0, 0.0 };	// Pose atual do robô
+		Pose target = { {0, 0}, 0, 0, 0.0 }; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
+    Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
+    UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
+		
 	public:
+    const double size = 0.08;
+		char ID = 'A';
+		unsigned int tag = 0;
+		double default_target_velocity = 0.8; // Velocidade padrão do robô  
+  
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 		 *	@param point Ponto em que o robô deve passar
 		 *	@param velocity	Velocidade do movimento. Caso não seja definida,
@@ -65,8 +70,6 @@ class Robot2 {
 		 *	Valores positivos significam giro anti-horário,
 		 *	valores negativos significam giro horário */
 		void spin(double angular_velocity);
-		/**	@return Pose atual do robô	*/
-		Pose get_pose() const;
 
 		/**	Fazem o mesmo que foi descrito nos métodos acima,
 		 *	mas utilzam a velocidade padrão (definida na variável default_target_velocity) **/
@@ -74,6 +77,13 @@ class Robot2 {
 		void go_to_pose(Geometry::Point point, Geometry::Vector direction);
 		void go_to_and_stop(Geometry::Point point);
 		void go_in_direction(Geometry::Vector vector);
+
+		Pose get_pose() const { return  pose; };
+		Pose get_target() const { return target; }
+		Command get_command() const { return command; }
+		void set_pose(cv::Point position, double orientation);
+		virtual Role get_role() { return Role::None; };
+		virtual std::string get_role_name() { return "None"; };
 };
 
 #endif //VSSS_ROBOT_H

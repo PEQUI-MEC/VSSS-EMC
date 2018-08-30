@@ -5,6 +5,7 @@
 // número de intersecções do tabuleiro
 #define CHESSBOARD_DIMENSION cv::Size(6,9)
 
+#include "Geometry/Geometry.h"
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -14,12 +15,20 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
-#include "../../pack-capture-gui/capture-gui/Robot.hpp"
 #include <iostream>
 #include "tag.hpp"
 #include "visionROI.hpp"
 
 class Vision {
+	public:
+//		Numero da tag é definido pela sua posicao no std::array retornado
+		struct RecognizedTag {
+			bool found = false;
+			cv::Point position = {ROBOT_RADIUS/2, 0};
+			double orientation = 0;
+			cv::Point front_point = {ROBOT_RADIUS, 0};
+			cv::Point rear_point = {0, 0};
+		};
 
 	private:
 
@@ -39,7 +48,6 @@ class Vision {
 		cv::Mat splitFrame;
 
 		// Robots
-		std::vector<Robot> robot_list;
 		cv::Point advRobots[MAX_ADV];
 
 		// Ball
@@ -82,8 +90,8 @@ class Vision {
 		void findTags();
 		// void findElements();
 		void pick_a_tag(std::vector<VisionROI> *windowsList);
-		void pick_a_tag();
-		int inSphere(Robot *robot, std::vector<Tag> *tempTags, cv::Point secondary);
+		std::array<RecognizedTag, 3> pick_a_tag();
+		int in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *secondary_tags, double *orientation);
 
 	public:
 		// Public constants
@@ -93,7 +101,7 @@ class Vision {
 		Vision(int w, int h);
 		~Vision();
 
-		void run(cv::Mat raw_frame);
+		std::array<RecognizedTag, 3> run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
 		void setCalibParams(int type, int H[4][2], int S[4][2], int V[4][2], int Amin[4], int E[4], int D[4], int B[4]);
@@ -127,13 +135,10 @@ class Vision {
 		void switchMainWithAdv();
 
 		cv::Point getBall();
-		Robot getRobot(int index);
-		cv::Point getRobotPos(int index);
 		cv::Point getAdvRobot(int index);
 		cv::Point *getAllAdvRobots();
 		cv::Mat getSplitFrame();
 
-		int getRobotListSize();
 		int getAdvListSize();
 		cv::Mat getThreshold(int index);
 
