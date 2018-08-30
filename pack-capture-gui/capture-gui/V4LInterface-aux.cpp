@@ -646,18 +646,22 @@ void V4LInterface::__update_control_widgets(std::list<ControlHolder> &ctrl_list)
 }
 
 void V4LInterface::updateRobotLabels() {
-	std::stringstream ss;
-
 	for (int i = 0; i < 3; i++) {
 		Robot2* robot = robots[i];
-		ss << "(" << std::fixed << std::setprecision(2) << robot->get_pose().position.x << ", "
-		   << robot->get_pose().position.y << ", "
-		   << std::fixed << std::setprecision(1) << robot->get_pose().orientation * (180 / PI) << ")";
-		robot_pos_lb_list.at(i).set_text(ss.str());
-		ss.str(std::string());
+		auto pose = robot->get_pose();
+		std::stringstream ss;
+		ss << '(' << robot->tag + 1 << ", " << robot->ID << ") ("
+				<< std::fixed << std::setprecision(2)
+				<< pose.position.x << ", " << pose.position.y << ", "
+				<< std::fixed << std::setprecision(1)
+				<< pose.orientation * (180 / PI) << ")";
+		robot_pos_lb_list[i].set_text(ss.str());
 	}
+}
 
-	ss << "(" << std::fixed << std::setprecision(0) << ballX << "," << ballY << ")";
+void V4LInterface::update_ball_position(Geometry::Point ball) {
+	std::stringstream ss;
+	ss << "(" << std::fixed << std::setprecision(2) << ball.x << "," << ball.y << ")";
 	ball_pos_lb.set_text(ss.str());
 }
 
@@ -832,10 +836,7 @@ void V4LInterface::createSpeedsFrame() {
 }
 
 void V4LInterface::update_speed_progressBars() {
-	std::ostringstream strs0, strs1, strs2;
-	std::string str0, str1, str2;
-
-	for(int i = 0; i < 3; i++) {
+	for(int i = 0; i < robots.size(); i++) {
 		robots_speed_progressBar[i].set_fraction(robots[i]->default_target_velocity / 1.4);
 		const std::string velocity = std::to_string(robots[i]->default_target_velocity);
 		robots_speed_progressBar[i].set_text(velocity.substr(0, 4));
@@ -843,9 +844,8 @@ void V4LInterface::update_speed_progressBars() {
 }
 
 void V4LInterface::update_robot_functions() {
-	for (Robot2* robot : robots) {
-		if (robot->tag < 3)
-			cb_robot_function[robot->tag].set_active((int) robot->get_role());
+	for (int i = 0; i < robots.size(); i++) {
+		cb_robot_function[i].set_active(robots[i]->tag);
 	}
 }
 
@@ -861,13 +861,14 @@ void V4LInterface::createFunctionsFrame() {
 
 	for(int i = 0; i < 3; i++) {
 		auto& cb = cb_robot_function[i];
-		cb.append("Attack");
-		cb.append("Defense");
-		cb.append("Goalkeeper");
-		cb.append("Opponent");
+		cb.append("Tag 1");
+		cb.append("Tag 2");
+		cb.append("Tag 3");
+//		TODO: Implementar possibilidade de não usar robô
+//		cb.append("Unused");
 		cb.set_active(i);
-		robot_label[i].set_label("Robot " + std::to_string(i+1) + ": ");
-		robots_function_hbox[i+1].pack_start(robot_label[i], false, true, 5);
+		robot_label[i].set_label(robots[i]->get_role_name());
+		robots_function_hbox[i+1].pack_start(robot_label[i], true, true, 5);
 		robots_function_hbox[i+1].pack_start(cb, false, true, 5);
 		robots_function_vbox.pack_start(robots_function_hbox[i+1], false, true, 5);
 		cb.set_state(Gtk::STATE_INSENSITIVE);
@@ -886,23 +887,22 @@ void V4LInterface::createPositionsAndButtonsFrame() {
 	info_hbox.pack_start(robots_pos_buttons_vbox, false, true, 5);
 
 	robots_pos_fm.set_label("Positions");
-	robots_pos_buttons_vbox.pack_start(robots_pos_fm, false, true, 5);
+	robots_pos_buttons_vbox.pack_start(robots_pos_fm, false, true, 0);
 	robots_pos_fm.add(robots_pos_vbox);
-	robots_pos_vbox.set_size_request(200, -1);
+	robots_pos_vbox.set_size_request(220, -1);
 
 	for (unsigned long i = 0; i < 3; i++) {
-		const std::string role = robots[i]->get_role_name();
-		label = new Gtk::Label(role);
-		robot_pos_lb_list.at(i).set_text("-");
+		label = new Gtk::Label(robots[i]->get_role_name() + ':');
+		robot_pos_lb_list[i].set_text("-");
 		robots_pos_hbox[i].pack_start(*label, false, true, 5);
-		robots_pos_hbox[i].pack_start(robot_pos_lb_list.at(i), false, true, 5);
+		robots_pos_hbox[i].pack_start(robot_pos_lb_list[i], false, true, 0);
 		robots_pos_vbox.pack_start(robots_pos_hbox[i], false, true, 5);
 	}
 
 	label = new Gtk::Label("Ball:");
 	ball_pos_lb.set_text("-");
 	robots_pos_hbox[3].pack_start(*label, false, true, 5);
-	robots_pos_hbox[3].pack_start(ball_pos_lb, false, true, 5);
+	robots_pos_hbox[3].pack_start(ball_pos_lb, false, true, 0);
 	robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
 
 	robots_pos_buttons_vbox.pack_start(robots_buttons_fm, false, true, 5);
@@ -1135,7 +1135,7 @@ void V4LInterface::__create_frm_cam_calib() {
 
 V4LInterface::V4LInterface(Messenger *messenger_ptr,  const std::array<Robot2*, 3>& robots) :
 		Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(false),
-		offsetL(0), offsetR(0), robot_pos_lb_list(3), CamCalib_flag_event(false), robots(robots) {
+		offsetL(0), offsetR(0), CamCalib_flag_event(false), robots(robots) {
 
 	messenger = messenger_ptr;
 	initInterface();
@@ -1143,7 +1143,7 @@ V4LInterface::V4LInterface(Messenger *messenger_ptr,  const std::array<Robot2*, 
 
 V4LInterface::V4LInterface(bool isLow, Messenger *messenger_ptr,  const std::array<Robot2*, 3>& robots) :
 		Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(isLow),
-		offsetL(0), offsetR(0), robot_pos_lb_list(3), robots(robots) {
+		offsetL(0), offsetR(0), robots(robots) {
 
 	messenger = messenger_ptr;
 	initInterface();

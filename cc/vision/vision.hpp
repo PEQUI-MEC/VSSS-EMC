@@ -21,8 +21,8 @@
 
 class Vision {
 	public:
+//		Numero da tag é definido pela sua posicao no std::array retornado
 		struct RecognizedTag {
-			unsigned int tag_number = 0;
 			bool found = false;
 			cv::Point position = {ROBOT_RADIUS/2, 0};
 			double orientation = 0;

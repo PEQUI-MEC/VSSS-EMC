@@ -8,29 +8,21 @@ bool CamCap::checkForLowRes() {
 	return screenWidth < 1600;
 }
 
-// TODO: implementar id_by_tag na interface
-char id_by_tag(int tag_number) {
-	char ids[3] = {'A', 'B', 'C'};
-	return ids[tag_number - 1];
-}
-
 void CamCap::update_positions(const std::array<Vision::RecognizedTag, 3> &tags) {
-	for (const Vision::RecognizedTag& tag : tags) {
-		char id = id_by_tag(tag.tag_number);
+	for (int i = 0; i < tags.size(); i++) {
+		const Vision::RecognizedTag& tag = tags[i];
 		for (auto& robot: robots) {
-			if (robot->ID == id) {
+			if (robot->tag == i) {
 				robot->set_pose(tag.position, tag.orientation);
-				robot->tag = tag.tag_number;
 			}
 		}
 	}
 
-	cv::Point ballPosition = interface.visionGUI.vision->getBall();
-	interface.ballX = ballPosition.x;
-	interface.ballY = ballPosition.y;
-
 	interface.updateRobotLabels();
-	interface.updateFPS(fps_average);
+
+	const cv::Point cv_ball = interface.visionGUI.vision->getBall();
+	ball = Geometry::from_cv_point(cv_ball);
+	interface.update_ball_position(ball);
 }
 
 bool CamCap::start_signal(bool b) {
@@ -87,12 +79,13 @@ bool CamCap::start_signal(bool b) {
 } // start_signal
 
 void CamCap::draw_tags(cv::Mat &imageView, const std::array<Vision::RecognizedTag, 3> &tags) {
-	for (auto &tag : tags) {
-		// linha da pick-a
+	for (int i = 0; i < tags.size(); i++) {
+		const Vision::RecognizedTag& tag = tags[i];
 		circle(imageView, tag.position, 15, cv::Scalar(255, 255, 0), 2);
-		putText(imageView, std::to_string(tag.tag_number),
+		putText(imageView, std::to_string(i + 1),
 				cv::Point(tag.position.x + 13, tag.position.y - 15),
 				cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(255, 255, 0), 2);
+	// linha da pick-a
 		line(imageView, tag.rear_point, tag.front_point, cv::Scalar(255, 0, 0), 2);
 	}
 }
@@ -220,6 +213,8 @@ bool CamCap::capture_and_show() {
 	std::array<Vision::RecognizedTag, 3> tags = interface.visionGUI.vision->run(imageView);
 	update_positions(tags);
 
+	interface.updateFPS(fps_average);
+
 	if (control.ekf_always_send || interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
 		notify_data_ready(true);
 	}
@@ -307,8 +302,6 @@ bool CamCap::capture_and_show() {
 
 	// ----------- ESTRATEGIA -----------------//
 	if (interface.get_start_game_flag()) {
-		ball = Geometry::from_cv_point(interface.visionGUI.vision->getBall());
-		ball_est = Geometry::from_cv_point(interface.visionGUI.vision->getBall());
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 

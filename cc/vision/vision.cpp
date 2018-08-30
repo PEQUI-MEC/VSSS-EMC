@@ -343,13 +343,13 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 
 		if (secondary_tags.size() > 1) {
 			// tag 3 tem duas tags secundárias
-			found_tags[2] = {3, true, position, orientation,
+			found_tags[2] = {true, position, orientation,
 							 main_tag.frontPoint, main_tag.rearPoint};
 		} else if (!secondary_tags.empty() && secondary_tags[0].left) {
-			found_tags[1] = {2, true, position, orientation,
+			found_tags[1] = {true, position, orientation,
 							 main_tag.frontPoint, main_tag.rearPoint};
 		} else if (!secondary_tags.empty()){
-			found_tags[0] = {1, true, position, orientation,
+			found_tags[0] = {true, position, orientation,
 							 main_tag.frontPoint, main_tag.rearPoint};
 		}
 	} // OUR ROBOTS

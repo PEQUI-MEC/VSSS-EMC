@@ -55,14 +55,12 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		std::list<ControlHolder> ctrl_list_default;
 
-		double ballX, ballY;
-
 		std::string camera_card;
 
 		Gtk::Image red_button_released;
 		Gtk::Image red_button_pressed;
 
-		std::vector<Gtk::Label> robot_pos_lb_list;
+		Gtk::Label robot_pos_lb_list[3];
 		Gtk::Label ball_pos_lb;
 
 		Gtk::Frame robots_id_fm;
@@ -185,6 +183,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		void event_robots_id_edit_bt_signal_pressed();
 		void event_robots_auto_bt_signal_pressed();
 		void updateRobotLabels();
+		void update_ball_position(Geometry::Point ball);
 		void updateFPS(int fps);
 		bool get_start_game_flag();
 		void update_interface_robots();
@@ -300,7 +299,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool __set_control_hscale(int type, double val, std::list<ControlHolder> *list, Gtk::Widget *wctrl);
 		void __set_control(std::list<ControlHolder> *list, Gtk::Widget *wctrl);
 		void discover_robot_ids();
-		void update_robots_id_box();
 };
 
 #endif /* V4LINTERFACE_HPP_ */
