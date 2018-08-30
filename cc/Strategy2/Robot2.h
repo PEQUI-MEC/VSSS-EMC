@@ -14,7 +14,7 @@ class Robot2 {
 			double velocity;
 			double angular_velocity;
 		};
-
+	public: const double size=0.08;
 	private:
 		struct UVF_params {	// Parametros utilizados no UVF
 			double n;
