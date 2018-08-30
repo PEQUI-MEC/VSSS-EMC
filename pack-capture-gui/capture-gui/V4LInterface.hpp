@@ -113,8 +113,8 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		capture::v4lcap vcap;
 
-		V4LInterface(Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots);
-		explicit V4LInterface(bool isLow, Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots);
+		V4LInterface(Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots_ref);
+		explicit V4LInterface(bool isLow, Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots_ref);
 		void initInterface();
 
 		int offsetL;

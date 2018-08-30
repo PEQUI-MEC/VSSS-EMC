@@ -1133,17 +1133,17 @@ void V4LInterface::__create_frm_cam_calib() {
 
 // Constructor
 
-V4LInterface::V4LInterface(Messenger *messenger_ptr,  const std::array<Robot2*, 3>& robots) :
+V4LInterface::V4LInterface(Messenger *messenger_ptr,  const std::array<Robot2*, 3>& robots_ref) :
 		Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(false),
-		offsetL(0), offsetR(0), CamCalib_flag_event(false), robots(robots) {
+		offsetL(0), offsetR(0), CamCalib_flag_event(false), robots(robots_ref) {
 
 	messenger = messenger_ptr;
 	initInterface();
 }
 
-V4LInterface::V4LInterface(bool isLow, Messenger *messenger_ptr,  const std::array<Robot2*, 3>& robots) :
+V4LInterface::V4LInterface(bool isLow, Messenger *messenger_ptr,  const std::array<Robot2*, 3>& robots_ref) :
 		Gtk::VBox(false, 0), reset_warp_flag(false), isLowRes(isLow),
-		offsetL(0), offsetR(0), robots(robots) {
+		offsetL(0), offsetR(0), robots(robots_ref) {
 
 	messenger = messenger_ptr;
 	initInterface();
