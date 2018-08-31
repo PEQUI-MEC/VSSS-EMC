@@ -38,33 +38,6 @@ void Messenger::send_old_format(string cmd) {
 	xbee->send(id, msg);
 }
 
-void Messenger::send_commands(const std::array<Robot2*, 3> &robots) {
-	if (!xbee || ++send_cmd_count <= frameskip) return;
-	for (Robot2* robot : robots) {
-		send_command(robot->ID, robot->get_target(), robot->get_command());
-	}
-	update_msg_time();
-	send_cmd_count = 0;
-}
-
-#undef UVF
-void Messenger::send_command(char id, Pose target, Command command) {
-	if(!xbee) return;
-	switch (command) {
-		case Command::Position:break;
-		case Command::Vector:break;
-		case Command::UVF:
-			send_target_pose(id, target);
-			break;
-		case Command::Orientation:break;
-		case Command::Angular_Vel:
-			send_target_ang_vel(id, target);
-			break;
-		case Command::None:break;
-	}
-}
-#define UVF 4
-
 void Messenger::send_ekf_data(const Robot2 &robot) {
 	if(!xbee) return;
 	Robot2::Pose pose = robot.get_pose();
@@ -72,89 +45,37 @@ void Messenger::send_ekf_data(const Robot2 &robot) {
 			   float(pose.position.y), float(pose.orientation));
 }
 
-void Messenger::send_target_pose(char ID, Pose target) {
-	xbee->send(ID, 1, float(target.position.x), float(target.position.y),
-			   float(target.orientation), float(target.velocity));
-}
-
-void Messenger::send_target_ang_vel(char ID, Pose target) {
-	xbee->send(ID, 3, float(target.angular_velocity));
-}
-
-void Messenger::send_cmds(const vector<Robot> &robots) {
+void Messenger::send_commands(const std::array<Robot2*, 3> &robots) {
 	if (!xbee || ++send_cmd_count <= frameskip) return;
-	for (Robot robot : robots) {
-		const string msg = [&] {
-			switch (robot.cmdType) {
-				case POSITION:
-					if (robot.target.x != -1 && robot.target.y != -1)
-						return position_msg(robot);
-					else return string();
-				case SPEED:
-					return speed_msg(robot);
-				case ORIENTATION:
-					return orientation_msg(robot);
-				case VECTOR:
-					return vector_msg(robot);
-				case UVF:
-					return uvf_msg(robot);
-				default:
-					return string();
-			}
-		}();
-		if (!msg.empty()) xbee->send(robot.ID, msg);
+	for (Robot2* robot : robots) {
+		send_command(robot->ID, robot->get_target().to_float(), robot->get_command());
 	}
 	update_msg_time();
 	send_cmd_count = 0;
 }
 
-Messenger::pose Messenger::to_robot_reference(const cv::Point &point, double theta) {
-	double x = point.x * (170.0 / 640.0);
-	double y = 130.0 - point.y * (130.0 / 480.0);
-	double orientation = -theta * 180/M_PI;
-	return {x, y, orientation};
-}
-
-void Messenger::send_ekf_data(vector<Robot>& robots) {
+void Messenger::send_command(char id, Geometry::FloatPose target, Command command) {
 	if(!xbee) return;
-	for (Robot& robot :robots) {
-		pose robot_pose = to_robot_reference(robot.position, robot.orientation);
-		string msg = "E" + rounded_str(robot_pose.x) + ";"
-					 	 + rounded_str(robot_pose.y) + ";" + rounded_str(robot_pose.theta);
-
-//		if(robot.ID == 'E') ekf_data_file << rounded_str(robot_pose.x) << ',' << rounded_str(robot_pose.y)
-//										  << ',' << rounded_str(robot_pose.theta) << '\n';
-		xbee->send(robot.ID, msg);
-//		if(robot.ID == 'E')
-//			std::cout << xbee->send_get_answer(robot.ID, msg) << std::endl;
+	switch (command) {
+		case Command::Position:
+			xbee->send(id, 1, target.x, target.y, target.velocity);
+			break;
+		case Command::Vector:
+			xbee->send(id, 2, target.orientation, target.velocity);
+			break;
+		case Command::Pose:
+			xbee->send(id, 3, target.x, target.y,
+					   target.orientation, target.velocity);
+			break;
+		case Command::Orientation:
+			xbee->send(id, 4, target.orientation);
+			break;
+		case Command::Angular_Vel:
+			xbee->send(id, 5, target.angular_velocity);
+			break;
+		case Command::None:
+			break;
 	}
-}
-
-string Messenger::position_msg(Robot robot) {
-	auto target_pos = to_robot_reference(robot.target, 0);
-	return "P" + rounded_str(target_pos.x) + ";" + rounded_str(target_pos.y)
-		       + ";" + rounded_str(robot.vmax);
-}
-
-string Messenger::speed_msg(Robot robot) {
-	return rounded_str(robot.Vr) + ";" + rounded_str(robot.Vl);
-}
-
-string Messenger::orientation_msg(Robot robot) {
-	return "O" + rounded_str(robot.targetOrientation * 180/M_PI) + ";" + rounded_str(robot.vmax);
-}
-
-string Messenger::vector_msg(Robot robot) {
-	double theta = robot.transAngle * (180.0/M_PI);
-	return ("V" + rounded_str(theta) + ";" + rounded_str(robot.vmax));
-}
-
-string Messenger::uvf_msg(Robot robot) {
-	auto target = to_robot_reference(robot.target, 0);
-	auto ufv_ref = to_robot_reference(robot.uvf_ref, 0);
-	return "U" + rounded_str(target.x) + ";" + rounded_str(target.y)
-		   + ";" + rounded_str(ufv_ref.x) + ";" + rounded_str(ufv_ref.y)
-		   + ";" + rounded_str(robot.uvf_n) + ";" + rounded_str(robot.vmax);
 }
 
 double Messenger::get_battery(char id) {
@@ -162,13 +83,6 @@ double Messenger::get_battery(char id) {
 	string msg = xbee->send_get_answer(id, "B");
 	if (msg.empty() || msg[0] != 'B') return -1;
 	return ((stod(msg.substr(1)) - 6.4) / 2.0) * 100;
-}
-
-string Messenger::rounded_str(double num) {
-	double rounded_num = round(num * 100) / 100;
-	std::ostringstream ss;
-	ss << rounded_num;
-	return ss.str();
 }
 
 void Messenger::set_ack_enabled(bool enable) {
@@ -201,3 +115,4 @@ Messenger::Messenger()
 	frameskip = DEFAULT_FRAMESKIP;
 	previous_msg_time = std::chrono::system_clock::now();
 }
+
