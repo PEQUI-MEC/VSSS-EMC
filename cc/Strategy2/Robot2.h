@@ -32,6 +32,7 @@ class Robot2 {
 		UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
 
 	public:
+		Geometry::Point uvf_ref;
     	const double size = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;

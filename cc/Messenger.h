@@ -46,7 +46,7 @@ class Messenger {
 //		std::ofstream ekf_data_file;
 		Messenger();
 		void send_commands(const std::array<Robot2 *, 3> &robots);
-		void send_command(char id, Robot2::Pose target, Robot2::Command command);
+		void send_command(char id, Robot2::Pose target, Robot2::Command command, Geometry::Point uvf_ref);
 		void send_ekf_data(const Robot2 &robot);
 
 		void send_cmds(const std::vector<Robot> &robots);
