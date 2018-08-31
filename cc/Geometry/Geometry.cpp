@@ -62,7 +62,3 @@ Point tests() {
 	Point inter = intersection(test_line, robot_line);
 	return inter;
 }
-
-Pose::Pose(cv::Point cv_position, double cv_orientation) :
-		position(from_cv_point(cv_position)),
-		orientation(-cv_orientation) {}

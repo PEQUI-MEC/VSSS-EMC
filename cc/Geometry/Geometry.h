@@ -53,11 +53,12 @@ namespace Geometry {
 		Point b;
 	};
 
-	struct Pose {
-		Point position;
-		double orientation;
-
-		Pose(cv::Point cv_position, double cv_orientation);
+	struct FloatPose {
+		float x;
+		float y;
+		float orientation;
+		float velocity;
+		float angular_velocity;
 	};
 
 	constexpr Point middle(const Point& p1, const Point &p2) noexcept {
