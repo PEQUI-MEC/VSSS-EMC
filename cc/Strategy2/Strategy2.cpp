@@ -3,30 +3,20 @@
 using namespace field;
 using namespace Geometry;
 
-Strategy2::Strategy2(Attacker &attacker, Defender &defender, Goalkeeper& goalkeeper, Geometry::Point &ball) :
+Strategy2::Strategy2(Attacker &attacker, Defender &defender, Goalkeeper& goalkeeper, Geometry::Point &ball,
+		Geometry::Point &ball_est) :
 		attacker(attacker), defender(defender), goalkeeper(goalkeeper), ball(ball) {
 }
 
 void Strategy2::run() {
-
-	calculate_ball_est();
-
-	check_for_transitions();
+	transitions();
 
 	execute_goalkeeper();
 	execute_defender();
 	execute_attacker();
 }
 
-void Strategy2::calculate_ball_est() {
-	ls_x.addValue(ball.x);
-	ls_y.addValue(ball.y);
-
-	ball_est.x = ls_x.estimate(10);
-	ball_est.y = ls_y.estimate(10);
-}
-
-void Strategy2::check_for_transitions() {
+void Strategy2::transitions() {
 
 	// Cruzamento
 	if (at_location(ball, Location::TheirBox) && distance(attacker.get_position(), ball) > 0.12)

@@ -218,6 +218,7 @@ bool CamCap::capture_and_show() {
 //	}
 
 	std::array<Vision::RecognizedTag, 3> tags = interface.visionGUI.vision->run(imageView);
+	calculate_ball_est();
 	update_positions(tags);
 
 	if (control.ekf_always_send || interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
@@ -498,11 +499,19 @@ void CamCap::warp_transform(cv::Mat imageView) {
 	}
 } // warp_transform
 
+void CamCap::calculate_ball_est() {
+	ls_x.addValue(ball.x);
+	ls_y.addValue(ball.y);
+
+	ball_est.x = ls_x.estimate(10);
+	ball_est.y = ls_y.estimate(10);
+}
+
 CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
 										   screenWidth(screenW), screenHeight(screenH),
 										   msg_thread(&CamCap::send_cmd_thread, this),
 										   interface(&control.messenger, robots),
-										   strategy(attacker, defender, goalkeeper, ball),
+										   strategy(attacker, defender, goalkeeper, ball, ball_est),
 										   robots {&attacker, &defender, &goalkeeper} {
 
 	isLowRes = checkForLowRes();
