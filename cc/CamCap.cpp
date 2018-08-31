@@ -211,6 +211,7 @@ bool CamCap::capture_and_show() {
 //	}
 
 	std::array<Vision::RecognizedTag, 3> tags = interface.visionGUI.vision->run(imageView);
+
 	calculate_ball_est();
 	update_positions(tags);
 
@@ -506,6 +507,9 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 										   interface(&control.messenger, robots),
 										   strategy(attacker, defender, goalkeeper, ball, ball_est),
 										   robots {&attacker, &defender, &goalkeeper} {
+
+	ls_x.init(15, 1);
+	ls_y.init(15, 1);
 
 	isLowRes = checkForLowRes();
 

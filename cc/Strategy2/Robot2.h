@@ -24,19 +24,19 @@ class Robot2 {
 		enum class Role {
 				Attacker = 0, Defender = 1, Goalkeeper = 2, None = 3
 		};
-  
-  private:
+
+  	private:
 		Pose pose = { {0, 0}, 0, 0, 0.0 };	// Pose atual do robô
 		Pose target = { {0, 0}, 0, 0, 0.0 }; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
-    Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
-    UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
-		
+		Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
+		UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
+
 	public:
-    const double size = 0.08;
+    	const double size = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;
 		double default_target_velocity = 0.8; // Velocidade padrão do robô  
-  
+
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 		 *	@param point Ponto em que o robô deve passar
 		 *	@param velocity	Velocidade do movimento. Caso não seja definida,

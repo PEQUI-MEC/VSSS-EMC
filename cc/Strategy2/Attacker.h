@@ -24,8 +24,9 @@ class Attacker : public Robot2 {
 		void crossing(Geometry::Point ball);
 
 
-    void protect_goal(const Geometry::Point& ball);
-    void charged_shot(const Geometry::Point& ball);
+		void protect_goal(const Geometry::Point& ball);
+		void charged_shot(const Geometry::Point& ball);
+
 	private:
 		Role get_role() override { return Role::Attacker; };
 		std::string get_role_name() override { return "Attacker"; };

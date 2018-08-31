@@ -10,7 +10,7 @@ const static Point goal_center({5, 10});
 void Attacker::uvf_to_goal(Point ball) {
 	Vector ball_to_goal = goal_center - ball;
 
-	if(distance(ball,get_pose().position)>0.03){
+	if(distance(ball,get_position())>0.03){
 		go_to_pose(ball, ball_to_goal);
 	}else{
 	    go_in_direction(ball_to_goal);
@@ -18,10 +18,10 @@ void Attacker::uvf_to_goal(Point ball) {
 }
 
 void Attacker::spin_shot(Point ball){
-	if (ball.y>get_pose().position.y){
+	if (ball.y>get_position().y){
 		spin(35);//Robô gira no sentido anti-horário
 	}else{
-		if(ball.y==get_pose().position.y) {
+		if(ball.y==get_position().y) {
 		   if(ball.y>goal_center.y){
 			   spin(35);//Robô gira no sentido anti-horárioo
 		   }else{
@@ -35,9 +35,9 @@ void Attacker::spin_shot(Point ball){
 
 void Attacker::crossing(Point ball){
 
-	if(ball.x > get_pose().position.x) {
-		if(distance(ball, get_pose().position) < size) {
-			if (ball.y > get_pose().position.y) {
+	if(ball.x > get_position().x) {
+		if(distance(ball, get_position()) < size) {
+			if (ball.y > get_position().y) {
 				spin(35);
 			}else{
 				spin(-35);
@@ -54,7 +54,7 @@ void Attacker::crossing(Point ball){
 }
 
 void Attacker::protect_goal(const Geometry::Point &ball) {
-	if (distance(pose.position, ball) < 0.1) {
+	if (distance(get_position(), ball) < 0.1) {
 		 // Se a bola chegar perto, gira para jogar a bola longe
 		if (at_location(ball, Location::UpperField))
 			spin(-35); // horário
@@ -70,5 +70,5 @@ void Attacker::protect_goal(const Geometry::Point &ball) {
 }
 
 void Attacker::charged_shot(const Geometry::Point &ball) {
-	go_in_direction(ball - pose.position, 1.2);
+	go_in_direction(ball - get_position(), 1.2);
 }
