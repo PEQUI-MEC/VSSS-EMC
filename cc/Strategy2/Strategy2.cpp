@@ -5,7 +5,11 @@ using namespace Geometry;
 
 Strategy2::Strategy2(Attacker &attacker, Defender &defender, Goalkeeper& goalkeeper, Geometry::Point &ball,
 		Geometry::Point &ball_est) :
-		attacker(attacker), defender(defender), goalkeeper(goalkeeper), ball(ball) {
+		attacker(attacker),
+		defender(defender),
+		goalkeeper(goalkeeper),
+		ball(ball),
+		ball_est(ball_est) {
 }
 
 void Strategy2::run() {
