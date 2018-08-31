@@ -33,6 +33,7 @@ class Robot2 {
 
 	public:
 		Geometry::Point uvf_ref;
+
     	const double size = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;
