@@ -11,6 +11,7 @@ class Robot2 {
 			double velocity;
 			double angular_velocity;
 		};
+
 		struct UVF_params {	// Parametros utilizados no UVF
 			double n;
 			double reference_distance;
@@ -23,18 +24,19 @@ class Robot2 {
 		enum class Role {
 				Attacker = 0, Defender = 1, Goalkeeper = 2, None = 3
 		};
-
+  
+  private:
 		Pose pose = { {0, 0}, 0, 0, 0.0 };	// Pose atual do robô
 		Pose target = { {0, 0}, 0, 0, 0.0 }; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
-
-		const double size = 0.08;
+    Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
+    UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
+		
+	public:
+    const double size = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;
-		Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
-		double default_target_velocity = 0.8; // Velocidade padrão do robô
-		UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
-
-	public:
+		double default_target_velocity = 0.8; // Velocidade padrão do robô  
+  
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 		 *	@param point Ponto em que o robô deve passar
 		 *	@param velocity	Velocidade do movimento. Caso não seja definida,
@@ -68,8 +70,6 @@ class Robot2 {
 		 *	Valores positivos significam giro anti-horário,
 		 *	valores negativos significam giro horário */
 		void spin(double angular_velocity);
-
-
 
 		/**	Fazem o mesmo que foi descrito nos métodos acima,
 		 *	mas utilzam a velocidade padrão (definida na variável default_target_velocity) **/

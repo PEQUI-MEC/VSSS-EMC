@@ -474,15 +474,6 @@ void V4LInterface::event_robots_auto_bt_signal_pressed() {
 	discover_robots_thread.detach();
 }
 
-void V4LInterface::update_robots_id_box() {
-	for (Robot2* robot : robots) {
-		if(robot->tag < 3) {
-			int index = (robot->ID - 'A');
-			robots_id_box[robot->tag].set_active(index);
-		}
-	}
-}
-
 void V4LInterface::event_robots_id_done_bt_signal_clicked() {
 	for (Robot2* robot : robots) {
 		if(robot->tag < 3) {
@@ -604,27 +595,10 @@ void V4LInterface::event_robots_function_edit_bt_signal_clicked() {
 }
 
 void V4LInterface::event_robots_function_done_bt_signal_clicked() {
-	std::string s[3];
-
-	for (int i = 0; i < 3; i++) {
-		s[i] = cb_robot_function[i].get_active_text();
-
-		// FIXME: Implementar definicao de roles pela interface
-//		if (s[i] == "Goalkeeper") {
-//			std::cout << "Robot " << i + 1 << ": Goalkeeper." << std::endl;
-//			robot_list[i].role = 0;
-//		} else if (s[i] == "Defense") {
-//			std::cout << "Robot " << i + 1 << ": Defense." << std::endl;
-//			robot_list[i].role = 1;
-//		} else if (s[i] == "Attack") {
-//			std::cout << "Robot " << i + 1 << ": Attack." << std::endl;
-//			robot_list[i].role = 2;
-//		} else if (s[i] == "Opponent") {
-//			std::cout << "Robot " << i + 1 << ": Opponent." << std::endl;
-//			robot_list[i].role = 3;
-//		} else {
-//			std::cout << "Error: not possible to set robot " << i + 1 << " function." << std::endl;
-//		}
+	for (int i = 0; i < robots.size(); ++i) {
+		int tag = cb_robot_function[i].get_active_row_number();
+		robots[i]->tag = static_cast<unsigned int>(tag);
+		robots[i]->ID = (char) robots_id_box[robots[i]->tag].get_active_row_number() + 'A';
 	}
 
 	robots_function_edit_flag = false;
@@ -638,10 +612,10 @@ void V4LInterface::event_robots_function_done_bt_signal_clicked() {
 void V4LInterface::update_interface_robots() {
 	for (int i = 0; i < 3; i++) {
 		Robot2* robot = robots[i];
-		if(robot->tag < 3) {
-			robots_id_box[robot->tag].set_active_text(std::string(&robot->ID));
-			cb_robot_function[robot->tag].set_active((int) robot->get_role());
-		}
+
+		cb_robot_function[i].set_active(robot->tag);
+		robots_id_box[robot->tag].set_active(robot->ID - 'A');
+
 		robots_speed_hscale[i].set_value(robot->default_target_velocity);
 		robots_speed_progressBar[i].set_fraction(robot->get_target().velocity / 1.4);
 		const std::string velocity = std::to_string(round(robot->get_target().velocity * 100) / 100);

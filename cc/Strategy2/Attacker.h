@@ -23,14 +23,9 @@ class Attacker : public Robot2 {
 		*/
 		void crossing(Geometry::Point ball);
 
-		/**	Chuta em velocidade máxima carregando a bola ("torar o pau")
-		 *	@param ball_to_goal vetor travado na direção e sentido que o robô terá que correr
-		 */
-        void atk_mindcontrol(Geometry::Point ball);
 
-
-        void protect_goal(const Geometry::Point& ball);
-        void charged_shot(const Geometry::Point& ball);
+    void protect_goal(const Geometry::Point& ball);
+    void charged_shot(const Geometry::Point& ball);
 	private:
 		Role get_role() override { return Role::Attacker; };
 		std::string get_role_name() override { return "Attacker"; };
