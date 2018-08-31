@@ -345,7 +345,7 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 			// tag 3 tem duas tags secundárias
 			found_tags[2] = {true, position, orientation,
 							 main_tag.frontPoint, main_tag.rearPoint};
-		} else if (!secondary_tags.empty() && secondary_tags[0].left) {
+		} else if (!secondary_tags.empty() && !secondary_tags[0].left) {
 			found_tags[1] = {true, position, orientation,
 							 main_tag.frontPoint, main_tag.rearPoint};
 		} else if (!secondary_tags.empty()){

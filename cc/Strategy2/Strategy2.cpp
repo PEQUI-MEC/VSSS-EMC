@@ -13,7 +13,7 @@ Strategy2::Strategy2(Attacker &attacker, Defender &defender, Goalkeeper& goalkee
 }
 
 void Strategy2::run() {
-	transitions();
+//	transitions();
 
 	execute_goalkeeper();
 	execute_defender();

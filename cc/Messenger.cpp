@@ -41,35 +41,54 @@ void Messenger::send_old_format(string cmd) {
 void Messenger::send_commands(const std::array<Robot2*, 3> &robots) {
 	if (!xbee || ++send_cmd_count <= frameskip) return;
 	for (Robot2* robot : robots) {
-		send_command(robot->ID, robot->get_target(), robot->get_command());
+		send_command(robot->ID, robot->get_target(), robot->get_command(), robot->uvf_ref);
 	}
 	update_msg_time();
 	send_cmd_count = 0;
 }
 
+constexpr float robot_size = 0.0675f;
 #undef UVF
-void Messenger::send_command(char id, Pose target, Command command) {
+void Messenger::send_command(char id, Pose target, Command command, Geometry::Point uvf_ref) {
 	if(!xbee) return;
-	switch (command) {
-		case Command::Position:break;
-		case Command::Vector:break;
-		case Command::UVF:
-			send_target_pose(id, target);
-			break;
-		case Command::Orientation:break;
-		case Command::Angular_Vel:
-			send_target_ang_vel(id, target);
-			break;
-		case Command::None:break;
+	const string msg = [&] {
+		switch (command) {
+			case Command::Position:
+				return "P" + rounded_str(target.position.x * 100)
+							 + ";" + rounded_str(target.position.y * 100)
+									 + ";" + rounded_str(target.velocity);
+			case Command::Angular_Vel:
+				return rounded_str(target.angular_velocity*robot_size/2)
+					   + ";" + rounded_str(-target.angular_velocity*robot_size/2);
+			case Command::Vector:
+				return ("V" + rounded_str(target.orientation * 180.0f/M_PI)
+							  + ";" + rounded_str(target.velocity));
+			case Command::UVF:
+				return "U" + rounded_str(target.position.x * 100) + ";" + rounded_str(target.position.y * 100)
+					   + ";" + rounded_str(uvf_ref.x * 100) + ";" + rounded_str(uvf_ref.y * 100)
+					   + ";" + rounded_str(1.8) + ";" + rounded_str(target.velocity);
+			case Command::Orientation:
+				return "O" + rounded_str(target.orientation * 180/M_PI)
+							 + ";" + rounded_str(target.velocity);
+			default:
+				return string();
+		}
+	}();
+	if (!msg.empty()) {
+		xbee->send(id, msg);
+//		if(id == 'A') std::cout << msg << std::endl;
 	}
 }
 #define UVF 4
 
 void Messenger::send_ekf_data(const Robot2 &robot) {
 	if(!xbee) return;
-	Robot2::Pose pose = robot.get_pose();
-	xbee->send(robot.ID, 0, float(pose.position.x),
-			   float(pose.position.y), float(pose.orientation));
+	auto robot_pose = robot.get_pose();
+	string msg = "E" + rounded_str(robot_pose.position.x * 100) + ";"
+				 + rounded_str(robot_pose.position.y * 100)
+				 + ";" + rounded_str(robot_pose.orientation * 180/M_PI);
+	xbee->send(robot.get_ID(), msg);
+//	if(robot.get_ID() == 'A') std::cout << msg << std::endl;
 }
 
 void Messenger::send_target_pose(char ID, Pose target) {
