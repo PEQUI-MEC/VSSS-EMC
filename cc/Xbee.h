@@ -77,6 +77,7 @@ class Xbee {
 			set_buffer(buffer, type, data...);
 			uint8_t ack;
 			xbee_connTx(robots[ID].con, &ack, buffer, sizeof buffer);
+      
 //			Le resposta para debugar
 //			if (ID == 'B') {
 //				auto msgs = get_messages();

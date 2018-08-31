@@ -4,7 +4,7 @@
 using namespace field;
 using namespace Geometry;
 
-void Goalkeeper::protect_goal(const Point ball, const Point ball_est) {
+void Goalkeeper::protect_goal(const Point& ball, const Point& ball_est) {
 	const Line est_line(ball, ball_est);
 	const Point goal_est = intersection(our::goal::front::line, est_line);
 
@@ -32,16 +32,16 @@ void Goalkeeper::protect_goal(const Point ball, const Point ball_est) {
 	}
 }
 
-void Goalkeeper::spin_shot(const Point ball) {
+void Goalkeeper::spin_shot(const Point& ball) {
 	Pose pose = get_pose();
 
-	if (ball.x > pose.position.x) { // bola na frente/lateral do goleiro
-		if (ball.y > pose.position.y) // bola acima do goleiro
+	if (ball.x > get_position().x) { // bola na frente/lateral do goleiro
+		if (ball.y > get_position().y) // bola acima do goleiro
 			spin(-35.0); // horário
 		else
 			spin(35.0); // anti-horário
 	} else {
 		// FIXME: Caso contrário o goleiro deve ficar parado para evitar fazer gol contra. Poderia fazer outra coisa?
-		go_to_and_stop(get_pose().position);
+		go_to_and_stop(get_position());
 	}
 }

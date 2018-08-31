@@ -52,10 +52,12 @@ set(SOURCE_FILES cc/main.cpp
     cc/vision/vision.cpp
     cc/vision/visionGUI.cpp
     cc/Geometry/Geometry.cpp
-	cc/Strategy2/Field.h
 	cc/Strategy2/Robot2.cpp
 	cc/Strategy2/Attacker.cpp
+	cc/Strategy2/Goalkeeper.cpp
+	cc/Strategy2/Defender.cpp
     cc/lib/json.hpp
+	cc/Strategy2/Field.cpp
 	cc/Strategy2/Strategy2.cpp
     pack-capture/capture/v4lcap.cpp
     pack-capture/capture/v4ldev.hpp
@@ -63,8 +65,7 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/Robot.hpp
     pack-capture-gui/capture-gui/V4LInterface-aux.cpp
     pack-capture-gui/capture-gui/V4LInterface-events.cpp
-    cc/Strategy2/Goalkeeper.cpp
-    cc/Strategy2/Defender.cpp)
+	cc/Strategy2/Strategy2.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

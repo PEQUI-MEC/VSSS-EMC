@@ -4,15 +4,10 @@
 #include "boost/variant.hpp"
 #include "Robot2.h"
 #include "Geometry/Geometry.h"
+#include "Field.h"
 
 class Attacker : public Robot2 {
 	public:
-		enum Behavior {
-			UVF_To_Goal, Spin_Shot, Crossing, Atk_Mindcontrol
-		};
-
-		void execute_behavior(Behavior behavior);
-
 		/**	Robô vai para a bola usando o UVF
 		 *	@param ball posição da bola
 		 *	robô se move com velocidade "default_target_velocity" */
@@ -27,9 +22,14 @@ class Attacker : public Robot2 {
 		 * @param ball posição da bola
 		*/
 		void crossing(Geometry::Point ball);
-    
-    Role get_role() override { return Role::Attacker; };
-    std::string get_role_name() override { return "Attacker"; };
+
+
+		void protect_goal(const Geometry::Point& ball);
+		void charged_shot(const Geometry::Point& ball);
+
+	private:
+		Role get_role() override { return Role::Attacker; };
+		std::string get_role_name() override { return "Attacker"; };
 };
 
 #endif //VSSS_ATTACKER_H

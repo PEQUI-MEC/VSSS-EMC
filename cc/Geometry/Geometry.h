@@ -68,6 +68,8 @@ namespace Geometry {
 //	Vector operator*(double value, Vector v) {return v * value;}
 
 	double distance(const Point &a, const Point &b);
+	double distance_x(const Point &a, const Point &b);
+	double degree_to_rad(double degree);
 	Point intersection(const Line &l1, const Line &l2);
 	Point from_cv_point(cv::Point cv_point);
 }

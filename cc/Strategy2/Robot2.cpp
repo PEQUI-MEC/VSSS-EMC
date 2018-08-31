@@ -57,3 +57,12 @@ void Robot2::set_pose(cv::Point position, double orientation) {
 	pose.position = Geometry::from_cv_point(position);
 	pose.orientation = -orientation;
 }
+
+void Robot2::set_pose(const Pose &new_pose) {
+	// Note que não há conversão de cv::Point para Geometry::Point aqui
+	pose = new_pose;
+}
+
+void Robot2::set_ID(char new_ID) {
+	ID = new_ID;
+}

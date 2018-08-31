@@ -6,7 +6,7 @@
 // número de intersecções do tabuleiro
 #define CHESSBOARD_DIMENSION cv::Size(6,9)
 
-#include "Strategy2/Strategy2.h"
+#include "Strategy2/Strategy2.hpp"
 #include "Strategy2/Attacker.h"
 #include "Strategy2/Defender.hpp"
 #include "Strategy2/Goalkeeper.hpp"
@@ -33,6 +33,7 @@
 #include <fstream>
 #include "CPUTimer.h"
 #include "Constants.hpp"
+#include "LS.h"
 
 #define MAX_THETA_TOLERATION 3
 #define MAX_POSITIONING_VEL 0.1
@@ -46,6 +47,7 @@ class CamCap : public Gtk::HBox {
 
 		Geometry::Point ball;
 		Geometry::Point ball_est;
+		LS ls_x, ls_y;
 
 		std::array<Robot2 *, 3> robots;
 
@@ -109,6 +111,7 @@ class CamCap : public Gtk::HBox {
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();
 		void warp_transform(cv::Mat imageView);
+		void calculate_ball_est();
 		CamCap(int screenW, int screenH);
 		~CamCap() override;
 };
