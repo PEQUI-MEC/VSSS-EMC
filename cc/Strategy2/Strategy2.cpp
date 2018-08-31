@@ -84,20 +84,23 @@ void Strategy2::execute_attacker() {
 
 void Strategy2::swap_robots(Robot2& robot1, Robot2& robot2)
 {
-	const Robot2::Pose pose = robot1.get_pose();
-	const char ID = robot1.get_ID();
+	const auto pose = robot1.get_pose();
+	const auto ID = robot1.get_ID();
+	const auto tag = robot1.tag;
 
 	robot1.set_pose(robot2.get_pose());
 	robot1.set_ID(robot2.get_ID());
+	robot1.tag = robot2.tag;
 
 	robot2.set_pose(pose);
 	robot2.set_ID(ID);
+	robot2.tag = tag;
 }
 
 void Strategy2::swap_all_robots() {
 	// antigo goalkeeper -> atacker / antigo defender -> goalkeeper / antigo attacker -> defender
-	swap_robots(goalkeeper, attacker);
-	swap_robots(defender, goalkeeper);
+	swap_robots(defender, attacker);
+	swap_robots(attacker, goalkeeper);
 }
 
 bool Strategy2::is_ball_behind(const Point& point) {

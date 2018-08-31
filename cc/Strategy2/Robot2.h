@@ -85,7 +85,7 @@ class Robot2 {
 		Pose get_target() const { return target; }
 		Command get_command() const { return command; }
 		void set_pose(cv::Point position, double orientation);
-		void set_pose(Pose new_pose);
+		void set_pose(const Pose &new_pose);
 		virtual Role get_role() { return Role::None; };
 		virtual std::string get_role_name() { return "None"; };
 };
