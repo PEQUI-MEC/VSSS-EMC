@@ -65,17 +65,17 @@ class GMM {
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
 
-		void classify(int index);
-		void classifyWindows(int index);
+		void classify(unsigned long index);
+		void classifyWindows(unsigned long index);
 		void paint();
 		void paintWindows();
-		cv::Mat predict(int index);
-		cv::Mat predictWindows(int index);
+		cv::Mat predict(unsigned long index);
+		cv::Mat predictWindows(unsigned long index);
 		cv::Mat crop(cv::Point p1, cv::Point p2);
 		cv::Mat formatSamplesForEM();
-		cv::Mat formatFrameForEM(int index);
+		cv::Mat formatFrameForEM(unsigned long index);
 		void setAllThresholds();
-		void posProcessing(int index);
+		void posProcessing(unsigned long index);
 		bool checkROIs();
 
 	public:
@@ -102,21 +102,21 @@ class GMM {
 		cv::Mat getFinalFrame();
 		bool getIsTrained();
 		bool getDoneFlag();
-		cv::Mat getThresholdFrame(int color);
+		cv::Mat getThresholdFrame(unsigned long color);
 		std::vector<cv::Mat> getAllThresholds();
-		int getBlur(int index);
-		int getErode(int index);
-		int getDilate(int index);
+		int getBlur(unsigned long index);
+		int getErode(unsigned long index);
+		int getDilate(unsigned long index);
 		std::vector<VisionROI> *getWindowsList();
 
 		// SET
 		void setFrame(cv::Mat frame);
 		void setClusters(int k);
 		void setDone(bool flag);
-		void setMatchColor(int gaussian, int color);
-		void setBlur(int index, int value);
-		void setErode(int index, int value);
-		void setDilate(int index, int value);
+		void setMatchColor(unsigned long gaussian, int color);
+		void setBlur(unsigned long index, int value);
+		void setErode(unsigned long index, int value);
+		void setDilate(unsigned long index, int value);
 };
 
 #endif /* VISION_HPP_ */

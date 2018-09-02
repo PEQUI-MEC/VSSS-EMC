@@ -32,7 +32,7 @@ bool CamCap::start_signal(bool b) {
 		if (data) {
 			interface.imageView.disable_image_show();
 			free(data);
-			data = 0;
+			data = nullptr;
 		}
 		/*GdkScreen* screen = gdk_screen_get_default();
 		if (interface.vcap.format_dest.fmt.pix.width > gdk_screen_get_width(screen)/2 || interface.vcap.format_dest.fmt.pix.height > gdk_screen_get_height(screen)/2)
@@ -230,7 +230,7 @@ bool CamCap::capture_and_show() {
 		interface.imageView.refresh();
 	}
 
-	if (!interface.visionGUI.HSV_calib_event_flag) {
+	if (!interface.visionGUI.CIELAB_calib_event_flag) {
 		if (chessBoardFound) {
 			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
 			cv::Mat grayFrame;
@@ -381,9 +381,9 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 void CamCap::PID_test() {
 	if (interface.get_start_game_flag()) return;
 
-	double dist;
-	int old_Selec_index;
-	old_Selec_index = Selec_index;
+	//double dist;
+	//int old_Selec_index;
+	//old_Selec_index = Selec_index;
 
 	// FIXME: Implementar PID test on click com novo robot
 //	for (int i = 0; i < interface.robot_list.size() && i < 3; i++) {
@@ -492,6 +492,7 @@ void CamCap::warp_transform(cv::Mat imageView) {
 		}
 	}
 } // warp_transform
+
 
 void CamCap::calculate_ball_est() {
 	ls_x.addValue(ball.x);

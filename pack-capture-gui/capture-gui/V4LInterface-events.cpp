@@ -125,9 +125,9 @@ void V4LInterface::__event_bt_start_clicked() {
 		HScale_offsetL.set_state(Gtk::STATE_NORMAL);
 		visionGUI.rb_split_view.set_state(Gtk::STATE_NORMAL);
 		visionGUI.rb_original_view.set_state(Gtk::STATE_NORMAL);
-		visionGUI.bt_HSV_calib.set_state(Gtk::STATE_NORMAL);
+		visionGUI.bt_LAB_calib.set_state(Gtk::STATE_NORMAL);
 		visionGUI.rb_mode_GMM.set_state(Gtk::STATE_NORMAL);
-		visionGUI.rb_mode_HSV.set_state(Gtk::STATE_NORMAL);
+		visionGUI.rb_mode_CIELAB.set_state(Gtk::STATE_NORMAL);
 		visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
 		visionGUI.bt_save_picture.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
@@ -157,7 +157,7 @@ void V4LInterface::__event_bt_start_clicked() {
 		sp_width.set_state(Gtk::STATE_NORMAL);
 		sp_height.set_state(Gtk::STATE_NORMAL);
 		cb_frame_interval.set_state(Gtk::STATE_NORMAL);
-		visionGUI.bt_HSV_calib.set_state(Gtk::STATE_INSENSITIVE);
+		visionGUI.bt_LAB_calib.set_state(Gtk::STATE_INSENSITIVE);
 		bt_warp.set_state(Gtk::STATE_INSENSITIVE);
 		bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
 		bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
@@ -624,7 +624,7 @@ void V4LInterface::update_interface_robots() {
 }
 
 void V4LInterface::update_interface_camera() {
-	visionGUI.__event_cb_convertType_changed();
+	visionGUI.update_vision_hscale_values();
 
 	if (warped) {
 		bt_warp.set_state(Gtk::STATE_INSENSITIVE);

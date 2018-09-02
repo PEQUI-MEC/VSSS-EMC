@@ -8,41 +8,41 @@
 
 class VisionGUI : public Gtk::VBox {
 	public:
-		Vision *vision;
+		vision::Vision *vision;
 		GMM *gmm;
-		Gtk::ToggleButton bt_HSV_calib;
+		Gtk::ToggleButton bt_LAB_calib;
 
-		int Img_id;
+		unsigned long Img_id;
 
-		bool HSV_calib_event_flag;
+		bool CIELAB_calib_event_flag;
 
 		Gtk::RadioButton rb_original_view, rb_split_view;
 
-		Gtk::Scale HScale_Hmin;
-		Gtk::Scale HScale_Smin;
-		Gtk::Scale HScale_Vmin;
-		Gtk::Scale HScale_Hmax;
-		Gtk::Scale HScale_Smax;
-		Gtk::Scale HScale_Vmax;
+		Gtk::Scale HScale_cieL_min;
+		Gtk::Scale HScale_cieA_min;
+		Gtk::Scale HScale_cieB_min;
+		Gtk::Scale HScale_cieL_max;
+		Gtk::Scale HScale_cieA_max;
+		Gtk::Scale HScale_cieB_max;
 
 		Gtk::Scale HScale_Dilate;
 		Gtk::Scale HScale_Erode;
-
 		Gtk::Scale HScale_Blur;
-
 		Gtk::Scale HScale_Amin;
 
-		Gtk::Label lb_Hmin, lb_Hmax, lb_Smin, lb_Smax, lb_Vmin, lb_Vmax;
+		Gtk::Label lb_cieL_min, lb_cieL_max, lb_cieA_min, lb_cieA_max, lb_cieB_min, lb_cieB_max;
 
 		Gtk::ToggleButton bt_record_video;
 		Gtk::Button bt_save_picture;
 		Gtk::Entry en_video_name, en_picture_name;
 
 		// Frame Calibration Mode
-		Gtk::RadioButton rb_mode_GMM, rb_mode_HSV;
+		Gtk::RadioButton rb_mode_GMM, rb_mode_CIELAB;
 
 		VisionGUI();
-		~VisionGUI();
+		~VisionGUI() override;
+
+		void update_vision_hscale_values();
 
 		void selectFrame(int sector);
 		void hideGMM();
@@ -58,15 +58,15 @@ class VisionGUI : public Gtk::VBox {
 		bool getGaussiansFrameFlag();
 		bool getFinalFrameFlag();
 		bool getThresholdFrameFlag();
-		int getGMMColorIndex();
-		bool getIsHSV();
+		unsigned long getGMMColorIndex();
+		bool getIsCIELAB();
 		bool getIsSplitView();
 		bool getIsDrawing();
 
 	private:
 
 		// Frame Calibration Mode
-		bool isHSV;
+		bool isCIELAB;
 
 		// Frame Drawing Options
 		Gtk::CheckButton draw_info_checkbox;
@@ -79,13 +79,12 @@ class VisionGUI : public Gtk::VBox {
 		// Frame Capture
 		int picIndex, vidIndex;
 
-		// Frame HSV Calibration
-		Gtk::Frame fr_HSV;
-		Gtk::Label HSV_label;
-		Gtk::Button bt_HSV_left;
-		Gtk::Button bt_HSV_right;
+		// Frame CIELAB Calibration
+		Gtk::Frame fr_CIELAB;
+		Gtk::Label CIELAB_label;
+		Gtk::Button bt_CIELAB_left;
+		Gtk::Button bt_CIELAB_right;
 		Gtk::Button bt_switchMainAdv;
-		Gtk::ComboBoxText cb_convertType;
 
 		// Frame GMM
 		Gtk::Frame fr_GMM;
@@ -100,7 +99,7 @@ class VisionGUI : public Gtk::VBox {
 		Gtk::Button bt_GMM_left, bt_GMM_right;
 		Gtk::Label lb_threshold;
 		int totalSamples;
-		int colorIndex;
+		unsigned long colorIndex;
 		const std::vector<std::string> realColors{
 				"Main", "Green", "Ball", "Opponent"
 		};
@@ -112,9 +111,9 @@ class VisionGUI : public Gtk::VBox {
 		bool gaussiansFrame_flag, finalFrame_flag;
 		bool thresholdFrame_flag;
 
-		void __event_bt_HSV_calib_pressed();
-		void __event_bt_right_HSV_calib_clicked();
-		void __event_bt_left_HSV_calib_clicked();
+		void __event_bt_CIELAB_calib_pressed();
+		void __event_bt_right_CIELAB_clicked();
+		void __event_bt_left_CIELAB_clicked();
 		void __event_bt_switchMainAdv_clicked();
 
 		void __event_bt_GMM_save_clicked();
@@ -141,32 +140,25 @@ class VisionGUI : public Gtk::VBox {
 		void bt_record_video_pressed();
 
 		void __create_frm_calib_mode();
-		void __create_frm_hsv();
+		void __create_frm_cielab();
 		void __create_frm_capture();
 		void __create_frm_gmm();
 		void __create_frm_split_view();
 		void __create_frm_drawing_options();
 
-		void HScale_Hmin_value_changed();
-		void HScale_Smin_value_changed();
-		void HScale_Vmin_value_changed();
+		void HScale_cieL_min_value_changed();
+		void HScale_cieA_min_value_changed();
+		void HScale_cieB_min_value_changed();
 
 		void event_draw_info_checkbox_signal_clicked();
 
-		void HScale_Hmax_value_changed();
-		void HScale_Smax_value_changed();
-		void HScale_Vmax_value_changed();
+		void HScale_cieL_max_value_changed();
+		void HScale_cieA_max_value_changed();
+		void HScale_cieB_max_value_changed();
 		void HScale_Dilate_value_changed();
 		void HScale_Erode_value_changed();
 		void HScale_Blur_value_changed();
 		void HScale_Amin_value_changed();
-
-		void init_calib_params();
-
-		// void __event_auto_save();
-
-	public:
-		void __event_cb_convertType_changed();
 };
 
 #endif /* VISIONGUI_HPP_ */
