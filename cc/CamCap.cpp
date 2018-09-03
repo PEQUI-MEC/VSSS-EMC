@@ -1,5 +1,7 @@
 #include "CamCap.hpp"
 
+using namespace vision;
+
 using std::cout;
 using std::endl;
 using std::vector;
@@ -224,7 +226,7 @@ bool CamCap::capture_and_show() {
 	if (interface.visionGUI.getIsSplitView()) {
 		interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);
 		interface.imageView.refresh();
-	} else if (interface.visionGUI.HSV_calib_event_flag) {
+	} else if (interface.visionGUI.CIELAB_calib_event_flag) {
 		interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data,
 									 width, height);
 		interface.imageView.refresh();

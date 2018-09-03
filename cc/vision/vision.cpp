@@ -145,32 +145,32 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 //	}
 //
 //	// OUR ROBOTS
-//	for (int i = 0; i < tags.at(MAIN).size() && i < 3; i++) {
+//	for (int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
 //		// cria um robô temporário para armazenar nossas descobertas
 //		Robot robot;
 //		std::vector<Tag> tempTags;
 //
 //		// Posição do robô
-//		robot.position = tags.at(MAIN).at(i).position;
+//		robot.position = tags.at(Color::Main).at(i).position;
 //
 //		// Cálculo da orientação de acordo com os pontos rear e front
-//		robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
-//								  (tags.at(MAIN).at(i).frontPoint.x - robot.position.x) * 1.5 / width);
+//		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
+//								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * 1.5 / width);
 //
 //		// Armazena a tag
-//		tempTags.push_back(tags.at(MAIN).at(i));
+//		tempTags.push_back(tags.at(Color::Main).at(i));
 //
 //		// Para cada tag principal, verifica quais são as secundárias correspondentes
-//		for (int j = 0; j < tags.at(GREEN).size(); j++) {
+//		for (int j = 0; j < tags.at(Color::Green).size(); j++) {
 //			// já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
-//			if (tmpSide = in_sphere(tags.at(GREEN).at(j).position, Tag(cv::Point_(), 0), &tempTags, &robot)) {
+//			if (tmpSide = in_sphere(tags.at(Color::Green).at(j).position, Tag(cv::Point_(), 0), &tempTags, &robot)) {
 //				// identifica se já tem mais de uma tag
 //				if (tempTags.size() > 1) {
 //					robot.isOdd = true;
 //				}
-//				tags.at(GREEN).at(j).left = (tmpSide > 0) ? true : false;
+//				tags.at(Color::Green).at(j).left = (tmpSide > 0) ? true : false;
 //				// calculos feitos, joga tag no vetor
-//				tempTags.push_back(tags.at(GREEN).at(j));
+//				tempTags.push_back(tags.at(Color::Green).at(j));
 //			}
 //		}
 //
@@ -226,10 +226,10 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 	std::array<RecognizedTag, 3> found_tags{};
 
 	// OUR ROBOTS
-	for (int i = 0; i < tags.at(MAIN).size() && i < 3; i++) {
+	for (int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
 		std::vector<Tag> secondary_tags;
 
-		Tag main_tag = tags.at(MAIN).at(i);
+		Tag main_tag = tags.at(Color::Main).at(i);
 
 		// Posição do robô
 		cv::Point position = main_tag.position;
@@ -239,7 +239,7 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 								  (main_tag.frontPoint.x - position.x) * 1.7 / width);
 
 		// Para cada tag principal, verifica quais são as secundárias correspondentes
-		for (Tag &secondary_tag : tags.at(GREEN)) {
+		for (Tag &secondary_tag : tags.at(Color::Green)) {
 
 			// Altera a orientação caso esteja errada
 			int tag_side = in_sphere(secondary_tag.position, &main_tag, &secondary_tags, &orientation);
@@ -283,32 +283,32 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 //	int dist, tmpSide;
 //
 //	// OUR ROBOTS
-//	for (int i = 0; i < tags.at(MAIN).size() && i < 3; i++) {
+//	for (int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
 //		// cria um robô temporário para armazenar nossas descobertas
 //		Robot robot;
 //		std::vector<Tag> tempTags;
 //
 //		// Posição do robô
-//		auto position = tags.at(MAIN).at(i).position;
+//		auto position = tags.at(Color::Main).at(i).position;
 //
 //		// Cálculo da orientação de acordo com os pontos rear e front
-//		robot.orientation = atan2((tags.at(MAIN).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
-//								  (tags.at(MAIN).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
+//		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
+//								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
 //
 //		// Armazena a tag
-//		tempTags.push_back(tags.at(MAIN).at(i));
+//		tempTags.push_back(tags.at(Color::Main).at(i));
 //
 //		// Para cada tag principal, verifica quais são as secundárias correspondentes
-//		for (int j = 0; j < tags.at(GREEN).size(); j++) {
+//		for (int j = 0; j < tags.at(Color::Green).size(); j++) {
 //			// já faz a atribuição verificando se o valor retornado é 0 (falso); além disso, altera a orientação caso esteja errada
-//			if (tmpSide = in_sphere(tags.at(GREEN).at(j).position, Tag(cv::Point_(), 0), &tempTags, &robot)) {
+//			if (tmpSide = in_sphere(tags.at(Color::Green).at(j).position, Tag(cv::Point_(), 0), &tempTags, &robot)) {
 //				// identifica se já tem mais de uma tag
 //				if (tempTags.size() > 1) {
 //					robot.isOdd = true;
 //				}
-//				tags.at(GREEN).at(j).left = (tmpSide > 0) ? true : false;
+//				tags.at(Color::Green).at(j).left = (tmpSide > 0) ? true : false;
 //				// calculos feitos, joga tag no vetor
-//				tempTags.push_back(tags.at(GREEN).at(j));
+//				tempTags.push_back(tags.at(Color::Green).at(j));
 //			}
 //		}
 //
@@ -396,7 +396,7 @@ int Vision::in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *seco
 //	return 0;
 //}
 
-double Vision::calcDistance(const cv::Point p1, const cv::Point p2) {
+double Vision::calcDistance(const cv::Point p1, const cv::Point p2) const {
 	return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
 }
 
@@ -454,22 +454,6 @@ cv::Mat Vision::getSplitFrame() {
 	cv::vconcat(horizontal, 2, splitFrame);
 
 	return splitFrame;
-}
-
-void
-Vision::setCalibParams(const int H[4][2], const int S[4][2], const int V[4][2], const int Amin[4], const int E[4],
-					   const int D[4], const int B[4]) {
-	for (int i = 0; i < MAX_COLORS; i++) {
-		areaMin[i] = Amin[i];
-		erode[i] = E[i];
-		dilate[i] = D[i];
-		blur[i] = B[i];
-		for (int j = 0; j < 2; j++) {
-			cieL[i][j] = H[i][j];
-			cieA[i][j] = S[i][j];
-			cieB[i][j] = V[i][j];
-		}
-	}
 }
 
 void Vision::saveCamCalibFrame() {
@@ -608,14 +592,6 @@ bool Vision::finishVideo() {
 	return true;
 }
 
-bool Vision::isRecording() {
-	return bOnAir;
-}
-
-cv::Point Vision::getBall() {
-	return ball;
-}
-
 cv::Point Vision::getAdvRobot(const int index) const {
 	if (index < 0 || index >= MAX_ADV) {
 		std::cout << "Vision::getAdvRobot: index argument is invalid." << std::endl;
@@ -623,10 +599,6 @@ cv::Point Vision::getAdvRobot(const int index) const {
 	} else {
 		return advRobots[index];
 	}
-}
-
-int Vision::getAdvListSize() {
-	return MAX_ADV;
 }
 
 cv::Mat Vision::getThreshold(const unsigned long index) {
@@ -689,8 +661,8 @@ void Vision::setFrameSize(const int inWidth, const int inHeight) {
 Vision::Vision(int w, int h) : width(w), height(h), cieL{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
 							   cieA{{0, 255}, {0, 255}, {0, 255}, {0, 255}}, video_rec_enable(true),
 							   cieB{{0, 255}, {0, 255}, {0, 255}, {0, 255}}, bOnAir(false),
-							   robot_list(3), threshold_frame(MAX_COLORS), tags(MAX_COLORS),
-							   areaMin{0, 0, 0, 0}, dilate{0, 0, 0, 0}, erode{0, 0, 0, 0}, blur{3, 3, 3, 3} {
+							   threshold_frame(MAX_COLORS), tags(MAX_COLORS), areaMin{0, 0, 0, 0},
+							   dilate{0, 0, 0, 0}, erode{0, 0, 0, 0}, blur{3, 3, 3, 3} {
 }
 
 Vision::~Vision() = default;

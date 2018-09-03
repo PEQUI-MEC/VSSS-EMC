@@ -110,13 +110,6 @@ namespace vision
 		std::array<RecognizedTag, 3> run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
-		void setCalibParams(const int H[MAX_COLORS][2],
-							const int S[MAX_COLORS][2],
-							const int V[MAX_COLORS][2],
-							const int Amin[MAX_COLORS],
-							const int E[MAX_COLORS],
-							const int D[MAX_COLORS],
-							const int B[MAX_COLORS]);
 		double calcDistance(cv::Point p1, cv::Point p2) const;
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
 		void startNewVideo(std::string videoName);
@@ -147,13 +140,9 @@ namespace vision
 		void switchMainWithAdv();
 
 		cv::Point getBall() const { return ball; };
-		Robot getRobot(unsigned long index) const { return robot_list.at(index); };
-		cv::Point getRobotPos(unsigned long index) const { return robot_list.at(index).position; };
 		cv::Point getAdvRobot(int index) const;
-		cv::Point* getAllAdvRobots() const { return const_cast<cv::Point*>(advRobots); };
 		cv::Mat getSplitFrame();
 
-		int getRobotListSize();
 		int getAdvListSize() const { return MAX_ADV; };
 		cv::Mat getThreshold(unsigned long index);
 
