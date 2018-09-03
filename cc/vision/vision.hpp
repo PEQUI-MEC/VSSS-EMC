@@ -5,6 +5,7 @@
 // número de intersecções do tabuleiro
 #define CHESSBOARD_DIMENSION cv::Size(6,9)
 
+#include "Geometry/Geometry.h"
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -14,11 +15,9 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
-#include "../../pack-capture-gui/capture-gui/Robot.hpp"
 #include <iostream>
 #include "tag.hpp"
 #include "visionROI.hpp"
-
 
 namespace vision
 {
@@ -46,6 +45,13 @@ namespace vision
 	public:
 
 		static const unsigned long MAX_COLORS = Color::Adv - Color::Main + 1;
+//		Numero da tag é definido pela sua posicao no std::array retornado
+		struct RecognizedTag {
+			cv::Point position = {ROBOT_RADIUS/2, 0};
+			double orientation = 0;
+			cv::Point front_point = {ROBOT_RADIUS, 0};
+			cv::Point rear_point = {0, 0};
+		};
 
 	private:
 
@@ -55,7 +61,6 @@ namespace vision
 		cv::Mat splitFrame;
 
 		// Robots
-		std::vector<Robot> robot_list;
 		cv::Point advRobots[MAX_ADV];
 
 		// Ball
@@ -93,24 +98,17 @@ namespace vision
 		void searchGMMTags(std::vector<cv::Mat> thresholds);
 		void findTags();
 		void pick_a_tag(std::vector<VisionROI> *windowsList);
-		void pick_a_tag();
-		int inSphere(Robot *robot, std::vector<Tag> *tempTags, cv::Point secondary);
+		std::array<RecognizedTag, 3> pick_a_tag();
+		int in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *secondary_tags, double *orientation);
 
 	public:
 
 		Vision(int w, int h);
 		~Vision();
 
-		void run(cv::Mat raw_frame);
+		std::array<RecognizedTag, 3> run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
-		void setCalibParams(const int H[MAX_COLORS][2],
-							const int S[MAX_COLORS][2],
-							const int V[MAX_COLORS][2],
-							const int Amin[MAX_COLORS],
-							const int E[MAX_COLORS],
-							const int D[MAX_COLORS],
-							const int B[MAX_COLORS]);
 		double calcDistance(cv::Point p1, cv::Point p2) const;
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
 		void startNewVideo(std::string videoName);
@@ -141,13 +139,9 @@ namespace vision
 		void switchMainWithAdv();
 
 		cv::Point getBall() const { return ball; };
-		Robot getRobot(unsigned long index) const { return robot_list.at(index); };
-		cv::Point getRobotPos(unsigned long index) const { return robot_list.at(index).position; };
 		cv::Point getAdvRobot(int index) const;
-		cv::Point* getAllAdvRobots() const { return const_cast<cv::Point*>(advRobots); };
 		cv::Mat getSplitFrame();
 
-		int getRobotListSize();
 		int getAdvListSize() const { return MAX_ADV; };
 		cv::Mat getThreshold(unsigned long index);
 

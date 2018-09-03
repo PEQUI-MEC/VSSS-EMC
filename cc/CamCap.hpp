@@ -6,6 +6,10 @@
 // número de intersecções do tabuleiro
 #define CHESSBOARD_DIMENSION cv::Size(6,9)
 
+#include "Strategy2/Strategy2.hpp"
+#include "Strategy2/Attacker.h"
+#include "Strategy2/Defender.hpp"
+#include "Strategy2/Goalkeeper.hpp"
 #include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -29,6 +33,7 @@
 #include <fstream>
 #include "CPUTimer.h"
 #include "Constants.hpp"
+#include "LS.h"
 
 #define MAX_THETA_TOLERATION 3
 #define MAX_POSITIONING_VEL 0.1
@@ -36,6 +41,18 @@
 class CamCap : public Gtk::HBox {
 
 	public:
+		Attacker attacker;
+		Defender defender;
+		Goalkeeper goalkeeper;
+
+		Geometry::Point ball;
+		Geometry::Point ball_est;
+		LS ls_x, ls_y;
+
+		std::array<Robot2 *, 3> robots;
+
+		Strategy2 strategy;
+
 		int screenWidth, screenHeight;
 		bool isLowRes;
 
@@ -82,17 +99,19 @@ class CamCap : public Gtk::HBox {
 		boost::condition_variable data_ready_cond;
 		boost::mutex data_ready_mutex;
 		bool data_ready_flag = false;
+		bool ekf_data_ready = false;
 
 		bool checkForLowRes();
-		void updateAllPositions();
-		void updateKalmanFilter();
+		void update_positions(const std::array<vision::Vision::RecognizedTag, 3> &tags);
+		void draw_tags(cv::Mat &imageView, const std::array<vision::Vision::RecognizedTag, 3> &tags);
 		bool start_signal(bool b);
 		bool capture_and_show();
-		void send_cmd_thread(std::vector<Robot> &robots);
-		void notify_data_ready();
+		void send_cmd_thread();
+		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();
 		void warp_transform(cv::Mat imageView);
+		void calculate_ball_est();
 		CamCap(int screenW, int screenH);
 		~CamCap() override;
 };

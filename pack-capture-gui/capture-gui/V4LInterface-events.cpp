@@ -7,6 +7,7 @@
 
 #include "V4LInterface.hpp"
 #include <jsonSaveManager.h>
+#include <thread>
 
 #define DEFAULT_STR " - "
 
@@ -418,6 +419,7 @@ void V4LInterface::event_robots_id_edit_bt_signal_pressed() {
 		robots_id_box[1].set_state(Gtk::STATE_NORMAL);
 		robots_id_box[2].set_state(Gtk::STATE_NORMAL);
 		robots_id_done_bt.set_state(Gtk::STATE_NORMAL);
+		robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
 		robots_id_tmp[0] = robots_id_box[0].get_active_row_number();
 		robots_id_tmp[1] = robots_id_box[1].get_active_row_number();
 		robots_id_tmp[2] = robots_id_box[2].get_active_row_number();
@@ -428,21 +430,57 @@ void V4LInterface::event_robots_id_edit_bt_signal_pressed() {
 		robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
 		robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 		robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+		robots_auto_bt.set_state(Gtk::STATE_NORMAL);
 		robots_id_box[0].set_active(robots_id_tmp[0]);
 		robots_id_box[1].set_active(robots_id_tmp[1]);
 		robots_id_box[2].set_active(robots_id_tmp[2]);
 	}
 }
 
-void V4LInterface::event_robots_id_done_bt_signal_clicked() {
+void V4LInterface::discover_robot_ids() {
+	// FIXME: Implementar discoberta automatica de IDs para novo Robot
+//	std::array<char, 3> robot_ids{'A', 'B', 'E'};
+//	for (char id : robot_ids) {
+//		auto initial_robots = robot_list;
+//		messenger->send_msg(id, "O90;0.8");
+//		std::this_thread::sleep_for(std::chrono::seconds(1));
+//		int robot_index = 0;
+//		bool robot_found = false;
+//		for (int i = 0; i < 3; i++) {
+//			double theta = robot_list[i].orientation;
+//			double prev_theta = initial_robots[i].orientation;
+//			if (std::abs(theta - prev_theta) * (180/PI) > 60) {
+//				robot_index = i;
+//				robot_found = true;
+//			}
+//		}
+//		if(robot_found) {
+//			std::cout << "Robot " << robot_index + 1 << ": " << id << std::endl;
+//			robot_list[robot_index].ID = id;
+//		} else std::cout << "Robot " << id << " not found" << std::endl;
+//	}
+//	messenger->send_ekf_data(robot_list);
+//	for(auto& robot : robot_list)
+//		messenger->send_msg(robot.ID, "O0;0.8");
+//	update_robots_id_box();
+//	robots_auto_bt.set_state(Gtk::STATE_NORMAL);
+//	robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
+}
 
-	const char *id;
-	id = robots_id_box[0].get_active_text().c_str();
-	robot_list[0].ID = *id;
-	id = robots_id_box[1].get_active_text().c_str();
-	robot_list[1].ID = *id;
-	id = robots_id_box[2].get_active_text().c_str();
-	robot_list[2].ID = *id;
+void V4LInterface::event_robots_auto_bt_signal_pressed() {
+	robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	std::thread discover_robots_thread(&V4LInterface::discover_robot_ids, this);
+	discover_robots_thread.detach();
+}
+
+void V4LInterface::event_robots_id_done_bt_signal_clicked() {
+	for (Robot2* robot : robots) {
+		if(robot->tag < 3) {
+			const char * id = robots_id_box[robot->tag].get_active_text().c_str();
+			robot->ID = *id;
+		}
+	}
 
 	robots_id_edit_flag = false;
 	robots_id_edit_bt.set_label("Edit");
@@ -450,6 +488,7 @@ void V4LInterface::event_robots_id_done_bt_signal_clicked() {
 	robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
 	robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
 	robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_auto_bt.set_state(Gtk::STATE_NORMAL);
 }
 
 void V4LInterface::event_robots_speed_edit_bt_signal_pressed() {
@@ -477,19 +516,13 @@ void V4LInterface::event_robots_speed_edit_bt_signal_pressed() {
 }
 
 void V4LInterface::event_robots_speed_done_bt_signal_clicked() {
-
-	robot_list[0].vdefault = (float) robots_speed_hscale[0].get_value();
-	robot_list[1].vdefault = (float) robots_speed_hscale[1].get_value();
-	robot_list[2].vdefault = (float) robots_speed_hscale[2].get_value();
-	robot_list[0].vmax = robot_list[0].vdefault;
-	robot_list[1].vmax = robot_list[1].vdefault;
-	robot_list[2].vmax = robot_list[2].vdefault;
+	for (int i = 0; i < 3; i++) {
+		robots[i]->default_target_velocity = (float) robots_speed_hscale[i].get_value();
+		robots_speed_hscale[i].set_state(Gtk::STATE_INSENSITIVE);
+	}
 	robots_speed_edit_flag = false;
 	robots_speed_edit_bt.set_label("Edit");
 	robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-	robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
-	robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
-	robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
 }
 
 void V4LInterface::event_disable_video_record(){
@@ -507,9 +540,6 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		btn_camCalib_reset.set_state(Gtk::STATE_INSENSITIVE);
 		btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
 		btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
-		robot_list[0].status = 0;
-		robot_list[1].status = 0;
-		robot_list[2].status = 0;
 
 		std::string dateString;
 		time_t tt;
@@ -536,10 +566,6 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		visionGUI.en_video_name.set_text("");
 		start_game_flag = false;
 		start_game_bt.set_image(red_button_released);
-		for (unsigned long i = 0; i < 3; i++) {
-			robot_list.at(i).cmdType = 0; // Position
-			robot_list.at(i).vmax = 0;
-		}
 	}
 }
 
@@ -569,26 +595,10 @@ void V4LInterface::event_robots_function_edit_bt_signal_clicked() {
 }
 
 void V4LInterface::event_robots_function_done_bt_signal_clicked() {
-	std::string s[3];
-
-	for (int i = 0; i < 3; i++) {
-		s[i] = cb_robot_function[i].get_active_text();
-
-		if (s[i] == "Goalkeeper") {
-			std::cout << "Robot " << i + 1 << ": Goalkeeper." << std::endl;
-			robot_list[i].role = 0;
-		} else if (s[i] == "Defense") {
-			std::cout << "Robot " << i + 1 << ": Defense." << std::endl;
-			robot_list[i].role = 1;
-		} else if (s[i] == "Attack") {
-			std::cout << "Robot " << i + 1 << ": Attack." << std::endl;
-			robot_list[i].role = 2;
-		} else if (s[i] == "Opponent") {
-			std::cout << "Robot " << i + 1 << ": Opponent." << std::endl;
-			robot_list[i].role = 3;
-		} else {
-			std::cout << "Error: not possible to set robot " << i + 1 << " function." << std::endl;
-		}
+	for (int i = 0; i < robots.size(); ++i) {
+		int tag = cb_robot_function[i].get_active_row_number();
+		robots[i]->tag = static_cast<unsigned int>(tag);
+		robots[i]->ID = (char) robots_id_box[robots[i]->tag].get_active_row_number() + 'A';
 	}
 
 	robots_function_edit_flag = false;
@@ -601,14 +611,15 @@ void V4LInterface::event_robots_function_done_bt_signal_clicked() {
 
 void V4LInterface::update_interface_robots() {
 	for (int i = 0; i < 3; i++) {
-		Robot robot = robot_list[i];
-		robots_id_box[i].set_active_text(&robot.ID);
-		cb_robot_function[i].set_active(robot.role);
-		robots_speed_hscale[i].set_value(robot.vdefault);
-		robots_speed_progressBar[i].set_fraction(robot.vmax / 1.4);
-		std::ostringstream vmax;
-		vmax << round(robot.vmax * 100) / 100;
-		robots_speed_progressBar[i].set_text(vmax.str());
+		Robot2* robot = robots[i];
+
+		cb_robot_function[i].set_active(robot->tag);
+		robots_id_box[robot->tag].set_active(robot->ID - 'A');
+
+		robots_speed_hscale[i].set_value(robot->default_target_velocity);
+		robots_speed_progressBar[i].set_fraction(robot->get_target().velocity / 1.4);
+		const std::string velocity = std::to_string(round(robot->get_target().velocity * 100) / 100);
+		robots_speed_progressBar[i].set_text(velocity);
 	}
 }
 

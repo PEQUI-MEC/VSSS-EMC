@@ -6,32 +6,29 @@ using std::endl;
 using vision::Vision;
 
 void jsonSaveManager::save_robots() {
-	for (int i = 0; i < 3; ++i) {
-		json &robot_config = configs["Robots"]["Robot " + std::to_string(i + 1)];
-		Robot &robot = interface->robot_list.at((unsigned long) i);
+	for (Robot2* robot : interface->robots) {
+		json &robot_config = configs["Robots"][robot->get_role_name()];
 
-		robot_config["ID"] = string(1, robot.ID);
-		robot_config["role"] = robot.role;
-		robot_config["speed"] = round(robot.vdefault * 1000) / 1000;
+		robot_config["ID"] = string(1, robot->ID);
+		robot_config["tag"] = robot->tag;
+		robot_config["speed"] = round(robot->default_target_velocity * 1000) / 1000;
 	}
 }
 
 void jsonSaveManager::load_robots() {
 	if (!exists(configs, "Robots")) return;
 
-	for (int i = 0; i < 3; ++i) {
-		json &robot_config = configs["Robots"]["Robot " + std::to_string(i + 1)];
-		Robot &robot = interface->robot_list.at((unsigned long) i);
+	for (Robot2* robot : interface->robots) {
+		json &robot_config = configs["Robots"][robot->get_role_name()];
 
 		if (exists(robot_config, "ID")) {
 			string id = robot_config["ID"];
-			robot.ID = id[0];
+			robot->ID = id[0];
 		}
-		if (exists(robot_config, "role")) robot.role = robot_config["role"];
-		if (exists(robot_config, "speed")) {
-			robot.vdefault = robot_config["speed"];
-			robot.vmax = robot.vdefault;
-		}
+
+		if (exists(robot_config, "tag")) robot->tag = robot_config["tag"];
+		if (exists(robot_config, "speed"))
+			robot->default_target_velocity = robot_config["speed"];
 	}
 }
 
