@@ -47,7 +47,6 @@ namespace vision
 		static const unsigned long MAX_COLORS = Color::Adv - Color::Main + 1;
 //		Numero da tag é definido pela sua posicao no std::array retornado
 		struct RecognizedTag {
-			bool found = false;
 			cv::Point position = {ROBOT_RADIUS/2, 0};
 			double orientation = 0;
 			cv::Point front_point = {ROBOT_RADIUS, 0};
