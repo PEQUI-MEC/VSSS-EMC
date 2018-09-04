@@ -6,10 +6,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-bool CamCap::checkForLowRes() {
-	return screenWidth < 1600;
-}
-
 void CamCap::update_positions(const std::array<Vision::RecognizedTag, 3> &tags) {
 	for (int i = 0; i < tags.size(); i++) {
 		const Vision::RecognizedTag& tag = tags[i];
@@ -36,42 +32,25 @@ bool CamCap::start_signal(bool b) {
 			free(data);
 			data = nullptr;
 		}
-		/*GdkScreen* screen = gdk_screen_get_default();
-		if (interface.vcap.format_dest.fmt.pix.width > gdk_screen_get_width(screen)/2 || interface.vcap.format_dest.fmt.pix.height > gdk_screen_get_height(screen)/2)
-		{
-		width = gdk_screen_get_width(screen)/2;
-		height = gdk_screen_get_height(screen)/2;
-		strategyGUI.strategy.set_constants(width,height);
-		}
-		else
-		{*/
+
 		width = interface.vcap.format_dest.fmt.pix.width;
 		height = interface.vcap.format_dest.fmt.pix.height;
-		//}
 
 		interface.visionGUI.setFrameSize(width, height);
 
 		// Liberar os botões de edit
-		interface.robots_auto_bt.set_state(Gtk::STATE_NORMAL);
-		interface.robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
-		interface.robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
-		interface.robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
+		robotGUI.enable_main_buttons();
 
 		data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
 		interface.imageView.set_size_request(width, height);
 		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
-
-		cout << "Start Clicked! 1" << endl;
 	} else {
 		cout << "Stop Button Clicked!" << endl;
 		con.disconnect();
 
 		// Travar os botões de edit
-		interface.robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
-		interface.robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-		interface.robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-		interface.robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+		robotGUI.enable_main_buttons(false);
 	}
 
 	interface.__event_bt_quick_load_clicked();
@@ -327,8 +306,8 @@ bool CamCap::capture_and_show() {
 //			} // if cmdType != VECTOR
 //		} // for
 
-		interface.update_speed_progressBars();
-		interface.update_robot_functions();
+		robotGUI.update_speed_progressBars();
+		robotGUI.update_robot_functions();
 	} // if start_game_flag
 	// ----------------------------------------//
 
@@ -504,22 +483,16 @@ void CamCap::calculate_ball_est() {
 	ball_est.y = ls_y.estimate(10);
 }
 
-CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
+CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), height(0), frameCounter(0),
 										   screenWidth(screenW), screenHeight(screenH),
 										   msg_thread(&CamCap::send_cmd_thread, this),
-										   interface(&control.messenger, robots),
+										   robotGUI(robots, isLowRes),
+										   interface(&control.messenger, robots, robotGUI, isLowRes),
 										   strategy(attacker, defender, goalkeeper, ball, ball_est),
 										   robots {&attacker, &defender, &goalkeeper} {
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);
-
-	isLowRes = checkForLowRes();
-
-	if (isLowRes) {
-		interface.~V4LInterface();
-		new(&interface) capture::V4LInterface(isLowRes, &control.messenger, robots);
-	}
 
 	fixed_ball[0] = false;
 	fixed_ball[1] = false;
@@ -530,6 +503,12 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 	notebook.append_page(interface, "Capture");
 	notebook.append_page(interface.visionGUI, "Vision");
 	notebook.append_page(control, "Control");
+	if (isLowRes)
+	{
+		// Caso esteja em baixa resolução, será criado uma aba Robot.
+		// Caso contrário, robotGUI será colocado na info_box da interface.
+		notebook.append_page(robotGUI, "Robot");
+	}
 	notebook.append_page(strategyGUI, "Strategy");
 
 	robot_kf_est.push_back(Ball_Est); // Robot 1
@@ -554,9 +533,9 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 															   6); // !TODO hardcoded, usar variáveis quando possível
 	}
 
-	for (int i = 0; i < 4; i++) {
-		interface.imageView.adjust_mat[i][0] = -1;
-		interface.imageView.adjust_mat[i][1] = -1;
+	for (auto &i : interface.imageView.adjust_mat) {
+		i[0] = -1;
+		i[1] = -1;
 	}
 
 	camera_vbox.pack_start(fm, false, true, 5);
