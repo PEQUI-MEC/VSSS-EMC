@@ -2,12 +2,19 @@
 
 using namespace Geometry;
 
+double Geometry::wrap(double theta) {
+	theta = std::fmod(theta, 2 * M_PI);
+	if (theta > M_PI) return theta - 2 * M_PI;
+	else if (theta < -M_PI) return theta + 2 * M_PI;
+	else return theta;
+}
+
 double Geometry::distance(const Point &a, const Point &b) {
 	return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
 }
 
 double Geometry::distance_x(const Point &a, const Point &b) {
-	return abs(a.x - b.x);
+	return std::abs(a.x - b.x);
 }
 
 Point Geometry::intersection(const Line &l1, const Line &l2) {
@@ -23,12 +30,8 @@ Vector Point::operator-(const Point &p2) const {
 }
 
 Point Point::operator+(const Vector &v) const {
-	return {x + v.size * std::sin(v.theta),
-			y + v.size * std::cos(v.theta)};
-}
-
-double Geometry::degree_to_rad(double degree) {
-	return degree * 0.0174533;
+	return {x + v.size * std::cos(v.theta),
+			y + v.size * std::sin(v.theta)};
 }
 
 Point Geometry::from_cv_point(cv::Point cv_point) {
