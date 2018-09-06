@@ -19,6 +19,7 @@
 
 #include "StrategyGUI.hpp"
 #include "controlGUI.hpp"
+#include "RobotGUI.hpp"
 #include "vision/vision.hpp"
 #include "KalmanFilter.hpp"
 #include "V4LInterface.hpp"
@@ -54,7 +55,6 @@ class CamCap : public Gtk::HBox {
 		Strategy2 strategy;
 
 		int screenWidth, screenHeight;
-		bool isLowRes;
 
 		int width, height;
 		int Selec_index = -1;
@@ -81,6 +81,7 @@ class CamCap : public Gtk::HBox {
 
 		StrategyGUI strategyGUI;
 		ControlGUI control;
+		RobotGUI robotGUI;
 		capture::V4LInterface interface;
 
 		Gtk::Frame fm;
@@ -101,7 +102,6 @@ class CamCap : public Gtk::HBox {
 		bool data_ready_flag = false;
 		bool ekf_data_ready = false;
 
-		bool checkForLowRes();
 		void update_positions(const std::array<vision::Vision::RecognizedTag, 3> &tags);
 		void draw_tags(cv::Mat &imageView, const std::array<vision::Vision::RecognizedTag, 3> &tags);
 		bool start_signal(bool b);
@@ -112,7 +112,7 @@ class CamCap : public Gtk::HBox {
 		void PID_test();
 		void warp_transform(cv::Mat imageView);
 		void calculate_ball_est();
-		CamCap(int screenW, int screenH);
+		CamCap(int screenW, int screenH, bool isLowRes);
 		~CamCap() override;
 };
 

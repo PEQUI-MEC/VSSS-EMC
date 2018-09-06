@@ -50,7 +50,7 @@ void V4LInterface::__event_bt_quick_load_clicked() {
 	std::cout << "QUICK LOAD" << std::endl;
 	jsonSaveManager config(this);
 	config.load();
-	update_interface_robots();
+	robotGUI.update_robots();
 	update_interface_camera();
 }
 
@@ -61,7 +61,7 @@ void V4LInterface::__event_bt_load_clicked() {
 	if (loadWindow.result == Gtk::RESPONSE_OK) {
 		jsonSaveManager config(this);
 		config.load(loadWindow.fileName);
-		update_interface_robots();
+		robotGUI.update_robots();
 		update_interface_camera();
 	}
 }
@@ -411,120 +411,6 @@ void V4LInterface::__set_control(std::list<ControlHolder> *list, Gtk::Widget *wc
 	__update_control_widgets(ctrl_list_default);
 }
 
-void V4LInterface::event_robots_id_edit_bt_signal_pressed() {
-	if (!robots_id_edit_flag) {
-		robots_id_edit_flag = true;
-		robots_id_edit_bt.set_label("Cancel");
-		robots_id_box[0].set_state(Gtk::STATE_NORMAL);
-		robots_id_box[1].set_state(Gtk::STATE_NORMAL);
-		robots_id_box[2].set_state(Gtk::STATE_NORMAL);
-		robots_id_done_bt.set_state(Gtk::STATE_NORMAL);
-		robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
-		robots_id_tmp[0] = robots_id_box[0].get_active_row_number();
-		robots_id_tmp[1] = robots_id_box[1].get_active_row_number();
-		robots_id_tmp[2] = robots_id_box[2].get_active_row_number();
-	} else {
-		robots_id_edit_flag = false;
-		robots_id_edit_bt.set_label("Edit");
-		robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
-		robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
-		robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
-		robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-		robots_auto_bt.set_state(Gtk::STATE_NORMAL);
-		robots_id_box[0].set_active(robots_id_tmp[0]);
-		robots_id_box[1].set_active(robots_id_tmp[1]);
-		robots_id_box[2].set_active(robots_id_tmp[2]);
-	}
-}
-
-void V4LInterface::discover_robot_ids() {
-	// FIXME: Implementar discoberta automatica de IDs para novo Robot
-//	std::array<char, 3> robot_ids{'A', 'B', 'E'};
-//	for (char id : robot_ids) {
-//		auto initial_robots = robot_list;
-//		messenger->send_msg(id, "O90;0.8");
-//		std::this_thread::sleep_for(std::chrono::seconds(1));
-//		int robot_index = 0;
-//		bool robot_found = false;
-//		for (int i = 0; i < 3; i++) {
-//			double theta = robot_list[i].orientation;
-//			double prev_theta = initial_robots[i].orientation;
-//			if (std::abs(theta - prev_theta) * (180/PI) > 60) {
-//				robot_index = i;
-//				robot_found = true;
-//			}
-//		}
-//		if(robot_found) {
-//			std::cout << "Robot " << robot_index + 1 << ": " << id << std::endl;
-//			robot_list[robot_index].ID = id;
-//		} else std::cout << "Robot " << id << " not found" << std::endl;
-//	}
-//	messenger->send_ekf_data(robot_list);
-//	for(auto& robot : robot_list)
-//		messenger->send_msg(robot.ID, "O0;0.8");
-//	update_robots_id_box();
-//	robots_auto_bt.set_state(Gtk::STATE_NORMAL);
-//	robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
-}
-
-void V4LInterface::event_robots_auto_bt_signal_pressed() {
-	robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
-	robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-	std::thread discover_robots_thread(&V4LInterface::discover_robot_ids, this);
-	discover_robots_thread.detach();
-}
-
-void V4LInterface::event_robots_id_done_bt_signal_clicked() {
-	for (Robot2* robot : robots) {
-		if(robot->tag < 3) {
-			const char * id = robots_id_box[robot->tag].get_active_text().c_str();
-			robot->ID = *id;
-		}
-	}
-
-	robots_id_edit_flag = false;
-	robots_id_edit_bt.set_label("Edit");
-	robots_id_box[0].set_state(Gtk::STATE_INSENSITIVE);
-	robots_id_box[1].set_state(Gtk::STATE_INSENSITIVE);
-	robots_id_box[2].set_state(Gtk::STATE_INSENSITIVE);
-	robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-	robots_auto_bt.set_state(Gtk::STATE_NORMAL);
-}
-
-void V4LInterface::event_robots_speed_edit_bt_signal_pressed() {
-	if (!robots_speed_edit_flag) {
-		robots_speed_edit_flag = true;
-		robots_speed_edit_bt.set_label("Cancel");
-		robots_speed_done_bt.set_state(Gtk::STATE_NORMAL);
-		robots_speed_hscale[0].set_state(Gtk::STATE_NORMAL);
-		robots_speed_hscale[1].set_state(Gtk::STATE_NORMAL);
-		robots_speed_hscale[2].set_state(Gtk::STATE_NORMAL);
-		robots_speed_tmp[0] = robots_speed_hscale[0].get_value();
-		robots_speed_tmp[1] = robots_speed_hscale[1].get_value();
-		robots_speed_tmp[2] = robots_speed_hscale[2].get_value();
-	} else {
-		robots_speed_edit_flag = false;
-		robots_speed_edit_bt.set_label("Edit");
-		robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-		robots_speed_hscale[0].set_state(Gtk::STATE_INSENSITIVE);
-		robots_speed_hscale[1].set_state(Gtk::STATE_INSENSITIVE);
-		robots_speed_hscale[2].set_state(Gtk::STATE_INSENSITIVE);
-		robots_speed_hscale[0].set_value(robots_speed_tmp[0]);
-		robots_speed_hscale[1].set_value(robots_speed_tmp[1]);
-		robots_speed_hscale[2].set_value(robots_speed_tmp[2]);
-	}
-}
-
-void V4LInterface::event_robots_speed_done_bt_signal_clicked() {
-	for (int i = 0; i < 3; i++) {
-		robots[i]->default_target_velocity = (float) robots_speed_hscale[i].get_value();
-		robots_speed_hscale[i].set_state(Gtk::STATE_INSENSITIVE);
-	}
-	robots_speed_edit_flag = false;
-	robots_speed_edit_bt.set_label("Edit");
-	robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-}
-
 void V4LInterface::event_disable_video_record(){
 	visionGUI.vision->video_rec_enable = !visionGUI.vision->video_rec_enable;
 }
@@ -566,60 +452,6 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		visionGUI.en_video_name.set_text("");
 		start_game_flag = false;
 		start_game_bt.set_image(red_button_released);
-	}
-}
-
-void V4LInterface::event_robots_function_edit_bt_signal_clicked() {
-	if (!robots_function_edit_flag) {
-		robots_function_edit_flag = true;
-		robots_function_edit_bt.set_label("Cancel");
-		robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
-		cb_robot_function[0].set_state(Gtk::STATE_NORMAL);
-		cb_robot_function[1].set_state(Gtk::STATE_NORMAL);
-		cb_robot_function[2].set_state(Gtk::STATE_NORMAL);
-		robots_function_done_bt.set_state(Gtk::STATE_NORMAL);
-		robots_function_tmp[0] = cb_robot_function[0].get_active_row_number();
-		robots_function_tmp[1] = cb_robot_function[1].get_active_row_number();
-		robots_function_tmp[2] = cb_robot_function[2].get_active_row_number();
-	} else {
-		robots_function_edit_flag = false;
-		robots_function_edit_bt.set_label("Edit");
-		cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
-		cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
-		cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
-		robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-		cb_robot_function[0].set_active(robots_function_tmp[0]);
-		cb_robot_function[1].set_active(robots_function_tmp[1]);
-		cb_robot_function[2].set_active(robots_function_tmp[2]);
-	}
-}
-
-void V4LInterface::event_robots_function_done_bt_signal_clicked() {
-	for (int i = 0; i < robots.size(); ++i) {
-		int tag = cb_robot_function[i].get_active_row_number();
-		robots[i]->tag = static_cast<unsigned int>(tag);
-		robots[i]->ID = (char) robots_id_box[robots[i]->tag].get_active_row_number() + 'A';
-	}
-
-	robots_function_edit_flag = false;
-	robots_function_edit_bt.set_label("Edit");
-	cb_robot_function[0].set_state(Gtk::STATE_INSENSITIVE);
-	cb_robot_function[1].set_state(Gtk::STATE_INSENSITIVE);
-	cb_robot_function[2].set_state(Gtk::STATE_INSENSITIVE);
-	robots_function_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-}
-
-void V4LInterface::update_interface_robots() {
-	for (int i = 0; i < 3; i++) {
-		Robot2* robot = robots[i];
-
-		cb_robot_function[i].set_active(robot->tag);
-		robots_id_box[robot->tag].set_active(robot->ID - 'A');
-
-		robots_speed_hscale[i].set_value(robot->default_target_velocity);
-		robots_speed_progressBar[i].set_fraction(robot->get_target().velocity / 1.4);
-		const std::string velocity = std::to_string(round(robot->get_target().velocity * 100) / 100);
-		robots_speed_progressBar[i].set_text(velocity);
 	}
 }
 
