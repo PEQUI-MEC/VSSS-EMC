@@ -421,6 +421,12 @@ void V4LInterface::__update_cb_frame_interval() {
 }
 
 void V4LInterface::__update_all() {
+	if(init_frame){
+		bool r = vcap.set_frame_size(640, 480,
+									 V4L2_BUF_TYPE_VIDEO_CAPTURE);
+		if (!r) std::cout << "Can't set frame size!" << std::endl;
+		init_frame = false;
+	}
 	__update_cb_input();
 	__update_cb_standard();
 	__update_cb_format_desc();
