@@ -50,6 +50,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		VisionGUI visionGUI;
 
 		bool warped = false;
+		bool init_frame = true;
 
 		ImageView imageView;
 		Messenger* messenger;
