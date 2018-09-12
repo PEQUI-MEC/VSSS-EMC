@@ -38,7 +38,7 @@ void Strategy2::transitions() {
 	// Caso o angulo do defensor para bola em direção ao gol do oponente for bom
 	Vector def_to_goal = their::goal::front::center - defender.get_position();
 	Vector ball_est_to_goal = their::goal::front::center - ball_est;
-	double theta = abs(def_to_goal.theta - ball_est_to_goal.theta);
+	double theta = std::abs(def_to_goal.theta - ball_est_to_goal.theta);
 	if (theta <= degree_to_rad(20))
 		swap_robots(attacker, defender);
 
@@ -58,12 +58,8 @@ void Strategy2::execute_defender() {
 			defender.wait_at_target(defender::front::upper::wait_point, ball);
 		else
 			defender.wait_at_target(defender::front::lower::wait_point, ball);
-	} else if (is_ball_est_ahead(center::point)) {
-		// Bola no ataque, atrás da área adversária
-		defender.wait_at_target(defender::middle::wait_point, ball);
 	} else {
-		// Bola na defesa
-		defender.protect_goal(ball, ball_est);
+		defender.protect_goal(ball);
 	}
 }
 

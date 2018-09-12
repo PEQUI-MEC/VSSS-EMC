@@ -12,7 +12,7 @@ class Defender : public Robot2 {
 
 	public:
 		// Behaviors
-		void protect_goal(const Geometry::Point& ball, const Geometry::Point& ball_est);
+		void protect_goal(const Geometry::Point &ball);
 		void wait_at_target(Geometry::Point target, Geometry::Point &ball);
 };
 

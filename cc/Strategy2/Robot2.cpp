@@ -16,9 +16,13 @@ void Robot2::go_to_pose(Geometry::Point point, Geometry::Vector direction, doubl
 }
 
 void Robot2::go_to_and_stop(Geometry::Point point, double velocity) {
-	command = Command::Position;
-	target.position = point;
-	target.velocity = velocity;
+	if (distance(point, pose.position) >= OFFSET) {
+		command = Command::Position;
+		target.position = point;
+		target.velocity = velocity;
+	} else {
+		command = Command::None;
+	}
 }
 
 void Robot2::go_in_direction(Geometry::Vector vector, double velocity) {

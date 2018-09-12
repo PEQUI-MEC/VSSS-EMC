@@ -37,7 +37,8 @@ class Robot2 {
     	const double size = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;
-		double default_target_velocity = 0.8; // Velocidade padrão do robô  
+		double default_target_velocity = 0.8; // Velocidade padrão do robô
+		const double OFFSET = 0.05; // tolerância para saber se o robô chegou no ponto
 
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 		 *	@param point Ponto em que o robô deve passar
