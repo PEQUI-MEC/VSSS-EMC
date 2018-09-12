@@ -5,30 +5,29 @@ using namespace field;
 using namespace Geometry;
 
 void Goalkeeper::protect_goal(const Point& ball, const Point& ball_est) {
-	const Line est_line(ball, ball_est);
-	const Point goal_est = intersection(our::goal::front::line, est_line);
-
-	if (ball_est.x < ball.x) {
+	if (at_location(ball, Location::OurUpperCorner)) {
+		go_to_and_stop(our::area::upper::center);
+	} else if (at_location(ball, Location::OurLowerCorner)) {
+		go_to_and_stop(our::area::lower::center);
+	} else if (ball_est.x < ball.x && distance(ball, ball_est) > 0.03) {
 		// a bola está vindo para o nosso campo
 
 		// Se goal_est estiver na pequena área, fica na projeção da estimativa da bola
 		// se não fica no limite da pequena área
-		if (at_location(goal_est, Location::OurBox))
-			go_to_and_stop(intersection(est_line, our::area::goalkeeper::line));
-		else {
-			if (at_location(goal_est, Location::UpperField))
-				go_to_and_stop(our::area::goalkeeper::upper_limit);
-			else
-				go_to_and_stop(our::area::goalkeeper::lower_limit);
-		}
+		if (match_y(ball_est, Location::OurBox))
+			go_to_and_stop({our::area::box::upper_limit.x, ball_est.y});
+		else if (at_location(ball_est, Location::UpperField))
+			go_to_and_stop(our::area::box::upper_limit);
+		else
+			go_to_and_stop(our::area::box::lower_limit);
 	} else {
 		// fica na projeção da bola, sempre em frente ao gol
-		if (ball.y <= our::area::goalkeeper::lower_limit.y)
-			go_to_and_stop(our::area::goalkeeper::lower_limit);
-		else if (ball.y >= our::area::goalkeeper::upper_limit.y)
-			go_to_and_stop(our::area::goalkeeper::upper_limit);
+		if (match_y(ball, Location::OurBox))
+			go_to_and_stop({our::area::box::upper_limit.x, ball.y});
+		else if (at_location(ball, Location::UpperField))
+			go_to_and_stop(our::area::box::upper_limit);
 		else
-			go_to_and_stop({our::area::goalkeeper::lower_limit.x, ball.y});
+			go_to_and_stop(our::area::box::lower_limit);
 	}
 }
 
