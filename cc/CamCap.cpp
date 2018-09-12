@@ -1,3 +1,4 @@
+#include <Strategy2/Robot2.h>
 #include "CamCap.hpp"
 
 using namespace vision;
@@ -290,21 +291,43 @@ bool CamCap::capture_and_show() {
 
 		strategy.run();
 
-		// FIXME: Exibir targets na imagem da camera
-//		for (unsigned long i = 0; i < 3; i++) {
-//			if (interface.robot_list.at(i).cmdType != VECTOR) {
-//				circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
-//				putText(imageView, std::to_string(i + 1),
-//						cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
-//						cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
-//			} else {
-//				auto angle = interface.robot_list.at(i).transAngle;
-//				auto x2 = static_cast<int>(interface.robot_list.at(i).position.x + 16*cos(angle));
-//				auto y2 = static_cast<int>(interface.robot_list.at(i).position.y - 16*sin(angle));
-//				line(imageView, interface.robot_list.at(i).position, cv::Point(x2, y2),
-//					 cv::Scalar(127, 255, 127), 3);
-//			} // if cmdType != VECTOR
-//		} // for
+		// Desenha os targets no campo
+		for (auto robot : robots) {
+			switch (robot->get_command()) {
+				case Robot2::Command::Vector:
+				case Robot2::Command::Orientation: {
+					double angle = robot->get_target().orientation;
+					cv::Point position = robot->get_position().to_cv_point();
+					auto x2 = static_cast<int>(position.x + 16*cos(angle));
+					auto y2 = static_cast<int>(position.y - 16*sin(angle));
+					line(imageView, position, cv::Point(x2, y2),
+						 cv::Scalar(127, 255, 127), 3);
+					break;
+				}
+				case Robot2::Command::None:
+					putText(imageView, "x", robot->get_position().to_cv_point(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+					break;
+				case Robot2::Command::UVF: {
+					double angle = robot->get_target().orientation;
+					cv::Point target = robot->get_target().position.to_cv_point();
+					auto x2 = static_cast<int>(target.x + 16*cos(angle));
+					auto y2 = static_cast<int>(target.y - 16*sin(angle));
+					circle(imageView, target, 7, cv::Scalar(127, 255, 127), 2);
+					line(imageView, target, cv::Point(x2, y2),
+						 cv::Scalar(127, 255, 127), 3);
+					putText(imageView, std::to_string(robot->tag + 1),
+							cv::Point(target.x - 5, target.y - 17),
+							cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+					break;
+				}
+				default:
+					cv::Point robot_target = robot->get_target().position.to_cv_point();
+					circle(imageView, robot_target, 7, cv::Scalar(127, 255, 127), 2);
+					putText(imageView, std::to_string(robot->tag + 1),
+							cv::Point(robot_target.x - 5, robot_target.y - 17),
+							cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+			} // switch
+		} // for
 
 		robotGUI.update_speed_progressBars();
 		robotGUI.update_robot_functions();
