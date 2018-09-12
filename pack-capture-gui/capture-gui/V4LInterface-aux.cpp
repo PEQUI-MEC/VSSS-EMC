@@ -925,9 +925,7 @@ V4LInterface::V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 
 						   bool isLow)
 		:
 		Gtk::VBox(false, 0),
-		reset_warp_flag(false),
 		isLowRes(isLow),
-		offsetL(0), offsetR(0),
 		robots(robots_ref),
 		robotGUI(robot_gui) {
 
