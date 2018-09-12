@@ -925,7 +925,7 @@ V4LInterface::V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 
 						   bool isLow)
 		:
 		Gtk::VBox(false, 0),
-		isLowRes(isLowRes),
+		isLowRes(isLow),
 		robots(robots_ref),
 		robotGUI(robot_gui) {
 
