@@ -45,7 +45,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		const std::array<Robot2*, 3>& robots;
 		RobotGUI &robotGUI;
 
-		bool isLowRes;
+		bool isLowRes = false;
 
 		VisionGUI visionGUI;
 
@@ -80,14 +80,14 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		Gtk::CheckButton record_video_checkbox;
 
-		bool reset_warp_flag;
+		bool reset_warp_flag = false;
 		capture::v4lcap vcap;
 
 		explicit V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref, RobotGUI &robot_gui, bool isLow);
 		void initInterface();
 
-		int offsetL;
-		int offsetR;
+		int offsetL = 0;
+		int offsetR = 0;
 		Gtk::Scale HScale_offsetL;
 		Gtk::Scale HScale_offsetR;
 		bool adjust_event_flag;
@@ -110,7 +110,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::Button btn_camCalib_collect, btn_camCalib_reset, btn_camCalib_start, btn_camCalib_pop, btn_camCalib_offline_start;
 		Gtk::ToggleButton btn_camCalib;
 
-		bool CamCalib_flag_event;
+		bool CamCalib_flag_event = false;
 
 		void __event_bt_quick_save_clicked();
 		void __event_bt_quick_load_clicked();
