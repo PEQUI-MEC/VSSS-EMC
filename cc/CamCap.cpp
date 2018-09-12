@@ -307,6 +307,19 @@ bool CamCap::capture_and_show() {
 				case Robot2::Command::None:
 					putText(imageView, "x", robot->get_position().to_cv_point(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
 					break;
+				case Robot2::Command::UVF: {
+					double angle = robot->get_target().orientation;
+					cv::Point target = robot->get_target().position.to_cv_point();
+					auto x2 = static_cast<int>(target.x + 16*cos(angle));
+					auto y2 = static_cast<int>(target.y - 16*sin(angle));
+					circle(imageView, target, 7, cv::Scalar(127, 255, 127), 2);
+					line(imageView, target, cv::Point(x2, y2),
+						 cv::Scalar(127, 255, 127), 3);
+					putText(imageView, std::to_string(robot->tag + 1),
+							cv::Point(target.x - 5, target.y - 17),
+							cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+					break;
+				}
 				default:
 					cv::Point robot_target = robot->get_target().position.to_cv_point();
 					circle(imageView, robot_target, 7, cv::Scalar(127, 255, 127), 2);
