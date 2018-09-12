@@ -1,3 +1,4 @@
+#include <Strategy2/Robot2.h>
 #include "CamCap.hpp"
 
 using namespace vision;
@@ -5,10 +6,6 @@ using namespace vision;
 using std::cout;
 using std::endl;
 using std::vector;
-
-bool CamCap::checkForLowRes() {
-	return screenWidth < 1600;
-}
 
 void CamCap::update_positions(const std::array<Vision::RecognizedTag, 3> &tags) {
 	for (int i = 0; i < tags.size(); i++) {
@@ -36,42 +33,25 @@ bool CamCap::start_signal(bool b) {
 			free(data);
 			data = nullptr;
 		}
-		/*GdkScreen* screen = gdk_screen_get_default();
-		if (interface.vcap.format_dest.fmt.pix.width > gdk_screen_get_width(screen)/2 || interface.vcap.format_dest.fmt.pix.height > gdk_screen_get_height(screen)/2)
-		{
-		width = gdk_screen_get_width(screen)/2;
-		height = gdk_screen_get_height(screen)/2;
-		strategyGUI.strategy.set_constants(width,height);
-		}
-		else
-		{*/
+
 		width = interface.vcap.format_dest.fmt.pix.width;
 		height = interface.vcap.format_dest.fmt.pix.height;
-		//}
 
 		interface.visionGUI.setFrameSize(width, height);
 
 		// Liberar os botões de edit
-		interface.robots_auto_bt.set_state(Gtk::STATE_NORMAL);
-		interface.robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
-		interface.robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
-		interface.robots_function_edit_bt.set_state(Gtk::STATE_NORMAL);
+		robotGUI.enable_main_buttons();
 
 		data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
 		interface.imageView.set_size_request(width, height);
 		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
-
-		cout << "Start Clicked! 1" << endl;
 	} else {
 		cout << "Stop Button Clicked!" << endl;
 		con.disconnect();
 
 		// Travar os botões de edit
-		interface.robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
-		interface.robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-		interface.robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-		interface.robots_function_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+		robotGUI.enable_main_buttons(false);
 	}
 
 	interface.__event_bt_quick_load_clicked();
@@ -311,24 +291,46 @@ bool CamCap::capture_and_show() {
 
 		strategy.run();
 
-		// FIXME: Exibir targets na imagem da camera
-//		for (unsigned long i = 0; i < 3; i++) {
-//			if (interface.robot_list.at(i).cmdType != VECTOR) {
-//				circle(imageView, interface.robot_list[i].target, 7, cv::Scalar(127, 255, 127), 2);
-//				putText(imageView, std::to_string(i + 1),
-//						cv::Point(interface.robot_list[i].target.x - 5, interface.robot_list[i].target.y - 17),
-//						cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
-//			} else {
-//				auto angle = interface.robot_list.at(i).transAngle;
-//				auto x2 = static_cast<int>(interface.robot_list.at(i).position.x + 16*cos(angle));
-//				auto y2 = static_cast<int>(interface.robot_list.at(i).position.y - 16*sin(angle));
-//				line(imageView, interface.robot_list.at(i).position, cv::Point(x2, y2),
-//					 cv::Scalar(127, 255, 127), 3);
-//			} // if cmdType != VECTOR
-//		} // for
+		// Desenha os targets no campo
+		for (auto robot : robots) {
+			switch (robot->get_command()) {
+				case Robot2::Command::Vector:
+				case Robot2::Command::Orientation: {
+					double angle = robot->get_target().orientation;
+					cv::Point position = robot->get_position().to_cv_point();
+					auto x2 = static_cast<int>(position.x + 16*cos(angle));
+					auto y2 = static_cast<int>(position.y - 16*sin(angle));
+					line(imageView, position, cv::Point(x2, y2),
+						 cv::Scalar(127, 255, 127), 3);
+					break;
+				}
+				case Robot2::Command::None:
+					putText(imageView, "x", robot->get_position().to_cv_point(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+					break;
+				case Robot2::Command::UVF: {
+					double angle = robot->get_target().orientation;
+					cv::Point target = robot->get_target().position.to_cv_point();
+					auto x2 = static_cast<int>(target.x + 16*cos(angle));
+					auto y2 = static_cast<int>(target.y - 16*sin(angle));
+					circle(imageView, target, 7, cv::Scalar(127, 255, 127), 2);
+					line(imageView, target, cv::Point(x2, y2),
+						 cv::Scalar(127, 255, 127), 3);
+					putText(imageView, std::to_string(robot->tag + 1),
+							cv::Point(target.x - 5, target.y - 17),
+							cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+					break;
+				}
+				default:
+					cv::Point robot_target = robot->get_target().position.to_cv_point();
+					circle(imageView, robot_target, 7, cv::Scalar(127, 255, 127), 2);
+					putText(imageView, std::to_string(robot->tag + 1),
+							cv::Point(robot_target.x - 5, robot_target.y - 17),
+							cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
+			} // switch
+		} // for
 
-		interface.update_speed_progressBars();
-		interface.update_robot_functions();
+		robotGUI.update_speed_progressBars();
+		robotGUI.update_robot_functions();
 	} // if start_game_flag
 	// ----------------------------------------//
 
@@ -504,22 +506,16 @@ void CamCap::calculate_ball_est() {
 	ball_est.y = ls_y.estimate(10);
 }
 
-CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCounter(0),
+CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), height(0), frameCounter(0),
 										   screenWidth(screenW), screenHeight(screenH),
 										   msg_thread(&CamCap::send_cmd_thread, this),
-										   interface(&control.messenger, robots),
+										   robotGUI(robots, isLowRes),
+										   interface(&control.messenger, robots, robotGUI, isLowRes),
 										   strategy(attacker, defender, goalkeeper, ball, ball_est),
 										   robots {&attacker, &defender, &goalkeeper} {
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);
-
-	isLowRes = checkForLowRes();
-
-	if (isLowRes) {
-		interface.~V4LInterface();
-		new(&interface) capture::V4LInterface(isLowRes, &control.messenger, robots);
-	}
 
 	fixed_ball[0] = false;
 	fixed_ball[1] = false;
@@ -530,6 +526,12 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 	notebook.append_page(interface, "Capture");
 	notebook.append_page(interface.visionGUI, "Vision");
 	notebook.append_page(control, "Control");
+	if (isLowRes)
+	{
+		// Caso esteja em baixa resolução, será criado uma aba Robot.
+		// Caso contrário, robotGUI será colocado na info_box da interface.
+		notebook.append_page(robotGUI, "Robot");
+	}
 	notebook.append_page(strategyGUI, "Strategy");
 
 	robot_kf_est.push_back(Ball_Est); // Robot 1
@@ -554,9 +556,9 @@ CamCap::CamCap(int screenW, int screenH) : data(0), width(0), height(0), frameCo
 															   6); // !TODO hardcoded, usar variáveis quando possível
 	}
 
-	for (int i = 0; i < 4; i++) {
-		interface.imageView.adjust_mat[i][0] = -1;
-		interface.imageView.adjust_mat[i][1] = -1;
+	for (auto &i : interface.imageView.adjust_mat) {
+		i[0] = -1;
+		i[1] = -1;
 	}
 
 	camera_vbox.pack_start(fm, false, true, 5);

@@ -19,7 +19,9 @@ int main(int argc, char **argv) {
 	window.maximize();
 	window.set_title("Pequi Mecânico - VSSS EMC");
 
-	CamCap camcap(gdk_screen_get_width(screen), gdk_screen_get_height(screen));
+
+	bool isLowRes = gdk_screen_get_width(screen) <= 1600;
+	CamCap camcap(gdk_screen_get_width(screen), gdk_screen_get_height(screen), isLowRes);
 	window.add(camcap);
 
 	window.show_all();

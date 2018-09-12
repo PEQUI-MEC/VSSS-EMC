@@ -52,28 +52,29 @@ set(SOURCE_FILES cc/main.cpp
     cc/vision/vision.cpp
     cc/vision/visionGUI.cpp
     cc/Geometry/Geometry.cpp
-	cc/Strategy2/Robot2.cpp
-	cc/Strategy2/Attacker.cpp
-	cc/Strategy2/Goalkeeper.cpp
-	cc/Strategy2/Defender.cpp
+    cc/Strategy2/Robot2.cpp
+    cc/Strategy2/Attacker.cpp
+    cc/Strategy2/Goalkeeper.cpp
+    cc/Strategy2/Defender.cpp
     cc/lib/json.hpp
-	cc/Strategy2/Field.cpp
-	cc/Strategy2/Strategy2.cpp
+    cc/Strategy2/Field.cpp
+    cc/Strategy2/Strategy2.cpp
     pack-capture/capture/v4lcap.cpp
     pack-capture/capture/v4ldev.hpp
     pack-capture-gui/capture-gui/ImageView.cpp
     pack-capture-gui/capture-gui/Robot.hpp
     pack-capture-gui/capture-gui/V4LInterface-aux.cpp
     pack-capture-gui/capture-gui/V4LInterface-events.cpp
-	cc/Strategy2/Strategy2.cpp)
+    cc/Strategy2/Strategy2.cpp
+    pack-capture-gui/capture-gui/RobotGUI.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
     cc/Fuzzy/
     cc/vision/
     cc/lib/
-	cc/Strategy2/
-	cc/Geometry/
+    cc/Strategy2/
+    cc/Geometry/
     pack-capture/capture/
     pack-capture-gui/capture-gui/
     ${GTKMM_INCLUDE_DIRS}
@@ -83,9 +84,9 @@ include_directories(cc/
 
 set(CMAKE_CXX_FLAGS "-std=c++14 -g -m64 -pipe -pthread -lpthread -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")
 
-if(CUDA_FOUND)
-	add_definitions(-DCUDA_FOUND)
-endif()
+if (CUDA_FOUND)
+    add_definitions(-DCUDA_FOUND)
+endif ()
 
 add_executable(VSSS ${SOURCE_FILES})
 
@@ -94,7 +95,7 @@ target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
 target_link_libraries(VSSS ${LIBXBEE})
-if(CUDA_FOUND)
-	target_link_libraries(VSSS ${CUDA_LIBRARIES}) 
-endif()
+if (CUDA_FOUND)
+    target_link_libraries(VSSS ${CUDA_LIBRARIES})
+endif ()
 

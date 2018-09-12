@@ -39,6 +39,11 @@ Point Geometry::from_cv_point(cv::Point cv_point) {
 			1.3 - cv_point.y * (1.3 / 480.0)};
 }
 
+cv::Point Point::to_cv_point() {
+	return {static_cast<int>(x * 640 / 1.7),
+			480 - static_cast<int>(y * 480 / 1.3) };
+}
+
 Vector::Vector(const Point &p) {
 	size = distance(p, {0,0});
 	theta = std::atan2(p.y, p.x);

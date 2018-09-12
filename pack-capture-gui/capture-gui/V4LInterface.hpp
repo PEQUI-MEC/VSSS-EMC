@@ -21,6 +21,7 @@
 #include "v4lcap.hpp"
 #include "ImageView.hpp"
 #include "Messenger.h"
+#include "RobotGUI.hpp"
 #include "../../cc/vision/visionGUI.hpp"
 #include <ctime>
 #include <chrono>
@@ -42,12 +43,14 @@ class capture::V4LInterface : public Gtk::VBox {
 
 	public:
 		const std::array<Robot2*, 3>& robots;
+		RobotGUI &robotGUI;
 
 		bool isLowRes;
 
 		VisionGUI visionGUI;
 
 		bool warped = false;
+		bool init_frame = true;
 
 		ImageView imageView;
 		Messenger* messenger;
@@ -62,7 +65,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::Label robot_pos_lb_list[3];
 		Gtk::Label ball_pos_lb;
 
-		Gtk::Frame robots_id_fm;
 		Gtk::HBox info_hbox;
 		Gtk::VBox robots_pos_vbox;
 		Gtk::HBox robots_pos_hbox[7];
@@ -79,41 +81,9 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::CheckButton record_video_checkbox;
 
 		bool reset_warp_flag;
-
-		char robotsIDs[6] = {'A', 'B', 'C', 'D', 'E', 'F'};
-		Gtk::VBox robots_id_vbox;
-		Gtk::HBox robots_id_hbox[4];
-		Gtk::Button robots_id_edit_bt;
-		Gtk::Button robots_auto_bt;
-		Gtk::Button robots_id_done_bt;
-		Gtk::ComboBoxText robots_id_box[3];
-		int robots_id_tmp[3];
-		bool robots_id_edit_flag = false;
-
-		Gtk::Frame robots_speed_fm;
-		Gtk::VBox robots_speed_vbox[4];
-		Gtk::HScale robots_speed_hscale[3];
-		double robots_speed_tmp[3];
-		Gtk::HBox robots_speed_hbox[4];
-		Gtk::ProgressBar robots_speed_progressBar[3];
-		Gtk::Button robots_speed_edit_bt;
-		Gtk::Button robots_speed_done_bt;
-		bool robots_speed_edit_flag = false;
-
-		Gtk::Label robot_label[3];
-		Gtk::Frame robots_function_fm;
-		Gtk::VBox robots_function_vbox;
-		Gtk::HBox robots_function_hbox[4];
-		Gtk::ComboBoxText cb_robot_function[3];
-		int robots_function_tmp[3];
-		Gtk::Button robots_function_edit_bt;
-		Gtk::Button robots_function_done_bt;
-		bool robots_function_edit_flag = false;
-
 		capture::v4lcap vcap;
 
-		V4LInterface(Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots_ref);
-		explicit V4LInterface(bool isLow, Messenger *messenger_ptr, const std::array<Robot2*, 3>& robots_ref);
+		explicit V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref, RobotGUI &robot_gui, bool isLow);
 		void initInterface();
 
 		int offsetL;
@@ -166,26 +136,13 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __event_camCalib_offline_start_clicked();
 		void __event_camCalib_pressed();
 		void __event_cb_frame_interval_changed();
-		void createIDsFrame();
-		void createSpeedsFrame();
-		void update_speed_progressBars();
-		void update_robot_functions();
 		void createPositionsAndButtonsFrame();
-		void createFunctionsFrame();
-		void event_robots_function_done_bt_signal_clicked();
-		void event_robots_function_edit_bt_signal_clicked();
 		void event_start_game_bt_signal_clicked();
 		void event_disable_video_record();
-		void event_robots_speed_done_bt_signal_clicked();
-		void event_robots_speed_edit_bt_signal_pressed();
-		void event_robots_id_done_bt_signal_clicked();
-		void event_robots_id_edit_bt_signal_pressed();
-		void event_robots_auto_bt_signal_pressed();
 		void updateRobotLabels();
 		void update_ball_position(Geometry::Point ball);
 		void updateFPS(int fps);
 		bool get_start_game_flag();
-		void update_interface_robots();
 		void update_interface_camera();
 
 		/* Signals */
@@ -207,8 +164,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __create_frm_device_info();
 		void __create_frm_device_properties();
 		void __create_frm_cam_calib();
-		void __create_frm_CamCalibMode_Offline();
-		void __create_frm_CamCalibMode_Online();
 		void createQuickActionsFrame();
 		void __create_frm_warp();
 
@@ -288,7 +243,6 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		Gtk::Notebook notebook;
 
-		Gtk::ScrolledWindow scrolledWindow;
 		Gtk::VBox capture_vbox;
 
 		void __make_control_list_default();
@@ -297,7 +251,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __block_control_signals(std::list<ControlHolder> &list, bool block);
 		bool __set_control_hscale(int type, double val, std::list<ControlHolder> *list, Gtk::Widget *wctrl);
 		void __set_control(std::list<ControlHolder> *list, Gtk::Widget *wctrl);
-		void discover_robot_ids();
 };
 
 #endif /* V4LINTERFACE_HPP_ */
