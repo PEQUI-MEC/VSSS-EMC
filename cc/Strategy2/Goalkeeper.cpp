@@ -33,8 +33,6 @@ void Goalkeeper::protect_goal(const Point& ball, const Point& ball_est) {
 }
 
 void Goalkeeper::spin_shot(const Point& ball) {
-	Pose pose = get_pose();
-
 	if (ball.x > get_position().x) { // bola na frente/lateral do goleiro
 		if (ball.y > get_position().y) // bola acima do goleiro
 			spin(-35.0); // horário

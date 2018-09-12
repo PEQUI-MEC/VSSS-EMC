@@ -38,7 +38,7 @@ namespace field {
 
 	// Namespaces que com os pontos, retas etc que serão avaliados na função at_position()
 	namespace center {
-		const Geometry::Point point( {field_width, field_height/2} );
+		const Geometry::Point point( {field_width/2, field_height/2} );
 	}
 
 	namespace our {
@@ -121,16 +121,16 @@ namespace field {
 
 	namespace defender {
 		namespace back {
-			const Geometry::Line line({area_width+0.08, 0.0}, {area_width+0.08, field_height});
-			const Geometry::Point upper_limit({area_width+0.08, field_height/2 + goal_height/2});
-			const Geometry::Point lower_limit({area_width+0.08, field_height/2 - goal_height/2});
+			const Geometry::Point upper_limit({goal_width+area_width+0.13, field_height/2 + area_height/2});
+			const Geometry::Point lower_limit({goal_width+area_width+0.13, field_height/2 - area_height/2});
+			const Geometry::Line line(lower_limit, upper_limit);
 		}
 		namespace front {
 			namespace upper {
-				const Geometry::Point wait_point({0.75 * field_width, field_height/2+goal_height/2});
+				const Geometry::Point wait_point({0.73 * field_width, field_height/2+goal_height/2});
 			}
 			namespace lower {
-				const Geometry::Point wait_point({0.75 * field_width, field_height/2-goal_height/2});
+				const Geometry::Point wait_point({0.73 * field_width, field_height/2-goal_height/2});
 			}
 		}
 		namespace middle {
