@@ -27,6 +27,8 @@ namespace field {
 			UpperField,
 			LowerField,
 			OurGoal,
+			OurLowerCorner,
+			OurUpperCorner,
 			TheirGoal,
 			OurBox, // Pequena área
 			TheirBox,
@@ -43,10 +45,10 @@ namespace field {
 
 	namespace our {
 		namespace area {
-			namespace goalkeeper {
-				const Geometry::Line line({goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height});
+			namespace box {
+				const Geometry::Line center_line({goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height});
 				const Geometry::Point lower_limit({goal_width+area_width/2, corner_height+(area_height-goal_height)/2});
-				const Geometry::Point upper_limit({goal_width+area_width/2, lower_limit.x + goal_height});
+				const Geometry::Point upper_limit({goal_width+area_width/2,  + field_height-corner_height-(area_height-goal_height)/2});
 			}
 			namespace upper {
 				const Geometry::Point center({goal_width+area_width/2, area_height+corner_height});
@@ -142,6 +144,7 @@ namespace field {
 	// Função que será chamada pela estratégia para saber a localização dos agentes
 	bool at_location(const Geometry::Point& position, Location location);
 	bool at_location(const Robot2& robot, Location location);
+	bool match_y(const Geometry::Point &position, const Location &location);
 }
 
 
