@@ -73,9 +73,12 @@ void Strategy2::execute_attacker() {
 	} else if (at_location(attacker, Location::OurBox)) {
 		// Cobrar penalti
 		attacker.charged_shot(ball);
+	} else if (true||at_location(attacker, Location::AreaSideAny)){
+		attacker.side_spin_shot(ball);
 	} else {
-		attacker.uvf_to_goal(ball);
+			attacker.uvf_to_goal(ball);
 	}
+
 }
 
 void Strategy2::swap_robots(Robot2& robot1, Robot2& robot2)

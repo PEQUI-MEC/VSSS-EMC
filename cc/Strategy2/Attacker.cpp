@@ -68,3 +68,24 @@ void Attacker::protect_goal(const Geometry::Point &ball) {
 void Attacker::charged_shot(const Geometry::Point &ball) {
 	go_in_direction(ball - get_position(), 1.2);
 }
+
+void Attacker::side_spin_shot(Point ball){
+	Vector ball_to_goal = their::goal::back::center - ball;
+
+	if (distance(get_position(), ball) < 0.06){
+		if(ball.y > their::goal::front::center.y){
+			spin(-35);//Robô gira no sentido anti-horárioo
+		}else{
+			spin(+35);// Robô gira no sentido horário
+		}
+	}else{
+		if(ball.y > their::goal::front::center.y){
+			Vector ball_to_side = {1, ball_to_goal.theta + degree_to_rad(90)};
+			go_to_pose(ball, ball_to_side);
+		} else {
+			Vector ball_to_side = {1, ball_to_goal.theta - degree_to_rad(90)};
+			go_to_pose(ball, ball_to_side);
+		}
+
+	}
+}

@@ -37,6 +37,12 @@ bool field::at_location(const Geometry::Point &position, const Location location
 				   ((position.y >= their::area::lower::center.y && position.y
 																   <= their::goal::front::lower_limit.y) ||
 					(position.y <= their::area::upper::center.y && position.y >= their::goal::front::upper_limit.y));
+		case Location::AreaUpperSide:
+			return  (position.y >= field_height-0.1);
+		case Location::AreaLowerSide:
+			return (position.y <= 0.1);
+		case Location::AreaSideAny:
+			return (position.y <= 0.1) || (position.y >= field_height-0.1);
 		default:
 			return false;
 	}
