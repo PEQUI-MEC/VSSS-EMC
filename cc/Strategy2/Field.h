@@ -37,7 +37,7 @@ namespace field {
 			TheirAreaSideAny,  // laterais da área adversária (regiões da área que não ficam em frente ao gol)
 			AreaUpperSide,//lateral superior do campo
 			AreaLowerSide,//lateral inferior do campo
-			AreaSideAny,//lateral inferior do campo
+			AreaSideAny,//qualquer lateral do campo
 	};
 	// -----------------------------------------------------------------------------------------------------------------
 
