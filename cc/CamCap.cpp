@@ -534,22 +534,6 @@ CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), hei
 	}
 	notebook.append_page(strategyGUI, "Strategy");
 
-	robot_kf_est.push_back(Ball_Est); // Robot 1
-	robot_kf_est.push_back(Ball_Est); // Robot 2
-	robot_kf_est.push_back(Ball_Est); // Robot 3
-	for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-		robot_kf_est.push_back(Ball_Est); // Adv
-	}
-
-	KalmanFilter kf;
-	KF_Robot.push_back(kf); // Robot 1
-	KF_Robot.push_back(kf); // Robot 2
-	KF_Robot.push_back(kf); // Robot 3
-	KF_Robot.push_back(kf); // Ball
-	for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-		KF_Robot.push_back(kf); // Adv
-	}
-
 	for (int i = 0; i < 3; i++) {
 		virtual_robots_orientations[i] = 0;
 		virtual_robots_positions[i] = cv::Point(200, 480 / 6 + (i + 1) * 480 /
