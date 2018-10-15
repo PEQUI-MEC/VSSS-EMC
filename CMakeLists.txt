@@ -34,7 +34,6 @@ set(SOURCE_FILES cc/main.cpp
     cc/controlGUI.cpp
     cc/filechooser.cpp
     cc/CamCap.cpp
-    cc/KalmanFilter.cpp
     cc/StrategyGUI.cpp
     cc/Constants.hpp
     cc/Xbee.cpp
@@ -43,9 +42,6 @@ set(SOURCE_FILES cc/main.cpp
     cc/TestFrame.cpp
     cc/LS.cpp
     cc/CPUTimer.cpp
-    cc/Fuzzy/FuzzyController.cpp
-    cc/Fuzzy/FuzzyFunction.cpp
-    cc/Fuzzy/Rules.cpp
     cc/vision/visionROI.cpp
     cc/vision/gmm.cpp
     cc/vision/tag.cpp
