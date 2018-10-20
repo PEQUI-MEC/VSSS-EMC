@@ -73,9 +73,11 @@ void Attacker::side_spin_shot(Point ball){
 	Vector ball_to_goal = their::goal::back::center - ball;
 	double distance_to_ball = distance(get_position(), ball);
 
-	if((distance_to_ball > 0.07)&& get_position().x < ball.x){
+	if(get_position().x < ball.x-0.01 && (distance_to_ball > 0.065) ){
+		//para evitar o robo ficar dançando quando estiver na lateral correndo atrás da bola
 		go_to(ball);
-	}else if (distance_to_ball <= 0.07){
+	}else
+	if (distance_to_ball <= 0.065 && get_position().x < ball.x){
 		if(ball.y > their::goal::front::center.y){
 			spin(-35);//Robô gira no sentido anti-horárioo
 		}else{
@@ -83,10 +85,10 @@ void Attacker::side_spin_shot(Point ball){
 		}
 	}else{
 		if(ball.y > their::goal::front::center.y){
-			Vector ball_to_side = {1, ball_to_goal.theta + degree_to_rad(90+15)};
+			Vector ball_to_side = {1,  degree_to_rad(45)};
 			go_to_pose(ball, ball_to_side);
 		} else {
-			Vector ball_to_side = {1, ball_to_goal.theta - degree_to_rad(90-15)};
+			Vector ball_to_side = {1, - degree_to_rad(45)}; //ball_to_goal.theta - degree_to_rad(90)
 			go_to_pose(ball, ball_to_side);
 		}
 
