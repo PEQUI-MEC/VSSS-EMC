@@ -13,41 +13,44 @@ Strategy2::Strategy2(Attacker &attacker, Defender &defender, Goalkeeper& goalkee
 }
 
 void Strategy2::run() {
-	transitions();
+	duration_ms since_last_transition = sc::now() - last_transition;
+	if(since_last_transition.count() > 2000) {
+		bool transitioned = transitions();
+		if(transitioned)
+			last_transition = sc::now();
+	}
+
 	execute_goalkeeper();
 	execute_defender();
 	execute_attacker();
 }
 
-void Strategy2::transitions() {
+bool Strategy2::transitions() {
 
 	// Cruzamento
-	if (at_location(ball, Location::TheirBox) && distance(attacker.get_position(), ball) > distance(defender.get_position(),ball))
+	if (at_location(ball, Location::TheirBox) &&
+		distance(attacker.get_position(), ball) > distance(defender.get_position(), ball))
 		swap_robots(attacker, defender);
 
 
 	//Se a bola está bem atrás do atacante mas está na frente do defensor
-	if (distance_x(attacker.get_position(), ball) > 0.36 && is_ball_behind(attacker) &&
-		 !at_location(attacker, Location::TheirCornerAny))
+	else if (distance_x(attacker.get_position(), ball) > 0.36 && is_ball_behind(attacker) &&
+		!at_location(attacker, Location::TheirCornerAny))
 		swap_robots(attacker, defender);
 
 	//Se o defensor está mais perto da bola do que o atacante
-	if (distance_x(attacker.get_position(), ball) > distance_x(defender.get_position(),ball) &&
+	else if (distance_x(attacker.get_position(), ball) > distance_x(defender.get_position(), ball) &&
 		!at_location(attacker, Location::TheirCornerAny))
 		swap_robots(attacker, defender);
 
 
 	//Caso a bola esteja atrás do defensor e do atacante
-	if (is_ball_behind(attacker) && is_ball_behind(defender) && at_location(ball, Location::WideDangerZone))
+	else if (is_ball_behind(attacker) && is_ball_behind(defender) && at_location(ball, Location::WideDangerZone))
 		swap_all_robots();
+	else
+		return false;
 
-	//Caso o angulo do defensor para bola em direção ao gol do oponente for bom
-	Vector def_to_goal = their::goal::front::center - defender.get_position();
-	Vector ball_est_to_goal = their::goal::front::center - ball_est;
-	double theta = std::abs(def_to_goal.theta - ball_est_to_goal.theta);
-	if (theta <= degree_to_rad(20))
-		swap_robots(attacker, defender);
-
+	return true;
 }
 
 void Strategy2::execute_goalkeeper() {
