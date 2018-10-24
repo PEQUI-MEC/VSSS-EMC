@@ -42,3 +42,7 @@ void Goalkeeper::spin_shot(const Point& ball) {
 		go_to_and_stop(get_position());
 	}
 }
+
+void Goalkeeper::exit_goal() {
+		go_to_and_stop(our::area::box::center_line_point);
+}

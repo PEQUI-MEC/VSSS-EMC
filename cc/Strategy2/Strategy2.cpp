@@ -45,26 +45,30 @@ void Strategy2::transitions() {
 }
 
 void Strategy2::execute_goalkeeper() {
-	if (distance(goalkeeper.get_position(), ball) < 0.10)
+	if (distance(goalkeeper.get_position(), ball) < 0.10 && !at_location(goalkeeper, Location::AnyGoal))
 		goalkeeper.spin_shot(ball);
+	else if (at_location(goalkeeper, Location::AnyGoal))
+		goalkeeper.exit_goal();
 	else
 		goalkeeper.protect_goal(ball, ball_est);
 }
 
 void Strategy2::execute_defender() {
-	if (is_ball_est_ahead(their::area::front::center, -0.08)) {
+	if (is_ball_est_ahead(their::area::front::center, -0.08) && !at_location(defender, Location::AnyGoal)) {
 		// Bola na na área adversária
 		if (at_location(ball, Location::UpperField))
 			defender.wait_at_target(defender::front::upper::wait_point, ball);
 		else
 			defender.wait_at_target(defender::front::lower::wait_point, ball);
+	} else if (at_location(defender, Location::AnyGoal)) {
+		defender.exit_goal();
 	} else {
 		defender.protect_goal(ball);
 	}
 }
 
 void Strategy2::execute_attacker() {
-	if (is_ball_behind(our::area::front::center)) {
+	if (is_ball_behind(our::area::front::center) && !at_location(attacker, Location::AnyGoal)) {
 		attacker.protect_goal(ball);
 	} else if (at_location(attacker, Location::TheirCornerAny)) {
 		attacker.crossing(ball);
@@ -73,6 +77,8 @@ void Strategy2::execute_attacker() {
 	} else if (at_location(attacker, Location::OurBox)) {
 		// Cobrar penalti
 		attacker.charged_shot(ball);
+	} else if (at_location(attacker, Location::AnyGoal)) {
+		attacker.exit_goal(ball);
 	} else {
 		attacker.uvf_to_goal(ball);
 	}
