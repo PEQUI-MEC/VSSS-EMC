@@ -41,7 +41,6 @@ set(SOURCE_FILES cc/main.cpp
     cc/jsonSaveManager.cpp
     cc/TestFrame.cpp
     cc/LS.cpp
-    cc/CPUTimer.cpp
     cc/vision/visionROI.cpp
     cc/vision/gmm.cpp
     cc/vision/tag.cpp
@@ -58,7 +57,6 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture/capture/v4lcap.cpp
     pack-capture/capture/v4ldev.hpp
     pack-capture-gui/capture-gui/ImageView.cpp
-    pack-capture-gui/capture-gui/Robot.hpp
     pack-capture-gui/capture-gui/V4LInterface-aux.cpp
     pack-capture-gui/capture-gui/V4LInterface-events.cpp
     cc/Strategy2/Strategy2.cpp

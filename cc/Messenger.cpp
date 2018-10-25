@@ -132,4 +132,5 @@ Messenger::Messenger()
 	send_cmd_count = 0;
 	frameskip = DEFAULT_FRAMESKIP;
 	previous_msg_time = std::chrono::system_clock::now();
+	time_between_msgs = 0;
 }

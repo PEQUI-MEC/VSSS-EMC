@@ -1,8 +1,6 @@
 #include "LS.h"
 
-LS::LS() {
-	this->sampNum = 1;
-	this->polyOrder = 1;
+LS::LS() : sampNum(1), polyOrder(1), P(nullptr), R(nullptr) {
 }
 
 void LS::init(int sampNum, int polyOrder) {
