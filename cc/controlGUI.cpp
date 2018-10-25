@@ -240,6 +240,7 @@ void ControlGUI::_update_cb_serial() {
 	messenger.stop_xbee();
 
 	cb_serial.remove_all();
+	int serial_count = 0;
 
 	for (int i = 0; i < 256; ++i) {
 		std::string port = "/dev/ttyUSB";
@@ -250,20 +251,27 @@ void ControlGUI::_update_cb_serial() {
 			std::cout << port << std::endl;
 			cb_serial.append(port);
 			close(fd);
+			serial_count++;
 		}
 	}
 
-	bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
-	cb_serial.set_state(Gtk::STATE_NORMAL);
-	bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
+	if (serial_count == 1) {
+		// Caso tenha apenas um dispositivo, já inicia a comunicação serial
+		cb_serial.set_active(0);
+		_start_serial();
+	} else {
+		bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
+		cb_serial.set_state(Gtk::STATE_NORMAL);
+		bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 
-	pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-	Tbox_V1.set_state(Gtk::STATE_INSENSITIVE);
-	Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
-	bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
-	cb_test.set_state(Gtk::STATE_INSENSITIVE);
-	bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
-	bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
+		pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+		Tbox_V1.set_state(Gtk::STATE_INSENSITIVE);
+		Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
+		bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
+		cb_test.set_state(Gtk::STATE_INSENSITIVE);
+		bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
+		bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
+	}
 }
 
 void ControlGUI::_create_status_frame() {
