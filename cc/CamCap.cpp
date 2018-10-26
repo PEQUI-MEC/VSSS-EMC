@@ -79,8 +79,9 @@ bool CamCap::capture_and_show() {
 
 	if (!data) return false;
 
+
 	if (frameCounter == 0) {
-		timer.start();
+		timer_start = std::chrono::high_resolution_clock::now();
 	}
 	frameCounter++;
 
@@ -335,12 +336,10 @@ bool CamCap::capture_and_show() {
 	// ----------------------------------------//
 
 
-	if (frameCounter == 30) {
-		timer.stop();
-		fps_average = static_cast<int>(30 / timer.getCronoTotalSecs());
-		// cout<<"CPU Time: "<<timer.getCPUTotalSecs()<<",	\"CPU FPS\": "<<30/timer.getCPUTotalSecs()<<endl;
-		// cout<<"FPS Time: "<<timer.getCronoTotalSecs()<<", FPS: "<<30/timer.getCronoTotalSecs()<<endl;
-		timer.reset();
+	if (frameCounter == 10) {
+		auto timer_finish = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = timer_finish - timer_start;
+		fps_average = static_cast<int>(10 / elapsed.count());
 		frameCounter = 0;
 	}
 
