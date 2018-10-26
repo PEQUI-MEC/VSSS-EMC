@@ -31,7 +31,7 @@
 #include <gtkmm.h>
 #include <cmath>
 #include <fstream>
-#include "CPUTimer.h"
+#include <chrono>
 #include "Constants.hpp"
 #include "LS.h"
 
@@ -58,7 +58,7 @@ class CamCap : public Gtk::HBox {
 		int width, height;
 		int Selec_index = -1;
 		int fps_average = 0;
-		CPUTimer timer;
+		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
 
 		bool fixed_ball[3];
 
