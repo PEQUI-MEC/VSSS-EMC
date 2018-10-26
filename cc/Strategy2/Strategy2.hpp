@@ -6,16 +6,23 @@
 #include "Strategy2/Defender.hpp"
 #include "Strategy2/Goalkeeper.hpp"
 #include "Strategy2/Field.h"
+#include <chrono>
 
 class Strategy2 {
 	private:
+		using sc = std::chrono::system_clock;
+		using duration_ms = std::chrono::duration<double, std::milli>;
+
 		Attacker &attacker;
 		Defender &defender;
 		Goalkeeper &goalkeeper;
 		Geometry::Point &ball;
 		Geometry::Point &ball_est;
 
-		void transitions();
+		sc::time_point last_transition = sc::now();
+
+//		Returns true if a transition happens
+		bool transitions();
 		void swap_robots(Robot2 &robot1, Robot2 &robot2);
 		void swap_all_robots();
 		bool has_ball(const Robot2 &robot);
