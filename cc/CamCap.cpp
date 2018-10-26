@@ -79,8 +79,9 @@ bool CamCap::capture_and_show() {
 
 	if (!data) return false;
 
+
 	if (frameCounter == 0) {
-		timer.start();
+		timer_start = std::chrono::high_resolution_clock::now();
 	}
 	frameCounter++;
 
@@ -335,12 +336,10 @@ bool CamCap::capture_and_show() {
 	// ----------------------------------------//
 
 
-	if (frameCounter == 30) {
-		timer.stop();
-		fps_average = static_cast<int>(30 / timer.getCronoTotalSecs());
-		// cout<<"CPU Time: "<<timer.getCPUTotalSecs()<<",	\"CPU FPS\": "<<30/timer.getCPUTotalSecs()<<endl;
-		// cout<<"FPS Time: "<<timer.getCronoTotalSecs()<<", FPS: "<<30/timer.getCronoTotalSecs()<<endl;
-		timer.reset();
+	if (frameCounter == 10) {
+		auto timer_finish = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = timer_finish - timer_start;
+		fps_average = static_cast<int>(10 / elapsed.count());
 		frameCounter = 0;
 	}
 
@@ -533,22 +532,6 @@ CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), hei
 		notebook.append_page(robotGUI, "Robot");
 	}
 	notebook.append_page(strategyGUI, "Strategy");
-
-	robot_kf_est.push_back(Ball_Est); // Robot 1
-	robot_kf_est.push_back(Ball_Est); // Robot 2
-	robot_kf_est.push_back(Ball_Est); // Robot 3
-	for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-		robot_kf_est.push_back(Ball_Est); // Adv
-	}
-
-	KalmanFilter kf;
-	KF_Robot.push_back(kf); // Robot 1
-	KF_Robot.push_back(kf); // Robot 2
-	KF_Robot.push_back(kf); // Robot 3
-	KF_Robot.push_back(kf); // Ball
-	for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++) {
-		KF_Robot.push_back(kf); // Adv
-	}
 
 	for (int i = 0; i < 3; i++) {
 		virtual_robots_orientations[i] = 0;

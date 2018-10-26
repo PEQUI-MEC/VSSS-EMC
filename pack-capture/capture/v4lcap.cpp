@@ -25,8 +25,7 @@ using std::cout;
 using std::endl;
 using capture::v4lcap;
 
-v4lcap::v4lcap() :
-		fd(0), emulate_format(true), needs_convert(false), v4lconv(NULL), status(0) {
+v4lcap::v4lcap() : fd(0), emulate_format(true), needs_convert(false), v4lconv(nullptr), status(0) {
 }
 
 int v4lcap::xioctl(int fd, int request, void *arg) {

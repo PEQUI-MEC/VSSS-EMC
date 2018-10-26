@@ -21,7 +21,6 @@
 #include "controlGUI.hpp"
 #include "RobotGUI.hpp"
 #include "vision/vision.hpp"
-#include "KalmanFilter.hpp"
 #include "V4LInterface.hpp"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -32,7 +31,7 @@
 #include <gtkmm.h>
 #include <cmath>
 #include <fstream>
-#include "CPUTimer.h"
+#include <chrono>
 #include "Constants.hpp"
 #include "LS.h"
 
@@ -59,25 +58,18 @@ class CamCap : public Gtk::HBox {
 		int width, height;
 		int Selec_index = -1;
 		int fps_average = 0;
-		CPUTimer timer;
+		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
 
 		bool fixed_ball[3];
-		bool KF_FIRST = true;
 
 		unsigned char *data;
 
 		int frameCounter;
-		std::vector<cv::Point2f> robot_kf_est;
-		std::vector<cv::Point2f> robot_kf_est_ini;
-		std::vector<KalmanFilter> KF_Robot;
 
 		cv::Point2f Ball_Est;
-		cv::Point2f Ball_kf_est;
-		cv::Point2f Ball_kf_est_ini;
 
 		cv::Point virtual_robots_positions[3];
 		float virtual_robots_orientations[3];
-		int virtual_robot_selected = -1;
 
 		StrategyGUI strategyGUI;
 		ControlGUI control;
