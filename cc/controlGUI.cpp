@@ -81,6 +81,7 @@ ControlGUI::ControlGUI() {
 	_create_status_frame();
 
 	_update_cb_serial();
+	auto_start_serial();
 	update_ack_interface();
 	// Conectar os sinais para o acontecimento dos eventos
 	button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
@@ -146,6 +147,12 @@ void ControlGUI::_robot_status() {
 			battery_bar[i].set_text("0%");
 			status_lb[i].set_text("Offline");
 		}
+	}
+}
+
+void ControlGUI::auto_start_serial() {
+	if (xbee_connections == 1) {
+		_start_serial();
 	}
 }
 
@@ -240,7 +247,7 @@ void ControlGUI::_update_cb_serial() {
 	messenger.stop_xbee();
 
 	cb_serial.remove_all();
-	int serial_count = 0;
+	xbee_connections = 0;
 
 	for (int i = 0; i < 256; ++i) {
 		std::string port = "/dev/ttyUSB";
@@ -251,27 +258,25 @@ void ControlGUI::_update_cb_serial() {
 			std::cout << port << std::endl;
 			cb_serial.append(port);
 			close(fd);
-			serial_count++;
+			xbee_connections++;
 		}
 	}
 
-	if (serial_count == 1) {
-		// Caso tenha apenas um dispositivo, já inicia a comunicação serial
+	// Caso tenha apenas algum dispositivo, atualizar a combo box
+	if (xbee_connections > 0)
 		cb_serial.set_active(0);
-		_start_serial();
-	} else {
-		bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
-		cb_serial.set_state(Gtk::STATE_NORMAL);
-		bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 
-		pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
-		Tbox_V1.set_state(Gtk::STATE_INSENSITIVE);
-		Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
-		bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
-		cb_test.set_state(Gtk::STATE_INSENSITIVE);
-		bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
-		bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
-	}
+	bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
+	cb_serial.set_state(Gtk::STATE_NORMAL);
+	bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
+
+	pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	Tbox_V1.set_state(Gtk::STATE_INSENSITIVE);
+	Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
+	bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
+	cb_test.set_state(Gtk::STATE_INSENSITIVE);
+	bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
+	bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
 }
 
 void ControlGUI::_create_status_frame() {
