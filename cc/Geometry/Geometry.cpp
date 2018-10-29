@@ -17,6 +17,10 @@ double Geometry::distance_x(const Point &a, const Point &b) {
 	return std::abs(a.x - b.x);
 }
 
+double Geometry::distance_y(const Point &a, const Point &b) {
+	return std::abs(a.y - b.y);
+}
+
 Point Geometry::intersection(const Line &l1, const Line &l2) {
 	if(l1.a == l2.a && l1.b == l2.b) return {0, l1.b};
 	else {

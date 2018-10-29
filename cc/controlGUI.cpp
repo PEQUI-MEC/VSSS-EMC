@@ -194,9 +194,7 @@ bool ControlGUI::isFloat(std::string value) {
 		else if (!isdigit(value[i])) return false;
 	}
 	// só pode ter um ponto
-	if (counter > 1) return false;
-
-	return true;
+	return counter <= 1;
 }
 
 void ControlGUI::_send_test() {
@@ -209,14 +207,14 @@ void ControlGUI::_send_test() {
 	float v1 = std::stof(Tbox_V1.get_text());
 	float v2 = std::stof(Tbox_V2.get_text());
 
-	if (abs(v1) > 1.4) {
+	if (std::abs(v1) > 1.4) {
 		if (v1 < 0)
 			Tbox_V1.set_text("-1.4");
 		else
 			Tbox_V1.set_text("1.4");
 	}
 
-	if (abs(v2) > 1.4) {
+	if (std::abs(v2) > 1.4) {
 		if (v2 < 0)
 			Tbox_V2.set_text("-1.4");
 		else
@@ -299,12 +297,12 @@ void ControlGUI::_create_status_frame() {
 	status_grid.attach(bt_reset_ack, 4, 0, 1, 1);
 
 	std::vector<std::string> name;
-	name.push_back("Robot A");
-	name.push_back("Robot B");
-	name.push_back("Robot C");
-	name.push_back("Robot D");
-	name.push_back("Robot E");
-	name.push_back("Robot F");
+	name.emplace_back("Robot A");
+	name.emplace_back("Robot B");
+	name.emplace_back("Robot C");
+	name.emplace_back("Robot D");
+	name.emplace_back("Robot E");
+	name.emplace_back("Robot F");
 
 	for (int i = 0; i < TOTAL_ROBOTS; i++) {
 		status_img[i].set("img/offline.png");

@@ -77,7 +77,7 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 	}
 }
 
-ImageView::ImageView() : data(0), width(0), height(0), stride(0) {
+ImageView::ImageView() : data(nullptr), width(0), height(0), stride(0) {
 	robot_pos[1] = 0;
 	robot_pos[0] = 0;
 	tar_pos[1] = -1;
