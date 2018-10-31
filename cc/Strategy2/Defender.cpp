@@ -19,3 +19,7 @@ void Defender::protect_goal(const Geometry::Point &ball) {
 		go_to_and_stop(defender::back::lower_limit);
 	}
 }
+
+void Defender::exit_goal() {
+		go_to(center::point);
+}
