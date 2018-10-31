@@ -58,3 +58,13 @@ void Attacker::protect_goal(const Geometry::Point &ball) {
 void Attacker::charged_shot(const Geometry::Point &ball) {
 	go_in_direction(ball - get_position(), 1.2);
 }
+
+void Attacker::exit_goal(const Geometry::Point &ball) {
+	if (!at_location(get_position(), Location::OurField) && ball.x > get_pose().position.x)
+		// Se o atacante estiver dentro do gol adversário, mas a bola está na frente dele
+		// só continua indo pro gol, não importa
+		go_in_direction({1,0}, 1.4);
+	else
+		// Sai do gol
+		go_to(center::point);
+}

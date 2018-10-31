@@ -26,6 +26,7 @@ class Attacker : public Robot2 {
 
 		void protect_goal(const Geometry::Point& ball);
 		void charged_shot(const Geometry::Point& ball);
+		void exit_goal(const Geometry::Point &ball);
 
 	private:
 		Role get_role() override { return Role::Attacker; };
