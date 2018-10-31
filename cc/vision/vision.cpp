@@ -1,4 +1,5 @@
 #include <Geometry/Geometry.h>
+#include <Strategy2/Field.h>
 #include "vision.hpp"
 
 using namespace vision;
@@ -154,8 +155,8 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 //		robot.position = tags.at(Color::Main).at(i).position;
 //
 //		// Cálculo da orientação de acordo com os pontos rear e front
-//		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
-//								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * 1.5 / width);
+//		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * field::field_height / height,
+//								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * field::field_width / width);
 //
 //		// Armazena a tag
 //		tempTags.push_back(tags.at(Color::Main).at(i));
@@ -235,8 +236,8 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 		cv::Point position = main_tag.position;
 
 		// Cálculo da orientação de acordo com os pontos rear e front
-		double orientation = atan2((main_tag.frontPoint.y - position.y) * 1.3 / height,
-								  (main_tag.frontPoint.x - position.x) * 1.7 / width);
+		double orientation = atan2((main_tag.frontPoint.y - position.y) * field::field_height / height,
+								  (main_tag.frontPoint.x - position.x) * field::field_width / width);
 
 		// Para cada tag principal, verifica quais são as secundárias correspondentes
 		for (Tag &secondary_tag : tags.at(Color::Green)) {
@@ -292,8 +293,8 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 //		auto position = tags.at(Color::Main).at(i).position;
 //
 //		// Cálculo da orientação de acordo com os pontos rear e front
-//		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * 1.3 / height,
-//								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * 1.7 / width);
+//		robot.orientation = atan2((tags.at(Color::Main).at(i).frontPoint.y - robot.position.y) * field::field_height / height,
+//								  (tags.at(Color::Main).at(i).frontPoint.x - robot.position.x) * field::field_width / width);
 //
 //		// Armazena a tag
 //		tempTags.push_back(tags.at(Color::Main).at(i));
@@ -363,12 +364,12 @@ int Vision::in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *seco
 		if (calcDistance(main_tag->frontPoint, secondary) < calcDistance(main_tag->rearPoint, secondary)) {
 			main_tag->switchPoints();
 			// recalcula a orientação com os novos pontos (isso só é feito uma vez em cada robô, se necessário)
-			*orientation = atan2((main_tag->frontPoint.y - main_tag->position.y) * 1.3 / height,
-								(main_tag->frontPoint.x - main_tag->position.x) * 1.5 / width);
+			*orientation = atan2((main_tag->frontPoint.y - main_tag->position.y) * field::field_height / height,
+								(main_tag->frontPoint.x - main_tag->position.x) * field::field_width / width);
 		}
 
-		float secSide = atan2((secondary.y - main_tag->position.y) * 1.3 / height,
-							  (secondary.x - main_tag->position.x) * 1.5 / width);
+		float secSide = atan2((secondary.y - main_tag->position.y) * field::field_height / height,
+							  (secondary.x - main_tag->position.x) * field::field_width / width);
 
 		// Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
 		return (atan2(sin(secSide - *orientation + 3.1415), cos(secSide - *orientation + 3.1415))) > 0 ? 1 : -1;
@@ -382,12 +383,12 @@ int Vision::in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *seco
 //		if (calcDistance(tempTags->at(0).frontPoint, secondary) < calcDistance(tempTags->at(0).rearPoint, secondary)) {
 //			tempTags->at(0).switchPoints();
 //			// recalcula a orientação com os novos pontos (isso só é feito uma vez em cada robô, se necessário)
-//			robot->orientation = atan2((tempTags->at(0).frontPoint.y - robot->position.y) * 1.3 / height,
-//									   (tempTags->at(0).frontPoint.x - robot->position.x) * 1.5 / width);
+//			robot->orientation = atan2((tempTags->at(0).frontPoint.y - robot->position.y) * field::field_height / height,
+//									   (tempTags->at(0).frontPoint.x - robot->position.x) * field::field_width / width);
 //		}
 //
-//		float secSide = atan2((secondary.y - robot->position.y) * 1.3 / height,
-//							  (secondary.x - robot->position.x) * 1.5 / width);
+//		float secSide = atan2((secondary.y - robot->position.y) * field::field_height / height,
+//							  (secondary.x - robot->position.x) * field::field_width / width);
 //
 //		// Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
 //		return (atan2(sin(secSide - robot->orientation + 3.1415), cos(secSide - robot->orientation + 3.1415))) > 0 ? 1

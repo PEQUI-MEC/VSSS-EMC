@@ -54,7 +54,7 @@ bool Strategy2::transitions() {
 }
 
 void Strategy2::execute_goalkeeper() {
-	if (distance(goalkeeper.get_position(), ball) < 0.10 && !at_location(goalkeeper, Location::AnyGoal))
+	if (distance(goalkeeper.get_position(), ball) < goalkeeper.BALL_OFFSET && !at_location(goalkeeper, Location::AnyGoal))
 		goalkeeper.spin_shot(ball);
 	else if (at_location(goalkeeper, Location::AnyGoal))
 		goalkeeper.exit_goal();
@@ -127,5 +127,5 @@ bool Strategy2::is_ball_est_ahead(const Point& point, double offset) {
 }
 
 bool Strategy2::has_ball(const Robot2& robot) {
-	return distance(robot.get_position(), ball) < 0.08;
+	return distance(robot.get_position(), ball) < robot.BALL_OFFSET;
 }
