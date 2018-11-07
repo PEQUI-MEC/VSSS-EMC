@@ -470,15 +470,21 @@ void Vision::collectImagesForCalibration() {
 	cv::String path("media/pictures/camCalib/*.png"); //select only png
 	std::vector<cv::String> fn;
 	std::vector<cv::Mat> data;
-	cv::glob(path, fn, true); // recurse
-	for (auto &index : fn) {
-		cv::Mat im = cv::imread(index);
-		if (im.empty()) continue; //only proceed if sucsessful
-		// you probably want to do some preprocessing
-		savedCamCalibFrames.push_back(im);
-	}
-	std::cout << "Pictures collected: " << savedCamCalibFrames.size() << std::endl;
-	cameraCalibration();
+    try{
+        cv::glob(path, fn, true); // recurse
+        for (auto &index : fn) {
+            cv::Mat im = cv::imread(index);
+            if (im.empty()) continue; //only proceed if sucsessful
+            // you probably want to do some preprocessing
+            savedCamCalibFrames.push_back(im);
+        }
+        std::cout << "Pictures collected: " << savedCamCalibFrames.size() << std::endl;
+        cameraCalibration();
+
+    }catch (...){
+        std::cout << "An exception occurred. No images for calibration. \n";
+    }
+
 }
 
 void Vision::cameraCalibration() {
@@ -489,8 +495,6 @@ void Vision::cameraCalibration() {
 	getChessBoardCorners(savedCamCalibFrames, worldSpaceCornersPoints, checkerBoardImageSpacePoints);
 	std::cout << "Image Space Points " << checkerBoardImageSpacePoints.size() << std::endl;
 
-	//worldSpaceCornersPoints = createKnownBoardPosition(CHESSBOARD_DIMENSION, CALIBRATION_SQUARE_DIMENSION);
-	//worldSpaceCornersPoints.resize(checkerBoardImageSpacePoints.size(), worldSpaceCornersPoints[0]);
 	std::cout << "world SpaceCorners Points " << worldSpaceCornersPoints.size() << std::endl;
 	std::vector<cv::Mat> rVectors, tVectors;
 	distanceCoeficents = cv::Mat::zeros(8, 1, CV_64F);
@@ -516,18 +520,6 @@ void Vision::cameraCalibration() {
 	std::cout << "End of calibration" << std::endl;
 }
 
-// criando um vetor com a posiçap de todos os pontos que pertencem ao padrao em milimetros desconsiderando Z para ficar
-// computacionalmente mais barato
-std::vector<cv::Point3f> Vision::createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght) {
-	std::vector<cv::Point3f> corners;
-	for (int i = 0; i < boardSize.height; i++) {
-		for (int j = 0; j < boardSize.width; ++j) {
-			corners.emplace_back(j * squareEdgeLenght, i * squareEdgeLenght, 0.0f);
-		}
-	}
-
-	return corners;
-}
 
 void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::vector<cv::Point3f>>& pts3d,std::vector<std::vector<cv::Point2f>>& pts2d) const {
 	cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
@@ -552,7 +544,6 @@ void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::
             pts3d.push_back(corners);
 		}
 	}
-	//return allFoundCorners;
 }
 
 bool Vision::foundChessBoardCorners() const {
