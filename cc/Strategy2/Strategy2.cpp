@@ -13,58 +13,71 @@ Strategy2::Strategy2(Attacker &attacker, Defender &defender, Goalkeeper& goalkee
 }
 
 void Strategy2::run() {
-//	transitions();
+	duration_ms since_last_transition = sc::now() - last_transition;
+	if(since_last_transition.count() > 2000) {
+		bool transitioned = transitions();
+		if(transitioned)
+			last_transition = sc::now();
+	}
 
 	execute_goalkeeper();
 	execute_defender();
 	execute_attacker();
 }
 
-void Strategy2::transitions() {
+bool Strategy2::transitions() {
 
 	// Cruzamento
-	if (at_location(ball, Location::TheirBox) && distance(attacker.get_position(), ball) > 0.12)
+	if (at_location(ball, Location::TheirBox) &&
+		distance(attacker.get_position(), ball) > distance(defender.get_position(), ball))
 		swap_robots(attacker, defender);
 
-	// Se a bola está bem atrás do atacante mas está na frente do defensor
-	if (distance_x(attacker.get_position(), ball) > 0.36 && is_ball_behind(attacker) &&
+
+	//Se a bola está bem atrás do atacante mas está na frente do defensor
+	else if (distance_x(attacker.get_position(), ball) > 0.36 && is_ball_behind(attacker) &&
 		!at_location(attacker, Location::TheirCornerAny))
 		swap_robots(attacker, defender);
 
-	// Caso a bola esteja atrás do defensor e do atacante
-	if (is_ball_behind(attacker) && is_ball_behind(defender) && at_location(ball, Location::WideDangerZone))
-		swap_all_robots();
-
-	// Caso o angulo do defensor para bola em direção ao gol do oponente for bom
-	Vector def_to_goal = their::goal::front::center - defender.get_position();
-	Vector ball_est_to_goal = their::goal::front::center - ball_est;
-	double theta = std::abs(def_to_goal.theta - ball_est_to_goal.theta);
-	if (theta <= degree_to_rad(20))
+	//Se o defensor está mais perto da bola do que o atacante
+	else if (distance_x(attacker.get_position(), ball) > distance_x(defender.get_position(), ball) &&
+		!at_location(attacker, Location::TheirCornerAny))
 		swap_robots(attacker, defender);
 
+
+	//Caso a bola esteja atrás do defensor e do atacante
+	else if (is_ball_behind(attacker) && is_ball_behind(defender) && at_location(ball, Location::WideDangerZone))
+		swap_all_robots();
+	else
+		return false;
+
+	return true;
 }
 
 void Strategy2::execute_goalkeeper() {
-	if (distance(goalkeeper.get_position(), ball) < 0.10)
+	if (distance(goalkeeper.get_position(), ball) < goalkeeper.BALL_OFFSET && !at_location(goalkeeper, Location::AnyGoal))
 		goalkeeper.spin_shot(ball);
+	else if (at_location(goalkeeper, Location::AnyGoal))
+		goalkeeper.exit_goal();
 	else
 		goalkeeper.protect_goal(ball, ball_est);
 }
 
 void Strategy2::execute_defender() {
-	if (is_ball_est_ahead(their::area::front::center, -0.08)) {
+	if (is_ball_est_ahead(their::area::front::center, -0.08) && !at_location(defender, Location::AnyGoal)) {
 		// Bola na na área adversária
 		if (at_location(ball, Location::UpperField))
 			defender.wait_at_target(defender::front::upper::wait_point, ball);
 		else
 			defender.wait_at_target(defender::front::lower::wait_point, ball);
+	} else if (at_location(defender, Location::AnyGoal)) {
+		defender.exit_goal();
 	} else {
 		defender.protect_goal(ball);
 	}
 }
 
 void Strategy2::execute_attacker() {
-	if (is_ball_behind(our::area::front::center)) {
+	if (is_ball_behind(our::area::front::center) && !at_location(attacker, Location::AnyGoal)) {
 		attacker.protect_goal(ball);
 	} else if (at_location(attacker, Location::TheirCornerAny)) {
 		attacker.crossing(ball);
@@ -75,6 +88,8 @@ void Strategy2::execute_attacker() {
 		attacker.charged_shot(ball);
 	} else if (at_location(ball, Location::AnySide)){
 		attacker.side_spin_shot(ball);
+	} else if (at_location(attacker, Location::AnyGoal)) {
+		attacker.exit_goal(ball);
 	} else {
 		attacker.uvf_to_goal(ball);
 	}
@@ -115,5 +130,5 @@ bool Strategy2::is_ball_est_ahead(const Point& point, double offset) {
 }
 
 bool Strategy2::has_ball(const Robot2& robot) {
-	return distance(robot.get_position(), ball) < 0.08;
+	return distance(robot.get_position(), ball) < robot.BALL_OFFSET;
 }

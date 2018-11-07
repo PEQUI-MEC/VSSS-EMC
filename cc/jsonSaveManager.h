@@ -13,6 +13,8 @@ class jsonSaveManager {
 
 		bool exists(json &config, std::string name);
 
+		const std::string cielab_calib[4] = {"Main", "Green", "Ball", "Opp."};
+
 	public:
 		explicit jsonSaveManager(capture::V4LInterface *interf) : interface(interf) {};
 		void save_robots();

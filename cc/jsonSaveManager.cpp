@@ -34,11 +34,10 @@ void jsonSaveManager::load_robots() {
 
 void jsonSaveManager::save_camera() {
 	json &camera_config = configs["Cameras"][interface->camera_card];
-	string cielab_calibs[4] = {"Main", "Green", "Ball", "Opp."};
 
 	Vision &vision = *(interface->visionGUI.vision);
 	for (unsigned int i = 0; i < vision.MAX_COLORS; ++i) {
-		json &lab = camera_config["CIELAB Calibration"][cielab_calibs[i]];
+		json &lab = camera_config["CIELAB Calibration"][cielab_calib[i]];
 
 		lab["L_min"] = vision.getCIE_L(i, 0);
 		lab["L_max"] = vision.getCIE_L(i, 1);
@@ -85,11 +84,10 @@ void jsonSaveManager::save_camera() {
 void jsonSaveManager::load_camera() {
 	if (!exists(configs["Cameras"], interface->camera_card)) return;
 	json &camera_config = configs["Cameras"][interface->camera_card];
-
-	string cielab_calibs[4] = {"Main", "Green", "Ball", "Opp."};
+	
 	Vision &vision = *(interface->visionGUI.vision);
-	for (unsigned int i = 0; i < vision.MAX_COLORS; ++i) {
-		json &lab = camera_config["CIELAB Calibration"][cielab_calibs[i]];
+	for (unsigned int i = 0; i < vision::Vision::MAX_COLORS; ++i) {
+		json &lab = camera_config["CIELAB Calibration"][cielab_calib[i]];
 
 		if (exists(lab, "L_min")) vision.setCIE_L(i, 0, lab["L_min"]);
 		if (exists(lab, "L_max")) vision.setCIE_L(i, 1, lab["L_max"]);

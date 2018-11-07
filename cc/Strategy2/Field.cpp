@@ -22,7 +22,7 @@ bool field::at_location(const Geometry::Point &position, const Location location
 				   && position.y >= our::area::box::lower_limit.y && position.y <= our::area::box::upper_limit.y;
 		case Location::TheirBox:
 			return position.x <= their::goal::front::center.x && position.x >= their::area::front::center.x
-				   && position.y >= their::area::lower::center.y && position.x >= their::area::lower::center.y;
+				   && position.y >= their::area::lower::center.y && position.y <= their::area::upper::center.y;
 		case Location::OurUpperCorner:
 			return position.x < our::area::front::center.x && position.y > our::area::upper::center.y;
 		case Location::OurLowerCorner:
@@ -39,6 +39,8 @@ bool field::at_location(const Geometry::Point &position, const Location location
 					(position.y <= their::area::upper::center.y && position.y >= their::goal::front::upper_limit.y));
 		case Location::AnySide:
 			return (position.y <= 0.1) || (position.y >= field_height-0.1);
+		case Location::AnyGoal:
+			return (position.x <= (our::goal::front::center.x + 0.03) || position.x >= (their::goal::front::center.x - 0.03));
 		default:
 			return false;
 	}
