@@ -76,7 +76,7 @@ void Strategy2::execute_attacker() {
 	} else if (at_location(ball, Location::AnySide)){
 		attacker.side_spin_shot(ball);
 	} else {
-			attacker.uvf_to_goal(ball);
+		attacker.uvf_to_goal(ball);
 	}
 
 }

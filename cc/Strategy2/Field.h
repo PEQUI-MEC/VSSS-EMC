@@ -35,8 +35,6 @@ namespace field {
 			TheirCornerAny, // Qualquer um dos cantos do time oponente
 			WideDangerZone, // região do nosso campo a esquerda da linha onde os robôs oponentes cobram falta
 			TheirAreaSideAny,  // laterais da área adversária (regiões da área que não ficam em frente ao gol)
-			UpperSide,//lateral superior do campo
-			LowerSide,//lateral inferior do campo
 			AnySide,//qualquer lateral do campo
 	};
 	// -----------------------------------------------------------------------------------------------------------------
@@ -120,25 +118,6 @@ namespace field {
 			}
 			namespace upper {
 				const Geometry::Point center({field_width-goal_width-area_width/2, area_height+corner_height});
-			}
-			namespace lower_slim {
-				const Geometry::Point center({field_width, field_height - goal_height - area_height/4});
-			}
-			namespace upper_slim {
-				const Geometry::Point center({field_width, field_height - goal_height + area_height/4});
-			}
-		}
-	}
-
-	namespace both {
-		namespace area {
-			namespace lower {
-				const Geometry::Point slim_center({field_width, field_height - goal_height - area_height/4});
-				const Geometry::Point limit({0, 0});
-			}
-			namespace upper {
-				const Geometry::Point slim_center({field_width, field_height - goal_height + area_height/4});
-				const Geometry::Point limit({field_width, field_height});
 			}
 		}
 	}
