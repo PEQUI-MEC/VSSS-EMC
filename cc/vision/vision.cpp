@@ -50,7 +50,9 @@ void Vision::posProcessing(const unsigned long color) {
 	cv::Mat erodeElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 	cv::Mat dilateElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
 
-	cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
+	if (blur[color] > 0) {
+		cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
+	}
 	cv::erode(threshold_frame.at(color), threshold_frame.at(color), erodeElement, cv::Point(-1, -1),
 			  erode[color]);
 	cv::dilate(threshold_frame.at(color), threshold_frame.at(color), dilateElement, cv::Point(-1, -1),
@@ -642,10 +644,15 @@ void Vision::setDilate(const unsigned long index, const int inValue) {
 	else std::cout << "Vision:setDilate: could not set (invalid index or convert type)" << std::endl;
 }
 
-void Vision::setBlur(const unsigned long index, const int inValue) {
-	if (index < MAX_COLORS)
-		blur[index] = inValue;
-	else std::cout << "Vision:setBlur: could not set (invalid index or convert type)" << std::endl;
+void Vision::setBlur(const unsigned long index, int inValue) {
+	if (index < MAX_COLORS) {
+		if (inValue == 0 || inValue % 2 == 1)
+			blur[index] = inValue;
+		else
+			blur[index] = inValue+1;
+	} else {
+		std::cout << "Vision:setBlur: could not set (invalid index or convert type)" << std::endl;
+	}
 }
 
 void Vision::setAmin(const unsigned long index, const int inValue) {
