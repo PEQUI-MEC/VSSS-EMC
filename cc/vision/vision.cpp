@@ -473,33 +473,43 @@ void Vision::collectImagesForCalibration() {
 	cv::String path("media/pictures/camCalib/*.png"); //select only png
 	std::vector<cv::String> fn;
 	std::vector<cv::Mat> data;
-	cv::glob(path, fn, true); // recurse
-	for (auto &index : fn) {
-		cv::Mat im = cv::imread(index);
-		if (im.empty()) continue; //only proceed if sucsessful
-		// you probably want to do some preprocessing
-		savedCamCalibFrames.push_back(im);
-	}
-	std::cout << "Pictures collected: " << savedCamCalibFrames.size() << std::endl;
-	cameraCalibration();
+    try{
+        cv::glob(path, fn, true); // recurse
+        for (auto &index : fn) {
+            cv::Mat im = cv::imread(index);
+            if (im.empty()) continue; //only proceed if sucsessful
+            // you probably want to do some preprocessing
+            savedCamCalibFrames.push_back(im);
+        }
+        std::cout << "Pictures collected: " << savedCamCalibFrames.size() << std::endl;
+        cameraCalibration();
+
+    }catch (...){
+        std::cout << "An exception occurred. No images for calibration. \n";
+    }
+
 }
 
 void Vision::cameraCalibration() {
 
 	std::vector<std::vector<cv::Point2f>> checkerBoardImageSpacePoints;
-	checkerBoardImageSpacePoints = getChessBoardCorners(savedCamCalibFrames);
-	std::cout << "Image Space Points " << checkerBoardImageSpacePoints.size() << std::endl;
-	std::vector<std::vector<cv::Point3f>> worldSpaceCornersPoints(1);
+    std::vector<std::vector<cv::Point3f>> worldSpaceCornersPoints;
 
-	worldSpaceCornersPoints[0] = createKnownBoardPosition(CHESSBOARD_DIMENSION, CALIBRATION_SQUARE_DIMENSION);
-	worldSpaceCornersPoints.resize(checkerBoardImageSpacePoints.size(), worldSpaceCornersPoints[0]);
+	getChessBoardCorners(savedCamCalibFrames, worldSpaceCornersPoints, checkerBoardImageSpacePoints);
+	std::cout << "Image Space Points " << checkerBoardImageSpacePoints.size() << std::endl;
+
 	std::cout << "world SpaceCorners Points " << worldSpaceCornersPoints.size() << std::endl;
 	std::vector<cv::Mat> rVectors, tVectors;
 	distanceCoeficents = cv::Mat::zeros(8, 1, CV_64F);
 
+    int flag = 0;
+    flag |= CV_CALIB_FIX_K4;
+    flag |= CV_CALIB_FIX_K5;
+
 	//root mean square (RMS) reprojection error and should be between 0.1 and 1.0 pixels in a good calibration.
-	double rms = cv::calibrateCamera(worldSpaceCornersPoints, checkerBoardImageSpacePoints, CHESSBOARD_DIMENSION,
-									 cameraMatrix, distanceCoeficents, rVectors, tVectors);
+    double rms = cv::calibrateCamera(worldSpaceCornersPoints, checkerBoardImageSpacePoints, in_frame.size(),
+                                     cameraMatrix, distanceCoeficents, rVectors, tVectors, flag);
+
 	savedCamCalibFrames.clear();
 
 	flag_cam_calibrated = true;
@@ -513,35 +523,30 @@ void Vision::cameraCalibration() {
 	std::cout << "End of calibration" << std::endl;
 }
 
-// criando um vetor com a posiçap de todos os pontos que pertencem ao padrao em milimetros desconsiderando Z para ficar
-// computacionalmente mais barato
-std::vector<cv::Point3f> Vision::createKnownBoardPosition(cv::Size boardSize, float squareEdgeLenght) {
-	std::vector<cv::Point3f> corners;
-	for (int i = 0; i < boardSize.height; i++) {
-		for (int j = 0; j < boardSize.width; ++j) {
-			corners.emplace_back(squareEdgeLenght, i * squareEdgeLenght, 0.0f);
-		}
-	}
 
-	return corners;
-}
-
-std::vector<std::vector<cv::Point2f>> Vision::getChessBoardCorners(std::vector<cv::Mat> images) const {
+void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::vector<cv::Point3f>>& pts3d,std::vector<std::vector<cv::Point2f>>& pts2d) const {
 	cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
 	cv::Mat grayFrame;
-	std::vector<std::vector<cv::Point2f>> allFoundCorners;
+	//std::vector<std::vector<cv::Point2f>> allFoundCorners;
 	for (auto &image : images) {
 		std::vector<cv::Point2f> pointBuf;
+        std::vector<cv::Point3f> corners;
+
 		bool found = cv::findChessboardCorners(image, CHESSBOARD_DIMENSION, pointBuf,
 											   CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+        for (int i = 0; i < CHESSBOARD_DIMENSION.height; i++) {
+            for (int j = 0; j < CHESSBOARD_DIMENSION.width; ++j) {
+                corners.emplace_back(j * CALIBRATION_SQUARE_DIMENSION, i * CALIBRATION_SQUARE_DIMENSION, 0.0f);
+            }
+        }
 
 		if (found) {
 			cv::cvtColor(image, grayFrame, cv::COLOR_RGB2GRAY);
-			cv::cornerSubPix(grayFrame, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
-			allFoundCorners.push_back(pointBuf);
+			cv::cornerSubPix(grayFrame, pointBuf, cv::Size(5, 5), cv::Size(-1, -1), termCriteria);
+			pts2d.push_back(pointBuf);
+            pts3d.push_back(corners);
 		}
 	}
-	return allFoundCorners;
 }
 
 bool Vision::foundChessBoardCorners() const {
