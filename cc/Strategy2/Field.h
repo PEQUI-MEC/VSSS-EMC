@@ -35,6 +35,7 @@ namespace field {
 			TheirCornerAny, // Qualquer um dos cantos do time oponente
 			WideDangerZone, // região do nosso campo a esquerda da linha onde os robôs oponentes cobram falta
 			TheirAreaSideAny,  // laterais da área adversária (regiões da área que não ficam em frente ao gol)
+			AnySide,//qualquer lateral do campo
 			AnyGoal,
 	};
 	// -----------------------------------------------------------------------------------------------------------------
