@@ -40,7 +40,7 @@ void Attacker::crossing(const Geometry::Point &ball){
 }
 
 void Attacker::protect_goal(const Geometry::Point &ball) {
-	if (distance(get_position(), ball) < 0.1) {
+	if (distance(get_position(), ball) < BALL_OFFSET) {
 		 // Se a bola chegar perto, gira para jogar a bola longe
 		if (at_location(ball, Location::UpperField))
 			spin(-35); // horário

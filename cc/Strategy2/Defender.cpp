@@ -4,7 +4,7 @@ using namespace Geometry;
 using namespace field;
 
 void Defender::wait_at_target(Geometry::Point target, Geometry::Point &ball) {
-	if (distance(get_position(), target) > OFFSET)
+	if (distance(get_position(), target) > TARGET_OFFSET)
 		go_to_and_stop(target);
 	else
 		set_target_orientation(ball - get_position());
