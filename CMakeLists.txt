@@ -60,7 +60,8 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/V4LInterface-aux.cpp
     pack-capture-gui/capture-gui/V4LInterface-events.cpp
     cc/Strategy2/Strategy2.cpp
-    pack-capture-gui/capture-gui/RobotGUI.cpp)
+    pack-capture-gui/capture-gui/RobotGUI.cpp
+    pack-capture-gui/capture-gui/ImageWarper.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

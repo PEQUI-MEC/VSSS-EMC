@@ -195,67 +195,94 @@ void V4LInterface::__create_frm_device_properties() {
 }
 
 void V4LInterface::__create_frm_warp() {
-	Gtk::HBox *hbox;
-	Gtk::HBox *hbox2;
-	Gtk::VBox *vbox;
-	Gtk::Label *label;
+	warp_label[0].set_label("Fit field on image:");
+	warp_label[1].set_label("Include goals:");
+	warp_label[2].set_label("Remove corners:");
+	warp_label[3].set_label("Switch field sides:");
+	warp_label[4].set_label("Left");
+	warp_label[5].set_label("Right");
 
+	for (auto &label : warp_label)
+		label.set_halign(Gtk::ALIGN_END);
 
-	// Adiciona a vbox (principal) no frame
-	vbox = new Gtk::VBox();
-	frm_warp.add(*vbox);
-	frm_warp.set_label("Warp");
+	bt_warp_start.set_label("Start");
+	bt_warp_apply.set_label("Apply");
+	bt_adjust_start.set_label("Start");
+	bt_adjust_apply.set_label("Apply");
+	bt_reset_warp.set_label("Reset to original image");
+	bt_invert_field.set_label("Switch field sides (invert image)");
 
-	// Primeira Hbox com oos botões Warp, Reset, Adjust
-	hbox = new Gtk::HBox();
-	hbox->set_border_width(5);
-	hbox->set_halign(Gtk::ALIGN_CENTER);
-	vbox->pack_start(*hbox, false, true, 0);
-	bt_warp.set_label("Warp");
-	hbox->pack_start(bt_warp, false, true, 5);
-	bt_reset_warp.set_label("Reset");
-	hbox->pack_start(bt_reset_warp, false, true, 5);
-	bt_adjust.set_label("Adjust");
-	hbox->pack_start(bt_adjust, false, true, 5);
-	bt_invert_image.set_label("Invert Image");
-	hbox->pack_start(bt_invert_image, false, true, 5);
-	bt_invert_image.signal_clicked().connect(sigc::mem_fun(*this,
-														   &V4LInterface::__event_bt_invert_image_signal_clicked));
+	frm_warp.add(warp_grid);
+	frm_warp.set_label("Image Warp");
 
+	warp_grid.set_halign(Gtk::ALIGN_CENTER);
+	warp_grid.set_border_width(12);
+	warp_grid.set_column_spacing(3);
+	warp_grid.set_row_spacing(6);
 
-	// Terceira Hbox com as barras de offset e suas labels
-	hbox2 = new Gtk::HBox();
-	hbox2->set_border_width(5);
-	hbox2->set_halign(Gtk::ALIGN_CENTER);
-	label = new Gtk::Label("Offset L");
-	hbox2->pack_start(*label, Gtk::PACK_SHRINK, 5);
-	hbox2->pack_start(HScale_offsetL, false, true, 5);
-	label = new Gtk::Label("Offset R");
-	hbox2->pack_start(*label, Gtk::PACK_SHRINK, 5);
-	hbox2->pack_start(HScale_offsetR, false, true, 5);
-	vbox->pack_start(*hbox2, false, true, 0);
+	warp_grid.attach(warp_label[0], 0, 0, 1, 1);
+	warp_grid.attach(bt_warp_start, 1, 0, 1, 1);
+	warp_grid.attach(bt_warp_apply, 2, 0, 1, 1);
 
+	warp_grid.attach(warp_label[1], 0, 1, 1, 1);
+	warp_grid.attach(warp_label[4], 1, 1, 1, 1);
+	warp_grid.attach(HScale_offsetL, 2, 1, 1, 1);
+	warp_grid.attach(warp_label[5], 3, 1, 1, 1);
+	warp_grid.attach(HScale_offsetR, 4, 1, 1, 1);
+
+	warp_grid.attach(warp_label[2], 0, 2, 1, 1);
+	warp_grid.attach(bt_adjust_start, 1, 2, 1, 1);
+	warp_grid.attach(bt_adjust_apply, 2, 2, 1, 1);
+
+	//warp_grid.attach(warp_label[3], 0, 3, 1, 1);
+	warp_grid.attach(bt_invert_field, 1, 3, 4, 1);
+
+	warp_grid.attach(bt_reset_warp, 1, 4, 4, 1);
 
 	// Configurações da barra do offset right
 	HScale_offsetR.set_digits(0);
 	HScale_offsetR.set_increments(1, 1);
 	HScale_offsetR.set_range(0, 100);
-	HScale_offsetR.set_value_pos(Gtk::POS_TOP);
+	HScale_offsetR.set_value_pos(Gtk::POS_RIGHT);
 	HScale_offsetR.set_draw_value();
-	HScale_offsetR.set_size_request(100, -1);
-	HScale_offsetR.signal_value_changed().connect(
-			sigc::mem_fun(*this, &V4LInterface::HScale_offsetR_value_changed));
+	HScale_offsetR.set_size_request(80, -1);
 
 
 	// Configurações da barra do offset left
 	HScale_offsetL.set_digits(0);
 	HScale_offsetL.set_increments(1, 1);
 	HScale_offsetL.set_range(0, 100);
-	HScale_offsetL.set_value_pos(Gtk::POS_TOP);
+	HScale_offsetL.set_value_pos(Gtk::POS_RIGHT);
 	HScale_offsetL.set_draw_value();
-	HScale_offsetL.set_size_request(100, -1);
+	HScale_offsetL.set_size_request(80, -1);
+
+	// Inactivate buttons
+	bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
+	bt_warp_apply.set_state(Gtk::STATE_INSENSITIVE);
+	bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
+	bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
+	bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
+	bt_invert_field.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_offsetR.set_state(Gtk::STATE_INSENSITIVE);
+	HScale_offsetL.set_state(Gtk::STATE_INSENSITIVE);
+
+	// Signals
+	bt_warp_start.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_start_clicked));
+	bt_warp_apply.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_apply_clicked));
+	bt_adjust_start.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_adjust_start_clicked));
+	bt_adjust_apply.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_adjust_apply_clicked));
+	bt_reset_warp.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_reset_warp_clicked));
+	bt_invert_field.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_invert_field_clicked));
 	HScale_offsetL.signal_value_changed().connect(
 			sigc::mem_fun(*this, &V4LInterface::HScale_offsetL_value_changed));
+	HScale_offsetR.signal_value_changed().connect(
+			sigc::mem_fun(*this, &V4LInterface::HScale_offsetR_value_changed));
 }
 
 void V4LInterface::__update_cb_device() {
@@ -722,7 +749,7 @@ void V4LInterface::initInterface() {
 	sp_width.set_state(Gtk::STATE_NORMAL);
 	sp_height.set_state(Gtk::STATE_NORMAL);
 	cb_frame_interval.set_state(Gtk::STATE_NORMAL);
-	bt_warp.set_state(Gtk::STATE_INSENSITIVE);
+	bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
 	bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
 	bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
 	bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
@@ -730,7 +757,7 @@ void V4LInterface::initInterface() {
 	bt_save.set_state(Gtk::STATE_INSENSITIVE);
 	bt_load.set_state(Gtk::STATE_INSENSITIVE);
 
-	bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+	bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
 
 	m_signal_start.emit(false);
 
@@ -738,7 +765,6 @@ void V4LInterface::initInterface() {
 	HScale_offsetL.set_state(Gtk::STATE_INSENSITIVE);
 
 	notebook.set_scrollable(true);
-	adjust_event_flag = false;
 	sp_width.set_range(0, 2000);
 	sp_width.set_increments(1, 10);
 	sp_height.set_range(0, 2000);
@@ -807,9 +833,6 @@ void V4LInterface::initInterface() {
 	bt_load.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_clicked));
 
 	bt_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_start_clicked));
-	bt_warp.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_clicked));
-	bt_reset_warp.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_reset_warp_clicked));
-	bt_adjust.signal_pressed().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_adjust_pressed));
 
 	cb_input_signal = cb_device.signal_changed().connect(
 			sigc::mem_fun(*this, &V4LInterface::__event_cb_device_changed));

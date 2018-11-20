@@ -15,55 +15,21 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 	}
 
 	if (split_flag) {
-		if (event->x <= width / 2 && event->y <= height / 2) sector = 0;
-		else if (event->x <= width / 2 && event->y > height / 2) sector = 2;
-		else if (event->x > width / 2 && event->y <= height / 2) sector = 1;
-		else if (event->x > width / 2 && event->y > height / 2) sector = 3;
+		if (event->x <= std::round(width / 2) && event->y <= std::round(height / 2)) sector = 0;
+		else if (event->x <= std::round(width / 2) && event->y > std::round(height / 2)) sector = 2;
+		else if (event->x > std::round(width / 2) && event->y <= std::round(height / 2)) sector = 1;
+		else if (event->x > std::round(width / 2) && event->y > std::round(height / 2)) sector = 3;
 	}
 
-	if (warp_event_flag) {
-		if (event->button == 1) {
-			warp_mat[warp_counter][0] = static_cast<int>(event->x);
-			warp_mat[warp_counter][1] = static_cast<int>(event->y);
-			warp_counter++;
-			if (warp_counter == 4) {
-				warp_event_flag = false;
-				hold_warp = true;
-				warp_counter = 0;
-			}
-			return true;
-		}
-		return true;
+	if (warp_event_flag && event->button == 1) {
+		warp_event_flag = imageWarper.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
 	}
 
-	if (adjust_event_flag) {
-		if (event->button == 1) {
-			adj_counter++;
-			std::cerr << adj_counter << std::endl;
-			if (event->x < width / 2) {
-				if (event->y < height / 2) {
-					adjust_mat[0][0] = static_cast<int>(event->x);
-					adjust_mat[0][1] = static_cast<int>(event->y);
-				} else {
-					adjust_mat[1][0] = static_cast<int>(event->x);
-					adjust_mat[1][1] = static_cast<int>(event->y);
-				}
-			} else {
-				if (event->y < height / 2) {
-					adjust_mat[2][0] = static_cast<int>(event->x);
-					adjust_mat[2][1] = static_cast<int>(event->y);
-				} else {
-					adjust_mat[3][0] = static_cast<int>(event->x);
-					adjust_mat[3][1] = static_cast<int>(event->y);
-				}
-			}
-			if (adj_counter == 4) {
-				adjust_rdy = true;
-				adjust_event_flag = false;
-				adj_counter = 0;
-			}
-		}
-	} else if (PID_test_flag) {
+	if (adjust_event_flag && event->button == 1) {
+		adjust_event_flag = imageWarper.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
+	}
+
+	if (PID_test_flag) {
 		robot_pos[0] = 0;
 		robot_pos[1] = 0;
 
@@ -75,6 +41,7 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 			tar_pos[1] = event->y;
 		}
 	}
+	return true;
 }
 
 ImageView::ImageView() : data(nullptr), width(0), height(0), stride(0) {

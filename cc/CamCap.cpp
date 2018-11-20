@@ -91,22 +91,8 @@ bool CamCap::capture_and_show() {
 
 	cv::Mat imageView(height, width, CV_8UC3, data);
 
-	if (interface.imageView.hold_warp) {
-		interface.warped = true;
-		interface.bt_adjust.set_state(Gtk::STATE_NORMAL);
-		interface.imageView.warp_event_flag = false;
-		interface.imageView.warp_event_flag = false;
-		interface.imageView.hold_warp = false;
-	}
-
-	if (interface.reset_warp_flag) {
-		interface.imageView.warp_counter = 0;
-		interface.reset_warp_flag = false;
-	}
-
 	interface.imageView.split_flag = interface.visionGUI.getIsSplitView();
 	interface.imageView.PID_test_flag = control.PID_test_flag;
-	interface.imageView.adjust_event_flag = interface.adjust_event_flag;
 	interface.imageView.gmm_sample_flag = interface.visionGUI.getSamplesEventFlag();
 
 	if (interface.imageView.sector != -1) {
@@ -121,16 +107,7 @@ bool CamCap::capture_and_show() {
 					  interface.visionGUI.vision->getdistanceCoeficents());
 	}
 
-	if (interface.warped) {
-		interface.bt_warp.set_active(false);
-		interface.bt_warp.set_state(Gtk::STATE_INSENSITIVE);
-		warp_transform(imageView);
-		interface.imageView.warp_event_flag = false;
-
-		if (interface.invert_image_flag) {
-			cv::flip(imageView, imageView, -1);
-		}
-	}
+	interface.imageView.imageWarper.execute(imageView);
 
 	if (interface.CamCalib_flag_event && !interface.get_start_game_flag() &&
 		!interface.visionGUI.vision->flag_cam_calibrated) {
@@ -443,59 +420,6 @@ void CamCap::PID_test() {
 //	}
 } // PID_test
 
-void CamCap::warp_transform(cv::Mat imageView) {
-	cv::Point2f inputQuad[4];
-	cv::Point2f outputQuad[4];
-	cv::Mat lambda = cv::Mat::zeros(imageView.rows, imageView.cols, imageView.type());
-
-	inputQuad[0] = cv::Point2f(interface.imageView.warp_mat[0][0] - interface.offsetL,
-							   interface.imageView.warp_mat[0][1]);
-	inputQuad[1] = cv::Point2f(interface.imageView.warp_mat[1][0] + interface.offsetR,
-							   interface.imageView.warp_mat[1][1]);
-	inputQuad[2] = cv::Point2f(interface.imageView.warp_mat[2][0] + interface.offsetR,
-							   interface.imageView.warp_mat[2][1]);
-	inputQuad[3] = cv::Point2f(interface.imageView.warp_mat[3][0] - interface.offsetL,
-							   interface.imageView.warp_mat[3][1]);
-
-	outputQuad[0] = cv::Point2f(0, 0);
-	outputQuad[1] = cv::Point2f(width - 1, 0);
-	outputQuad[2] = cv::Point2f(width - 1, height - 1);
-	outputQuad[3] = cv::Point2f(0, height - 1);
-	lambda = getPerspectiveTransform(inputQuad, outputQuad);
-	warpPerspective(imageView, imageView, lambda, imageView.size());
-
-	if (interface.imageView.adjust_rdy) {
-		interface.bt_adjust.set_active(false);
-		interface.bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
-		interface.adjust_event_flag = false;
-		interface.imageView.adjust_event_flag = false;
-
-		for (int i = 0; i < interface.imageView.adjust_mat[0][1]; i++) {
-			for (int j = 0; j < 3 * interface.imageView.adjust_mat[0][0]; j++) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = height; i > interface.imageView.adjust_mat[1][1]; i--) {
-			for (int j = 0; j < 3 * interface.imageView.adjust_mat[1][0]; j++) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = 0; i < interface.imageView.adjust_mat[2][1]; i++) {
-			for (int j = 3 * width; j > 3 * interface.imageView.adjust_mat[2][0]; j--) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = height; i > interface.imageView.adjust_mat[3][1]; i--) {
-			for (int j = 3 * width; j > 3 * interface.imageView.adjust_mat[3][0]; j--) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-	}
-} // warp_transform
-
 
 void CamCap::calculate_ball_est() {
 	ls_x.addValue(ball.x);
@@ -539,10 +463,10 @@ CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), hei
 															   6); // !TODO hardcoded, usar variáveis quando possível
 	}
 
-	for (auto &i : interface.imageView.adjust_mat) {
+	/*for (auto &i : interface.imageView.adjust_mat) {
 		i[0] = -1;
 		i[1] = -1;
-	}
+	}*/
 
 	camera_vbox.pack_start(fm, false, true, 5);
 	camera_vbox.pack_start(info_fm, false, true, 5);
