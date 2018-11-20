@@ -101,7 +101,6 @@ class CamCap : public Gtk::HBox {
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();
-		void warp_transform(cv::Mat imageView);
 		void calculate_ball_est();
 		CamCap(int screenW, int screenH, bool isLowRes);
 		~CamCap() override;
