@@ -20,11 +20,11 @@ bool V4LInterface::on_button_press_event(GdkEventButton *event) {
 }
 
 void V4LInterface::HScale_offsetR_value_changed() {
-	imageView.imageWarper.set_offset_R(static_cast<unsigned short>(HScale_offsetR.get_value()));
+	imageView.imageWarp.set_offset_R(static_cast<unsigned short>(HScale_offsetR.get_value()));
 }
 
 void V4LInterface::HScale_offsetL_value_changed() {
-	imageView.imageWarper.set_offset_L(static_cast<unsigned short>(HScale_offsetL.get_value()));
+	imageView.imageWarp.set_offset_L(static_cast<unsigned short>(HScale_offsetL.get_value()));
 }
 
 // signals
@@ -188,7 +188,7 @@ void V4LInterface::__event_bt_adjust_start_clicked() {
 }
 
 void V4LInterface::__event_bt_warp_apply_clicked() {
-	bool success = imageView.imageWarper.set_warp_ready();
+	bool success = imageView.imageWarp.set_warp_ready();
 	if (success) {
 		bt_warp_start.set_active(false);
 		bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
@@ -199,7 +199,7 @@ void V4LInterface::__event_bt_warp_apply_clicked() {
 }
 
 void V4LInterface::__event_bt_adjust_apply_clicked() {
-	bool success = imageView.imageWarper.set_adjust_ready();
+	bool success = imageView.imageWarp.set_adjust_ready();
 	if (success) {
 		bt_adjust_start.set_active(false);
 		bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
@@ -207,7 +207,7 @@ void V4LInterface::__event_bt_adjust_apply_clicked() {
 }
 
 void V4LInterface::__event_bt_invert_field_clicked() {
-	imageView.imageWarper.set_invert_field(bt_invert_field.get_active());
+	imageView.imageWarp.set_invert_field(bt_invert_field.get_active());
 }
 
 void V4LInterface::__event_bt_reset_warp_clicked() {
@@ -217,12 +217,12 @@ void V4LInterface::__event_bt_reset_warp_clicked() {
 	bt_invert_field.set_active(false);
 	HScale_offsetL.set_value(0);
 	HScale_offsetR.set_value(0);
-	imageView.imageWarper.reset_all_points();
+	imageView.imageWarp.reset_all_points();
 	imageView.adjust_event_flag = false;
 	imageView.warp_event_flag = false;
-	imageView.imageWarper.set_warp_ready(false);
-	imageView.imageWarper.set_adjust_ready(false);
-	imageView.imageWarper.set_invert_field(false);
+	imageView.imageWarp.set_warp_ready(false);
+	imageView.imageWarp.set_adjust_ready(false);
+	imageView.imageWarp.set_invert_field(false);
 }
 
 void V4LInterface::__event_cb_device_changed() {
@@ -466,11 +466,11 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 
 void V4LInterface::update_interface_camera() {
 	visionGUI.update_vision_hscale_values();
-	if (imageView.imageWarper.is_warp_ready()) {
+	if (imageView.imageWarp.is_warp_ready()) {
 		bt_warp_apply.set_state(Gtk::STATE_INSENSITIVE);
 		bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
 		bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
-		if (imageView.imageWarper.is_adjust_ready()) {
+		if (imageView.imageWarp.is_adjust_ready()) {
 			bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
 		} else {
 			bt_adjust_start.set_state(Gtk::STATE_NORMAL);
@@ -482,8 +482,8 @@ void V4LInterface::update_interface_camera() {
 		bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
 	}
 
-	HScale_offsetL.set_value(imageView.imageWarper.get_offset_L());
-	HScale_offsetR.set_value(imageView.imageWarper.get_offset_R());
+	HScale_offsetL.set_value(imageView.imageWarp.get_offset_L());
+	HScale_offsetR.set_value(imageView.imageWarp.get_offset_R());
 
 	__update_control_widgets(ctrl_list_default);
 }
