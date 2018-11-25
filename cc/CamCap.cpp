@@ -229,7 +229,7 @@ bool CamCap::capture_and_show() {
 	} // if start_game_flag
 	// ----------------------------------------//
 
-	if (!interface.visionGUI.CIELAB_calib_event_flag) {
+	if (!interface.visionGUI.CIELAB_calib_event_flag && !interface.visionGUI.getIsSplitView()) {
 		if (chessBoardFound) {
 			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
 			cv::Mat grayFrame;
@@ -237,7 +237,7 @@ bool CamCap::capture_and_show() {
 			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
 		}
 
-		if (interface.visionGUI.getIsDrawing() && !interface.visionGUI.getIsSplitView()) {
+		if (interface.visionGUI.getIsDrawing()) {
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 
 			art::draw(imageView,
