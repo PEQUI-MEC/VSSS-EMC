@@ -600,15 +600,6 @@ bool Vision::finishVideo() {
 	return true;
 }
 
-cv::Point Vision::getAdvRobot(const int index) const {
-	if (index < 0 || index >= MAX_ADV) {
-		std::cout << "Vision::getAdvRobot: index argument is invalid." << std::endl;
-		return cv::Point(-1, -1);
-	} else {
-		return advRobots[index];
-	}
-}
-
 cv::Mat Vision::getThreshold(const unsigned long index) {
 	cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
 	return threshold_frame.at(index);

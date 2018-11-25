@@ -37,11 +37,9 @@ namespace vision
 		Max
 	};
 
+	static const int MAX_ADV = 3;
+
 	class Vision {
-	private:
-
-		static const int MAX_ADV = 3;
-
 	public:
 
 		static const unsigned long MAX_COLORS = Color::Adv - Color::Main + 1;
@@ -61,7 +59,7 @@ namespace vision
 		cv::Mat splitFrame;
 
 		// Robots
-		cv::Point advRobots[MAX_ADV];
+		std::array<cv::Point, MAX_ADV> advRobots;
 
 		// Ball
 		cv::Point ball;
@@ -139,10 +137,8 @@ namespace vision
 		void switchMainWithAdv();
 
 		cv::Point getBall() const { return ball; };
-		cv::Point getAdvRobot(int index) const;
+		std::array<cv::Point, MAX_ADV>& get_adv_robots() { return advRobots; };
 		cv::Mat getSplitFrame();
-
-		int getAdvListSize() const { return MAX_ADV; };
 		cv::Mat getThreshold(unsigned long index);
 
 		int getCIE_L(unsigned long index0, int index1) const { return cieL[index0][index1]; };

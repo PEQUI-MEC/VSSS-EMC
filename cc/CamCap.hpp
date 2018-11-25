@@ -95,7 +95,6 @@ class CamCap : public Gtk::HBox {
 		bool ekf_data_ready = false;
 
 		void update_positions(const std::array<vision::Vision::RecognizedTag, 3> &tags);
-		void draw_tags(cv::Mat &imageView, const std::array<vision::Vision::RecognizedTag, 3> &tags);
 		bool start_signal(bool b);
 		bool capture_and_show();
 		void send_cmd_thread();

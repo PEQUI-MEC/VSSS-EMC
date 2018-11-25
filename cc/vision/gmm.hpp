@@ -96,7 +96,7 @@ class GMM {
 
 		// GET
 		unsigned long getSamplesSize();
-		std::vector<cv::Point> getSamplePoints();
+		std::vector<cv::Point> & getSamplePoints();
 		int getClusters();
 		cv::Mat getGaussiansFrame();
 		cv::Mat getFinalFrame();
