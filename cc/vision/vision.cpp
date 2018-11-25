@@ -228,6 +228,8 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 	std::array<RecognizedTag, 3> found_tags{};
 
+	advRobots.clear();
+
 	// OUR ROBOTS
 	for (int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
 		std::vector<Tag> secondary_tags;
@@ -256,27 +258,31 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 		if (secondary_tags.size() > 1) {
 			// tag 3 tem duas tags secundárias
 			found_tags[2] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint};
+							 main_tag.frontPoint, main_tag.rearPoint, true};
 		} else if (!secondary_tags.empty() && !secondary_tags[0].left) {
 			found_tags[1] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint};
+							 main_tag.frontPoint, main_tag.rearPoint, true};
 		} else if (!secondary_tags.empty()){
 			found_tags[0] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint};
+							 main_tag.frontPoint, main_tag.rearPoint, true};
 		}
 	} // OUR ROBOTS
 
 	// ADV ROBOTS
 	for (unsigned long i = 0; i < MAX_ADV; i++) {
 		if (i < tags.at(Color::Adv).size())
-			advRobots[i] = tags.at(Color::Adv).at(i).position;
-		else
-			advRobots[i] = cv::Point(-1, -1);
+			advRobots.push_back(tags.at(Color::Adv).at(i).position);
 	}
 
 	// BALL POSITION
 	if (!tags[Color::Ball].empty()) {
-		ball = tags.at(Color::Ball).at(0).position;
+		ball.position = tags.at(Color::Ball).at(0).position;
+		ball.isFound = true;
+	} else {
+		// É importante que a posição da bola permaneça sendo a última encontrada
+		// para que os robôs funcionem corretamente em caso de oclusão da bola na imagem
+		// portanto, a posição da bola não deve ser alterada aqui
+		ball.isFound = false;
 	}
 
 	return found_tags;

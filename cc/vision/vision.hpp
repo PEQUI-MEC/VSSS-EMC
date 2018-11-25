@@ -49,6 +49,12 @@ namespace vision
 			double orientation = 0;
 			cv::Point front_point = {ROBOT_RADIUS, 0};
 			cv::Point rear_point = {0, 0};
+			bool isFound = false;
+		};
+
+		struct Ball {
+			cv::Point position = {0, 0};
+			bool isFound = false;
 		};
 
 	private:
@@ -59,10 +65,10 @@ namespace vision
 		cv::Mat splitFrame;
 
 		// Robots
-		std::array<cv::Point, MAX_ADV> advRobots;
+		std::vector<cv::Point> advRobots;
 
 		// Ball
-		cv::Point ball;
+		Ball ball;
 
 		// TAGS
 		std::vector<std::vector<Tag>> tags;
@@ -136,8 +142,8 @@ namespace vision
 		bool foundChessBoardCorners() const;
 		void switchMainWithAdv();
 
-		cv::Point getBall() const { return ball; };
-		std::array<cv::Point, MAX_ADV>& get_adv_robots() { return advRobots; };
+		Ball& getBall() { return ball; };
+		std::vector<cv::Point>& get_adv_robots() { return advRobots; };
 		cv::Mat getSplitFrame();
 		cv::Mat getThreshold(unsigned long index);
 

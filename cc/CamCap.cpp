@@ -20,8 +20,8 @@ void CamCap::update_positions(const std::array<Vision::RecognizedTag, 3> &tags) 
 
 	interface.updateRobotLabels();
 
-	const cv::Point cv_ball = interface.visionGUI.vision->getBall();
-	ball = Geometry::from_cv_point(cv_ball);
+	const Vision::Ball cv_ball = interface.visionGUI.vision->getBall();
+	ball = Geometry::from_cv_point(cv_ball.position);
 	interface.update_ball_position(ball);
 }
 
@@ -217,7 +217,8 @@ bool CamCap::capture_and_show() {
 
 
 	// ----------- ESTRATEGIA -----------------//
-	if (interface.get_start_game_flag()) {
+	bool is_game_on = interface.get_start_game_flag();
+	if (is_game_on) {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
@@ -244,7 +245,8 @@ bool CamCap::capture_and_show() {
 					  interface.visionGUI.vision->getBall(),
 					  tags,
 					  interface.visionGUI.vision->get_adv_robots(),
-					  robots);
+					  robots,
+					  is_game_on);
 
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
@@ -478,5 +480,3 @@ CamCap::~CamCap() {
 	msg_thread.interrupt();
 	if (msg_thread.joinable()) msg_thread.join();
 }
-
-
