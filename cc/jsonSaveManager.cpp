@@ -51,9 +51,9 @@ void jsonSaveManager::save_camera() {
 		lab["amin"] = vision.getAmin(i);
 	}
 
-	if (interface->imageView.imageWarper.is_warp_ready()) {
+	if (interface->imageView.imageWarp.is_warp_ready()) {
 		json &warp_mat = camera_config["warp_mat"];
-		save_warp_matrix(warp_mat, interface->imageView.imageWarper.get_warp_mat());
+		save_warp_matrix(warp_mat, interface->imageView.imageWarp.get_warp_mat());
 	} else {
 		camera_config.erase("warp_mat");
 	}
@@ -67,15 +67,15 @@ void jsonSaveManager::save_camera() {
 		config_dynamic_matrix(cam_dst_coefficients, interface->visionGUI.vision->distanceCoeficents, true);
 	}
 
-	if (interface->imageView.imageWarper.is_adjust_ready()) {
+	if (interface->imageView.imageWarp.is_adjust_ready()) {
 		json &adjust_mat = camera_config["adjust_mat"];
-		save_warp_matrix(adjust_mat, interface->imageView.imageWarper.get_adjust_mat());
+		save_warp_matrix(adjust_mat, interface->imageView.imageWarp.get_adjust_mat());
 	} else {
 		camera_config.erase("adjust_mat");
 	}
 
-	camera_config["offsetL"] = interface->imageView.imageWarper.get_offset_L();
-	camera_config["offsetR"] = interface->imageView.imageWarper.get_offset_R();
+	camera_config["offsetL"] = interface->imageView.imageWarp.get_offset_L();
+	camera_config["offsetR"] = interface->imageView.imageWarp.get_offset_R();
 
 	json &properties_config = camera_config["Camera Properties"];
 	for (ControlHolder ctrl : interface->ctrl_list_default) {
@@ -108,11 +108,11 @@ void jsonSaveManager::load_camera() {
 
 	if (exists(camera_config, "warp_mat")) {
 		json &warp_mat = camera_config["warp_mat"];
-		interface->imageView.imageWarper.clear_warp_points();
+		interface->imageView.imageWarp.clear_warp_points();
 		load_warp_matrix(warp_mat);
-		interface->imageView.imageWarper.set_warp_ready();
+		interface->imageView.imageWarp.set_warp_ready();
 	} else {
-		interface->imageView.imageWarper.set_warp_ready(false);
+		interface->imageView.imageWarp.set_warp_ready(false);
 	}
 
 	if (exists(camera_config, "cam_mat") && exists(camera_config, "dst_coefficients")) {
@@ -130,15 +130,15 @@ void jsonSaveManager::load_camera() {
 
 	if (exists(camera_config, "adjust_mat")) {
 		json &adjust_mat = camera_config["adjust_mat"];
-		interface->imageView.imageWarper.clear_adjust_points();
+		interface->imageView.imageWarp.clear_adjust_points();
 		load_warp_matrix(adjust_mat, true);
-		interface->imageView.imageWarper.set_adjust_ready();
+		interface->imageView.imageWarp.set_adjust_ready();
 	} else {
-		interface->imageView.imageWarper.set_adjust_ready(false);
+		interface->imageView.imageWarp.set_adjust_ready(false);
 	}
 
-	if (exists(camera_config, "offsetL")) interface->imageView.imageWarper.set_offset_L(camera_config["offsetL"]);
-	if (exists(camera_config, "offsetR")) interface->imageView.imageWarper.set_offset_R(camera_config["offsetR"]);
+	if (exists(camera_config, "offsetL")) interface->imageView.imageWarp.set_offset_L(camera_config["offsetL"]);
+	if (exists(camera_config, "offsetR")) interface->imageView.imageWarp.set_offset_R(camera_config["offsetR"]);
 
 	if (exists(camera_config, "Camera Properties")) {
 		json &properties_config = camera_config["Camera Properties"];
@@ -152,17 +152,17 @@ void jsonSaveManager::load_camera() {
 	}
 }
 
-void jsonSaveManager::save_warp_matrix(json &mat_config, const cv::Point* mat) {
+void jsonSaveManager::save_warp_matrix(json &mat_config, std::array<cv::Point, warp::MAT_SIZE> *mat) {
 	int count = 0;
-	for (auto index = 0; index < warp::MAT_SIZE; index++) {
-		std::pair<int, int> point = {mat[index].x, mat[index].y};
+	for (unsigned long index = 0; index < warp::MAT_SIZE; index++) {
+		std::pair<int, int> point = {mat->at(index).x, mat->at(index).y};
 		mat_config[std::to_string(count++)] = point;
 	}
 }
 
 void jsonSaveManager::load_warp_matrix(const json &mat_config, const bool isAdjust) {
 	for (const auto &point : mat_config) {
-		interface->imageView.imageWarper.add_mat_point({point[0], point[1]}, isAdjust);
+		interface->imageView.imageWarp.add_mat_point({point[0], point[1]}, isAdjust);
 	}
 }
 

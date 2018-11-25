@@ -11,20 +11,27 @@ namespace warp {
 
 	const short MAT_SIZE = 4;
 
-	class ImageWarper {
+	class PointArray {
 		private:
-			struct {
-				bool operator() ( cv::Point a, cv::Point b ){
-					return (sqrt(pow(a.x,2)+pow(a.y,2)) <=  sqrt(pow(b.x,2)+pow(b.y,2)));
-				}
-			} point_comparator;
+			std::array<cv::Point, MAT_SIZE> mat;
+			unsigned short counter = 0;
 
-			unsigned short warp_counter = 0;
-			unsigned short adjust_counter = 0;
+		public:
+			cv::Point operator[](const unsigned short index) { return mat.at(index); };
+
+			void reset() { counter = 0; };
+			bool is_full() { return counter == MAT_SIZE; };
+			bool add_point(const cv::Point& point);
+			std::array<cv::Point, MAT_SIZE>* get_mat() { return &mat; };
+
+	};
+
+	class ImageWarp {
+		private:
 			unsigned short offset_L = 0;
 			unsigned short offset_R = 0;
-			cv::Point warp_mat[MAT_SIZE];
-			cv::Point adjust_mat[MAT_SIZE];
+			PointArray warp_mat;
+			PointArray adjust_mat;
 			bool is_warp_rdy = false;
 			bool is_adjust_rdy = false;
 			bool is_invert_field = false;
@@ -48,8 +55,8 @@ namespace warp {
 			bool set_adjust_ready(bool is_rdy = true);
 			void set_invert_field(bool is_inverted = true);
 
-			cv::Point* get_warp_mat() { return warp_mat; };
-			cv::Point* get_adjust_mat() { return adjust_mat; };
+			std::array<cv::Point, MAT_SIZE>* get_warp_mat() { return warp_mat.get_mat(); };
+			std::array<cv::Point, MAT_SIZE>* get_adjust_mat() { return adjust_mat.get_mat(); };
 
 
 

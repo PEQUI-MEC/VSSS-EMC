@@ -22,11 +22,11 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 	}
 
 	if (warp_event_flag && event->button == 1) {
-		warp_event_flag = imageWarper.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
+		warp_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
 	}
 
 	if (adjust_event_flag && event->button == 1) {
-		adjust_event_flag = imageWarper.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
+		adjust_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
 	}
 
 	if (PID_test_flag) {

@@ -12,7 +12,7 @@
 #include <cairomm/context.h>
 #include <iostream>
 #include "opencv2/opencv.hpp"
-#include <ImageWarper.hpp>
+#include <ImageWarp.hpp>
 
 #pragma once
 
@@ -26,7 +26,7 @@ class capture::ImageView : public Gtk::DrawingArea {
 		bool on_button_press_event(GdkEventButton *event) override;
 
 	public:
-		warp::ImageWarper imageWarper;
+		warp::ImageWarp imageWarp;
 
 		unsigned char *data;
 		int width, height, stride;

@@ -2,39 +2,39 @@
 // Created by daniel on 17/11/18.
 //
 
-#include "ImageWarper.hpp"
+#include "ImageWarp.hpp"
 
 using namespace warp;
 
-void ImageWarper::set_offset_R(const unsigned short offset) {
+bool PointArray::add_point(const cv::Point& point) {
+	if (counter < MAT_SIZE) {
+		mat.at(counter++) = point;
+		if (is_full())
+			std::sort(mat.begin(), mat.end(), []( cv::Point a, cv::Point b ) {
+				return (sqrt(pow(a.x,2)+pow(a.y,2)) <=  sqrt(pow(b.x,2)+pow(b.y,2)));
+			});
+		return true;
+	}
+	return false;
+};
+
+void ImageWarp::set_offset_R(const unsigned short offset) {
 	offset_R = offset;
 }
 
-void ImageWarper::set_offset_L(const unsigned short offset) {
+void ImageWarp::set_offset_L(const unsigned short offset) {
 	offset_L = offset;
 }
 
-bool ImageWarper::add_mat_point(const cv::Point point, const bool isAdjust) {
+bool ImageWarp::add_mat_point(const cv::Point point, const bool isAdjust) {
 	if (isAdjust) {
-		if (adjust_counter < MAT_SIZE) {
-			adjust_mat[adjust_counter++] = point;
-			if (adjust_counter == MAT_SIZE)
-				std::sort(adjust_mat, adjust_mat+MAT_SIZE, point_comparator);
-			return true;
-		}
+		return adjust_mat.add_point(point);
 	} else {
-		if (warp_counter < MAT_SIZE) {
-			warp_mat[warp_counter++] = point;
-			if (warp_counter == MAT_SIZE)
-				std::sort(warp_mat, warp_mat+MAT_SIZE, point_comparator);
-			return true;
-		}
+		return warp_mat.add_point(point);
 	}
-
-	return false;
 }
 
-void ImageWarper::execute(cv::Mat &frame) {
+void ImageWarp::execute(cv::Mat &frame) {
 	if (is_warp_rdy) {
 		// Faz o warp
 		cv::Point2f inputQuad[MAT_SIZE];
@@ -88,39 +88,39 @@ void ImageWarper::execute(cv::Mat &frame) {
 
 }
 
-bool ImageWarper::set_warp_ready(bool is_rdy) {
-	if ((is_rdy && warp_counter == MAT_SIZE) || !is_rdy) {
+bool ImageWarp::set_warp_ready(bool is_rdy) {
+	if ((is_rdy && warp_mat.is_full()) || !is_rdy) {
 		is_warp_rdy = is_rdy;
 		return true;
 	}
 	return false;
 }
 
-bool ImageWarper::set_adjust_ready(bool is_rdy) {
-	if ((is_rdy && adjust_counter == MAT_SIZE) || !is_rdy) {
+bool ImageWarp::set_adjust_ready(bool is_rdy) {
+	if ((is_rdy && adjust_mat.is_full()) || !is_rdy) {
 		is_adjust_rdy = is_rdy;
 		return true;
 	}
 	return false;
 }
 
-void ImageWarper::set_invert_field(bool is_inverted) {
+void ImageWarp::set_invert_field(bool is_inverted) {
 	is_invert_field = is_inverted;
 }
 
-void ImageWarper::reset_all_points() {
-	warp_counter = 0;
-	adjust_counter = 0;
+void ImageWarp::reset_all_points() {
+	warp_mat.reset();
+	adjust_mat.reset();
 	is_warp_rdy = false;
 	is_adjust_rdy = false;
 }
 
-void ImageWarper::clear_warp_points() {
-	warp_counter = 0;
+void ImageWarp::clear_warp_points() {
+	warp_mat.reset();
 	is_warp_rdy = false;
 }
 
-void ImageWarper::clear_adjust_points() {
-	adjust_counter = 0;
+void ImageWarp::clear_adjust_points() {
+	adjust_mat.reset();
 	is_adjust_rdy = false;
 }
