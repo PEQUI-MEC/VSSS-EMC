@@ -4,7 +4,7 @@
 
 using namespace vision;
 
-std::array<Vision::RecognizedTag, 3> Vision::run(cv::Mat raw_frame) {
+std::map<unsigned int, Vision::RecognizedTag> Vision::run(cv::Mat raw_frame) {
 	in_frame = raw_frame.clone();
 
 	if (bOnAir) recordToVideo();
@@ -225,8 +225,8 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 /// <description>
 /// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
 /// </description>
-std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
-	std::array<RecognizedTag, 3> found_tags{};
+std::map<unsigned int, Vision::RecognizedTag> Vision::pick_a_tag() {
+	std::map<unsigned int, RecognizedTag> found_tags;
 
 	advRobots.clear();
 
@@ -257,14 +257,17 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 
 		if (secondary_tags.size() > 1) {
 			// tag 3 tem duas tags secundárias
-			found_tags[2] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint, true};
-		} else if (!secondary_tags.empty() && !secondary_tags[0].left) {
-			found_tags[1] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint, true};
-		} else if (!secondary_tags.empty()){
-			found_tags[0] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint, true};
+			RecognizedTag tag = {position, orientation,
+								 main_tag.frontPoint, main_tag.rearPoint};
+			found_tags.insert(std::make_pair(2, tag));
+		} else if (!secondary_tags.empty()) {
+			RecognizedTag tag = {position, orientation,
+								 main_tag.frontPoint, main_tag.rearPoint};
+			if (secondary_tags[0].left) {
+				found_tags.insert(std::make_pair(0, tag));
+			} else {
+				found_tags.insert(std::make_pair(1, tag));
+			}
 		}
 	} // OUR ROBOTS
 

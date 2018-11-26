@@ -7,8 +7,8 @@
 using namespace vision;
 
 void art::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
-			   const std::array<vision::Vision::RecognizedTag, 3> &our_tags, const std::vector<cv::Point> &adv_tags,
-			   const std::array<Robot2 *, 3> &our_robots, bool is_game_on) {
+			   const std::map<unsigned int, Vision::RecognizedTag> &our_tags, const std::vector<cv::Point> &adv_tags,
+			   const std::array<Robot2 *, 3> &our_robots, const bool is_game_on) {
 
 	// GMM draw points
 	for (unsigned long i = 0; i < gmm_points.size(); i = i + 2) {
@@ -20,16 +20,13 @@ void art::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const v
 		circle(frame, ball.position, 7, cv::Scalar(255, 255, 255), 2);
 
 	// Our Robots
-	int count = 1;
 	for (const auto &tag : our_tags) {
-		if (tag.isFound) {
-			circle(frame, tag.position, 15, cv::Scalar(255, 255, 0), 2);
-			putText(frame, std::to_string(count++),
-					cv::Point(tag.position.x + 13, tag.position.y - 15),
-					cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(255, 255, 0), 2);
-			// linha da orientação do robô
-			line(frame, tag.rear_point, tag.front_point, cv::Scalar(255, 0, 0), 2);
-		}
+		circle(frame, tag.second.position, 15, cv::Scalar(255, 255, 0), 2);
+		putText(frame, std::to_string(tag.first+1),
+				cv::Point(tag.second.position.x + 13, tag.second.position.y - 15),
+				cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(255, 255, 0), 2);
+		// linha da orientação do robô
+		line(frame, tag.second.rear_point, tag.second.front_point, cv::Scalar(255, 0, 0), 2);
 	}
 
 	// Adversary Robots

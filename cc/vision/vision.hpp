@@ -49,7 +49,6 @@ namespace vision
 			double orientation = 0;
 			cv::Point front_point = {ROBOT_RADIUS, 0};
 			cv::Point rear_point = {0, 0};
-			bool isFound = false;
 		};
 
 		struct Ball {
@@ -102,7 +101,7 @@ namespace vision
 		void searchGMMTags(std::vector<cv::Mat> thresholds);
 		void findTags();
 		void pick_a_tag(std::vector<VisionROI> *windowsList);
-		std::array<RecognizedTag, 3> pick_a_tag();
+		std::map<unsigned int, RecognizedTag> pick_a_tag();
 		int in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *secondary_tags, double *orientation);
 
 	public:
@@ -110,7 +109,7 @@ namespace vision
 		Vision(int w, int h);
 		~Vision();
 
-		std::array<RecognizedTag, 3> run(cv::Mat raw_frame);
+		std::map<unsigned int, RecognizedTag> run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
 		double calcDistance(cv::Point p1, cv::Point p2) const;

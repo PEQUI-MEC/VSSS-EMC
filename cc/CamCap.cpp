@@ -8,14 +8,11 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-void CamCap::update_positions(const std::array<Vision::RecognizedTag, 3> &tags) {
-	for (int i = 0; i < tags.size(); i++) {
-		const Vision::RecognizedTag& tag = tags[i];
-		for (auto& robot: robots) {
-			if (robot->tag == i) {
-				robot->set_pose(tag.position, tag.orientation);
-			}
-		}
+void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag>& tags) {
+	for (const auto &robot : robots) {
+		auto search = tags.find(robot->tag);
+		if (search != tags.end())
+			robot->set_pose(search->second.position, search->second.orientation);
 	}
 
 	interface.updateRobotLabels();
@@ -182,7 +179,7 @@ bool CamCap::capture_and_show() {
 //		}
 //	}
 
-	std::array<Vision::RecognizedTag, 3> tags = interface.visionGUI.vision->run(imageView);
+	std::map<unsigned int, Vision::RecognizedTag> tags = interface.visionGUI.vision->run(imageView);
 
 	calculate_ball_est();
 	update_positions(tags);
