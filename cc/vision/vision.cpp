@@ -4,7 +4,7 @@
 
 using namespace vision;
 
-std::array<Vision::RecognizedTag, 3> Vision::run(cv::Mat raw_frame) {
+std::map<unsigned int, Vision::RecognizedTag> Vision::run(cv::Mat raw_frame) {
 	in_frame = raw_frame.clone();
 
 	if (bOnAir) recordToVideo();
@@ -225,8 +225,10 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 /// <description>
 /// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
 /// </description>
-std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
-	std::array<RecognizedTag, 3> found_tags{};
+std::map<unsigned int, Vision::RecognizedTag> Vision::pick_a_tag() {
+	std::map<unsigned int, RecognizedTag> found_tags;
+
+	advRobots.clear();
 
 	// OUR ROBOTS
 	for (int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
@@ -255,28 +257,35 @@ std::array<Vision::RecognizedTag, 3> Vision::pick_a_tag() {
 
 		if (secondary_tags.size() > 1) {
 			// tag 3 tem duas tags secundárias
-			found_tags[2] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint};
-		} else if (!secondary_tags.empty() && !secondary_tags[0].left) {
-			found_tags[1] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint};
-		} else if (!secondary_tags.empty()){
-			found_tags[0] = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint};
+			RecognizedTag tag = {position, orientation,
+								 main_tag.frontPoint, main_tag.rearPoint};
+			found_tags.insert(std::make_pair(2, tag));
+		} else if (!secondary_tags.empty()) {
+			RecognizedTag tag = {position, orientation,
+								 main_tag.frontPoint, main_tag.rearPoint};
+			if (secondary_tags[0].left) {
+				found_tags.insert(std::make_pair(0, tag));
+			} else {
+				found_tags.insert(std::make_pair(1, tag));
+			}
 		}
 	} // OUR ROBOTS
 
 	// ADV ROBOTS
 	for (unsigned long i = 0; i < MAX_ADV; i++) {
 		if (i < tags.at(Color::Adv).size())
-			advRobots[i] = tags.at(Color::Adv).at(i).position;
-		else
-			advRobots[i] = cv::Point(-1, -1);
+			advRobots.push_back(tags.at(Color::Adv).at(i).position);
 	}
 
 	// BALL POSITION
 	if (!tags[Color::Ball].empty()) {
-		ball = tags.at(Color::Ball).at(0).position;
+		ball.position = tags.at(Color::Ball).at(0).position;
+		ball.isFound = true;
+	} else {
+		// É importante que a posição da bola permaneça sendo a última encontrada
+		// para que os robôs funcionem corretamente em caso de oclusão da bola na imagem
+		// portanto, a posição da bola não deve ser alterada aqui
+		ball.isFound = false;
 	}
 
 	return found_tags;
@@ -598,15 +607,6 @@ bool Vision::finishVideo() {
 	video.release();
 	bOnAir = false;
 	return true;
-}
-
-cv::Point Vision::getAdvRobot(const int index) const {
-	if (index < 0 || index >= MAX_ADV) {
-		std::cout << "Vision::getAdvRobot: index argument is invalid." << std::endl;
-		return cv::Point(-1, -1);
-	} else {
-		return advRobots[index];
-	}
 }
 
 cv::Mat Vision::getThreshold(const unsigned long index) {

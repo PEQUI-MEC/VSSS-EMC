@@ -1,5 +1,6 @@
 #include <Strategy2/Robot2.h>
 #include "CamCap.hpp"
+#include "ImageArt.hpp"
 
 using namespace vision;
 
@@ -7,20 +8,17 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-void CamCap::update_positions(const std::array<Vision::RecognizedTag, 3> &tags) {
-	for (int i = 0; i < tags.size(); i++) {
-		const Vision::RecognizedTag& tag = tags[i];
-		for (auto& robot: robots) {
-			if (robot->tag == i) {
-				robot->set_pose(tag.position, tag.orientation);
-			}
-		}
+void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag>& tags) {
+	for (const auto &robot : robots) {
+		auto search = tags.find(robot->tag);
+		if (search != tags.end())
+			robot->set_pose(search->second.position, search->second.orientation);
 	}
 
 	interface.updateRobotLabels();
 
-	const cv::Point cv_ball = interface.visionGUI.vision->getBall();
-	ball = Geometry::from_cv_point(cv_ball);
+	const Vision::Ball cv_ball = interface.visionGUI.vision->getBall();
+	ball = Geometry::from_cv_point(cv_ball.position);
 	interface.update_ball_position(ball);
 }
 
@@ -59,18 +57,6 @@ bool CamCap::start_signal(bool b) {
 
 	return true;
 } // start_signal
-
-void CamCap::draw_tags(cv::Mat &imageView, const std::array<Vision::RecognizedTag, 3> &tags) {
-	for (int i = 0; i < tags.size(); i++) {
-		const Vision::RecognizedTag& tag = tags[i];
-		circle(imageView, tag.position, 15, cv::Scalar(255, 255, 0), 2);
-		putText(imageView, std::to_string(i + 1),
-				cv::Point(tag.position.x + 13, tag.position.y - 15),
-				cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(255, 255, 0), 2);
-	// linha da pick-a
-		line(imageView, tag.rear_point, tag.front_point, cv::Scalar(255, 0, 0), 2);
-	}
-}
 
 bool CamCap::capture_and_show() {
 
@@ -193,7 +179,7 @@ bool CamCap::capture_and_show() {
 //		}
 //	}
 
-	std::array<Vision::RecognizedTag, 3> tags = interface.visionGUI.vision->run(imageView);
+	std::map<unsigned int, Vision::RecognizedTag> tags = interface.visionGUI.vision->run(imageView);
 
 	calculate_ball_est();
 	update_positions(tags);
@@ -213,64 +199,6 @@ bool CamCap::capture_and_show() {
 		interface.imageView.refresh();
 	}
 
-	if (!interface.visionGUI.CIELAB_calib_event_flag) {
-		if (chessBoardFound) {
-			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
-			cv::Mat grayFrame;
-			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
-			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
-			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
-		}
-
-		if (interface.visionGUI.getIsDrawing() && !interface.visionGUI.getIsSplitView()) {
-
-			// FIXME: Exibir targets do PID test on click na imagem da camera
-//			if (interface.imageView.PID_test_flag) {
-//				for (auto &robot : interface.robot_list) {
-//					if (robot.target.x != -1 && robot.target.y != -1) {
-//						// linha branca no alvo sendo executado
-//						line(imageView, robot.position, robot.target,
-//							 cv::Scalar(255, 255, 255), 2);
-//						// linha roxa no alvo final
-//						line(imageView, robot.position,
-//							 cv::Point(static_cast<int>(interface.imageView.tar_pos[0]),
-//									   static_cast<int>(interface.imageView.tar_pos[1])),
-//							 cv::Scalar(255, 0, 255), 2);
-//					}
-//					// círculo branco no alvo sendo executado
-//					circle(imageView, robot.target, 9, cv::Scalar(255, 255, 255), 2);
-//					// círculo roxo no alvo final
-//					circle(imageView, cv::Point(static_cast<int>(interface.imageView.tar_pos[0]),
-//												static_cast<int>(interface.imageView.tar_pos[1])), 7,
-//						   cv::Scalar(255, 0, 255), 2);
-//					// círculo vermelho no obstáculo
-//					circle(imageView, obstacle, 17, cv::Scalar(255, 0, 0), 2);
-//					// círculo verde nos desvios
-//					circle(imageView, deviation1, 7, cv::Scalar(0, 255, 0), 2);
-//					circle(imageView, deviation2, 7, cv::Scalar(0, 255, 0), 2);
-//				}
-//				if (Selec_index != -1) {
-//					circle(imageView, interface.robot_list[Selec_index].position, 17, cv::Scalar(255, 255, 255), 2);
-//				}
-//			}
-
-			if (interface.visionGUI.getDrawSamples()) {
-				std::vector<cv::Point> points = interface.visionGUI.gmm->getSamplePoints();
-				for (unsigned long i = 0; i < points.size(); i = i + 2) {
-					rectangle(imageView, points.at(i), points.at(i + 1), cv::Scalar(0, 255, 255));
-				}
-			}
-
-			circle(imageView, interface.visionGUI.vision->getBall(), 7, cv::Scalar(255, 255, 255), 2);
-
-			draw_tags(imageView, tags);
-
-			for (int i = 0; i < interface.visionGUI.vision->getAdvListSize(); i++)
-				circle(imageView, interface.visionGUI.vision->getAdvRobot(i), 15, cv::Scalar(0, 0, 255), 2);
-		} // if !interface.draw_info_flag
-	} // if !draw_info_flag
-
-
 	control.update_dropped_frames();
 
 	if (interface.imageView.PID_test_flag && !interface.get_start_game_flag()) {
@@ -286,54 +214,39 @@ bool CamCap::capture_and_show() {
 
 
 	// ----------- ESTRATEGIA -----------------//
-	if (interface.get_start_game_flag()) {
+	bool is_game_on = interface.get_start_game_flag();
+	if (is_game_on) {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
 		strategy.run();
 
-		// Desenha os targets no campo
-		for (auto robot : robots) {
-			switch (robot->get_command()) {
-				case Robot2::Command::Vector:
-				case Robot2::Command::Orientation: {
-					double angle = robot->get_target().orientation;
-					cv::Point position = robot->get_position().to_cv_point();
-					auto x2 = static_cast<int>(position.x + 16*cos(angle));
-					auto y2 = static_cast<int>(position.y - 16*sin(angle));
-					line(imageView, position, cv::Point(x2, y2),
-						 cv::Scalar(127, 255, 127), 3);
-					break;
-				}
-				case Robot2::Command::None:
-					putText(imageView, "x", robot->get_position().to_cv_point(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
-					break;
-				case Robot2::Command::UVF: {
-					double angle = robot->get_target().orientation;
-					cv::Point target = robot->get_target().position.to_cv_point();
-					auto x2 = static_cast<int>(target.x + 16*cos(angle));
-					auto y2 = static_cast<int>(target.y - 16*sin(angle));
-					circle(imageView, target, 7, cv::Scalar(127, 255, 127), 2);
-					line(imageView, target, cv::Point(x2, y2),
-						 cv::Scalar(127, 255, 127), 3);
-					putText(imageView, std::to_string(robot->tag + 1),
-							cv::Point(target.x - 5, target.y - 17),
-							cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
-					break;
-				}
-				default:
-					cv::Point robot_target = robot->get_target().position.to_cv_point();
-					circle(imageView, robot_target, 7, cv::Scalar(127, 255, 127), 2);
-					putText(imageView, std::to_string(robot->tag + 1),
-							cv::Point(robot_target.x - 5, robot_target.y - 17),
-							cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(127, 255, 127), 2);
-			} // switch
-		} // for
-
 		robotGUI.update_speed_progressBars();
 		robotGUI.update_robot_functions();
 	} // if start_game_flag
 	// ----------------------------------------//
+
+	if (!interface.visionGUI.CIELAB_calib_event_flag && !interface.visionGUI.getIsSplitView()) {
+		if (chessBoardFound) {
+			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+			cv::Mat grayFrame;
+			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
+			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
+		}
+
+		if (interface.visionGUI.getIsDrawing()) {
+			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
+
+			art::draw(imageView,
+					  interface.visionGUI.gmm->getSamplePoints(),
+					  interface.visionGUI.vision->getBall(),
+					  tags,
+					  interface.visionGUI.vision->get_adv_robots(),
+					  robots,
+					  is_game_on);
+
+		} // if !interface.draw_info_flag
+	} // if !draw_info_flag
 
 
 	if (frameCounter == 10) {
@@ -564,5 +477,3 @@ CamCap::~CamCap() {
 	msg_thread.interrupt();
 	if (msg_thread.joinable()) msg_thread.join();
 }
-
-

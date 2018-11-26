@@ -37,11 +37,9 @@ namespace vision
 		Max
 	};
 
+	static const int MAX_ADV = 3;
+
 	class Vision {
-	private:
-
-		static const int MAX_ADV = 3;
-
 	public:
 
 		static const unsigned long MAX_COLORS = Color::Adv - Color::Main + 1;
@@ -53,6 +51,11 @@ namespace vision
 			cv::Point rear_point = {0, 0};
 		};
 
+		struct Ball {
+			cv::Point position = {0, 0};
+			bool isFound = false;
+		};
+
 	private:
 
 		// Frames
@@ -61,10 +64,10 @@ namespace vision
 		cv::Mat splitFrame;
 
 		// Robots
-		cv::Point advRobots[MAX_ADV];
+		std::vector<cv::Point> advRobots;
 
 		// Ball
-		cv::Point ball;
+		Ball ball;
 
 		// TAGS
 		std::vector<std::vector<Tag>> tags;
@@ -98,7 +101,7 @@ namespace vision
 		void searchGMMTags(std::vector<cv::Mat> thresholds);
 		void findTags();
 		void pick_a_tag(std::vector<VisionROI> *windowsList);
-		std::array<RecognizedTag, 3> pick_a_tag();
+		std::map<unsigned int, RecognizedTag> pick_a_tag();
 		int in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *secondary_tags, double *orientation);
 
 	public:
@@ -106,7 +109,7 @@ namespace vision
 		Vision(int w, int h);
 		~Vision();
 
-		std::array<RecognizedTag, 3> run(cv::Mat raw_frame);
+		std::map<unsigned int, RecognizedTag> run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		void recordVideo(cv::Mat frame);
 		double calcDistance(cv::Point p1, cv::Point p2) const;
@@ -138,11 +141,9 @@ namespace vision
 		bool foundChessBoardCorners() const;
 		void switchMainWithAdv();
 
-		cv::Point getBall() const { return ball; };
-		cv::Point getAdvRobot(int index) const;
+		Ball& getBall() { return ball; };
+		std::vector<cv::Point>& get_adv_robots() { return advRobots; };
 		cv::Mat getSplitFrame();
-
-		int getAdvListSize() const { return MAX_ADV; };
 		cv::Mat getThreshold(unsigned long index);
 
 		int getCIE_L(unsigned long index0, int index1) const { return cieL[index0][index1]; };

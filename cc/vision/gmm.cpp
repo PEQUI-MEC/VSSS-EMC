@@ -460,7 +460,7 @@ unsigned long GMM::getSamplesSize() {
 	return samples.size();
 }
 
-std::vector<cv::Point> GMM::getSamplePoints() {
+std::vector<cv::Point> & GMM::getSamplePoints() {
 	return samplePoints;
 }
 
