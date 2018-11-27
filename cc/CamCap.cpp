@@ -368,17 +368,6 @@ CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(nullptr), width(0
 	}
 	notebook.append_page(strategyGUI, "Strategy");
 
-	for (int i = 0; i < 3; i++) {
-		virtual_robots_orientations[i] = 0;
-		virtual_robots_positions[i] = cv::Point(200, 480 / 6 + (i + 1) * 480 /
-															   6); // !TODO hardcoded, usar variáveis quando possível
-	}
-
-	/*for (auto &i : interface.imageView.adjust_mat) {
-		i[0] = -1;
-		i[1] = -1;
-	}*/
-
 	camera_vbox.pack_start(fm, false, true, 5);
 	camera_vbox.pack_start(info_fm, false, true, 5);
 	info_fm.add(interface.info_hbox);

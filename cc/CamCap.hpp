@@ -68,9 +68,6 @@ class CamCap : public Gtk::HBox {
 
 		cv::Point2f Ball_Est;
 
-		cv::Point virtual_robots_positions[3];
-		float virtual_robots_orientations[3];
-
 		StrategyGUI strategyGUI;
 		ControlGUI control;
 		RobotGUI robotGUI;
