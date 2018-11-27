@@ -211,6 +211,8 @@ void V4LInterface::__create_frm_warp() {
 	bt_adjust_apply.set_label("Apply");
 	bt_reset_warp.set_label("Reset to original image");
 	bt_invert_field.set_label("Switch field sides (invert image)");
+	bt_warp_undo.set_label("Undo");
+	bt_adjust_undo.set_label("Undo");
 
 	frm_warp.add(warp_grid);
 	frm_warp.set_label("Image Warp");
@@ -223,6 +225,7 @@ void V4LInterface::__create_frm_warp() {
 	warp_grid.attach(warp_label[0], 0, 0, 1, 1);
 	warp_grid.attach(bt_warp_start, 1, 0, 1, 1);
 	warp_grid.attach(bt_warp_apply, 2, 0, 1, 1);
+	warp_grid.attach(bt_warp_undo, 4, 0, 1, 1);
 
 	warp_grid.attach(warp_label[1], 0, 1, 1, 1);
 	warp_grid.attach(warp_label[4], 1, 1, 1, 1);
@@ -233,6 +236,7 @@ void V4LInterface::__create_frm_warp() {
 	warp_grid.attach(warp_label[2], 0, 2, 1, 1);
 	warp_grid.attach(bt_adjust_start, 1, 2, 1, 1);
 	warp_grid.attach(bt_adjust_apply, 2, 2, 1, 1);
+	warp_grid.attach(bt_adjust_undo, 4, 2, 1, 1);
 
 	//warp_grid.attach(warp_label[3], 0, 3, 1, 1);
 	warp_grid.attach(bt_invert_field, 1, 3, 4, 1);
@@ -263,6 +267,8 @@ void V4LInterface::__create_frm_warp() {
 	bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
 	bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
 	bt_invert_field.set_state(Gtk::STATE_INSENSITIVE);
+	bt_warp_undo.set_state(Gtk::STATE_INSENSITIVE);
+	bt_adjust_undo.set_state(Gtk::STATE_INSENSITIVE);
 	HScale_offsetR.set_state(Gtk::STATE_INSENSITIVE);
 	HScale_offsetL.set_state(Gtk::STATE_INSENSITIVE);
 
@@ -279,6 +285,10 @@ void V4LInterface::__create_frm_warp() {
 			sigc::mem_fun(*this, &V4LInterface::__event_bt_reset_warp_clicked));
 	bt_invert_field.signal_clicked().connect(
 			sigc::mem_fun(*this, &V4LInterface::__event_bt_invert_field_clicked));
+	bt_warp_undo.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_warp_undo_clicked));
+	bt_adjust_undo.signal_clicked().connect(
+			sigc::mem_fun(*this, &V4LInterface::__event_bt_adjust_undo_clicked));
 	HScale_offsetL.signal_value_changed().connect(
 			sigc::mem_fun(*this, &V4LInterface::HScale_offsetL_value_changed));
 	HScale_offsetR.signal_value_changed().connect(

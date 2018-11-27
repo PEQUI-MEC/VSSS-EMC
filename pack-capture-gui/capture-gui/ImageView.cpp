@@ -49,6 +49,8 @@ ImageView::ImageView() : data(nullptr), width(0), height(0), stride(0) {
 	robot_pos[0] = 0;
 	tar_pos[1] = -1;
 	tar_pos[0] = -1;
+
+	imageArt.init(imageWarp.get_warp(), imageWarp.get_adjust());
 }
 
 void ImageView::set_data(unsigned char *data, int width, int height) {

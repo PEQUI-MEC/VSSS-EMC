@@ -6,16 +6,28 @@
 
 using namespace warp;
 
-bool PointArray::add_point(const cv::Point& point) {
-	if (counter < MAT_SIZE) {
-		mat.at(counter++) = point;
+bool PointArray::add_point(const cv::Point &point) {
+	if (counter < MAX_POINTS) {
+		mat.at(counter) = point;
+		unordered_mat.at(counter) = point;
+		counter++;
+
 		if (is_full())
-			std::sort(mat.begin(), mat.end(), []( cv::Point a, cv::Point b ) {
-				return (sqrt(pow(a.x,2)+pow(a.y,2)) <=  sqrt(pow(b.x,2)+pow(b.y,2)));
+			std::sort(mat.begin(), mat.end(), [](cv::Point a, cv::Point b) {
+				return (sqrt(pow(a.x, 2) + pow(a.y, 2)) <= sqrt(pow(b.x, 2) + pow(b.y, 2)));
 			});
 		return true;
 	}
 	return false;
+}
+
+void PointArray::undo() {
+	if (counter == MAX_POINTS) {
+		counter--;
+		mat = unordered_mat;
+	} else if (counter > 0) {
+		counter--;
+	}
 };
 
 void ImageWarp::set_offset_R(const unsigned short offset) {
@@ -34,11 +46,11 @@ bool ImageWarp::add_mat_point(const cv::Point point, const bool isAdjust) {
 	}
 }
 
-void ImageWarp::execute(cv::Mat &frame) {
+void ImageWarp::run(cv::Mat &frame) {
 	if (is_warp_rdy) {
 		// Faz o warp
-		cv::Point2f inputQuad[MAT_SIZE];
-		cv::Point2f outputQuad[MAT_SIZE];
+		cv::Point2f inputQuad[MAX_POINTS];
+		cv::Point2f outputQuad[MAX_POINTS];
 		cv::Mat lambda = cv::Mat::zeros(frame.rows, frame.cols, frame.type());
 
 		inputQuad[0] = cv::Point2f(warp_mat[0].x - offset_L, warp_mat[0].y);
@@ -85,7 +97,6 @@ void ImageWarp::execute(cv::Mat &frame) {
 		// Inverte o campo
 		cv::flip(frame, frame, -1);
 	}
-
 }
 
 bool ImageWarp::set_warp_ready(bool is_rdy) {
@@ -108,7 +119,7 @@ void ImageWarp::set_invert_field(bool is_inverted) {
 	is_invert_field = is_inverted;
 }
 
-void ImageWarp::reset_all_points() {
+void ImageWarp::clear_all_points() {
 	warp_mat.reset();
 	adjust_mat.reset();
 	is_warp_rdy = false;

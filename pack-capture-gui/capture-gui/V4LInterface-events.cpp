@@ -172,19 +172,28 @@ void V4LInterface::__event_bt_start_clicked() {
 void V4LInterface::__event_bt_warp_start_clicked() {
 	bool is_active = bt_warp_start.get_active();
 	imageView.warp_event_flag = is_active;
-	if (is_active)
+	imageView.imageArt.set_is_warping(is_active);
+	if (is_active) {
 		bt_warp_apply.set_state(Gtk::STATE_NORMAL);
-	else
+		bt_warp_undo.set_state(Gtk::STATE_NORMAL);
+	} else {
 		bt_warp_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_warp_undo.set_state(Gtk::STATE_INSENSITIVE);
+	}
 }
 
 void V4LInterface::__event_bt_adjust_start_clicked() {
 	bool is_active = bt_adjust_start.get_active();
 	imageView.adjust_event_flag = is_active;
-	if (is_active)
+	imageView.imageArt.set_is_adjusting(is_active);
+	if (is_active) {
 		bt_adjust_apply.set_state(Gtk::STATE_NORMAL);
-	else
+		bt_adjust_undo.set_state(Gtk::STATE_NORMAL);
+	} else {
 		bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_adjust_undo.set_state(Gtk::STATE_INSENSITIVE);
+	}
+
 }
 
 void V4LInterface::__event_bt_warp_apply_clicked() {
@@ -195,6 +204,7 @@ void V4LInterface::__event_bt_warp_apply_clicked() {
 		HScale_offsetL.set_state(Gtk::STATE_NORMAL);
 		HScale_offsetR.set_state(Gtk::STATE_NORMAL);
 		bt_adjust_start.set_state(Gtk::STATE_NORMAL);
+		imageView.imageArt.set_is_warping(false);
 	}
 }
 
@@ -203,7 +213,16 @@ void V4LInterface::__event_bt_adjust_apply_clicked() {
 	if (success) {
 		bt_adjust_start.set_active(false);
 		bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
+		imageView.imageArt.set_is_adjusting(false);
 	}
+}
+
+void capture::V4LInterface::__event_bt_warp_undo_clicked() {
+	imageView.imageWarp.warp_undo();
+}
+
+void capture::V4LInterface::__event_bt_adjust_undo_clicked() {
+	imageView.imageWarp.adjust_undo();
 }
 
 void V4LInterface::__event_bt_invert_field_clicked() {
@@ -217,12 +236,14 @@ void V4LInterface::__event_bt_reset_warp_clicked() {
 	bt_invert_field.set_active(false);
 	HScale_offsetL.set_value(0);
 	HScale_offsetR.set_value(0);
-	imageView.imageWarp.reset_all_points();
+	imageView.imageWarp.clear_all_points();
 	imageView.adjust_event_flag = false;
 	imageView.warp_event_flag = false;
 	imageView.imageWarp.set_warp_ready(false);
 	imageView.imageWarp.set_adjust_ready(false);
 	imageView.imageWarp.set_invert_field(false);
+	imageView.imageArt.set_is_warping(false);
+	imageView.imageArt.set_is_adjusting(false);
 }
 
 void V4LInterface::__event_cb_device_changed() {

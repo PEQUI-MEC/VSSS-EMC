@@ -94,6 +94,8 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::ToggleButton bt_adjust_start;
 		Gtk::Button bt_adjust_apply;
 		Gtk::CheckButton bt_invert_field;
+		Gtk::Button bt_warp_undo;
+		Gtk::Button bt_adjust_undo;
 
 		// Signals
 		sigc::connection cb_input_signal;
@@ -120,6 +122,8 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __event_bt_warp_apply_clicked();
 		void __event_bt_adjust_apply_clicked();
 		void __event_bt_invert_field_clicked();
+		void __event_bt_warp_undo_clicked();
+		void __event_bt_adjust_undo_clicked();
 		void __event_bt_reset_warp_clicked();
 		void HScale_offsetR_value_changed();
 		void HScale_offsetL_value_changed();

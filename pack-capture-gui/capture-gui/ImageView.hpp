@@ -13,6 +13,7 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <ImageWarp.hpp>
+#include <ImageArt.hpp>
 
 #pragma once
 
@@ -27,6 +28,7 @@ class capture::ImageView : public Gtk::DrawingArea {
 
 	public:
 		warp::ImageWarp imageWarp;
+		art::ImageArt imageArt;
 
 		unsigned char *data;
 		int width, height, stride;

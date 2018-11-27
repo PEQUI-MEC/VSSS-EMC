@@ -3,12 +3,13 @@
 #include "ImageArt.hpp"
 
 using namespace vision;
+using namespace art;
 
 using std::cout;
 using std::endl;
 using std::vector;
 
-void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag>& tags) {
+void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag> &tags) {
 	for (const auto &robot : robots) {
 		auto search = tags.find(robot->tag);
 		if (search != tags.end())
@@ -65,7 +66,6 @@ bool CamCap::capture_and_show() {
 
 	if (!data) return false;
 
-
 	if (frameCounter == 0) {
 		timer_start = std::chrono::high_resolution_clock::now();
 	}
@@ -93,7 +93,7 @@ bool CamCap::capture_and_show() {
 					  interface.visionGUI.vision->getdistanceCoeficents());
 	}
 
-	interface.imageView.imageWarp.execute(imageView);
+	interface.imageView.imageWarp.run(imageView);
 
 	if (interface.CamCalib_flag_event && !interface.get_start_game_flag() &&
 		!interface.visionGUI.vision->flag_cam_calibrated) {
@@ -214,14 +214,13 @@ bool CamCap::capture_and_show() {
 		if (interface.visionGUI.getIsDrawing()) {
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 
-			art::draw(imageView,
-					  interface.visionGUI.gmm->getSamplePoints(),
-					  interface.visionGUI.vision->getBall(),
-					  tags,
-					  interface.visionGUI.vision->get_adv_robots(),
-					  robots,
-					  is_game_on);
-
+			interface.imageView.imageArt.draw(imageView,
+											  interface.visionGUI.gmm->getSamplePoints(),
+											  interface.visionGUI.vision->getBall(),
+											  tags,
+											  interface.visionGUI.vision->get_adv_robots(),
+											  robots,
+											  is_game_on);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
 
@@ -251,8 +250,8 @@ void CamCap::send_cmd_thread() {
 			return;
 		}
 		data_ready_flag = false;
-		if(ekf_data_ready) {
-			for (auto& robot : this->robots)
+		if (ekf_data_ready) {
+			for (auto &robot : this->robots)
 				control.messenger.send_ekf_data(*robot);
 			ekf_data_ready = false;
 		} else {
@@ -342,13 +341,13 @@ void CamCap::calculate_ball_est() {
 	ball_est.y = ls_y.estimate(10);
 }
 
-CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), height(0), frameCounter(0),
-										   screenWidth(screenW), screenHeight(screenH),
-										   msg_thread(&CamCap::send_cmd_thread, this),
-										   robotGUI(robots, isLowRes),
-										   interface(&control.messenger, robots, robotGUI, isLowRes),
-										   strategy(attacker, defender, goalkeeper, ball, ball_est),
-										   robots {&attacker, &defender, &goalkeeper} {
+CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(nullptr), width(0), height(0), frameCounter(0),
+														  screenWidth(screenW), screenHeight(screenH),
+														  msg_thread(&CamCap::send_cmd_thread, this),
+														  robotGUI(robots, isLowRes),
+														  interface(&control.messenger, robots, robotGUI, isLowRes),
+														  strategy(attacker, defender, goalkeeper, ball, ball_est),
+														  robots{&attacker, &defender, &goalkeeper} {
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);
@@ -362,8 +361,7 @@ CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), hei
 	notebook.append_page(interface, "Capture");
 	notebook.append_page(interface.visionGUI, "Vision");
 	notebook.append_page(control, "Control");
-	if (isLowRes)
-	{
+	if (isLowRes) {
 		// Caso esteja em baixa resolução, será criado uma aba Robot.
 		// Caso contrário, robotGUI será colocado na info_box da interface.
 		notebook.append_page(robotGUI, "Robot");

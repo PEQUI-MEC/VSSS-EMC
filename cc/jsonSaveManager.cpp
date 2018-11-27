@@ -53,7 +53,7 @@ void jsonSaveManager::save_camera() {
 
 	if (interface->imageView.imageWarp.is_warp_ready()) {
 		json &warp_mat = camera_config["warp_mat"];
-		save_warp_matrix(warp_mat, interface->imageView.imageWarp.get_warp_mat());
+		save_warp_matrix(warp_mat, interface->imageView.imageWarp.get_warp());
 	} else {
 		camera_config.erase("warp_mat");
 	}
@@ -69,7 +69,7 @@ void jsonSaveManager::save_camera() {
 
 	if (interface->imageView.imageWarp.is_adjust_ready()) {
 		json &adjust_mat = camera_config["adjust_mat"];
-		save_warp_matrix(adjust_mat, interface->imageView.imageWarp.get_adjust_mat());
+		save_warp_matrix(adjust_mat, interface->imageView.imageWarp.get_adjust());
 	} else {
 		camera_config.erase("adjust_mat");
 	}
@@ -152,9 +152,9 @@ void jsonSaveManager::load_camera() {
 	}
 }
 
-void jsonSaveManager::save_warp_matrix(json &mat_config, std::array<cv::Point, warp::MAT_SIZE> *mat) {
+void jsonSaveManager::save_warp_matrix(json &mat_config, warp::PointArray& mat) {
 	int count = 0;
-	for (unsigned long index = 0; index < warp::MAT_SIZE; index++) {
+	for (unsigned short index = 0; index < warp::MAX_POINTS; index++) {
 		std::pair<int, int> point = {mat->at(index).x, mat->at(index).y};
 		mat_config[std::to_string(count++)] = point;
 	}
