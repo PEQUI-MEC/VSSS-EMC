@@ -21,12 +21,18 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 		else if (event->x > std::round(width / 2) && event->y > std::round(height / 2)) sector = 3;
 	}
 
-	if (warp_event_flag && event->button == 1) {
-		warp_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
+	if (warp_event_flag) {
+		if (event->button == 1)
+			warp_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
+		if (event->button == 3)
+			imageWarp.warp_undo();
 	}
 
-	if (adjust_event_flag && event->button == 1) {
-		adjust_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
+	if (adjust_event_flag) {
+		if (event->button == 1)
+			adjust_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
+		if (event->button == 3)
+			imageWarp.adjust_undo();
 	}
 
 	if (PID_test_flag) {
