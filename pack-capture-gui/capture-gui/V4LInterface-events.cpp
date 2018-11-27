@@ -20,13 +20,11 @@ bool V4LInterface::on_button_press_event(GdkEventButton *event) {
 }
 
 void V4LInterface::HScale_offsetR_value_changed() {
-
-	offsetR = static_cast<int>(HScale_offsetR.get_value());
+	imageView.imageWarp.set_offset_R(static_cast<unsigned short>(HScale_offsetR.get_value()));
 }
 
 void V4LInterface::HScale_offsetL_value_changed() {
-
-	offsetL = static_cast<int>(HScale_offsetL.get_value());
+	imageView.imageWarp.set_offset_L(static_cast<unsigned short>(HScale_offsetL.get_value()));
 }
 
 // signals
@@ -107,7 +105,7 @@ void V4LInterface::__event_bt_start_clicked() {
 
 		bt_start.set_label("stop");
 		// Botão Stop desabilitado até que arrume o bug do malloc do threshold
-		bt_start.set_state(Gtk::STATE_INSENSITIVE);
+		//bt_start.set_state(Gtk::STATE_INSENSITIVE);
 		cb_device.set_state(Gtk::STATE_INSENSITIVE);
 		cb_input.set_state(Gtk::STATE_INSENSITIVE);
 		cb_standard.set_state(Gtk::STATE_INSENSITIVE);
@@ -116,13 +114,10 @@ void V4LInterface::__event_bt_start_clicked() {
 		sp_width.set_state(Gtk::STATE_INSENSITIVE);
 		sp_height.set_state(Gtk::STATE_INSENSITIVE);
 		cb_frame_interval.set_state(Gtk::STATE_INSENSITIVE);
-		bt_warp.set_state(Gtk::STATE_NORMAL);
 		bt_quick_save.set_state(Gtk::STATE_NORMAL);
 		bt_quick_load.set_state(Gtk::STATE_NORMAL);
 		bt_save.set_state(Gtk::STATE_NORMAL);
 		bt_load.set_state(Gtk::STATE_NORMAL);
-		HScale_offsetR.set_state(Gtk::STATE_NORMAL);
-		HScale_offsetL.set_state(Gtk::STATE_NORMAL);
 		visionGUI.rb_split_view.set_state(Gtk::STATE_NORMAL);
 		visionGUI.rb_original_view.set_state(Gtk::STATE_NORMAL);
 		visionGUI.bt_LAB_calib.set_state(Gtk::STATE_NORMAL);
@@ -135,6 +130,10 @@ void V4LInterface::__event_bt_start_clicked() {
 		calib_offline.set_state(Gtk::STATE_NORMAL);
 		calib_online.set_state(Gtk::STATE_NORMAL);
 		btn_camCalib.set_state(Gtk::STATE_NORMAL);
+		// warp
+		bt_warp_start.set_state(Gtk::STATE_NORMAL);
+		bt_reset_warp.set_state(Gtk::STATE_NORMAL);
+		bt_invert_field.set_state(Gtk::STATE_NORMAL);
 		m_signal_start.emit(true);
 	} else {
 
@@ -158,62 +157,93 @@ void V4LInterface::__event_bt_start_clicked() {
 		sp_height.set_state(Gtk::STATE_NORMAL);
 		cb_frame_interval.set_state(Gtk::STATE_NORMAL);
 		visionGUI.bt_LAB_calib.set_state(Gtk::STATE_INSENSITIVE);
-		bt_warp.set_state(Gtk::STATE_INSENSITIVE);
+		bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
 		bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
 		bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
 		bt_save.set_state(Gtk::STATE_INSENSITIVE);
 		bt_load.set_state(Gtk::STATE_INSENSITIVE);
+		bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
+		bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
+		bt_invert_field.set_state(Gtk::STATE_INSENSITIVE);
 		m_signal_start.emit(false);
 	}
 }
 
-void V4LInterface::__event_bt_warp_clicked() {
-	if (!imageView.warp_event_flag) {
-		imageView.warp_event_flag = true;
-		bt_reset_warp.set_state(Gtk::STATE_NORMAL);
-		bt_quick_load.set_state(Gtk::STATE_NORMAL);
-		bt_quick_save.set_state(Gtk::STATE_NORMAL);
-		bt_load.set_state(Gtk::STATE_NORMAL);
-		bt_save.set_state(Gtk::STATE_NORMAL);
+void V4LInterface::__event_bt_warp_start_clicked() {
+	bool is_active = bt_warp_start.get_active();
+	imageView.warp_event_flag = is_active;
+	imageView.imageArt.set_is_warping(is_active);
+	if (is_active) {
+		bt_warp_apply.set_state(Gtk::STATE_NORMAL);
+		bt_warp_undo.set_state(Gtk::STATE_NORMAL);
 	} else {
-		imageView.warp_event_flag = false;
-		bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
-		bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
-		bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
-		bt_load.set_state(Gtk::STATE_INSENSITIVE);
-		bt_save.set_state(Gtk::STATE_INSENSITIVE);
-		reset_warp_flag = true;
+		bt_warp_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_warp_undo.set_state(Gtk::STATE_INSENSITIVE);
 	}
 }
 
-void V4LInterface::__event_bt_adjust_pressed() {
+void V4LInterface::__event_bt_adjust_start_clicked() {
+	bool is_active = bt_adjust_start.get_active();
+	imageView.adjust_event_flag = is_active;
+	imageView.imageArt.set_is_adjusting(is_active);
+	if (is_active) {
+		bt_adjust_apply.set_state(Gtk::STATE_NORMAL);
+		bt_adjust_undo.set_state(Gtk::STATE_NORMAL);
+	} else {
+		bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_adjust_undo.set_state(Gtk::STATE_INSENSITIVE);
+	}
 
-	adjust_event_flag = !adjust_event_flag;
+}
+
+void V4LInterface::__event_bt_warp_apply_clicked() {
+	bool success = imageView.imageWarp.set_warp_ready();
+	if (success) {
+		bt_warp_start.set_active(false);
+		bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
+		HScale_offsetL.set_state(Gtk::STATE_NORMAL);
+		HScale_offsetR.set_state(Gtk::STATE_NORMAL);
+		bt_adjust_start.set_state(Gtk::STATE_NORMAL);
+		imageView.imageArt.set_is_warping(false);
+	}
+}
+
+void V4LInterface::__event_bt_adjust_apply_clicked() {
+	bool success = imageView.imageWarp.set_adjust_ready();
+	if (success) {
+		bt_adjust_start.set_active(false);
+		bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
+		imageView.imageArt.set_is_adjusting(false);
+	}
+}
+
+void capture::V4LInterface::__event_bt_warp_undo_clicked() {
+	imageView.imageWarp.warp_undo();
+}
+
+void capture::V4LInterface::__event_bt_adjust_undo_clicked() {
+	imageView.imageWarp.adjust_undo();
+}
+
+void V4LInterface::__event_bt_invert_field_clicked() {
+	imageView.imageWarp.set_invert_field(bt_invert_field.get_active());
 }
 
 void V4LInterface::__event_bt_reset_warp_clicked() {
-	std::cout << "Resetting warp matrix." << std::endl;
-	warped = false;
-	bt_warp.set_state(Gtk::STATE_NORMAL);
-	bt_adjust.set_active(false);
-	bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
-	adjust_event_flag = false;
-	imageView.adjust_rdy = false;
-	offsetL = 0;
-	offsetR = 0;
+	bt_warp_start.set_state(Gtk::STATE_NORMAL);
+	bt_adjust_start.set_active(false);
+	bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
+	bt_invert_field.set_active(false);
 	HScale_offsetL.set_value(0);
 	HScale_offsetR.set_value(0);
-	reset_warp_flag = true;
-}
-
-void V4LInterface::__event_bt_invert_image_signal_clicked() {
-	if (!invert_image_flag) {
-		invert_image_flag = true;
-		std::cout << "imageView >>>>>>>INVERTED<<<<<<<" << std::endl;
-	} else {
-		invert_image_flag = false;
-		std::cout << "imageView >>>>>>>NORMAL<<<<<<<" << std::endl;
-	}
+	imageView.imageWarp.clear_all_points();
+	imageView.adjust_event_flag = false;
+	imageView.warp_event_flag = false;
+	imageView.imageWarp.set_warp_ready(false);
+	imageView.imageWarp.set_adjust_ready(false);
+	imageView.imageWarp.set_invert_field(false);
+	imageView.imageArt.set_is_warping(false);
+	imageView.imageArt.set_is_adjusting(false);
 }
 
 void V4LInterface::__event_cb_device_changed() {
@@ -457,23 +487,24 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 
 void V4LInterface::update_interface_camera() {
 	visionGUI.update_vision_hscale_values();
-
-	if (warped) {
-		bt_warp.set_state(Gtk::STATE_INSENSITIVE);
-		if (imageView.adjust_rdy)
-			bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
-		else bt_adjust.set_state(Gtk::STATE_NORMAL);
+	if (imageView.imageWarp.is_warp_ready()) {
+		bt_warp_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
+		if (imageView.imageWarp.is_adjust_ready()) {
+			bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
+		} else {
+			bt_adjust_start.set_state(Gtk::STATE_NORMAL);
+		}
 	} else {
-		bt_warp.set_state(Gtk::STATE_NORMAL);
-		bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
+		bt_warp_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_warp_start.set_state(Gtk::STATE_NORMAL);
+		bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
+		bt_adjust_apply.set_state(Gtk::STATE_INSENSITIVE);
 	}
 
-	if (warped || imageView.adjust_rdy)
-		bt_reset_warp.set_state(Gtk::STATE_NORMAL);
-	else bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
-
-	HScale_offsetL.set_value(offsetL);
-	HScale_offsetR.set_value(offsetR);
+	HScale_offsetL.set_value(imageView.imageWarp.get_offset_L());
+	HScale_offsetR.set_value(imageView.imageWarp.get_offset_R());
 
 	__update_control_widgets(ctrl_list_default);
 }

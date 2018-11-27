@@ -3,12 +3,13 @@
 #include "ImageArt.hpp"
 
 using namespace vision;
+using namespace art;
 
 using std::cout;
 using std::endl;
 using std::vector;
 
-void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag>& tags) {
+void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag> &tags) {
 	for (const auto &robot : robots) {
 		auto search = tags.find(robot->tag);
 		if (search != tags.end())
@@ -65,7 +66,6 @@ bool CamCap::capture_and_show() {
 
 	if (!data) return false;
 
-
 	if (frameCounter == 0) {
 		timer_start = std::chrono::high_resolution_clock::now();
 	}
@@ -77,22 +77,8 @@ bool CamCap::capture_and_show() {
 
 	cv::Mat imageView(height, width, CV_8UC3, data);
 
-	if (interface.imageView.hold_warp) {
-		interface.warped = true;
-		interface.bt_adjust.set_state(Gtk::STATE_NORMAL);
-		interface.imageView.warp_event_flag = false;
-		interface.imageView.warp_event_flag = false;
-		interface.imageView.hold_warp = false;
-	}
-
-	if (interface.reset_warp_flag) {
-		interface.imageView.warp_counter = 0;
-		interface.reset_warp_flag = false;
-	}
-
 	interface.imageView.split_flag = interface.visionGUI.getIsSplitView();
 	interface.imageView.PID_test_flag = control.PID_test_flag;
-	interface.imageView.adjust_event_flag = interface.adjust_event_flag;
 	interface.imageView.gmm_sample_flag = interface.visionGUI.getSamplesEventFlag();
 
 	if (interface.imageView.sector != -1) {
@@ -107,16 +93,7 @@ bool CamCap::capture_and_show() {
 					  interface.visionGUI.vision->getdistanceCoeficents());
 	}
 
-	if (interface.warped) {
-		interface.bt_warp.set_active(false);
-		interface.bt_warp.set_state(Gtk::STATE_INSENSITIVE);
-		warp_transform(imageView);
-		interface.imageView.warp_event_flag = false;
-
-		if (interface.invert_image_flag) {
-			cv::flip(imageView, imageView, -1);
-		}
-	}
+	interface.imageView.imageWarp.run(imageView);
 
 	if (interface.CamCalib_flag_event && !interface.get_start_game_flag() &&
 		!interface.visionGUI.vision->flag_cam_calibrated) {
@@ -237,14 +214,13 @@ bool CamCap::capture_and_show() {
 		if (interface.visionGUI.getIsDrawing()) {
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 
-			art::draw(imageView,
-					  interface.visionGUI.gmm->getSamplePoints(),
-					  interface.visionGUI.vision->getBall(),
-					  tags,
-					  interface.visionGUI.vision->get_adv_robots(),
-					  robots,
-					  is_game_on);
-
+			interface.imageView.imageArt.draw(imageView,
+											  interface.visionGUI.gmm->getSamplePoints(),
+											  interface.visionGUI.vision->getBall(),
+											  tags,
+											  interface.visionGUI.vision->get_adv_robots(),
+											  robots,
+											  is_game_on);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
 
@@ -274,8 +250,8 @@ void CamCap::send_cmd_thread() {
 			return;
 		}
 		data_ready_flag = false;
-		if(ekf_data_ready) {
-			for (auto& robot : this->robots)
+		if (ekf_data_ready) {
+			for (auto &robot : this->robots)
 				control.messenger.send_ekf_data(*robot);
 			ekf_data_ready = false;
 		} else {
@@ -356,59 +332,6 @@ void CamCap::PID_test() {
 //	}
 } // PID_test
 
-void CamCap::warp_transform(cv::Mat imageView) {
-	cv::Point2f inputQuad[4];
-	cv::Point2f outputQuad[4];
-	cv::Mat lambda = cv::Mat::zeros(imageView.rows, imageView.cols, imageView.type());
-
-	inputQuad[0] = cv::Point2f(interface.imageView.warp_mat[0][0] - interface.offsetL,
-							   interface.imageView.warp_mat[0][1]);
-	inputQuad[1] = cv::Point2f(interface.imageView.warp_mat[1][0] + interface.offsetR,
-							   interface.imageView.warp_mat[1][1]);
-	inputQuad[2] = cv::Point2f(interface.imageView.warp_mat[2][0] + interface.offsetR,
-							   interface.imageView.warp_mat[2][1]);
-	inputQuad[3] = cv::Point2f(interface.imageView.warp_mat[3][0] - interface.offsetL,
-							   interface.imageView.warp_mat[3][1]);
-
-	outputQuad[0] = cv::Point2f(0, 0);
-	outputQuad[1] = cv::Point2f(width - 1, 0);
-	outputQuad[2] = cv::Point2f(width - 1, height - 1);
-	outputQuad[3] = cv::Point2f(0, height - 1);
-	lambda = getPerspectiveTransform(inputQuad, outputQuad);
-	warpPerspective(imageView, imageView, lambda, imageView.size());
-
-	if (interface.imageView.adjust_rdy) {
-		interface.bt_adjust.set_active(false);
-		interface.bt_adjust.set_state(Gtk::STATE_INSENSITIVE);
-		interface.adjust_event_flag = false;
-		interface.imageView.adjust_event_flag = false;
-
-		for (int i = 0; i < interface.imageView.adjust_mat[0][1]; i++) {
-			for (int j = 0; j < 3 * interface.imageView.adjust_mat[0][0]; j++) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = height; i > interface.imageView.adjust_mat[1][1]; i--) {
-			for (int j = 0; j < 3 * interface.imageView.adjust_mat[1][0]; j++) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = 0; i < interface.imageView.adjust_mat[2][1]; i++) {
-			for (int j = 3 * width; j > 3 * interface.imageView.adjust_mat[2][0]; j--) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = height; i > interface.imageView.adjust_mat[3][1]; i--) {
-			for (int j = 3 * width; j > 3 * interface.imageView.adjust_mat[3][0]; j--) {
-				imageView.at<uchar>(i, j) = 0;
-			}
-		}
-	}
-} // warp_transform
-
 
 void CamCap::calculate_ball_est() {
 	ls_x.addValue(ball.x);
@@ -418,13 +341,13 @@ void CamCap::calculate_ball_est() {
 	ball_est.y = ls_y.estimate(10);
 }
 
-CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), height(0), frameCounter(0),
-										   screenWidth(screenW), screenHeight(screenH),
-										   msg_thread(&CamCap::send_cmd_thread, this),
-										   robotGUI(robots, isLowRes),
-										   interface(&control.messenger, robots, robotGUI, isLowRes),
-										   strategy(attacker, defender, goalkeeper, ball, ball_est),
-										   robots {&attacker, &defender, &goalkeeper} {
+CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(nullptr), width(0), height(0), frameCounter(0),
+														  screenWidth(screenW), screenHeight(screenH),
+														  msg_thread(&CamCap::send_cmd_thread, this),
+														  robotGUI(robots, isLowRes),
+														  interface(&control.messenger, robots, robotGUI, isLowRes),
+														  strategy(attacker, defender, goalkeeper, ball, ball_est),
+														  robots{&attacker, &defender, &goalkeeper} {
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);
@@ -438,24 +361,12 @@ CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(0), width(0), hei
 	notebook.append_page(interface, "Capture");
 	notebook.append_page(interface.visionGUI, "Vision");
 	notebook.append_page(control, "Control");
-	if (isLowRes)
-	{
+	if (isLowRes) {
 		// Caso esteja em baixa resolução, será criado uma aba Robot.
 		// Caso contrário, robotGUI será colocado na info_box da interface.
 		notebook.append_page(robotGUI, "Robot");
 	}
 	notebook.append_page(strategyGUI, "Strategy");
-
-	for (int i = 0; i < 3; i++) {
-		virtual_robots_orientations[i] = 0;
-		virtual_robots_positions[i] = cv::Point(200, 480 / 6 + (i + 1) * 480 /
-															   6); // !TODO hardcoded, usar variáveis quando possível
-	}
-
-	for (auto &i : interface.imageView.adjust_mat) {
-		i[0] = -1;
-		i[1] = -1;
-	}
 
 	camera_vbox.pack_start(fm, false, true, 5);
 	camera_vbox.pack_start(info_fm, false, true, 5);

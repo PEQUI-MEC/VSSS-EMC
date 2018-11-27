@@ -25,6 +25,7 @@
 #include "../../cc/vision/visionGUI.hpp"
 #include <ctime>
 #include <chrono>
+#include <ImageWarp.hpp>
 
 #define PI 3.14159265453
 
@@ -48,8 +49,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool isLowRes = false;
 
 		VisionGUI visionGUI;
-
-		bool warped = false;
 		bool init_frame = true;
 
 		ImageView imageView;
@@ -80,22 +79,23 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		Gtk::CheckButton record_video_checkbox;
 
-		bool reset_warp_flag = false;
 		capture::v4lcap vcap;
 
 		explicit V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref, RobotGUI &robot_gui, bool isLow);
 		void initInterface();
 
-		int offsetL = 0;
-		int offsetR = 0;
 		Gtk::Scale HScale_offsetL;
 		Gtk::Scale HScale_offsetR;
-		bool adjust_event_flag;
-		bool invert_image_flag = false;
 
-		Gtk::ToggleButton bt_warp;
-		Gtk::ToggleButton bt_adjust;
-		Gtk::CheckButton bt_invert_image;
+		Gtk::Grid warp_grid;
+		Gtk::Label warp_label[6];
+		Gtk::ToggleButton bt_warp_start;
+		Gtk::Button bt_warp_apply;
+		Gtk::ToggleButton bt_adjust_start;
+		Gtk::Button bt_adjust_apply;
+		Gtk::CheckButton bt_invert_field;
+		Gtk::Button bt_warp_undo;
+		Gtk::Button bt_adjust_undo;
 
 		// Signals
 		sigc::connection cb_input_signal;
@@ -117,8 +117,13 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __event_bt_save_clicked();
 		void __event_bt_load_clicked();
 		void __event_bt_start_clicked();
-		void __event_bt_warp_clicked();
-		void __event_bt_adjust_pressed();
+		void __event_bt_warp_start_clicked();
+		void __event_bt_adjust_start_clicked();
+		void __event_bt_warp_apply_clicked();
+		void __event_bt_adjust_apply_clicked();
+		void __event_bt_invert_field_clicked();
+		void __event_bt_warp_undo_clicked();
+		void __event_bt_adjust_undo_clicked();
 		void __event_bt_reset_warp_clicked();
 		void HScale_offsetR_value_changed();
 		void HScale_offsetL_value_changed();
@@ -158,6 +163,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool on_button_press_event(GdkEventButton *event) override;
 
 	private:
+
 		bool start_game_flag = false;
 
 		void __init_combo_boxes();

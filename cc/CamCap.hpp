@@ -68,9 +68,6 @@ class CamCap : public Gtk::HBox {
 
 		cv::Point2f Ball_Est;
 
-		cv::Point virtual_robots_positions[3];
-		float virtual_robots_orientations[3];
-
 		StrategyGUI strategyGUI;
 		ControlGUI control;
 		RobotGUI robotGUI;
@@ -101,7 +98,6 @@ class CamCap : public Gtk::HBox {
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
 		void PID_test();
-		void warp_transform(cv::Mat imageView);
 		void calculate_ball_est();
 		CamCap(int screenW, int screenH, bool isLowRes);
 		~CamCap() override;

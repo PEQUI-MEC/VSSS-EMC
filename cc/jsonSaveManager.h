@@ -21,7 +21,8 @@ class jsonSaveManager {
 		void load_robots();
 		void save_camera();
 		void load_camera();
-		void config_matrix(json &mat_config, int (&mat)[4][2], bool save);
+		void save_warp_matrix(json &mat_config, warp::PointArray& mat);
+		void load_warp_matrix(const json &mat_config, bool isAdjust = false);
 		void config_dynamic_matrix(json &mat_config, cv::Mat &mat, bool save);
 		int read_configs_from_file(std::string file_path = "quicksave.json");
 		void write_configs_to_file(std::string file_path = "quicksave.json");
