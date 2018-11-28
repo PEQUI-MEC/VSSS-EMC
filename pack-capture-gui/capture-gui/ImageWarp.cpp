@@ -68,29 +68,10 @@ void ImageWarp::run(cv::Mat &frame) {
 
 	if (is_adjust_rdy) {
 		// Faz o ajuste dos cantos
-		for (int i = 0; i < adjust_mat[0].y; i++) {
-			for (int j = 0; j < 3 * adjust_mat[0].x; j++) {
-				frame.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = frame.rows; i > adjust_mat[1].y; i--) {
-			for (int j = 0; j < 3 * adjust_mat[1].x; j++) {
-				frame.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = 0; i < adjust_mat[2].y; i++) {
-			for (int j = 3 * frame.cols; j > 3 * adjust_mat[2].x; j--) {
-				frame.at<uchar>(i, j) = 0;
-			}
-		}
-
-		for (int i = frame.rows; i > adjust_mat[3].y; i--) {
-			for (int j = 3 * frame.cols; j > 3 * adjust_mat[3].x; j--) {
-				frame.at<uchar>(i, j) = 0;
-			}
-		}
+		cv::rectangle(frame, {0, 0}, adjust_mat[0], cv::Scalar(0,0,0), cv::FILLED);
+		cv::rectangle(frame, {0, frame.rows}, adjust_mat[1], cv::Scalar(0,0,0), cv::FILLED);
+		cv::rectangle(frame, {frame.cols, 0}, adjust_mat[2], cv::Scalar(0,0,0), cv::FILLED);
+		cv::rectangle(frame, {frame.cols, frame.rows}, adjust_mat[3], cv::Scalar(0,0,0), cv::FILLED);
 	}
 
 	if (is_invert_field) {
