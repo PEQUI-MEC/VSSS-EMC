@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-mkdir build/
+mkdir -p build/
 cd build/
 cmake ..
 thread_num=$(nproc)
