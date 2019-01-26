@@ -441,7 +441,7 @@ void V4LInterface::__set_control(std::list<ControlHolder> *list, Gtk::Widget *wc
 	__update_control_widgets(ctrl_list_default);
 }
 
-void V4LInterface::event_disable_video_record(){
+void V4LInterface::event_toggle_enable_video_record(){
 	visionGUI.vision->video_rec_enable = !visionGUI.vision->video_rec_enable;
 }
 

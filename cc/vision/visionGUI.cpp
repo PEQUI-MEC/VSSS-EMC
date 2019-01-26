@@ -14,9 +14,10 @@ void VisionGUI::__create_frm_drawing_options() {
 	frame->set_label("Drawing Options");
 	hbox->set_halign(Gtk::ALIGN_CENTER);
 	hbox->pack_start(draw_info_checkbox, false, true, 5);
-	draw_info_checkbox.set_label("Disable Drawing");
+	draw_info_checkbox.set_label("Drawing");
 	draw_info_checkbox.set_can_focus(false);
 	draw_info_checkbox.set_margin_bottom(5);
+	draw_info_checkbox.set_active(true);
 
 	draw_info_checkbox.signal_clicked().connect(
 			sigc::mem_fun(*this, &VisionGUI::event_draw_info_checkbox_signal_clicked));

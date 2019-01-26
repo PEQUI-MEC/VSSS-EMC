@@ -817,9 +817,10 @@ void V4LInterface::initInterface() {
 	vbox->set_halign(Gtk::ALIGN_CENTER);
 	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-	record_video_checkbox.set_label("Disable Recording");
+	record_video_checkbox.set_label("Recording");
 	record_video_checkbox.set_can_focus(false);
 	record_video_checkbox.set_margin_bottom(5);
+	record_video_checkbox.set_active(true);
 
 	vbox->pack_start(start_game_bt, false, true, 0);
 	vbox->pack_start(record_video_checkbox, false, true, 0);
@@ -833,7 +834,7 @@ void V4LInterface::initInterface() {
 	start_game_bt.set_image(red_button_released);
 
 	record_video_checkbox.signal_clicked().connect(
-			sigc::mem_fun(*this, &capture::V4LInterface::event_disable_video_record));
+			sigc::mem_fun(*this, &capture::V4LInterface::event_toggle_enable_video_record));
 	start_game_bt.signal_clicked().connect(
 			sigc::mem_fun(*this, &capture::V4LInterface::event_start_game_bt_signal_clicked));
 
