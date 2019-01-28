@@ -14,6 +14,7 @@
 #include "opencv2/opencv.hpp"
 #include <ImageWarp.hpp>
 #include <ImageArt.hpp>
+#include <TestOnClick.hpp>
 
 #pragma once
 
@@ -26,6 +27,8 @@ class capture::ImageView : public Gtk::DrawingArea {
 		Glib::RefPtr<Gdk::Pixbuf> pb;
 		bool on_button_press_event(GdkEventButton *event) override;
 
+		TestOnClick* test_on_click;
+
 	public:
 		warp::ImageWarp imageWarp;
 		art::ImageArt imageArt;
@@ -35,20 +38,15 @@ class capture::ImageView : public Gtk::DrawingArea {
 
 		int gmm_clicks[2][2];
 
-		double tar_pos[2];
-		double robot_pos[2];
-		double look_pos[2];
-
 		int gmm_counter = 0;
 		bool warp_event_flag = false;
-		bool PID_test_flag = false;
 		bool adjust_event_flag = false;
 		bool gmm_sample_flag = false;
 		bool gmm_ready_flag = false;
 		bool split_flag = false;
 		int sector = -1;
 
-		ImageView();
+		explicit ImageView(TestOnClick &test_controller);
 		void set_data(unsigned char *data, int width, int height);
 		void disable_image_show();
 		void refresh();

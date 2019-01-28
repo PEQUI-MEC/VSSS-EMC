@@ -447,6 +447,9 @@ void V4LInterface::event_disable_video_record(){
 
 void V4LInterface::event_start_game_bt_signal_clicked() {
 	if (!start_game_flag) {
+
+		controlGUI.stop_test_on_click();
+
 		record_video_checkbox.set_sensitive(false);
 		start_game_flag = true;
 		start_game_bt.set_image(red_button_pressed);
@@ -482,6 +485,11 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		visionGUI.en_video_name.set_text("");
 		start_game_flag = false;
 		start_game_bt.set_image(red_button_released);
+
+		// Para os robôs. Importante para não atrapalhar o Test On Click.
+		for (auto robot : robots) {
+			robot->stop();
+		}
 	}
 }
 

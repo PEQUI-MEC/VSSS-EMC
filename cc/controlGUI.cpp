@@ -1,6 +1,6 @@
 #include "controlGUI.hpp"
 
-ControlGUI::ControlGUI() {
+ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots) : test_controller(robots) {
 	// Adicionar o frame do Serial e sua VBOX
 	pack_start(Top_hbox, false, true, 5);
 	Top_hbox.pack_start(Serial_fm, true, true, 0);
@@ -78,6 +78,7 @@ ControlGUI::ControlGUI() {
 
 	bt_Serial_test.set_label("Send");
 
+	_create_test_on_click_frame();
 	_create_status_frame();
 
 	_update_cb_serial();
@@ -380,4 +381,132 @@ void ControlGUI::update_msg_time() {
 		acc_time = 0;
 		time_count = 0;
 	}
+}
+
+void ControlGUI::_create_test_on_click_frame() {
+	// Setup labels
+	test_robot_lb.set_label("Robot Selected: None");
+	test_default_lb[0].set_label("Command:");
+	test_default_lb[1].set_label("Angle:");
+	test_default_lb[0].set_halign(Gtk::ALIGN_END);
+	test_default_lb[1].set_halign(Gtk::ALIGN_END);
+	test_tip_lb.set_label("Tip: Select Robot on image (left-click) to send command.");
+	test_start_bt.set_label("Start");
+	test_send_bt.set_label("Send");
+
+	pack_start(test_frame, false, true, 5);
+	test_frame.set_label("Test On Click");
+	test_frame.set_border_width(10);
+	test_frame.add(test_vbox);
+	test_vbox.pack_start(test_grid, false, true, 12);
+	test_vbox.pack_start(test_hbox, false, true, 12);
+
+	test_grid.set_border_width(10);
+	test_grid.set_column_spacing(10);
+	test_grid.set_row_spacing(5);
+	test_grid.set_halign(Gtk::ALIGN_CENTER);
+	test_grid.attach(test_start_bt, 0, 0, 1, 1);
+	test_grid.attach(test_robot_lb, 1, 0, 2, 1);
+	test_grid.attach(test_separator, 0, 1, 3, 1);
+	test_grid.attach(test_default_lb[0], 0, 2, 1, 1);
+	test_grid.attach(test_command_cb, 1, 2, 2, 1);
+	test_grid.attach(test_default_lb[1], 0, 3, 1, 1);
+	test_grid.attach(test_angle_scale, 1, 3, 1, 1);
+	test_grid.attach(test_send_bt, 2, 3, 1, 1);
+
+	test_command_cb.append("Go to target position (Position)");
+	test_command_cb.append("Go to target direction (Vector)");
+	test_command_cb.append("Set Robot Orientation (Orientation)");
+	test_command_cb.append("Go to target pose (UVF)");
+	test_command_cb.append("Stop (None)");
+	test_command_cb.set_active(0);
+
+	test_angle_scale.set_digits(0);
+	test_angle_scale.set_increments(1, 5);
+	test_angle_scale.set_range(-180, 180);
+	test_angle_scale.set_value(0);
+	test_angle_scale.set_value_pos(Gtk::POS_TOP);
+	test_angle_scale.set_draw_value();
+	test_angle_scale.set_size_request(175, -1);
+
+	test_hbox.pack_start(test_tip_lb, false, true, 5);
+	test_hbox.set_border_width(10);
+	test_hbox.set_halign(Gtk::ALIGN_CENTER);
+
+	test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
+	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+	test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+
+	test_start_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_start_bt_event));
+	test_command_cb.signal_changed().connect(sigc::mem_fun(*this, &ControlGUI::_test_command_changed_event));
+	test_send_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_send_bt_event));
+}
+
+void ControlGUI::_test_start_bt_event() {
+	bool is_active = test_start_bt.get_active();
+
+	test_controller.set_active(is_active);
+
+	if (is_active) {
+		Robot2::Command command = test_controller.get_command();
+
+		if (command == Robot2::Command::Vector || command == Robot2::Command::Orientation
+			|| command == Robot2::Command::UVF) {
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_send_bt.set_state(Gtk::STATE_NORMAL);
+		}
+
+		test_command_cb.set_state(Gtk::STATE_NORMAL);
+		test_start_bt.set_label("Stop");
+	} else {
+		test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
+		test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+		test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+		test_start_bt.set_label("Start");
+	}
+}
+
+void ControlGUI::_test_command_changed_event() {
+	// 0: Position
+	// 1: Vector
+	// 2: Orientation
+	// 3: UVF
+	// 4: None
+	switch (test_command_cb.get_active_row_number()) {
+		case 0:
+			test_controller.set_command(Robot2::Command::Position);
+			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+			test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+			break;
+		case 1:
+			test_controller.set_command(Robot2::Command::Vector);
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_send_bt.set_state(Gtk::STATE_NORMAL);
+			break;
+		case 2:
+			test_controller.set_command(Robot2::Command::Orientation);
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_send_bt.set_state(Gtk::STATE_NORMAL);
+			break;
+		case 3:
+			test_controller.set_command(Robot2::Command::UVF);
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_send_bt.set_state(Gtk::STATE_NORMAL);
+			break;
+		default:
+			test_controller.set_command(Robot2::Command::None);
+			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+			test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+	}
+}
+
+void ControlGUI::_test_send_bt_event() {
+	test_controller.set_orientation(test_angle_scale.get_value());
+}
+
+void ControlGUI::stop_test_on_click() {
+	test_controller.set_active(false);
+	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
+	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+	test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
 }

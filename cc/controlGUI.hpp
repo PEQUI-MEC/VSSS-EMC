@@ -19,6 +19,7 @@
 #include <gtkmm.h>
 #include <string>
 #include "Messenger.h"
+#include "TestOnClick.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 // system_clock::now
@@ -32,6 +33,7 @@ class ControlGUI : public Gtk::VBox {
 
 	public:
 		Messenger messenger;
+		TestOnClick test_controller;
 
 		const static int TOTAL_ROBOTS = 6;
 
@@ -82,9 +84,28 @@ class ControlGUI : public Gtk::VBox {
 
 		Gtk::Button pid_edit_bt;
 
-		ControlGUI();
+		Gtk::Frame test_frame;
+		Gtk::VBox test_vbox;
+		Gtk::HBox test_hbox;
+		Gtk::Grid test_grid;
+		Gtk::Scale test_angle_scale;
+		Gtk::ComboBoxText test_command_cb;
+		Gtk::ToggleButton test_start_bt;
+		Gtk::Button test_send_bt;
+		Gtk::Label test_default_lb[2], test_robot_lb, test_tip_lb;
+		Gtk::HSeparator test_separator;
+
+		void _test_start_bt_event();
+
+		explicit ControlGUI(const std::array<Robot2 *, 3> &robots);
+
+		void stop_test_on_click();
 
 		void _send_command();
+
+		void _test_command_changed_event();
+
+		void _test_send_bt_event();
 
 		void _PID_Test();
 
@@ -103,6 +124,8 @@ class ControlGUI : public Gtk::VBox {
 		void _update_cb_serial();
 
 		void _create_status_frame();
+
+		void _create_test_on_click_frame();
 
 		char get_robot_id(int pos);
 		void update_dropped_frames();
