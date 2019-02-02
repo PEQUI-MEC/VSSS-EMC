@@ -121,7 +121,7 @@ namespace vision
 		void savePicture(std::string in_name);
 
 		//video
-		bool video_rec_enable = true;
+		bool video_rec_enable;
 
 		//Cam calib
 		std::vector<cv::Mat> savedCamCalibFrames;

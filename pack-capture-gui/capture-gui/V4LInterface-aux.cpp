@@ -817,7 +817,7 @@ void V4LInterface::initInterface() {
 	vbox->set_halign(Gtk::ALIGN_CENTER);
 	vbox->set_valign(Gtk::ALIGN_CENTER);
 
-	record_video_checkbox.set_label("Recording");
+	record_video_checkbox.set_label("Record Game");
 	record_video_checkbox.set_can_focus(false);
 	record_video_checkbox.set_margin_bottom(5);
 	record_video_checkbox.set_active(true);
