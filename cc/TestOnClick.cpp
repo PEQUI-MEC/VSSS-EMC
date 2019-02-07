@@ -5,7 +5,7 @@
 using namespace onClick;
 
 void TestOnClick::run() {
-	if (!m_is_active || has_no_robot())
+	if (!m_is_active || !has_robot())
 		return;
 
 	if (!is_target_valid())
@@ -33,8 +33,8 @@ void TestOnClick::run() {
 	}
 }
 
-void TestOnClick::set_orientation(double orientation) {
-	if (!m_is_active || has_no_robot())
+void TestOnClick::set_orientation(const double orientation) {
+	if (!m_is_active || !has_robot())
 		return;
 
 	m_orientation = Geometry::Vector(1, Geometry::degree_to_rad(orientation));
@@ -44,9 +44,9 @@ TestOnClick::TestOnClick(const std::array<Robot2 *, 3> &robots) : m_is_active(fa
 	m_target(-1, -1), m_orientation(1, 0), m_selected_robot(nullptr){
 }
 
-void TestOnClick::select_robot(double x, double y) {
+void TestOnClick::select_robot(const double x,const double y) {
 	for (auto &robot : m_robots) {
-		if (Geometry::distance(robot->get_position(), Geometry::Point(x,y)) < robot->SIZE ) {
+		if (Geometry::distance(robot->get_position(), Geometry::from_cv_point(x,y)) < robot->SIZE/2 ) {
 			m_selected_robot = robot;
 			return;
 		}
@@ -55,29 +55,29 @@ void TestOnClick::select_robot(double x, double y) {
 	m_selected_robot = nullptr;
 }
 
-void TestOnClick::select_target(double x, double y) {
-	if (has_no_robot())
+void TestOnClick::select_target(const double x,const double y) {
+	if (!has_robot())
 		return;
 
-	m_target = Geometry::Point(x,y);
+	m_target = Geometry::from_cv_point(x,y);
 
 	if (m_command == Robot2::Command::Vector || m_command == Robot2::Command::Orientation)
 		m_orientation = Geometry::Vector(m_target - m_selected_robot->get_position());
 }
 
-void TestOnClick::set_active(bool active) {
-	if (!active) {
+void TestOnClick::set_active(const bool is_active) {
+	if (!is_active) {
 		m_target = Geometry::Point(-1, -1);
-		if (m_selected_robot != nullptr) {
+		if (has_robot()) {
 			m_selected_robot->stop();
 			m_selected_robot = nullptr;
 		}
 	}
 
-	m_is_active = active;
+	m_is_active = is_active;
 }
 
-void TestOnClick::set_command(Robot2::Command command) {
+void TestOnClick::set_command(const Robot2::Command command) {
 	m_command = command;
 	m_target = Geometry::Point(-1, -1);
 }

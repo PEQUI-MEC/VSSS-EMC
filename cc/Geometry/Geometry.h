@@ -70,6 +70,7 @@ namespace Geometry {
 	double distance_y(const Point &a, const Point &b);
 	Point intersection(const Line &l1, const Line &l2);
 	Point from_cv_point(cv::Point cv_point);
+	Point from_cv_point(double x, double y);
 	double wrap(double theta);
 }
 

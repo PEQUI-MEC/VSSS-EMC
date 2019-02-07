@@ -75,12 +75,13 @@ ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots) : test_controller(
 
 	bt_Serial_test.set_label("Send");
 
-	_create_test_on_click_frame();
-	_create_status_frame();
-
 	_update_cb_serial();
 	auto_start_serial();
 	update_ack_interface();
+
+	_create_test_on_click_frame();
+	_create_status_frame();
+
 	// Conectar os sinais para o acontecimento dos eventos
 	bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
 	bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));

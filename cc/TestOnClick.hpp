@@ -7,7 +7,7 @@
 namespace onClick {
 	class TestOnClick {
 		private:
-			bool m_is_active = false;
+			bool m_is_active;
 
 			const std::array<Robot2 *, 3>& m_robots;
 			Robot2* m_selected_robot;
@@ -25,7 +25,7 @@ namespace onClick {
 
 			void run();
 
-			void set_active(bool active = true);
+			void set_active(bool is_active = true);
 			void set_command(Robot2::Command command);
 			void set_orientation(double orientation);
 
@@ -35,7 +35,7 @@ namespace onClick {
 			Geometry::Point get_target() const { return m_target; };
 
 			bool is_active() const { return m_is_active; };
-			bool has_no_robot() const { return m_selected_robot == nullptr; };
+			bool has_robot() const { return m_selected_robot != nullptr; };
 
 			void select_robot(double x, double y);
 			void select_target(double x, double y);
