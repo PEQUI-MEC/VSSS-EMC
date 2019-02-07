@@ -33,7 +33,7 @@ void TestOnClick::run() {
 	}
 }
 
-void TestOnClick::set_orientation(double orientation) {
+void TestOnClick::set_orientation(const double orientation) {
 	if (!m_is_active || has_no_robot())
 		return;
 
@@ -44,7 +44,7 @@ TestOnClick::TestOnClick(const std::array<Robot2 *, 3> &robots) : m_is_active(fa
 	m_target(-1, -1), m_orientation(1, 0), m_selected_robot(nullptr){
 }
 
-void TestOnClick::select_robot(double x, double y) {
+void TestOnClick::select_robot(const double x,const double y) {
 	for (auto &robot : m_robots) {
 		if (Geometry::distance(robot->get_position(), Geometry::Point(x,y)) < robot->SIZE ) {
 			m_selected_robot = robot;
@@ -55,7 +55,7 @@ void TestOnClick::select_robot(double x, double y) {
 	m_selected_robot = nullptr;
 }
 
-void TestOnClick::select_target(double x, double y) {
+void TestOnClick::select_target(const double x,const double y) {
 	if (has_no_robot())
 		return;
 
@@ -65,8 +65,8 @@ void TestOnClick::select_target(double x, double y) {
 		m_orientation = Geometry::Vector(m_target - m_selected_robot->get_position());
 }
 
-void TestOnClick::set_active(bool active) {
-	if (!active) {
+void TestOnClick::set_active(const bool is_active) {
+	if (!is_active) {
 		m_target = Geometry::Point(-1, -1);
 		if (m_selected_robot != nullptr) {
 			m_selected_robot->stop();
@@ -74,10 +74,10 @@ void TestOnClick::set_active(bool active) {
 		}
 	}
 
-	m_is_active = active;
+	m_is_active = is_active;
 }
 
-void TestOnClick::set_command(Robot2::Command command) {
+void TestOnClick::set_command(const Robot2::Command command) {
 	m_command = command;
 	m_target = Geometry::Point(-1, -1);
 }
