@@ -382,7 +382,7 @@ void ControlGUI::_create_test_on_click_frame() {
 	test_default_lb[1].set_halign(Gtk::ALIGN_END);
 	test_tip_lb.set_label("Tip: Left-click on image to select robot. Right-click to set the target.");
 	test_start_bt.set_label(test_start_txt);
-	test_send_bt.set_label("Send");
+	test_set_bt.set_label("Set");
 
 	pack_start(test_frame, false, true, 5);
 	test_frame.set_label("Test On Click");
@@ -401,7 +401,7 @@ void ControlGUI::_create_test_on_click_frame() {
 	test_grid.attach(test_command_cb, 1, 2, 2, 1);
 	test_grid.attach(test_default_lb[1], 0, 3, 1, 1);
 	test_grid.attach(test_angle_scale, 1, 3, 1, 1);
-	test_grid.attach(test_send_bt, 2, 3, 1, 1);
+	test_grid.attach(test_set_bt, 2, 3, 1, 1);
 
 	test_command_cb.append("Stop (None)");
 	test_command_cb.append("Go to target direction (Vector)");
@@ -425,11 +425,11 @@ void ControlGUI::_create_test_on_click_frame() {
 	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
 	test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
 	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
-	test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+	test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 	test_start_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_start_bt_event));
 	test_command_cb.signal_changed().connect(sigc::mem_fun(*this, &ControlGUI::_test_command_changed_event));
-	test_send_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_send_bt_event));
+	test_set_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_send_bt_event));
 }
 
 void ControlGUI::_test_start_bt_event() {
@@ -443,7 +443,7 @@ void ControlGUI::_test_start_bt_event() {
 		if (command == Robot2::Command::Vector || command == Robot2::Command::Orientation
 			|| command == Robot2::Command::UVF) {
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
-			test_send_bt.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
 		}
 
 		test_command_cb.set_state(Gtk::STATE_NORMAL);
@@ -451,7 +451,7 @@ void ControlGUI::_test_start_bt_event() {
 	} else {
 		test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
 		test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
-		test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+		test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 		test_start_bt.set_label(test_start_txt);
 	}
 }
@@ -466,27 +466,27 @@ void ControlGUI::_test_command_changed_event() {
 		case 0:
 			test_controller.set_command(Robot2::Command::None);
 			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
-			test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+			test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 			break;
 		case 1:
 			test_controller.set_command(Robot2::Command::Vector);
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
-			test_send_bt.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
 			break;
 		case 2:
 			test_controller.set_command(Robot2::Command::Orientation);
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
-			test_send_bt.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
 			break;
 		case 3:
 			test_controller.set_command(Robot2::Command::UVF);
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
-			test_send_bt.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
 			break;
 		default:
 			test_controller.set_command(Robot2::Command::Position);
 			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
-			test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+			test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 	}
 }
@@ -500,5 +500,5 @@ void ControlGUI::stop_test_on_click() {
 	test_start_bt.set_active(false);
 	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
 	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
-	test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+	test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 }

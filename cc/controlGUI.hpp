@@ -71,7 +71,7 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Scale test_angle_scale;
 		Gtk::ComboBoxText test_command_cb;
 		Gtk::ToggleButton test_start_bt;
-		Gtk::Button test_send_bt;
+		Gtk::Button test_set_bt;
 		Gtk::Label test_default_lb[2], test_tip_lb;
 		Gtk::HSeparator test_separator;
 		const std::string test_start_txt = "Start Test On Click";
