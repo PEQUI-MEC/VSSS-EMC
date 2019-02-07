@@ -6,6 +6,7 @@
 
 using namespace vision;
 using namespace art;
+using namespace onClick;
 
 void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
 					const std::map<unsigned int, Vision::RecognizedTag> &our_tags,

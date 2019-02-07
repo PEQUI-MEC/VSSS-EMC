@@ -1,6 +1,7 @@
 #include "ImageView.hpp"
 
 using capture::ImageView;
+using namespace onClick;
 
 bool ImageView::on_button_press_event(GdkEventButton *event) {
 

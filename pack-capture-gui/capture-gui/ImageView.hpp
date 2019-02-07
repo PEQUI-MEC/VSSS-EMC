@@ -27,7 +27,7 @@ class capture::ImageView : public Gtk::DrawingArea {
 		Glib::RefPtr<Gdk::Pixbuf> pb;
 		bool on_button_press_event(GdkEventButton *event) override;
 
-		TestOnClick* test_on_click;
+		onClick::TestOnClick* test_on_click;
 
 	public:
 		warp::ImageWarp imageWarp;
@@ -46,7 +46,7 @@ class capture::ImageView : public Gtk::DrawingArea {
 		bool split_flag = false;
 		int sector = -1;
 
-		explicit ImageView(TestOnClick &test_controller);
+		explicit ImageView(onClick::TestOnClick &test_controller);
 		void set_data(unsigned char *data, int width, int height);
 		void disable_image_show();
 		void refresh();

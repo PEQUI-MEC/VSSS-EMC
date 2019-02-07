@@ -1,18 +1,3 @@
-/*
- * controlGUI.hpp
- *
- *  Created on: May 8th, 2016
- *      Author: Daniel
- *
- * Este código cria a interface da aba 'Control' do código do VS.
- * Para liberar os widgets, o botão PID deve estar pressionado.
- * Nas caixas de texto, pode-se usar '.' ou ',' para tratar números
- * do tipo double.
- *
- * Conta com uma Hscale e uma Entry (o TextBox do Gtkmm) para que possa
- * colocar o valor do PID de cada jogador.
- */
-
 #ifndef CONTROLGUI_HPP_
 #define CONTROLGUI_HPP_
 
@@ -33,12 +18,10 @@ class ControlGUI : public Gtk::VBox {
 
 	public:
 		Messenger messenger;
-		TestOnClick test_controller;
+		onClick::TestOnClick test_controller;
 
 		const static int TOTAL_ROBOTS = 6;
 
-		// Flag para saber se o botão PID está pressionado ou não.
-		bool PID_test_flag = false;
 		// Containers para o conteúdo da interface gráfica
 		Gtk::Frame Serial_fm;
 		Gtk::HBox Top_hbox;
@@ -59,7 +42,6 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Button bt_Robot_Status;
 		Gtk::Button bt_Serial_Refresh;
 		Gtk::ComboBoxText cb_serial;
-		Gtk::ToggleButton button_PID_Test;
 		Gtk::Button bt_Serial_test;
 		Gtk::ComboBoxText cb_test;
 		Gtk::Entry Tbox_V1;
@@ -82,8 +64,6 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Label dropped_frames[TOTAL_ROBOTS];
 		Gtk::Button bt_reset_ack;
 
-		Gtk::Button pid_edit_bt;
-
 		Gtk::Frame test_frame;
 		Gtk::VBox test_vbox;
 		Gtk::HBox test_hbox;
@@ -92,8 +72,10 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::ComboBoxText test_command_cb;
 		Gtk::ToggleButton test_start_bt;
 		Gtk::Button test_send_bt;
-		Gtk::Label test_default_lb[2], test_robot_lb, test_tip_lb;
+		Gtk::Label test_default_lb[2], test_tip_lb;
 		Gtk::HSeparator test_separator;
+		const std::string test_start_txt = "Start Test On Click";
+		const std::string test_stop_txt = "Stop Test On Click";
 
 		void _test_start_bt_event();
 
@@ -106,8 +88,6 @@ class ControlGUI : public Gtk::VBox {
 		void _test_command_changed_event();
 
 		void _test_send_bt_event();
-
-		void _PID_Test();
 
 		// Gets battery % and robot id to update a single robot's battery status
 		void updateInterfaceStatus(double battery, int id);

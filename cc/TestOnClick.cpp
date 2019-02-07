@@ -1,8 +1,11 @@
 #include "TestOnClick.hpp"
 #include <tag.hpp>
+#include <Strategy2/Robot2.h>
+
+using namespace onClick;
 
 void TestOnClick::run() {
-	if (!m_is_active || m_selected_robot == nullptr)
+	if (!m_is_active || has_no_robot())
 		return;
 
 	if (!is_target_valid())
@@ -31,7 +34,7 @@ void TestOnClick::run() {
 }
 
 void TestOnClick::set_orientation(double orientation) {
-	if (!m_is_active || m_selected_robot == nullptr)
+	if (!m_is_active || has_no_robot())
 		return;
 
 	m_orientation = Geometry::Vector(1, Geometry::degree_to_rad(orientation));
@@ -43,7 +46,7 @@ TestOnClick::TestOnClick(const std::array<Robot2 *, 3> &robots) : m_is_active(fa
 
 void TestOnClick::select_robot(double x, double y) {
 	for (auto &robot : m_robots) {
-		if (Geometry::distance(robot->get_position(), Geometry::from_cv_point(cv::Point(x, y))) < robot->SIZE ) {
+		if (Geometry::distance(robot->get_position(), Geometry::Point(x,y)) < robot->SIZE ) {
 			m_selected_robot = robot;
 			return;
 		}
@@ -53,10 +56,10 @@ void TestOnClick::select_robot(double x, double y) {
 }
 
 void TestOnClick::select_target(double x, double y) {
-	if (m_selected_robot == nullptr)
+	if (has_no_robot())
 		return;
 
-	m_target = Geometry::from_cv_point(cv::Point(x,y));
+	m_target = Geometry::Point(x,y);
 
 	if (m_command == Robot2::Command::Vector || m_command == Robot2::Command::Orientation)
 		m_orientation = Geometry::Vector(m_target - m_selected_robot->get_position());

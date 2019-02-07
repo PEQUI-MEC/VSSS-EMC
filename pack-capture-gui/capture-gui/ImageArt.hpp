@@ -20,10 +20,10 @@ namespace art {
 
 			const warp::PointArray& warp_mat;
 			const warp::PointArray& adjust_mat;
-			const TestOnClick& test_on_click;
+			const onClick::TestOnClick& test_on_click;
 
 			const cv::Scalar strategy_color = {127, 255, 127}; // green
-			const cv::Scalar test_color = {170, 22, 250}; // purple
+			const cv::Scalar test_color = {250, 28, 250}; // pink
 			const cv::Scalar adjust_color = {191, 5, 30};
 			const cv::Scalar warp_color = {52, 168, 3};
 			const cv::Scalar our_robots_color[2] = {{255, 255, 0}, {255, 0, 0}};
@@ -35,7 +35,7 @@ namespace art {
 			void draw_targets(const Robot2 *robot, cv::Mat &frame);
 
 		public:
-			ImageArt(warp::PointArray& warp, warp::PointArray& adjust, TestOnClick& test);
+			ImageArt(warp::PointArray& warp, warp::PointArray& adjust, onClick::TestOnClick& test);
 			void draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
 					  const std::map<unsigned int, vision::Vision::RecognizedTag> &our_tags,
 					  const std::vector<cv::Point> &adv_tags,

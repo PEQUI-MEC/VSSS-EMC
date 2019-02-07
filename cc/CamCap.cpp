@@ -94,7 +94,10 @@ bool CamCap::capture_and_show() {
 
 	interface.imageView.imageWarp.run(imageView);
 
-	if (interface.CamCalib_flag_event && !interface.get_start_game_flag() &&
+	bool is_game_on = interface.get_start_game_flag();
+	bool is_test_on_click_on = interface.controlGUI.test_controller.is_active();
+
+	if (interface.CamCalib_flag_event && !is_game_on && !is_test_on_click_on &&
 		!interface.visionGUI.vision->flag_cam_calibrated) {
 
 		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
@@ -111,7 +114,7 @@ bool CamCap::capture_and_show() {
 //		if (interface.visionGUI.gmm->getIsTrained()) {
 //			interface.visionGUI.gmm->run(imageView);
 //			updateAllPositions();
-//			if (control.ekf_always_send || interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
+//			if (control.ekf_always_send || is_game_on || interface.imageView.PID_test_flag) {
 //				notify_data_ready(true);
 //			}
 //			interface.visionGUI.vision->recordVideo(imageView);
@@ -141,7 +144,7 @@ bool CamCap::capture_and_show() {
 //	} else { // HSV Simples
 //		interface.visionGUI.vision->run(imageView);
 //		updateAllPositions();
-//		if (control.ekf_always_send || interface.get_start_game_flag() || interface.imageView.PID_test_flag) {
+//		if (control.ekf_always_send || is_game_on || interface.imageView.PID_test_flag) {
 //			notify_data_ready(true);
 //		}
 //
@@ -162,7 +165,7 @@ bool CamCap::capture_and_show() {
 
 	interface.updateFPS(fps_average);
 
-	if (interface.controlGUI.ekf_always_send || interface.get_start_game_flag() || interface.controlGUI.test_controller.is_active()) {
+	if (interface.controlGUI.ekf_always_send || is_game_on || is_test_on_click_on) {
 		notify_data_ready(true);
 	}
 
@@ -178,8 +181,6 @@ bool CamCap::capture_and_show() {
 	interface.controlGUI.update_dropped_frames();
 
 	// ----------- ESTRATEGIA -----------------//
-	bool is_game_on = interface.get_start_game_flag();
-	bool is_test_on_click_on = interface.controlGUI.test_controller.is_active();
 	if (is_game_on) {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
