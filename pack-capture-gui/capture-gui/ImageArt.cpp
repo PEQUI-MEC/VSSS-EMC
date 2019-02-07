@@ -40,7 +40,11 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 
 	// Test On Click
 	if (test_on_click.is_active()) {
-		draw_targets(test_on_click.get_selected_robot(), frame);
+		Robot2* robot = test_on_click.get_selected_robot();
+		draw_targets(robot, frame);
+
+		if (robot != nullptr)
+			cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
 	}
 
 	// GMM draw points
@@ -106,14 +110,19 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 }
 
 void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
+	if (robot == nullptr)
+		return;
+
 	cv::Scalar color = test_on_click.is_active()? test_color : strategy_color;
+	double angle = test_on_click.is_active()? test_on_click.get_orientation_value() : robot->get_target().orientation;
+	cv::Point target = test_on_click.is_active()? test_on_click.get_target().to_cv_point() : robot->get_target().position.to_cv_point();
+	cv::Point position = test_on_click.is_active()?
+						 test_on_click.get_selected_robot()->get_position().to_cv_point() : robot->get_position().to_cv_point();
 
 	switch (robot->get_command()) {
 		case Robot2::Command::Vector:
 			BOOST_FALLTHROUGH;
 		case Robot2::Command::Orientation: {
-			double angle = robot->get_target().orientation;
-			cv::Point position = robot->get_position().to_cv_point();
 			auto x2 = static_cast<int>(position.x + 16 * cos(angle));
 			auto y2 = static_cast<int>(position.y - 16 * sin(angle));
 			line(frame, position, cv::Point(x2, y2),
@@ -121,12 +130,10 @@ void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
 			break;
 		}
 		case Robot2::Command::None:
-			putText(frame, "x", robot->get_position().to_cv_point(), cv::FONT_HERSHEY_PLAIN, 1,
+			putText(frame, "x", position, cv::FONT_HERSHEY_PLAIN, 1,
 					color, 2, cv::LINE_AA);
 			break;
 		case Robot2::Command::UVF: {
-			double angle = robot->get_target().orientation;
-			cv::Point target = robot->get_target().position.to_cv_point();
 			auto x2 = static_cast<int>(target.x + 16 * cos(angle));
 			auto y2 = static_cast<int>(target.y - 16 * sin(angle));
 			circle(frame, target, 7, color, 2);
@@ -138,10 +145,9 @@ void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
 			break;
 		}
 		default:
-			cv::Point robot_target = robot->get_target().position.to_cv_point();
-			circle(frame, robot_target, 7, color, 2, cv::LINE_AA);
+			circle(frame, target, 7, color, 2, cv::LINE_AA);
 			putText(frame, std::to_string(robot->tag + 1),
-					cv::Point(robot_target.x - 5, robot_target.y - 17),
+					cv::Point(target.x - 5, target.y - 17),
 					cv::FONT_HERSHEY_PLAIN, 1, color, 2, cv::LINE_AA);
 	} // switch
 }

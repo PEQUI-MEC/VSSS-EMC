@@ -476,10 +476,15 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		if(visionGUI.vision->video_rec_enable)
 			visionGUI.vision->startNewVideo(dateString);
 	} else {
+		if (controlGUI.messenger.has_xbee())
+			controlGUI.test_start_bt.set_state(Gtk::STATE_NORMAL);
+
 		record_video_checkbox.set_sensitive(true);
 		btn_camCalib.set_state(Gtk::STATE_NORMAL);
+
 		if(visionGUI.vision->video_rec_enable)
 			visionGUI.vision->finishVideo();
+
 		visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_text("");

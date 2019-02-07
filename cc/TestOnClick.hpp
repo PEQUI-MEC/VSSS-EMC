@@ -22,12 +22,14 @@ class TestOnClick {
 		void run();
 
 		void set_active(bool active = true);
-		void set_command(Robot2::Command command) { m_command = command; };
+		void set_command(Robot2::Command command);
 		void set_orientation(double orientation);
 
 		Robot2::Command get_command() const { return m_command; };
 		Robot2* get_selected_robot() const { return m_selected_robot; };
-		bool is_active() const { return m_is_active; };
+		double get_orientation_value() const { return m_orientation.theta; };
+		Geometry::Point get_target() const { return m_target; };
+		bool is_active() const { return m_is_active; };;
 
 		const bool is_target_valid() const { return m_target.x >= 0 || m_target.y >= 0; };
 

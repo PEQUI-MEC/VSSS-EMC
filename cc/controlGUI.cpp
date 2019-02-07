@@ -414,11 +414,11 @@ void ControlGUI::_create_test_on_click_frame() {
 	test_grid.attach(test_angle_scale, 1, 3, 1, 1);
 	test_grid.attach(test_send_bt, 2, 3, 1, 1);
 
-	test_command_cb.append("Go to target position (Position)");
+	test_command_cb.append("Stop (None)");
 	test_command_cb.append("Go to target direction (Vector)");
 	test_command_cb.append("Set Robot Orientation (Orientation)");
 	test_command_cb.append("Go to target pose (UVF)");
-	test_command_cb.append("Stop (None)");
+	test_command_cb.append("Go to target position (Position)");
 	test_command_cb.set_active(0);
 
 	test_angle_scale.set_digits(0);
@@ -467,14 +467,14 @@ void ControlGUI::_test_start_bt_event() {
 }
 
 void ControlGUI::_test_command_changed_event() {
-	// 0: Position
+	// 0: None
 	// 1: Vector
 	// 2: Orientation
 	// 3: UVF
-	// 4: None
+	// 4: Position
 	switch (test_command_cb.get_active_row_number()) {
 		case 0:
-			test_controller.set_command(Robot2::Command::Position);
+			test_controller.set_command(Robot2::Command::None);
 			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
 			test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
 			break;
@@ -494,10 +494,12 @@ void ControlGUI::_test_command_changed_event() {
 			test_send_bt.set_state(Gtk::STATE_NORMAL);
 			break;
 		default:
-			test_controller.set_command(Robot2::Command::None);
+			test_controller.set_command(Robot2::Command::Position);
 			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
 			test_send_bt.set_state(Gtk::STATE_INSENSITIVE);
+
 	}
+	printf("Command = %d\n", test_controller.get_command());
 }
 
 void ControlGUI::_test_send_bt_event() {
@@ -506,6 +508,7 @@ void ControlGUI::_test_send_bt_event() {
 
 void ControlGUI::stop_test_on_click() {
 	test_controller.set_active(false);
+	test_start_bt.set_active(false);
 	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
 	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
 	test_send_bt.set_state(Gtk::STATE_INSENSITIVE);

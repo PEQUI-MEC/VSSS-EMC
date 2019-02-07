@@ -46,6 +46,7 @@ class Messenger {
 		void set_frameskipper(int frames) { frameskip = frames; }
 		int get_frameskipper() { return frameskip; }
 		double get_time() { return time_between_msgs; }
+		bool has_xbee() const { return xbee != nullptr; };
 };
 
 #endif //VSSS_MESSENGER_H
