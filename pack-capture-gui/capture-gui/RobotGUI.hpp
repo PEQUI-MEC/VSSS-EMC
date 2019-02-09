@@ -41,7 +41,8 @@ class RobotGUI : public Gtk::Box {
 		void createFunctionsFrame();
 		void setup_buttons();
 		void setup_combo_boxes();
-		void auto_change_combo_boxes();
+		void auto_change_id_combo_boxes();
+		void auto_change_role_combo_boxes();
 		void setup_grids();
 		void setup_bars();
 		//void discover_robot_ids();
