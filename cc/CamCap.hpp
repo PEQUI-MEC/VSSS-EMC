@@ -18,7 +18,6 @@
 #include <opencv2/video/tracking.hpp>
 
 #include "StrategyGUI.hpp"
-#include "controlGUI.hpp"
 #include "RobotGUI.hpp"
 #include "vision/vision.hpp"
 #include "V4LInterface.hpp"
@@ -56,11 +55,8 @@ class CamCap : public Gtk::HBox {
 		int screenWidth, screenHeight;
 
 		int width, height;
-		int Selec_index = -1;
 		int fps_average = 0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
-
-		bool fixed_ball[3];
 
 		unsigned char *data;
 
@@ -69,7 +65,6 @@ class CamCap : public Gtk::HBox {
 		cv::Point2f Ball_Est;
 
 		StrategyGUI strategyGUI;
-		ControlGUI control;
 		RobotGUI robotGUI;
 		capture::V4LInterface interface;
 
@@ -79,11 +74,6 @@ class CamCap : public Gtk::HBox {
 		Gtk::Notebook notebook;
 
 		sigc::connection con;
-
-		/* PARA TESTE */
-		cv::Point obstacle;
-		cv::Point deviation1;
-		cv::Point deviation2;
 
 		boost::thread msg_thread;
 		boost::condition_variable data_ready_cond;
@@ -97,7 +87,6 @@ class CamCap : public Gtk::HBox {
 		void send_cmd_thread();
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
-		void PID_test();
 		void calculate_ball_est();
 		CamCap(int screenW, int screenH, bool isLowRes);
 		~CamCap() override;

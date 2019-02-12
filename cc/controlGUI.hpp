@@ -1,24 +1,10 @@
-/*
- * controlGUI.hpp
- *
- *  Created on: May 8th, 2016
- *      Author: Daniel
- *
- * Este código cria a interface da aba 'Control' do código do VS.
- * Para liberar os widgets, o botão PID deve estar pressionado.
- * Nas caixas de texto, pode-se usar '.' ou ',' para tratar números
- * do tipo double.
- *
- * Conta com uma Hscale e uma Entry (o TextBox do Gtkmm) para que possa
- * colocar o valor do PID de cada jogador.
- */
-
 #ifndef CONTROLGUI_HPP_
 #define CONTROLGUI_HPP_
 
 #include <gtkmm.h>
 #include <string>
 #include "Messenger.h"
+#include "TestOnClick.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 // system_clock::now
@@ -32,11 +18,10 @@ class ControlGUI : public Gtk::VBox {
 
 	public:
 		Messenger messenger;
+		onClick::TestOnClick test_controller;
 
 		const static int TOTAL_ROBOTS = 6;
 
-		// Flag para saber se o botão PID está pressionado ou não.
-		bool PID_test_flag = false;
 		// Containers para o conteúdo da interface gráfica
 		Gtk::Frame Serial_fm;
 		Gtk::HBox Top_hbox;
@@ -57,7 +42,6 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Button bt_Robot_Status;
 		Gtk::Button bt_Serial_Refresh;
 		Gtk::ComboBoxText cb_serial;
-		Gtk::ToggleButton button_PID_Test;
 		Gtk::Button bt_Serial_test;
 		Gtk::ComboBoxText cb_test;
 		Gtk::Entry Tbox_V1;
@@ -80,13 +64,28 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Label dropped_frames[TOTAL_ROBOTS];
 		Gtk::Button bt_reset_ack;
 
-		Gtk::Button pid_edit_bt;
+		Gtk::Frame test_frame;
+		Gtk::VBox test_vbox;
+		Gtk::Grid test_grid;
+		Gtk::Scale test_angle_scale;
+		Gtk::ComboBoxText test_command_cb;
+		Gtk::ToggleButton test_start_bt;
+		Gtk::Button test_set_bt;
+		Gtk::Label test_default_lb[2], test_tip_lb;
+		const std::string test_start_txt = "Start";
+		const std::string test_stop_txt = "Stop";
 
-		ControlGUI();
+		void _test_start_bt_event();
+
+		explicit ControlGUI(const std::array<Robot2 *, 3> &robots);
+
+		void stop_test_on_click();
 
 		void _send_command();
 
-		void _PID_Test();
+		void _test_command_changed_event();
+
+		void _test_send_bt_event();
 
 		// Gets battery % and robot id to update a single robot's battery status
 		void updateInterfaceStatus(double battery, int id);
@@ -103,6 +102,8 @@ class ControlGUI : public Gtk::VBox {
 		void _update_cb_serial();
 
 		void _create_status_frame();
+
+		void _create_test_on_click_frame();
 
 		char get_robot_id(int pos);
 		void update_dropped_frames();

@@ -1,18 +1,15 @@
 #include "controlGUI.hpp"
 
-ControlGUI::ControlGUI() {
+ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots) : test_controller(robots) {
 	// Adicionar o frame do Serial e sua VBOX
 	pack_start(Top_hbox, false, true, 5);
 	Top_hbox.pack_start(Serial_fm, true, true, 0);
 	Serial_fm.set_label("Serial");
 	Serial_fm.add(Serial_vbox);
 
-	button_PID_Test.set_label("PID Test on Click");
-
 	Serial_hbox[0].pack_start(cb_serial, false, true, 5);
 	Serial_hbox[0].pack_start(bt_Serial_Start, false, true, 5);
 	Serial_hbox[0].pack_start(bt_Serial_Refresh, false, true, 5);
-	Serial_hbox[0].pack_end(button_PID_Test, false, true, 5);
 	Serial_vbox.pack_start(Serial_hbox[0], false, true, 5);
 
 	Serial_hbox[1].pack_start(cb_test, false, true, 5);
@@ -78,13 +75,14 @@ ControlGUI::ControlGUI() {
 
 	bt_Serial_test.set_label("Send");
 
-	_create_status_frame();
-
 	_update_cb_serial();
 	auto_start_serial();
 	update_ack_interface();
+
+	_create_test_on_click_frame();
+	_create_status_frame();
+
 	// Conectar os sinais para o acontecimento dos eventos
-	button_PID_Test.signal_pressed().connect(sigc::mem_fun(*this, &ControlGUI::_PID_Test));
 	bt_Serial_test.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
 	bt_Serial_Refresh.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
 	bt_Serial_Start.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
@@ -99,10 +97,6 @@ ControlGUI::ControlGUI() {
 void ControlGUI::_send_command() {
 	std::string cmd = send_cmd_box.get_text();
 	messenger.send_old_format(cmd);
-}
-
-void ControlGUI::_PID_Test() {
-	PID_test_flag = !PID_test_flag;
 }
 
 // Gets battery % and robot id to update a single robot's battery status
@@ -167,13 +161,12 @@ void ControlGUI::_start_serial() {
 
 	Tbox_V1.set_state(Gtk::STATE_NORMAL);
 	Tbox_V2.set_state(Gtk::STATE_NORMAL);
-	pid_edit_bt.set_state(Gtk::STATE_NORMAL);
 	bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 	bt_Serial_test.set_state(Gtk::STATE_NORMAL);
 	cb_test.set_state(Gtk::STATE_NORMAL);
-	pid_edit_bt.set_state(Gtk::STATE_NORMAL);
 	bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
 	bt_reset_ack.set_state(Gtk::STATE_NORMAL);
+	test_start_bt.set_state(Gtk::STATE_NORMAL);
 }
 
 bool ControlGUI::isFloat(std::string value) {
@@ -268,13 +261,13 @@ void ControlGUI::_update_cb_serial() {
 	cb_serial.set_state(Gtk::STATE_NORMAL);
 	bt_Serial_Refresh.set_state(Gtk::STATE_NORMAL);
 
-	pid_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
 	Tbox_V1.set_state(Gtk::STATE_INSENSITIVE);
 	Tbox_V2.set_state(Gtk::STATE_INSENSITIVE);
 	bt_Serial_test.set_state(Gtk::STATE_INSENSITIVE);
 	cb_test.set_state(Gtk::STATE_INSENSITIVE);
 	bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
 	bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
+	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
 }
 
 void ControlGUI::_create_status_frame() {
@@ -380,4 +373,128 @@ void ControlGUI::update_msg_time() {
 		acc_time = 0;
 		time_count = 0;
 	}
+}
+
+void ControlGUI::_create_test_on_click_frame() {
+	// Setup labels
+	test_default_lb[0].set_label("Command:");
+	test_default_lb[1].set_label("Angle:");
+	test_default_lb[0].set_halign(Gtk::ALIGN_END);
+	test_default_lb[1].set_halign(Gtk::ALIGN_END);
+	test_tip_lb.set_label("Tip: Left-click on image to select robot. Right-click to set the target.");
+	test_start_bt.set_label(test_start_txt);
+	test_set_bt.set_label("Set");
+
+	pack_start(test_frame, false, true, 5);
+	test_frame.set_label("Test On Click");
+	test_frame.set_border_width(5);
+	test_frame.add(test_vbox);
+	test_vbox.pack_start(test_grid, false, true, 12);
+
+	test_grid.set_border_width(5);
+	test_grid.set_column_spacing(10);
+	test_grid.set_row_spacing(5);
+	test_grid.set_halign(Gtk::ALIGN_CENTER);
+	test_grid.attach(test_start_bt, 0, 0, 1, 1);
+	test_grid.attach(test_default_lb[0], 1, 0, 1, 1);
+	test_grid.attach(test_command_cb, 2, 0, 2, 1);
+	test_grid.attach(test_default_lb[1], 1, 2, 1, 1);
+	test_grid.attach(test_angle_scale, 2, 2, 1, 1);
+	test_grid.attach(test_set_bt, 3, 2, 1, 1);
+	test_grid.attach(test_tip_lb, 0, 3, 4, 1);
+
+	test_command_cb.append("Stop (None)");
+	test_command_cb.append("Go to target direction (Vector)");
+	test_command_cb.append("Set Robot Orientation (Orientation)");
+	test_command_cb.append("Go to target pose (UVF)");
+	test_command_cb.append("Go to target position (Position)");
+	test_command_cb.set_active(0);
+
+	test_angle_scale.set_digits(0);
+	test_angle_scale.set_increments(1, 5);
+	test_angle_scale.set_range(-180, 180);
+	test_angle_scale.set_value(0);
+	test_angle_scale.set_value_pos(Gtk::POS_TOP);
+	test_angle_scale.set_draw_value();
+	test_angle_scale.set_size_request(175, -1);
+
+	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
+	test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
+	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+	test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
+
+	test_start_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_start_bt_event));
+	test_command_cb.signal_changed().connect(sigc::mem_fun(*this, &ControlGUI::_test_command_changed_event));
+	test_set_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_send_bt_event));
+}
+
+void ControlGUI::_test_start_bt_event() {
+	bool is_active = test_start_bt.get_active();
+
+	test_controller.set_active(is_active);
+
+	if (is_active) {
+		Robot2::Command command = test_controller.get_command();
+
+		if (command == Robot2::Command::Vector || command == Robot2::Command::Orientation
+			|| command == Robot2::Command::UVF) {
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
+		}
+
+		test_command_cb.set_state(Gtk::STATE_NORMAL);
+		test_start_bt.set_label(test_stop_txt);
+	} else {
+		test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
+		test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+		test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
+		test_start_bt.set_label(test_start_txt);
+	}
+}
+
+void ControlGUI::_test_command_changed_event() {
+	// 0: None
+	// 1: Vector
+	// 2: Orientation
+	// 3: UVF
+	// 4: Position
+	switch (test_command_cb.get_active_row_number()) {
+		case 0:
+			test_controller.set_command(Robot2::Command::None);
+			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+			test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
+			break;
+		case 1:
+			test_controller.set_command(Robot2::Command::Vector);
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
+			break;
+		case 2:
+			test_controller.set_command(Robot2::Command::Orientation);
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
+			break;
+		case 3:
+			test_controller.set_command(Robot2::Command::UVF);
+			test_angle_scale.set_state(Gtk::STATE_NORMAL);
+			test_set_bt.set_state(Gtk::STATE_NORMAL);
+			break;
+		default:
+			test_controller.set_command(Robot2::Command::Position);
+			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+			test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
+
+	}
+}
+
+void ControlGUI::_test_send_bt_event() {
+	test_controller.set_orientation(test_angle_scale.get_value());
+}
+
+void ControlGUI::stop_test_on_click() {
+	test_controller.set_active(false);
+	test_start_bt.set_active(false);
+	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
+	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+	test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 }

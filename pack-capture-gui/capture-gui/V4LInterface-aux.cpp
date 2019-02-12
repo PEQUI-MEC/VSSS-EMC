@@ -961,7 +961,9 @@ V4LInterface::V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 
 		Gtk::VBox(false, 0),
 		isLowRes(isLow),
 		robots(robots_ref),
-		robotGUI(robot_gui) {
+		robotGUI(robot_gui),
+		imageView(controlGUI.test_controller),
+		controlGUI(robots_ref) {
 
 	messenger = messenger_ptr;
 	initInterface();

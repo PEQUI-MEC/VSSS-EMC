@@ -447,6 +447,9 @@ void V4LInterface::event_toggle_enable_video_record(){
 
 void V4LInterface::event_start_game_bt_signal_clicked() {
 	if (!start_game_flag) {
+
+		controlGUI.stop_test_on_click();
+
 		record_video_checkbox.set_sensitive(false);
 		start_game_flag = true;
 		start_game_bt.set_image(red_button_pressed);
@@ -473,15 +476,25 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		if(visionGUI.vision->video_rec_enable)
 			visionGUI.vision->startNewVideo(dateString);
 	} else {
+		if (controlGUI.messenger.has_xbee())
+			controlGUI.test_start_bt.set_state(Gtk::STATE_NORMAL);
+
 		record_video_checkbox.set_sensitive(true);
 		btn_camCalib.set_state(Gtk::STATE_NORMAL);
+
 		if(visionGUI.vision->video_rec_enable)
 			visionGUI.vision->finishVideo();
+
 		visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_text("");
 		start_game_flag = false;
 		start_game_bt.set_image(red_button_released);
+
+		// Para os robôs. Importante para não atrapalhar o Test On Click.
+		for (auto robot : robots) {
+			robot->stop();
+		}
 	}
 }
 

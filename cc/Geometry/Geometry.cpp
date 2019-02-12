@@ -38,9 +38,13 @@ Point Point::operator+(const Vector &v) const {
 			y + v.size * std::sin(v.theta)};
 }
 
-Point Geometry::from_cv_point(cv::Point cv_point) {
-	return {cv_point.x * (1.7 / 640.0),
-			1.3 - cv_point.y * (1.3 / 480.0)};
+Point Geometry::from_cv_point(const cv::Point cv_point) {
+	return from_cv_point(cv_point.x, cv_point.y);
+}
+
+Point Geometry::from_cv_point(const double x, const double y) {
+	return {x * (1.7 / 640.0),
+			1.3 - y * (1.3 / 480.0)};
 }
 
 cv::Point Point::to_cv_point() {
