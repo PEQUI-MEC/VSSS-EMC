@@ -387,22 +387,21 @@ void ControlGUI::_create_test_on_click_frame() {
 
 	pack_start(test_frame, false, true, 5);
 	test_frame.set_label("Test On Click");
-	test_frame.set_border_width(10);
+	test_frame.set_border_width(5);
 	test_frame.add(test_vbox);
 	test_vbox.pack_start(test_grid, false, true, 12);
-	test_vbox.pack_start(test_hbox, false, true, 12);
 
-	test_grid.set_border_width(10);
+	test_grid.set_border_width(5);
 	test_grid.set_column_spacing(10);
 	test_grid.set_row_spacing(5);
 	test_grid.set_halign(Gtk::ALIGN_CENTER);
-	test_grid.attach(test_start_bt, 0, 0, 4, 1);
-	test_grid.attach(test_separator, 0, 1, 3, 1);
-	test_grid.attach(test_default_lb[0], 0, 2, 1, 1);
-	test_grid.attach(test_command_cb, 1, 2, 2, 1);
-	test_grid.attach(test_default_lb[1], 0, 3, 1, 1);
-	test_grid.attach(test_angle_scale, 1, 3, 1, 1);
-	test_grid.attach(test_set_bt, 2, 3, 1, 1);
+	test_grid.attach(test_start_bt, 0, 0, 1, 1);
+	test_grid.attach(test_default_lb[0], 1, 0, 1, 1);
+	test_grid.attach(test_command_cb, 2, 0, 2, 1);
+	test_grid.attach(test_default_lb[1], 1, 2, 1, 1);
+	test_grid.attach(test_angle_scale, 2, 2, 1, 1);
+	test_grid.attach(test_set_bt, 3, 2, 1, 1);
+	test_grid.attach(test_tip_lb, 0, 3, 4, 1);
 
 	test_command_cb.append("Stop (None)");
 	test_command_cb.append("Go to target direction (Vector)");
@@ -418,10 +417,6 @@ void ControlGUI::_create_test_on_click_frame() {
 	test_angle_scale.set_value_pos(Gtk::POS_TOP);
 	test_angle_scale.set_draw_value();
 	test_angle_scale.set_size_request(175, -1);
-
-	test_hbox.pack_start(test_tip_lb, false, true, 5);
-	test_hbox.set_border_width(10);
-	test_hbox.set_halign(Gtk::ALIGN_CENTER);
 
 	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
 	test_command_cb.set_state(Gtk::STATE_INSENSITIVE);

@@ -66,16 +66,14 @@ class ControlGUI : public Gtk::VBox {
 
 		Gtk::Frame test_frame;
 		Gtk::VBox test_vbox;
-		Gtk::HBox test_hbox;
 		Gtk::Grid test_grid;
 		Gtk::Scale test_angle_scale;
 		Gtk::ComboBoxText test_command_cb;
 		Gtk::ToggleButton test_start_bt;
 		Gtk::Button test_set_bt;
 		Gtk::Label test_default_lb[2], test_tip_lb;
-		Gtk::HSeparator test_separator;
-		const std::string test_start_txt = "Start Test On Click";
-		const std::string test_stop_txt = "Stop Test On Click";
+		const std::string test_start_txt = "Start";
+		const std::string test_stop_txt = "Stop";
 
 		void _test_start_bt_event();
 
