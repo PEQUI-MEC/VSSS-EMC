@@ -487,6 +487,7 @@ void ControlGUI::_test_command_changed_event() {
 			test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 	}
+	_test_send_bt_event();
 }
 
 void ControlGUI::_test_send_bt_event() {
