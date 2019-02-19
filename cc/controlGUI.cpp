@@ -10,7 +10,11 @@ ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots) : test_controller(
 	Serial_hbox[0].pack_start(cb_serial, false, true, 5);
 	Serial_hbox[0].pack_start(bt_Serial_Start, false, true, 5);
 	Serial_hbox[0].pack_start(bt_Serial_Refresh, false, true, 5);
+	Serial_hbox[0].pack_start(serial_img, false, true, 5);
+	Serial_hbox[0].pack_start(serial_lb, false, true, 5);
 	Serial_vbox.pack_start(Serial_hbox[0], false, true, 5);
+
+	set_serial_status(SerialStatus::OFF);
 
 	Serial_hbox[1].pack_start(cb_test, false, true, 5);
 	Serial_hbox[1].pack_start(Tbox_V1, false, true, 5);
@@ -154,7 +158,17 @@ void ControlGUI::_start_serial() {
 	Glib::ustring serial = cb_serial.get_active_text();
 	if (serial.empty()) return;
 
-	messenger.start_xbee(serial);
+	bool success = false;
+
+	messenger.start_xbee(success, serial);
+
+	if (success)
+		set_serial_status(SerialStatus::ON);
+	else
+		set_serial_status(SerialStatus::ERROR);
+
+
+	set_serial_status(SerialStatus::ON);
 
 	bt_Serial_Start.set_state(Gtk::STATE_INSENSITIVE);
 	cb_serial.set_state(Gtk::STATE_INSENSITIVE);
@@ -256,6 +270,8 @@ void ControlGUI::_update_cb_serial() {
 	// Caso tenha apenas algum dispositivo, atualizar a combo box
 	if (xbee_connections > 0)
 		cb_serial.set_active(0);
+
+	set_serial_status(SerialStatus::OFF);
 
 	bt_Serial_Start.set_state(Gtk::STATE_NORMAL);
 	cb_serial.set_state(Gtk::STATE_NORMAL);
@@ -497,4 +513,9 @@ void ControlGUI::stop_test_on_click() {
 	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
 	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
 	test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
+}
+
+void ControlGUI::set_serial_status(ControlGUI::SerialStatus status) {
+	serial_lb.set_text(serial_txt[status]);
+	serial_img.set(serial_img_str[status]);
 }

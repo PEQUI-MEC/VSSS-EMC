@@ -56,7 +56,7 @@ class Xbee {
 		}
 
 	public:
-		Xbee(const std::string &port, int baud);
+		Xbee(const std::string &port, int baud, bool &is_success);
 		~Xbee();
 		void add_robot(char id, uint16_t addr);
 		int send(char id, const std::string &message);

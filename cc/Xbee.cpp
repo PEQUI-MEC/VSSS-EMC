@@ -5,13 +5,15 @@ using std::string;
 using std::pair;
 using std::vector;
 
-Xbee::Xbee(const string &port, int baud) {
+Xbee::Xbee(const std::string &port, int baud, bool &is_success) {
 	xbee_err ret;
 
 	if ((ret = xbee_setup(&xbee, "xbee1", port.c_str(), baud)) != XBEE_ENONE) {
 		printf("Xbee setup error: %d (%s)\n", ret, xbee_errorToStr(ret));
+		is_success = false;
 	} else {
 		std::cout << "Xbee connected on " << port << std::endl;
+		is_success = true;
 	}
 }
 
@@ -46,9 +48,10 @@ int Xbee::send(char id, const string &message) {
 	if (robots.count(id) == 0) return -1;
 
 	uint8_t ack;
+	xbee_err res = xbee_conValidate(robots[id].con);
 	xbee_conTx(robots[id].con, &ack, message.c_str());
 	update_ack(id, ack);
-	return ack;
+	return res;
 }
 
 vector<message> Xbee::get_messages() {

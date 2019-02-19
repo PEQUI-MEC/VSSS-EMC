@@ -5,8 +5,8 @@ using std::vector;
 using Pose = Robot2::Pose;
 using Command = Robot2::Command;
 
-void Messenger::start_xbee(const string &port, int baud) {
-	xbee = new Xbee(port, baud);
+void Messenger::start_xbee(bool &success, const std::string &port, int baud) {
+	xbee = new Xbee(port, baud, success);
 	add_robots();
 }
 

@@ -47,6 +47,24 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Entry Tbox_V1;
 		Gtk::Entry Tbox_V2;
 
+		enum SerialStatus {
+			OFF,
+			ON,
+			ERROR
+		};
+
+		Gtk::Label serial_lb;
+		std::string serial_txt[3] = {
+				"Disconnected",
+				"Connected",
+				"Error"};
+		Gtk::Image serial_img;
+		std::string serial_img_str[3] = {
+				"img/wifi-off.png",
+				"img/wifi-on.png",
+				"img/wifi-error.png"
+		};
+
 		Gtk::CheckButton ack_enable_button;
 		Gtk::Label ack_enable_label;
 
@@ -74,6 +92,8 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Label test_default_lb[2], test_tip_lb;
 		const std::string test_start_txt = "Start";
 		const std::string test_stop_txt = "Stop";
+
+		void set_serial_status(SerialStatus status);
 
 		void _test_start_bt_event();
 
