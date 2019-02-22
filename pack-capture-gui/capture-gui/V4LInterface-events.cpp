@@ -231,6 +231,7 @@ void V4LInterface::__event_bt_invert_field_clicked() {
 
 void V4LInterface::__event_bt_reset_warp_clicked() {
 	bt_warp_start.set_state(Gtk::STATE_NORMAL);
+	bt_warp_start.set_active(false);
 	bt_adjust_start.set_active(false);
 	bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
 	bt_invert_field.set_active(false);
