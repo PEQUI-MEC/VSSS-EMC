@@ -7,17 +7,10 @@ using namespace vision;
 std::map<unsigned int, Vision::RecognizedTag> Vision::run(cv::Mat raw_frame) {
 	in_frame = raw_frame.clone();
 
-	if (bOnAir) recordToVideo();
-
 	preProcessing();
 	findTags();
 	//findElements();
 	return pick_a_tag();
-}
-
-void Vision::recordVideo(const cv::Mat frame) {
-	in_frame = frame.clone();
-	if (bOnAir) recordToVideo();
 }
 
 void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList) {
@@ -575,40 +568,6 @@ void Vision::saveCameraCalibPicture(const std::string in_name, const std::string
 	cv::imwrite(picName, frame);
 }
 
-void Vision::savePicture(const std::string in_name) {
-	cv::Mat frame = in_frame.clone();
-	std::string picName = "media/pictures/" + in_name + ".png";
-
-	cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
-	cv::imwrite(picName, frame);
-}
-
-void Vision::startNewVideo(const std::string in_name) {
-	std::string videoName = "media/videos/" + in_name + ".avi";
-
-	video.open(videoName, CV_FOURCC('M', 'J', 'P', 'G'), 30, cv::Size(width, height));
-	std::cout << "Started a new video recording." << std::endl;
-	bOnAir = true;
-}
-
-bool Vision::recordToVideo() {
-	if (!video.isOpened()) return false;
-	cv::Mat frame = in_frame.clone();
-	cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
-
-	video.write(frame);
-	return true;
-}
-
-bool Vision::finishVideo() {
-	if (!video.isOpened()) return false;
-
-	std::cout << "Finished video recording." << std::endl;
-	video.release();
-	bOnAir = false;
-	return true;
-}
-
 cv::Mat Vision::getThreshold(const unsigned long index) {
 	cv::cvtColor(threshold_frame.at(index), threshold_frame.at(index), cv::COLOR_GRAY2RGB);
 	return threshold_frame.at(index);
@@ -672,8 +631,8 @@ void Vision::setFrameSize(const int inWidth, const int inHeight) {
 }
 
 Vision::Vision(int w, int h) : width(w), height(h), cieL{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
-							   cieA{{0, 255}, {0, 255}, {0, 255}, {0, 255}}, video_rec_enable(true),
-							   cieB{{0, 255}, {0, 255}, {0, 255}, {0, 255}}, bOnAir(false),
+							   cieA{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
+							   cieB{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
 							   threshold_frame(MAX_COLORS), tags(MAX_COLORS), areaMin{0, 0, 0, 0},
 							   dilate{0, 0, 0, 0}, erode{0, 0, 0, 0}, blur{3, 3, 3, 3} {
 }

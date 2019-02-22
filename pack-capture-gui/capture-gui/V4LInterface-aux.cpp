@@ -833,8 +833,6 @@ void V4LInterface::initInterface() {
 	start_game_bt.set_size_request(50, 100);
 	start_game_bt.set_image(red_button_released);
 
-	record_video_checkbox.signal_clicked().connect(
-			sigc::mem_fun(*this, &capture::V4LInterface::event_toggle_enable_video_record));
 	start_game_bt.signal_clicked().connect(
 			sigc::mem_fun(*this, &capture::V4LInterface::event_start_game_bt_signal_clicked));
 
