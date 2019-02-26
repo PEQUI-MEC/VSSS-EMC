@@ -11,8 +11,10 @@ class RobotGUI : public Gtk::Box {
 
 		bool robots_speed_edit_flag = false;
 		int robots_id_tmp[3];
+		int robots_id_change_tmp[3];
 		bool robots_id_edit_flag = false;
 		int robots_function_tmp[3];
+		int robots_function_change_tmp[3];
 		bool robots_function_edit_flag = false;
 		double robots_speed_tmp[3];
 
