@@ -85,12 +85,6 @@ namespace vision
 		int width;
 		int height;
 
-		// record video flag
-		bool bOnAir;
-
-		// video
-		cv::VideoWriter video;
-
 		// threads
 		boost::thread_group threshold_threads;
 
@@ -111,17 +105,8 @@ namespace vision
 
 		std::map<unsigned int, RecognizedTag> run(cv::Mat raw_frame);
 		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
-		void recordVideo(cv::Mat frame);
 		double calcDistance(cv::Point p1, cv::Point p2) const;
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
-		void startNewVideo(std::string videoName);
-		bool recordToVideo();
-		bool finishVideo();
-		bool isRecording() const { return bOnAir; };
-		void savePicture(std::string in_name);
-
-		//video
-		bool video_rec_enable;
 
 		//Cam calib
 		std::vector<cv::Mat> savedCamCalibFrames;

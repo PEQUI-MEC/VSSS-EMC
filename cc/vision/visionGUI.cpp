@@ -1,6 +1,18 @@
 #include "visionGUI.hpp"
 
+
 using namespace vision;
+using namespace date;
+
+std::string date::generate_date_str() {
+	std::string date;
+	time_t tt;
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	tt = std::chrono::system_clock::to_time_t(now);
+	date.append(std::string(ctime(&tt)).substr(0, 24));
+
+	return date;
+}
 
 void VisionGUI::__create_frm_drawing_options() {
 	Gtk::Frame *frame;
@@ -544,8 +556,8 @@ void VisionGUI::__create_frm_capture() {
 }
 
 void VisionGUI::bt_record_video_pressed() {
-	if (vision->isRecording()) {
-		vision->finishVideo();
+	if (recorder.is_recording()) {
+		recorder.finish_video();
 		bt_record_video.set_label("REC");
 		en_video_name.set_text("");
 		en_video_name.set_state(Gtk::STATE_NORMAL);
@@ -555,10 +567,11 @@ void VisionGUI::bt_record_video_pressed() {
 		bt_record_video.set_label("Stop");
 		en_video_name.set_state(Gtk::STATE_INSENSITIVE);
 		if (name.empty()) {
-			vision->startNewVideo(std::to_string(vidIndex++));
-			en_video_name.set_text(std::to_string(vidIndex));
+			std::string date = generate_date_str();
+			en_video_name.set_text(date);
+			recorder.start_new_video(date);
 		} else {
-			vision->startNewVideo(name);
+			recorder.start_new_video(name);
 		}
 	}
 }
@@ -566,9 +579,10 @@ void VisionGUI::bt_record_video_pressed() {
 void VisionGUI::bt_save_picture_clicked() {
 	std::string name = en_picture_name.get_text();
 	if (name.empty()) {
-		vision->savePicture(std::to_string(picIndex++));
+		std::string date = generate_date_str();
+		recorder.save_picture(date);
 	} else {
-		vision->savePicture(name);
+		recorder.save_picture(name);
 	}
 	en_picture_name.set_text("");
 }
@@ -1025,15 +1039,20 @@ bool VisionGUI::getIsCIELAB() {
 }
 
 VisionGUI::VisionGUI() :
-		CIELAB_calib_event_flag(false), Img_id(0),
-		vidIndex(0), picIndex(0), samplesEventFlag(false),
-		totalSamples(0), gaussiansFrame_flag(false),
-		finalFrame_flag(false), thresholdFrame_flag(false),
-		colorIndex(0), isCIELAB(true), isSplitView(false),
-		disableSplitView(false), draw_info_flag(false) {
-
-	vision = new Vision(640, 480);
-	gmm = new GMM(640, 480);
+		CIELAB_calib_event_flag(false),
+		Img_id(0),
+		samplesEventFlag(false),
+		totalSamples(0),
+		gaussiansFrame_flag(false),
+		finalFrame_flag(false),
+		thresholdFrame_flag(false),
+		colorIndex(0), isCIELAB(true),
+		isSplitView(false),
+		disableSplitView(false),
+		draw_info_flag(false),
+		recorder(640, 480),
+		vision(std::make_unique<Vision>(640, 480)),
+		gmm(std::make_unique<GMM>(640, 480)) {
 
 	//__create_frm_calib_mode();
 	__create_frm_capture();
@@ -1041,8 +1060,4 @@ VisionGUI::VisionGUI() :
 	__create_frm_split_view();
 	__create_frm_cielab();
 	//__create_frm_gmm();
-}
-
-VisionGUI::~VisionGUI() {
-	if (vision->isRecording()) vision->finishVideo();
 }

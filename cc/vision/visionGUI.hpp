@@ -4,12 +4,18 @@
 #include <gtkmm.h>
 #include "vision.hpp"
 #include "gmm.hpp"
+#include "VideoRecorder.hpp"
 #include "../filechooser.hpp"
+
+namespace date {
+	std::string generate_date_str();
+}
 
 class VisionGUI : public Gtk::VBox {
 	public:
-		vision::Vision *vision;
-		GMM *gmm;
+		std::unique_ptr<vision::Vision> vision;
+		std::unique_ptr<GMM> gmm;
+		rec::VideoRecorder recorder;
 		Gtk::ToggleButton bt_LAB_calib;
 
 		unsigned long Img_id;
@@ -40,7 +46,6 @@ class VisionGUI : public Gtk::VBox {
 		Gtk::RadioButton rb_mode_GMM, rb_mode_CIELAB;
 
 		VisionGUI();
-		~VisionGUI() override;
 
 		void update_vision_hscale_values();
 
@@ -75,9 +80,6 @@ class VisionGUI : public Gtk::VBox {
 		// Frame Split View
 		Gtk::Frame fr_splitView;
 		bool isSplitView, disableSplitView;
-
-		// Frame Capture
-		int picIndex, vidIndex;
 
 		// Frame CIELAB Calibration
 		Gtk::Frame fr_CIELAB;

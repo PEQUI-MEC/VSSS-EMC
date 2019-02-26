@@ -160,6 +160,8 @@ bool CamCap::capture_and_show() {
 
 	std::map<unsigned int, Vision::RecognizedTag> tags = interface.visionGUI.vision->run(imageView);
 
+	interface.visionGUI.recorder.run(imageView);
+
 	calculate_ball_est();
 	update_positions(tags);
 

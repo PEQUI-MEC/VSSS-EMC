@@ -63,7 +63,8 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/RobotGUI.cpp
     pack-capture-gui/capture-gui/ImageArt.cpp
     pack-capture-gui/capture-gui/ImageWarp.cpp
-    cc/TestOnClick.cpp)
+    cc/TestOnClick.cpp
+    cc/VideoRecorder.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

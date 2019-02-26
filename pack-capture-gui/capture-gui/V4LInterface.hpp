@@ -147,7 +147,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __event_cb_frame_interval_changed();
 		void createPositionsAndButtonsFrame();
 		void event_start_game_bt_signal_clicked();
-		void event_toggle_enable_video_record();
 		void updateRobotLabels();
 		void update_ball_position(Geometry::Point ball);
 		void updateFPS(int fps);
