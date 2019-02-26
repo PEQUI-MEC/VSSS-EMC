@@ -1,7 +1,3 @@
-//
-// Created by daniel on 22/02/19.
-//
-
 #ifndef VSSS_VIDEORECORDER_HPP
 #define VSSS_VIDEORECORDER_HPP
 
