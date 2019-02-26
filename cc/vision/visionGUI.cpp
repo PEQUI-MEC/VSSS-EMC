@@ -1039,16 +1039,20 @@ bool VisionGUI::getIsCIELAB() {
 }
 
 VisionGUI::VisionGUI() :
-		CIELAB_calib_event_flag(false), Img_id(0),
+		CIELAB_calib_event_flag(false),
+		Img_id(0),
 		samplesEventFlag(false),
-		totalSamples(0), gaussiansFrame_flag(false),
-		finalFrame_flag(false), thresholdFrame_flag(false),
-		colorIndex(0), isCIELAB(true), isSplitView(false),
-		disableSplitView(false), draw_info_flag(false),
-		recorder(640, 480) {
-
-	vision = std::make_unique<Vision>(640, 480);
-	gmm = std::make_unique<GMM>(640, 480);
+		totalSamples(0),
+		gaussiansFrame_flag(false),
+		finalFrame_flag(false),
+		thresholdFrame_flag(false),
+		colorIndex(0), isCIELAB(true),
+		isSplitView(false),
+		disableSplitView(false),
+		draw_info_flag(false),
+		recorder(640, 480),
+		vision(std::make_unique<Vision>(640, 480)),
+		gmm(std::make_unique<GMM>(640, 480)) {
 
 	//__create_frm_calib_mode();
 	__create_frm_capture();

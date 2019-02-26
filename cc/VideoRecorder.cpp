@@ -7,14 +7,14 @@ void VideoRecorder::run(cv::Mat in_frame) {
 	if (is_on_air) record_to_video();
 }
 
-void VideoRecorder::save_picture(std::string in_name) {
+void VideoRecorder::save_picture(const std::string &in_name) {
 	std::string picName = "media/pictures/" + in_name + ".png";
 
 	cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
 	cv::imwrite(picName, frame);
 }
 
-void VideoRecorder::start_new_video(std::string in_name) {
+void VideoRecorder::start_new_video(const std::string &in_name) {
 	std::string videoName = "media/videos/" + in_name + ".avi";
 
 	video.open(videoName, CV_FOURCC('M', 'J', 'P', 'G'), 30, cv::Size(width, height));
