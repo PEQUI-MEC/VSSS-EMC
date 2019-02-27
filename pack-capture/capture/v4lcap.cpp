@@ -415,7 +415,7 @@ bool v4lcap::stop_capturing() {
 bool v4lcap::uninit_mmap() {
 	for (unsigned int i = 0; i < reqbuf.count; i++) {
 		if (emulate_format) {
-			if (-1 == v4l2_munmap(buffers.buffs[i].start, buffers.buffs[i].length)) return false;
+			if (buffers.buffs == NULL || -1 == v4l2_munmap(buffers.buffs[i].start, buffers.buffs[i].length)) return false;
 		} else {
 			if (-1 == munmap(buffers.buffs[i].start, buffers.buffs[i].length)) return false;
 		}

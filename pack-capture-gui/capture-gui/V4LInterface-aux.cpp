@@ -97,10 +97,10 @@ void V4LInterface::__create_frm_device_info() {
 	hbox->pack_start(cb_device, false, true, 0);
 
 	bt_start.set_label("start");
-	hbox->pack_start(bt_start, false, true, 0);
+	hbox->pack_start(bt_start, false, true, 10);
 
 	bt_refresh.set_label("Refresh");
-	hbox->pack_start(bt_refresh, false, true, 0);
+	hbox->pack_start(bt_refresh, false, true, 1);
 
 	hbox = new Gtk::HBox();
 	vbox->pack_start(*hbox, false, true, 0);
