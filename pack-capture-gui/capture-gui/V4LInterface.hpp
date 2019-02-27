@@ -84,8 +84,8 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		capture::v4lcap vcap;
 
-		explicit V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref, RobotGUI &robot_gui,
-									  bool isLow);
+		explicit V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref,
+									  const Geometry::Point &ball, RobotGUI &robot_gui, bool isLow);
 		void initInterface();
 
 		Gtk::Scale HScale_offsetL;

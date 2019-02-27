@@ -1,6 +1,8 @@
 #include "controlGUI.hpp"
 
-ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots) : test_controller(robots) {
+ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots, const Geometry::Point &ball)
+	: test_controller(robots, ball) {
+
 	// Adicionar o frame do Serial e sua VBOX
 	pack_start(Top_hbox, false, true, 5);
 	Top_hbox.pack_start(Serial_fm, true, true, 0);

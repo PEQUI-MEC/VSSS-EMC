@@ -277,7 +277,8 @@ CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(nullptr), width(0
 														  screenWidth(screenW), screenHeight(screenH),
 														  msg_thread(&CamCap::send_cmd_thread, this),
 														  robotGUI(robots, isLowRes),
-														  interface(&interface.controlGUI.messenger, robots, robotGUI, isLowRes),
+														  interface(&interface.controlGUI.messenger, robots,
+																	ball, robotGUI, isLowRes),
 														  strategy(attacker, defender, goalkeeper, ball, ball_est),
 														  robots{&attacker, &defender, &goalkeeper} {
 
