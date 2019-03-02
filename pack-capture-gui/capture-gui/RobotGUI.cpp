@@ -24,6 +24,8 @@ void RobotGUI::createIDsFrame() {
 			id_grid.attach(robots_id_box[index], 2, index, 1, 1);
 		}
 	}
+
+
 }
 
 void RobotGUI::createFunctionsFrame() {
@@ -142,9 +144,9 @@ void RobotGUI::event_robots_role_edit_bt_signal_clicked() {
 		cb_robot_role[1].set_state(Gtk::STATE_NORMAL);
 		cb_robot_role[2].set_state(Gtk::STATE_NORMAL);
 		robots_role_done_bt.set_state(Gtk::STATE_NORMAL);
-		robots_function_tmp[0] = cb_robot_role[0].get_active_row_number();
-		robots_function_tmp[1] = cb_robot_role[1].get_active_row_number();
-		robots_function_tmp[2] = cb_robot_role[2].get_active_row_number();
+		robots_function_change_tmp[0] = robots_function_tmp[0] = cb_robot_role[0].get_active_row_number();
+		robots_function_change_tmp[1] = robots_function_tmp[1] = cb_robot_role[1].get_active_row_number();
+		robots_function_change_tmp[2] = robots_function_tmp[2] = cb_robot_role[2].get_active_row_number();
 	} else {
 		robots_function_edit_flag = false;
 		robots_role_edit_bt.set_label("Edit");
@@ -218,9 +220,9 @@ void RobotGUI::event_robots_id_edit_bt_signal_pressed() {
 		robots_id_box[2].set_state(Gtk::STATE_NORMAL);
 		robots_id_done_bt.set_state(Gtk::STATE_NORMAL);
 		robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
-		robots_id_tmp[0] = robots_id_box[0].get_active_row_number();
-		robots_id_tmp[1] = robots_id_box[1].get_active_row_number();
-		robots_id_tmp[2] = robots_id_box[2].get_active_row_number();
+		robots_id_change_tmp[0] = robots_id_tmp[0] = robots_id_box[0].get_active_row_number();
+		robots_id_change_tmp[1] = robots_id_tmp[1] = robots_id_box[1].get_active_row_number();
+		robots_id_change_tmp[2] = robots_id_tmp[2] = robots_id_box[2].get_active_row_number();
 	} else {
 		robots_id_edit_flag = false;
 		robots_id_edit_bt.set_label("Edit");
@@ -276,6 +278,14 @@ void RobotGUI::setup_grids() {
 }
 
 void RobotGUI::setup_combo_boxes() {
+
+	for (int index = 0; index < 3; index++) {
+		robots_id_box[index].signal_changed()
+				.connect(sigc::mem_fun(*this, &RobotGUI::auto_change_id_combo_boxes));
+		cb_robot_role[index].signal_changed()
+				.connect(sigc::mem_fun(*this, &RobotGUI::auto_change_role_combo_boxes));
+	}
+
 	// Roles/Functions
 	for (auto &cb : cb_robot_role)
 	{
@@ -301,6 +311,63 @@ void RobotGUI::setup_combo_boxes() {
 	robots_id_box[0].set_active(0);
 	robots_id_box[1].set_active(1);
 	robots_id_box[2].set_active(2);
+}
+
+void RobotGUI::auto_change_id_combo_boxes() {
+	int robots_id_tmp_active[3];
+
+	robots_id_tmp_active[0] = robots_id_box[0].get_active_row_number();
+	robots_id_tmp_active[1] = robots_id_box[1].get_active_row_number();
+	robots_id_tmp_active[2] = robots_id_box[2].get_active_row_number();
+
+	for (int i = 0; i < 3; ++i) {
+		if (robots_id_tmp_active[i] != robots_id_change_tmp[i]) {
+			for (int j = 0; j < 3; ++j) {
+				if (j != i) {
+					if (robots_id_tmp_active[j] == robots_id_tmp_active[i]) {
+						robots_id_tmp_active[j] = robots_id_change_tmp[i];
+					}
+				}
+			}
+		}
+	}
+
+	robots_id_change_tmp[0] = robots_id_tmp_active[0];
+	robots_id_change_tmp[1] = robots_id_tmp_active[1];
+	robots_id_change_tmp[2] = robots_id_tmp_active[2];
+
+	robots_id_box[0].set_active(robots_id_change_tmp[0]);
+	robots_id_box[1].set_active(robots_id_change_tmp[1]);
+	robots_id_box[2].set_active(robots_id_change_tmp[2]);
+}
+
+void RobotGUI::auto_change_role_combo_boxes() {
+	//Para ROLE
+	int robots_function_tmp_active[3];
+
+	robots_function_tmp_active[0] = cb_robot_role[0].get_active_row_number();
+	robots_function_tmp_active[1] = cb_robot_role[1].get_active_row_number();
+	robots_function_tmp_active[2] = cb_robot_role[2].get_active_row_number();
+
+	for (int i = 0; i < 3; ++i) {
+		if(robots_function_tmp_active[i] != robots_function_change_tmp[i]){
+			for (int j = 0; j < 3; ++j) {
+				if(j!=i){
+					if(robots_function_tmp_active[j]==robots_function_tmp_active[i]){
+						robots_function_tmp_active[j] = robots_function_change_tmp[i];
+					}
+				}
+			}
+		}
+	}
+
+	robots_function_change_tmp[0] = robots_function_tmp_active[0];
+	robots_function_change_tmp[1] = robots_function_tmp_active[1];
+	robots_function_change_tmp[2] = robots_function_tmp_active[2];
+
+	cb_robot_role[0].set_active(robots_function_change_tmp[0]);
+	cb_robot_role[1].set_active(robots_function_change_tmp[1]);
+	cb_robot_role[2].set_active(robots_function_change_tmp[2]);
 }
 
 void RobotGUI::setup_buttons() {
