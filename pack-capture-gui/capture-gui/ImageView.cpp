@@ -46,8 +46,16 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 	return true;
 }
 
-ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_controller), data(nullptr), width(0), height(0), stride(0),
-	imageArt(imageWarp.get_warp(), imageWarp.get_adjust(), test_controller){
+ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_controller),
+													 data(nullptr),
+													 width(0),
+													 height(0),
+													 stride(0),
+													 imageArt(imageWarp.get_warp(),
+													 		  imageWarp.get_adjust(),
+															  test_controller,
+															  width,
+															  height) {
 }
 
 void ImageView::set_data(unsigned char *data, int width, int height) {
