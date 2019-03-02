@@ -4,9 +4,9 @@ using namespace Geometry;
 using namespace field;
 
 void Attacker::decide_spin_shot(const Geometry::Point &ball) {
-	double upper_y = get_position().y + size/2;
-	double upper_x = get_position().x + size/2;
-	double lower_x = get_position().x - size/2;
+	double upper_y = get_position().y + SIZE/2;
+	double upper_x = get_position().x + SIZE/2;
+	double lower_x = get_position().x - SIZE/2;
 
 	if ((at_location(get_position(), Location::UpperField) && (ball.y > upper_y || ball.x > upper_x))
 		|| (at_location(get_position(), Location::LowerField) && (ball.y > upper_y || ball.x < lower_x))) {
@@ -31,7 +31,7 @@ void Attacker::spin_shot(const Geometry::Point &ball) {
 }
 
 void Attacker::crossing(const Geometry::Point &ball){
-	if (distance(ball, get_position()) >= size) {
+	if (distance(ball, get_position()) >= SIZE) {
 		// longe da bola: vai até a bola
 		go_to(ball);
 	} else {

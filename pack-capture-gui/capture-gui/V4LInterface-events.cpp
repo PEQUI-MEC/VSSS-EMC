@@ -231,6 +231,7 @@ void V4LInterface::__event_bt_invert_field_clicked() {
 
 void V4LInterface::__event_bt_reset_warp_clicked() {
 	bt_warp_start.set_state(Gtk::STATE_NORMAL);
+	bt_warp_start.set_active(false);
 	bt_adjust_start.set_active(false);
 	bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
 	bt_invert_field.set_active(false);
@@ -441,12 +442,11 @@ void V4LInterface::__set_control(std::list<ControlHolder> *list, Gtk::Widget *wc
 	__update_control_widgets(ctrl_list_default);
 }
 
-void V4LInterface::event_toggle_enable_video_record(){
-	visionGUI.vision->video_rec_enable = !visionGUI.vision->video_rec_enable;
-}
-
 void V4LInterface::event_start_game_bt_signal_clicked() {
 	if (!start_game_flag) {
+
+		controlGUI.stop_test_on_click();
+
 		record_video_checkbox.set_sensitive(false);
 		start_game_flag = true;
 		start_game_bt.set_image(red_button_pressed);
@@ -457,31 +457,40 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		btn_camCalib_start.set_state(Gtk::STATE_INSENSITIVE);
 		btn_camCalib_pop.set_state(Gtk::STATE_INSENSITIVE);
 
-		std::string dateString;
-		time_t tt;
-		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-		tt = std::chrono::system_clock::to_time_t(now);
-		dateString.append(std::string(ctime(&tt)).substr(0, 24));
-
-		if (visionGUI.vision->isRecording()) {
-			visionGUI.vision->finishVideo();
-			visionGUI.bt_record_video.set_label("REC");
+		if (!visionGUI.recorder.is_recording() && record_video_checkbox.get_active()) {
+			std::string date = date::generate_date_str();
+			visionGUI.en_video_name.set_text(date);
+			visionGUI.bt_record_video.set_active(true);
+			visionGUI.bt_record_video.set_label("Stop");
+			visionGUI.recorder.start_new_video(date);
 		}
-		visionGUI.bt_record_video.set_state(Gtk::STATE_INSENSITIVE);
+
 		visionGUI.en_video_name.set_state(Gtk::STATE_INSENSITIVE);
-		visionGUI.en_video_name.set_text(dateString);
-		if(visionGUI.vision->video_rec_enable)
-			visionGUI.vision->startNewVideo(dateString);
+
 	} else {
+		if (controlGUI.messenger.has_xbee())
+			controlGUI.test_start_bt.set_state(Gtk::STATE_NORMAL);
+
 		record_video_checkbox.set_sensitive(true);
 		btn_camCalib.set_state(Gtk::STATE_NORMAL);
-		if(visionGUI.vision->video_rec_enable)
-			visionGUI.vision->finishVideo();
+
+		if(visionGUI.recorder.is_recording()) {
+			visionGUI.recorder.finish_video();
+			visionGUI.bt_record_video.set_label("REC");
+		}
+
+
 		visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
+		visionGUI.bt_record_video.set_active(false);
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_text("");
 		start_game_flag = false;
 		start_game_bt.set_image(red_button_released);
+
+		// Para os robôs. Importante para não atrapalhar o Test On Click.
+		for (auto robot : robots) {
+			robot->stop();
+		}
 	}
 }
 

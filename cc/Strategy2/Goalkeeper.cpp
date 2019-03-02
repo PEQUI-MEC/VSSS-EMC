@@ -32,8 +32,8 @@ void Goalkeeper::protect_goal(const Point& ball, const Point& ball_est) {
 }
 
 void Goalkeeper::spin_shot(const Point& ball) {
-	double lower_robot_x = get_position().x - size/4; // é size/4 para que evite fazer gol contra
-	double upper_robot_x = get_position().x + size/2;
+	double lower_robot_x = get_position().x - SIZE/4; // é size/4 para que evite fazer gol contra
+	double upper_robot_x = get_position().x + SIZE/2;
 
 	if (ball.x > upper_robot_x) { // bola na frente do goleiro
 		if (at_location(get_position(), Location::UpperField))

@@ -22,7 +22,8 @@
 #include "ImageView.hpp"
 #include "Messenger.h"
 #include "RobotGUI.hpp"
-#include "../../cc/vision/visionGUI.hpp"
+#include "visionGUI.hpp"
+#include "controlGUI.hpp"
 #include <ctime>
 #include <chrono>
 #include <ImageWarp.hpp>
@@ -49,6 +50,8 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool isLowRes = false;
 
 		VisionGUI visionGUI;
+		ControlGUI controlGUI;
+
 		bool init_frame = true;
 
 		ImageView imageView;
@@ -81,7 +84,8 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		capture::v4lcap vcap;
 
-		explicit V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref, RobotGUI &robot_gui, bool isLow);
+		explicit V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref,
+									  const Geometry::Point &ball, RobotGUI &robot_gui, bool isLow);
 		void initInterface();
 
 		Gtk::Scale HScale_offsetL;
@@ -143,7 +147,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __event_cb_frame_interval_changed();
 		void createPositionsAndButtonsFrame();
 		void event_start_game_bt_signal_clicked();
-		void event_toggle_enable_video_record();
 		void updateRobotLabels();
 		void update_ball_position(Geometry::Point ball);
 		void updateFPS(int fps);

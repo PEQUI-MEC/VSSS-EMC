@@ -833,8 +833,6 @@ void V4LInterface::initInterface() {
 	start_game_bt.set_size_request(50, 100);
 	start_game_bt.set_image(red_button_released);
 
-	record_video_checkbox.signal_clicked().connect(
-			sigc::mem_fun(*this, &capture::V4LInterface::event_toggle_enable_video_record));
 	start_game_bt.signal_clicked().connect(
 			sigc::mem_fun(*this, &capture::V4LInterface::event_start_game_bt_signal_clicked));
 
@@ -955,13 +953,15 @@ void V4LInterface::__create_frm_cam_calib() {
 }
 
 // Constructor
-V4LInterface::V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref, RobotGUI &robot_gui,
-						   bool isLow)
+V4LInterface::V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref,
+						   const Geometry::Point &ball, RobotGUI &robot_gui, bool isLow)
 		:
 		Gtk::VBox(false, 0),
 		isLowRes(isLow),
 		robots(robots_ref),
-		robotGUI(robot_gui) {
+		robotGUI(robot_gui),
+		imageView(controlGUI.test_controller),
+		controlGUI(robots_ref, ball) {
 
 	messenger = messenger_ptr;
 	initInterface();

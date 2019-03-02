@@ -1,6 +1,7 @@
 #include "ImageView.hpp"
 
 using capture::ImageView;
+using namespace onClick;
 
 bool ImageView::on_button_press_event(GdkEventButton *event) {
 
@@ -35,28 +36,18 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 			imageWarp.adjust_undo();
 	}
 
-	if (PID_test_flag) {
-		robot_pos[0] = 0;
-		robot_pos[1] = 0;
-
+	if (test_on_click->is_active()) {
 		if (event->button == 1) {
-			robot_pos[0] = event->x;
-			robot_pos[1] = event->y;
+			test_on_click->select_robot(event->x, event->y);
 		} else if (event->button == 3) {
-			tar_pos[0] = event->x;
-			tar_pos[1] = event->y;
+			test_on_click->select_target(event->x, event->y);
 		}
 	}
 	return true;
 }
 
-ImageView::ImageView() : data(nullptr), width(0), height(0), stride(0) {
-	robot_pos[1] = 0;
-	robot_pos[0] = 0;
-	tar_pos[1] = -1;
-	tar_pos[0] = -1;
-
-	imageArt.init(imageWarp.get_warp(), imageWarp.get_adjust());
+ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_controller), data(nullptr), width(0), height(0), stride(0),
+	imageArt(imageWarp.get_warp(), imageWarp.get_adjust(), test_controller){
 }
 
 void ImageView::set_data(unsigned char *data, int width, int height) {
