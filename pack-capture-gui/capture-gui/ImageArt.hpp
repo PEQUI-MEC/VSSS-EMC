@@ -12,11 +12,13 @@
 #include "TestOnClick.hpp"
 
 namespace art {
-
 	class ImageArt {
 		private:
 			bool is_warping = false;
 			bool is_adjusting = false;
+
+			int& width;
+			int& height;
 
 			const warp::PointArray& warp_mat;
 			const warp::PointArray& adjust_mat;
@@ -35,7 +37,7 @@ namespace art {
 			void draw_targets(const Robot2 *robot, cv::Mat &frame);
 
 		public:
-			ImageArt(warp::PointArray& warp, warp::PointArray& adjust, onClick::TestOnClick& test);
+			ImageArt(warp::PointArray &warp, warp::PointArray &adjust, onClick::TestOnClick &test, int &width, int &height);
 			void draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
 					  const std::map<unsigned int, vision::Vision::RecognizedTag> &our_tags,
 					  const std::vector<cv::Point> &adv_tags,
