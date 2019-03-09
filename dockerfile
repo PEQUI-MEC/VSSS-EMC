@@ -1,4 +1,4 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 
 # LIBRARIES
 RUN apt-get update && \
@@ -13,7 +13,7 @@ RUN apt-get update && \
         libswscale-dev
 
 # GCC-8
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
     apt-get update && \
     apt-get install gcc-8 g++-8 && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 700 --slave /usr/bin/g++ g++ /usr/bin/g++-7 && \
