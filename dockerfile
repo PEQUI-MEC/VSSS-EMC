@@ -11,7 +11,7 @@ RUN apt-get update && \
         libavcodec-dev \
         libavformat-dev \
         libswscale-dev \
-        apt-get install software-properties-common
+        software-properties-common
 
 # GCC-8
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
