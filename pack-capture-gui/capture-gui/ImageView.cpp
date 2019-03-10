@@ -114,8 +114,8 @@ bool ImageView::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
 
 bool capture::ImageView::on_motion_notify_event(GdkEventMotion *event) {
 	if (is_point_selected()) {
-		auto x = static_cast<int>(event->x);
-		auto y = static_cast<int>(event->y);
+		const auto x = static_cast<int>(event->x);
+		const auto y = static_cast<int>(event->y);
 		if (warp_event_flag) {
 			warp::PointArray& warp_mat = imageWarp.get_warp();
 			selected_pt = warp_mat.replace(selected_pt, cv::Point(x, y));
@@ -137,7 +137,7 @@ bool capture::ImageView::on_button_release_event(GdkEventButton *event) {
 	return false;
 }
 
-void capture::ImageView::select_point(gdouble x, gdouble y, bool is_warp) {
+void capture::ImageView::select_point(const gdouble x, const gdouble y, const bool is_warp) {
 	warp::PointArray &mat = is_warp ? imageWarp.get_warp() : imageWarp.get_adjust();
 
 	for (unsigned short index = 0; index < mat.size(); index++) {

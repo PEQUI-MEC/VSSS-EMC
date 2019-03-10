@@ -36,7 +36,7 @@ class capture::ImageView : public Gtk::DrawingArea {
 		bool on_motion_notify_event(GdkEventMotion* event) override;
 
 		void select_point(gdouble x, gdouble y, bool is_warp = true);
-		bool is_point_selected() { return selected_pt != no_point; };
+		bool is_point_selected() const { return selected_pt != no_point; };
 	public:
 		warp::ImageWarp imageWarp;
 		art::ImageArt imageArt;

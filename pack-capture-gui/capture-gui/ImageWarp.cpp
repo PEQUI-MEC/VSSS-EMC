@@ -30,7 +30,7 @@ void PointArray::undo() {
 	}
 }
 
-cv::Point PointArray::replace(cv::Point old_pt, cv::Point new_pt) {
+cv::Point PointArray::replace(const cv::Point old_pt, const cv::Point new_pt) {
 	cv::Point* replace_pt = std::find(std::begin(mat), std::end(mat), old_pt);
 	if (replace_pt != std::end(mat)) {
 		*replace_pt = new_pt;
