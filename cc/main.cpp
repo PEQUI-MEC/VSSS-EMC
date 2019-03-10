@@ -12,23 +12,21 @@ int main(int argc, char **argv) {
 	Gtk::Main kit(argc, argv);
 	Gtk::Window window;
 
-	GdkScreen *screen = gdk_screen_get_default();
-
-
-	//window.set_border_width(10);
-	window.maximize();
 	window.set_title("Pequi Mecânico - VSSS EMC");
 
+	auto screen_width = Gdk::screen_width();
+	bool isLowRes = screen_width <= 1600;
 
-	bool isLowRes = gdk_screen_get_width(screen) <= 1600;
-	CamCap camcap(gdk_screen_get_width(screen), gdk_screen_get_height(screen), isLowRes);
+	CamCap camcap(screen_width, Gdk::screen_height(), isLowRes);
 	window.add(camcap);
 
 	window.show_all();
 
 	camcap.interface.visionGUI.hideGMM();
 	camcap.interface.fr_camCalib_offline.hide();
-	camcap.control.update_ack_interface();
+	camcap.interface.controlGUI.update_ack_interface();
+
+	window.maximize();
 
 	Gtk::Main::run(window);
 

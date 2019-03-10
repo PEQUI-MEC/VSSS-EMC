@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(VSSS)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 #Encontra bibliotecas
@@ -62,7 +62,9 @@ set(SOURCE_FILES cc/main.cpp
     cc/Strategy2/Strategy2.cpp
     pack-capture-gui/capture-gui/RobotGUI.cpp
     pack-capture-gui/capture-gui/ImageArt.cpp
-    pack-capture-gui/capture-gui/ImageWarp.cpp)
+    pack-capture-gui/capture-gui/ImageWarp.cpp
+    cc/TestOnClick.cpp
+    cc/VideoRecorder.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
@@ -78,7 +80,10 @@ include_directories(cc/
     ${OpenCV_INCLUDE_DIRS}
     ${V4L2_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "-std=c++14 -g -m64 -pipe -pthread -lpthread -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")
+set(CMAKE_CXX_FLAGS "-std=c++17 -g -m64 -pipe -pthread -lpthread -lopencv_shape -lopencv_stitching \
+    -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d \
+    -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml \
+    -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")
 
 if (CUDA_FOUND)
     add_definitions(-DCUDA_FOUND)

@@ -34,7 +34,7 @@ class Robot2 {
 	public:
 		Geometry::Point uvf_ref;
 
-    	const double size = 0.08;
+    	const double SIZE = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;
 		double default_target_velocity = 0.8; // Velocidade padrão do robô
@@ -81,6 +81,7 @@ class Robot2 {
 		void go_to_pose(Geometry::Point point, Geometry::Vector direction);
 		void go_to_and_stop(Geometry::Point point);
 		void go_in_direction(Geometry::Vector vector);
+		void stop() { command = Command::None; };
 
 		Pose get_pose() const { return  pose; };
 		char get_ID() const { return ID; };
