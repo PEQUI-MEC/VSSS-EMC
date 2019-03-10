@@ -40,7 +40,7 @@ class capture::v4lcap {
 			long int length;
 		};
 		struct buffer_holder {
-			int qtd;
+			int qtd = 0;
 			struct buffer *buffs;
 		};
 		struct buffer_holder buffers;
