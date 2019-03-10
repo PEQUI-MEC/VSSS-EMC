@@ -23,12 +23,20 @@ namespace capture {
 }
 
 class capture::ImageView : public Gtk::DrawingArea {
-
 		Glib::RefPtr<Gdk::Pixbuf> pb;
-		bool on_button_press_event(GdkEventButton *event) override;
 
 		onClick::TestOnClick* test_on_click;
 
+		// warp/adjust selected point on click
+		const cv::Point no_point = cv::Point(-1, -1);
+		cv::Point selected_pt;
+
+		bool on_button_press_event(GdkEventButton *event) override;
+		bool on_button_release_event(GdkEventButton *event) override;
+		bool on_motion_notify_event(GdkEventMotion* event) override;
+
+		void select_point(gdouble x, gdouble y, bool is_warp = true);
+		bool is_point_selected() { return selected_pt != no_point; };
 	public:
 		warp::ImageWarp imageWarp;
 		art::ImageArt imageArt;
