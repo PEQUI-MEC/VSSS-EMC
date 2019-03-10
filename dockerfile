@@ -1,6 +1,6 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 
-# OPENCV
+# LIBRARIES
 RUN apt-get update && \
     apt-get install -y \
         build-essential \
@@ -10,8 +10,17 @@ RUN apt-get update && \
         pkg-config \
         libavcodec-dev \
         libavformat-dev \
-        libswscale-dev
+        libswscale-dev \
+        software-properties-common
 
+# GCC-8
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
+    apt-get update && \
+    apt-get install gcc-8 g++-8 -y && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 700 --slave /usr/bin/g++ g++ /usr/bin/g++-7 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+
+# OPENCV
 WORKDIR /opencv_workspace
 RUN git clone \
         --branch 3.4.1 \
