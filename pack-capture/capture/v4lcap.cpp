@@ -415,7 +415,7 @@ bool v4lcap::stop_capturing() {
 bool v4lcap::uninit_mmap() {
 	for (unsigned int i = 0; i < reqbuf.count; i++) {
 		if (emulate_format) {
-			if (-1 == v4l2_munmap(buffers.buffs[i].start, buffers.buffs[i].length)) return false;
+			if (buffers.qtd == 0 || buffers.buffs == nullptr || -1 == v4l2_munmap(buffers.buffs[i].start, buffers.buffs[i].length)) return false;
 		} else {
 			if (-1 == munmap(buffers.buffs[i].start, buffers.buffs[i].length)) return false;
 		}
@@ -426,7 +426,7 @@ bool v4lcap::uninit_mmap() {
 	if (!request_buffers_mmap(&reqbuf, 0)) std::cout << "Can't request 0 mmap buffers.\n";
 
 	free(buffers.buffs);
-	buffers.buffs = 0;
+	buffers.buffs = nullptr;
 	buffers.qtd = 0;
 
 	return true;

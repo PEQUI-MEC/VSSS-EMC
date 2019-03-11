@@ -121,6 +121,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __event_bt_save_clicked();
 		void __event_bt_load_clicked();
 		void __event_bt_start_clicked();
+		void __event_bt_refresh_clicked();
 		void __event_bt_warp_start_clicked();
 		void __event_bt_adjust_start_clicked();
 		void __event_bt_warp_apply_clicked();
@@ -188,6 +189,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::Frame frm_device_info;
 		Gtk::ComboBoxText cb_device;
 		Gtk::Button bt_start;
+		Gtk::Button bt_refresh;
 		Gtk::Button bt_reset_warp;
 
 		Gtk::Frame frm_quick_actions;
