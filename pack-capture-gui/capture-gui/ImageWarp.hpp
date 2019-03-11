@@ -32,8 +32,9 @@ namespace warp {
 			bool is_full() const { return counter == MAX_POINTS; };
 			bool add_point(const cv::Point &point);
 			void undo();
+			cv::Point replace(cv::Point old_pt, cv::Point new_pt);
 
-			unsigned short get_size() const { return counter; };
+			unsigned short size() const { return counter; };
 	};
 
 	class ImageWarp {

@@ -28,6 +28,17 @@ void PointArray::undo() {
 	} else if (counter > 0) {
 		counter--;
 	}
+}
+
+cv::Point PointArray::replace(const cv::Point old_pt, const cv::Point new_pt) {
+	cv::Point* replace_pt = std::find(std::begin(mat), std::end(mat), old_pt);
+	if (replace_pt != std::end(mat)) {
+		*replace_pt = new_pt;
+		replace_pt = std::find(std::begin(unordered_mat), std::end(unordered_mat), old_pt);
+		*replace_pt = new_pt;
+		return new_pt;
+	}
+	return old_pt;
 };
 
 void ImageWarp::set_offset_R(const unsigned short offset) {

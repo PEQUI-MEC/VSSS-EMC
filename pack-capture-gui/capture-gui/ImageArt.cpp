@@ -75,7 +75,7 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 						font, scale, warp_color, thickness, cv::LINE_AA);
 		}
 
-		for (unsigned short index = 0; index < warp_mat.get_size(); index++) {
+		for (unsigned short index = 0; index < warp_mat.size(); index++) {
 			cv::Point point = warp_mat.unordered_at(index);
 			cv::circle(frame, point, 2, warp_color, 2);
 			cv::putText(frame, std::to_string(index + 1), {point.x + 5, point.y - 5},
@@ -101,7 +101,7 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 						font, scale, adjust_color, thickness, cv::LINE_AA);
 		}
 
-		for (unsigned short index = 0; index < adjust_mat.get_size(); index++) {
+		for (unsigned short index = 0; index < adjust_mat.size(); index++) {
 			cv::Point point = adjust_mat.unordered_at(index);
 
 			// desenhar retầngulos
