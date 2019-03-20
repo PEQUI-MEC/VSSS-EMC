@@ -23,7 +23,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
 # OPENCV
 WORKDIR /opencv_workspace
 RUN git clone \
-        --branch 3.4.1 \
+        --branch 4.0.1 \
         --depth 1 \
         https://github.com/opencv/opencv.git 
 WORKDIR ./opencv/build
