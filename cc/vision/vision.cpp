@@ -60,7 +60,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 		tags.at(color).clear();
 
 		cv::Mat tmp;
-		cv::cvtColor(thresholds.at(color), tmp, CV_RGB2GRAY);
+		cv::cvtColor(thresholds.at(color), tmp, cv::COLOR_RGB2GRAY);
 
 		cv::findContours(tmp, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);
 
@@ -505,8 +505,8 @@ void Vision::cameraCalibration() {
 	distanceCoeficents = cv::Mat::zeros(8, 1, CV_64F);
 
     int flag = 0;
-    flag |= CV_CALIB_FIX_K4;
-    flag |= CV_CALIB_FIX_K5;
+    flag |= cv::CALIB_FIX_K4;
+    flag |= cv::CALIB_FIX_K5;
 
 	//root mean square (RMS) reprojection error and should be between 0.1 and 1.0 pixels in a good calibration.
     double rms = cv::calibrateCamera(worldSpaceCornersPoints, checkerBoardImageSpacePoints, in_frame.size(),
@@ -527,7 +527,7 @@ void Vision::cameraCalibration() {
 
 
 void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::vector<cv::Point3f>>& pts3d,std::vector<std::vector<cv::Point2f>>& pts2d) const {
-	cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+	cv::TermCriteria termCriteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
 	cv::Mat grayFrame;
 	//std::vector<std::vector<cv::Point2f>> allFoundCorners;
 	for (auto &image : images) {
@@ -535,7 +535,7 @@ void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::
         std::vector<cv::Point3f> corners;
 
 		bool found = cv::findChessboardCorners(image, CHESSBOARD_DIMENSION, pointBuf,
-											   CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+											   cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
         for (int i = 0; i < CHESSBOARD_DIMENSION.height; i++) {
             for (int j = 0; j < CHESSBOARD_DIMENSION.width; ++j) {
                 corners.emplace_back(j * CALIBRATION_SQUARE_DIMENSION, i * CALIBRATION_SQUARE_DIMENSION, 0.0f);
@@ -557,7 +557,7 @@ bool Vision::foundChessBoardCorners() const {
 	temp = in_frame.clone();
 
 	return cv::findChessboardCorners(temp, CHESSBOARD_DIMENSION, foundPoints,
-									 CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+									 cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 }
 
 void Vision::saveCameraCalibPicture(const std::string in_name, const std::string directory) {

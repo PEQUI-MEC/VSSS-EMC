@@ -101,7 +101,7 @@ bool CamCap::capture_and_show() {
 		!interface.visionGUI.vision->flag_cam_calibrated) {
 
 		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
-													CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
 
 	if (interface.imageView.gmm_ready_flag) {
@@ -204,7 +204,7 @@ bool CamCap::capture_and_show() {
 
 	if (!interface.visionGUI.CIELAB_calib_event_flag && !interface.visionGUI.getIsSplitView()) {
 		if (chessBoardFound) {
-			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+			cv::TermCriteria termCriteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
 			cv::Mat grayFrame;
 			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
 			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);

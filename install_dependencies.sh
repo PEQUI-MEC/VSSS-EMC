@@ -24,7 +24,7 @@ echo "Installing GTKmm"
 sudo apt-get install libgtkmm-3.0-dev -y
 
 echo "Installing OpenCV"
-git clone -b 3.4.1 https://github.com/opencv/opencv.git
+git clone -b 4.0.1 https://github.com/opencv/opencv.git
 cd opencv/
 mkdir build/
 cd build/

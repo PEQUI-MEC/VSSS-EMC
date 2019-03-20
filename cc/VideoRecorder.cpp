@@ -17,7 +17,7 @@ void VideoRecorder::save_picture(const std::string &in_name) {
 void VideoRecorder::start_new_video(const std::string &in_name) {
 	std::string videoName = "media/videos/" + in_name + ".avi";
 
-	video.open(videoName, CV_FOURCC('M', 'J', 'P', 'G'), 30, cv::Size(width, height));
+	video.open(videoName, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(width, height));
 	std::cout << "Started a new video recording." << std::endl;
 	is_on_air = true;
 }
