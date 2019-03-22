@@ -15,7 +15,7 @@ ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots, const Geometry::Po
 }
 
 void ControlGUI::_send_command() {
-	std::string cmd = radio_cmd_entry.get_text();
+	std::string cmd = commands_cmd_entry.get_text();
 	messenger.send_old_format(cmd);
 }
 
@@ -76,26 +76,11 @@ void ControlGUI::_start_serial() {
 
 	messenger.start_xbee(serial);
 
-	radio_connect_bt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_xbee_cb.set_state(Gtk::STATE_INSENSITIVE);
-
-	commands_L_hsc.set_state(Gtk::STATE_NORMAL);
-	commands_R_hsc.set_state(Gtk::STATE_NORMAL);
-	radio_refresh_bt.set_state(Gtk::STATE_NORMAL);
-	radio_send_speed_bt.set_state(Gtk::STATE_NORMAL);
-	radio_send_cmd_bt.set_state(Gtk::STATE_NORMAL);
-	radio_robots_cb.set_state(Gtk::STATE_NORMAL);
-	radio_skip_sbt.set_state(Gtk::STATE_NORMAL);
-	radio_cmd_entry.set_state(Gtk::STATE_NORMAL);
-	radio_acks_chbt.set_state(Gtk::STATE_NORMAL);
-	radio_ekf_chbt.set_state(Gtk::STATE_NORMAL);
-	bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
-	bt_reset_ack.set_state(Gtk::STATE_NORMAL);
-	test_start_bt.set_state(Gtk::STATE_NORMAL);
+	adjust_widgets_state();
 }
 
 void ControlGUI::_send_test() {
-	int pos = radio_robots_cb.get_active_row_number();
+	int pos = commands_robots_cb.get_active_row_number();
 	std::string cmd = std::to_string(commands_L_hsc.get_value()) + ";" + std::to_string(commands_R_hsc.get_value());
 
 	if (pos == -1) {
@@ -138,15 +123,7 @@ void ControlGUI::_update_cb_serial() {
 	if (xbee_connections > 0)
 		radio_xbee_cb.set_active(0);
 
-	radio_connect_bt.set_state(Gtk::STATE_NORMAL);
-	radio_xbee_cb.set_state(Gtk::STATE_NORMAL);
-	radio_refresh_bt.set_state(Gtk::STATE_NORMAL);
-
-	radio_send_speed_bt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_robots_cb.set_state(Gtk::STATE_INSENSITIVE);
-	bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
-	bt_reset_ack.set_state(Gtk::STATE_INSENSITIVE);
-	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
+	adjust_widgets_state(false);
 }
 
 void ControlGUI::_create_status_frame() {
@@ -161,7 +138,6 @@ void ControlGUI::_create_status_frame() {
 	status_grid.set_halign(Gtk::ALIGN_CENTER);
 
 	bt_Robot_Status.set_label("Update");
-	bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
 	status_grid.attach(bt_Robot_Status, 0, 0, 1, 1);
 	lastUpdate_lb.set_text("Last Update: -");
 	lastUpdate_lb.set_valign(Gtk::ALIGN_BASELINE);
@@ -302,11 +278,6 @@ void ControlGUI::_create_test_on_click_frame() {
 	test_angle_scale.set_draw_value();
 	test_angle_scale.set_size_request(175, -1);
 
-	test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
-	test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
-	test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
-	test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
-
 	test_start_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_start_bt_event));
 	test_command_cb.signal_changed().connect(sigc::mem_fun(*this, &ControlGUI::_test_command_changed_event));
 	test_set_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_test_send_bt_event));
@@ -425,13 +396,6 @@ void ControlGUI::_create_radio_frame() {
 	radio_skip_sbt.set_increments(1, 2);
 	radio_skip_sbt.set_value(0);
 
-	//Sensitive
-	radio_refresh_bt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_connect_bt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_skip_sbt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_ekf_chbt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_acks_chbt.set_state(Gtk::STATE_INSENSITIVE);
-
 	// Event handlers
 	radio_skip_sbt.signal_value_changed().connect(sigc::mem_fun(*this, &ControlGUI::set_frameskipper));
 	radio_acks_chbt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
@@ -451,11 +415,11 @@ void ControlGUI::_create_commands_frame() {
 	commands_grid.attach(commands_R_lb, 3, 0, 1, 1);
 	commands_grid.attach(commands_R_hsc, 4, 0, 1, 1);
 	commands_grid.attach(commands_to_lb, 5, 0, 1, 1);
-	commands_grid.attach(radio_robots_cb, 6, 0, 1, 1);
-	commands_grid.attach(radio_send_speed_bt, 7, 0, 1, 1);
+	commands_grid.attach(commands_robots_cb, 6, 0, 1, 1);
+	commands_grid.attach(commands_send_speed_bt, 7, 0, 1, 1);
 	commands_grid.attach(radio_rawcmd_lbl, 0, 1, 1, 1);
-	commands_grid.attach(radio_cmd_entry, 1, 1, 6, 1);
-	commands_grid.attach(radio_send_cmd_bt, 7, 1, 1, 1);
+	commands_grid.attach(commands_cmd_entry, 1, 1, 6, 1);
+	commands_grid.attach(commands_send_cmd_bt, 7, 1, 1, 1);
 
 	//Frame
 	commands_fm.set_border_width(10);
@@ -473,10 +437,10 @@ void ControlGUI::_create_commands_frame() {
 	commands_L_lb.set_text("Left");
 	commands_R_lb.set_text("Right");
 	commands_to_lb.set_text("to");
-	radio_send_speed_bt.set_label("Send");
+	commands_send_speed_bt.set_label("Send");
 	radio_rawcmd_lbl.set_text("Command:");
 	radio_rawcmd_lbl.set_halign(Gtk::ALIGN_END);
-	radio_send_cmd_bt.set_label("Send");
+	commands_send_cmd_bt.set_label("Send");
 
 	//HScale
 	commands_L_hsc.set_increments(0.1, 0.5);
@@ -489,25 +453,69 @@ void ControlGUI::_create_commands_frame() {
 	commands_R_hsc.set_value(0.8);
 
 	//ComboBoxText
-	radio_robots_cb.append("Robot A");
-	radio_robots_cb.append("Robot B");
-	radio_robots_cb.append("Robot C");
-	radio_robots_cb.append("Robot D");
-	radio_robots_cb.append("Robot E");
-	radio_robots_cb.append("Robot F");
-	radio_robots_cb.append("All Robots");
-	radio_robots_cb.set_active(6); // All Robots
-
-	//Sensitive
-	commands_L_hsc.set_state(Gtk::STATE_INSENSITIVE);
-	commands_R_hsc.set_state(Gtk::STATE_INSENSITIVE);
-	radio_send_cmd_bt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_send_speed_bt.set_state(Gtk::STATE_INSENSITIVE);
-	radio_cmd_entry.set_state(Gtk::STATE_INSENSITIVE);
+	commands_robots_cb.append("Robot A");
+	commands_robots_cb.append("Robot B");
+	commands_robots_cb.append("Robot C");
+	commands_robots_cb.append("Robot D");
+	commands_robots_cb.append("Robot E");
+	commands_robots_cb.append("Robot F");
+	commands_robots_cb.append("All Robots");
+	commands_robots_cb.set_active(6); // All Robots
 
 	//Event Handlers
-	radio_send_speed_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
-	radio_send_cmd_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
+	commands_send_speed_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_test));
+	commands_send_cmd_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_send_command));
 
 
+}
+
+void ControlGUI::adjust_widgets_state(bool is_connected) {
+	if (is_connected) {
+		//Commands Frame
+		commands_L_hsc.set_state(Gtk::STATE_NORMAL);
+		commands_R_hsc.set_state(Gtk::STATE_NORMAL);
+		commands_send_cmd_bt.set_state(Gtk::STATE_NORMAL);
+		commands_send_speed_bt.set_state(Gtk::STATE_NORMAL);
+		commands_cmd_entry.set_state(Gtk::STATE_NORMAL);
+		commands_robots_cb.set_state(Gtk::STATE_NORMAL);
+
+		//Radio Frame
+		radio_connect_bt.set_state(Gtk::STATE_INSENSITIVE);
+		radio_skip_sbt.set_state(Gtk::STATE_NORMAL);
+		radio_ekf_chbt.set_state(Gtk::STATE_NORMAL);
+		radio_acks_chbt.set_state(Gtk::STATE_NORMAL);
+
+		//Test On Click Frame
+		test_start_bt.set_state(Gtk::STATE_NORMAL);
+		test_command_cb.set_state(Gtk::STATE_NORMAL);
+		test_angle_scale.set_state(Gtk::STATE_NORMAL);
+		test_set_bt.set_state(Gtk::STATE_NORMAL);
+
+		//Status Frame
+		bt_Robot_Status.set_state(Gtk::STATE_NORMAL);
+
+	} else {
+		//Commands Frame
+		commands_L_hsc.set_state(Gtk::STATE_INSENSITIVE);
+		commands_R_hsc.set_state(Gtk::STATE_INSENSITIVE);
+		commands_send_cmd_bt.set_state(Gtk::STATE_INSENSITIVE);
+		commands_send_speed_bt.set_state(Gtk::STATE_INSENSITIVE);
+		commands_cmd_entry.set_state(Gtk::STATE_INSENSITIVE);
+		commands_robots_cb.set_state(Gtk::STATE_INSENSITIVE);
+
+		//Radio Frame
+		radio_connect_bt.set_state(Gtk::STATE_NORMAL);
+		radio_skip_sbt.set_state(Gtk::STATE_INSENSITIVE);
+		radio_ekf_chbt.set_state(Gtk::STATE_INSENSITIVE);
+		radio_acks_chbt.set_state(Gtk::STATE_INSENSITIVE);
+
+		//Test On Click Frame
+		test_start_bt.set_state(Gtk::STATE_INSENSITIVE);
+		test_command_cb.set_state(Gtk::STATE_INSENSITIVE);
+		test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
+		test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
+
+		//Status Frame
+		bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
+	}
 }

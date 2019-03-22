@@ -39,10 +39,6 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::ComboBoxText radio_xbee_cb;
 		Gtk::Button radio_refresh_bt;
 		Gtk::Button radio_connect_bt;
-		Gtk::ComboBoxText radio_robots_cb;
-		Gtk::Button radio_send_speed_bt;
-		Gtk::Button radio_send_cmd_bt;
-		Gtk::Entry radio_cmd_entry;
 		Gtk::Label radio_rawcmd_lbl;
 		Gtk::Grid radio_options_grid;
 		Gtk::Label radio_skip_lbl;
@@ -54,13 +50,16 @@ class ControlGUI : public Gtk::VBox {
 		// Commands Frame
 		Gtk::Frame commands_fm;
 		Gtk::Grid commands_grid;
-		Gtk::Label commands_cmd_lbl;
 		Gtk::Label commands_speed_lb;
 		Gtk::Label commands_L_lb;
 		Gtk::Label commands_R_lb;
 		Gtk::Label commands_to_lb;
 		Gtk::HScale commands_L_hsc;
 		Gtk::HScale commands_R_hsc;
+		Gtk::Button commands_send_speed_bt;
+		Gtk::Button commands_send_cmd_bt;
+		Gtk::Entry commands_cmd_entry;
+		Gtk::ComboBoxText commands_robots_cb;
 
 
 		Gtk::Grid status_grid;
@@ -123,6 +122,8 @@ class ControlGUI : public Gtk::VBox {
 		void set_frameskipper();
 		void update_msg_time();
 		void ekf_always_send_enable();
+
+		void adjust_widgets_state(bool is_connected = true);
 
 		// essa função não deve ser chamada imediatamente após desconectar o xbee
 		// o xbee demora alguns segundos para realmente desconectar
