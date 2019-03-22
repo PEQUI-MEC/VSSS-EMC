@@ -22,37 +22,46 @@ class ControlGUI : public Gtk::VBox {
 
 		const static int TOTAL_ROBOTS = 6;
 
-		// Containers para o conteúdo da interface gráfica
-		Gtk::Frame Serial_fm;
-		Gtk::HBox Top_hbox;
-		Gtk::VBox Serial_vbox;
-		Gtk::HBox Serial_hbox[5];
 		Gtk::Label *label;
-		Gtk::Button bt_send_cmd;
-		Gtk::Entry send_cmd_box;
 
-		Gtk::Entry entry_set_frameskip;
-		Gtk::Button bt_set_frameskip;
-		Gtk::Label time_msgs;
 		double acc_time;
 		int time_count;
 
 		// Botões e combo box Rádio
-		Gtk::Button bt_Serial_Start;
-		Gtk::Button bt_Robot_Status;
-		Gtk::Button bt_Serial_Refresh;
-		Gtk::ComboBoxText cb_serial;
-		Gtk::Button bt_Serial_test;
-		Gtk::ComboBoxText cb_test;
-		Gtk::Entry Tbox_V1;
-		Gtk::Entry Tbox_V2;
 
-		Gtk::CheckButton ack_enable_button;
-		Gtk::Label ack_enable_label;
+		Gtk::Button bt_Robot_Status;
 
 		bool ekf_always_send = false;
-		Gtk::CheckButton ekf_always_send_button;
-		Gtk::Label ekf_always_send_label;
+
+		// Radio Frame
+		Gtk::Frame radio_fm;
+		Gtk::Label radio_xbee_lbl;
+		Gtk::ComboBoxText radio_xbee_cb;
+		Gtk::Button radio_refresh_bt;
+		Gtk::Button radio_connect_bt;
+		Gtk::ComboBoxText radio_robots_cb;
+		Gtk::Button radio_send_speed_bt;
+		Gtk::Button radio_send_cmd_bt;
+		Gtk::Entry radio_cmd_entry;
+		Gtk::Label radio_rawcmd_lbl;
+		Gtk::Grid radio_options_grid;
+		Gtk::Label radio_skip_lbl;
+		Gtk::Label radio_time_lbl;
+		Gtk::SpinButton radio_skip_sbt;
+		Gtk::CheckButton radio_ekf_chbt;
+		Gtk::CheckButton radio_acks_chbt;
+
+		// Commands Frame
+		Gtk::Frame commands_fm;
+		Gtk::Grid commands_grid;
+		Gtk::Label commands_cmd_lbl;
+		Gtk::Label commands_speed_lb;
+		Gtk::Label commands_L_lb;
+		Gtk::Label commands_R_lb;
+		Gtk::Label commands_to_lb;
+		Gtk::HScale commands_L_hsc;
+		Gtk::HScale commands_R_hsc;
+
 
 		Gtk::Grid status_grid;
 		Gtk::Frame status_fm;
@@ -95,11 +104,13 @@ class ControlGUI : public Gtk::VBox {
 
 		void _start_serial();
 
-		bool isFloat(std::string value);
-
 		void _send_test();
 
 		void _update_cb_serial();
+
+		void _create_radio_frame();
+
+		void _create_commands_frame();
 
 		void _create_status_frame();
 
