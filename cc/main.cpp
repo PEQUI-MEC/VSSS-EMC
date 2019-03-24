@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 	auto screen_width = Gdk::screen_width();
 	bool isLowRes = screen_width <= 1600;
 
-	CamCap camcap(screen_width, Gdk::screen_height(), isLowRes);
+	CamCap camcap(isLowRes);
 	window.add(camcap);
 
 	window.show_all();

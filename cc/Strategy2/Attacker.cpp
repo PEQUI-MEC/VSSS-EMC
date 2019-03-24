@@ -60,7 +60,6 @@ void Attacker::charged_shot(const Geometry::Point &ball) {
 }
 
 void Attacker::side_spin_shot(Point ball){
-	Vector ball_to_goal = their::goal::back::center - ball;
 	double distance_to_ball = distance(get_position(), ball);
 
 	if(get_position().x < ball.x-0.01 && (distance_to_ball > 0.065) ){

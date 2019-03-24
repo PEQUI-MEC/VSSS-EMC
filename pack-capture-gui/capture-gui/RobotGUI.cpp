@@ -71,13 +71,13 @@ void RobotGUI::createSpeedsFrame() {
 }
 
 void RobotGUI::update_robot_functions() {
-	for (int i = 0; i < robots.size(); i++) {
+	for (unsigned int i = 0; i < robots.size(); i++) {
 		cb_robot_role[i].set_active(robots[i]->tag);
 	}
 }
 
 void RobotGUI::update_speed_progressBars() {
-	for(int i = 0; i < robots.size(); i++) {
+	for(unsigned int i = 0; i < robots.size(); i++) {
 		robots_speed_progressBar[i].set_fraction(robots[i]->default_target_velocity / 1.4);
 		const std::string velocity = std::to_string(robots[i]->default_target_velocity);
 		robots_speed_progressBar[i].set_text(velocity.substr(0, 4));
@@ -121,7 +121,7 @@ RobotGUI::RobotGUI(std::array<Robot2 *, 3> &robots, bool isLowRes) :
 }
 
 void RobotGUI::event_robots_role_done_bt_signal_clicked() {
-	for (int i = 0; i < robots.size(); ++i) {
+	for (unsigned int i = 0; i < robots.size(); ++i) {
 		int tag = cb_robot_role[i].get_active_row_number();
 		robots[i]->tag = static_cast<unsigned int>(tag);
 		robots[i]->ID = (char) robots_id_box[robots[i]->tag].get_active_row_number() + 'A';

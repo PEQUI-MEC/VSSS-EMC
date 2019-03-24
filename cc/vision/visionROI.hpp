@@ -11,11 +11,14 @@
 class VisionROI : public cv::Mat {
 
 	private:
+		bool mIsLost;
+		cv::Point mPosBegin;
+		cv::Point mPosEnd;
 		int mSize;
 		int mId;
-		cv::Point mPosBegin, mPosEnd;
+
 		cv::Point mPosCenter;
-		bool mIsLost;
+
 		int mWidth, mHeight;
 
 		bool checkForBoundaries();

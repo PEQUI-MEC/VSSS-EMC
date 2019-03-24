@@ -35,7 +35,6 @@ set(SOURCE_FILES cc/main.cpp
     cc/filechooser.cpp
     cc/CamCap.cpp
     cc/StrategyGUI.cpp
-    cc/Constants.hpp
     cc/Xbee.cpp
     cc/Messenger.cpp
     cc/jsonSaveManager.cpp
@@ -80,7 +79,8 @@ include_directories(cc/
     ${OpenCV_INCLUDE_DIRS}
     ${V4L2_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -g -m64 -pipe -pthread -lpthread -lopencv_stitching \
+set(CMAKE_CXX_FLAGS "-std=c++17 -isystem /usr/include/sigc++-2.0 -isystem /usr/include/gtk-3.0/ \
+    -Wall -Wextra -g -m64 -pipe -pthread -lpthread -lopencv_stitching \
     -lopencv_objdetect -lopencv_calib3d -lopencv_features2d \
     -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml \
     -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")

@@ -146,8 +146,7 @@ class capture::v4lcap {
 		 * ioctl VIDIOC_ENUM_FRAMEINTERVALS — Enumerate frame intervals
 		 */
 		bool
-		enum_frame_interval(struct v4l2_frmivalenum *frmi, int pixel_format, int width, int height, int index = 0,
-							bool init = false);
+		enum_frame_interval(struct v4l2_frmivalenum *frmi, int pixel_format, int width, int height, bool init = false);
 		/**
 		 * ioctl VIDIOC_ENUM_FREQ_BANDS — Enumerate supported frequency bands
 		 */
@@ -170,7 +169,7 @@ class capture::v4lcap {
 		bool enum_control_default(struct v4l2_queryctrl *qctrl, bool init = false);
 		bool show_controls();
 		bool
-		enum_control_menu(struct v4l2_querymenu *qmenu, v4l2_queryctrl &ctrl, int index = 0, bool init = false);
+		enum_control_menu(struct v4l2_querymenu *qmenu, v4l2_queryctrl &ctrl, bool init = false);
 
 		bool set_format(struct v4l2_format *fmt);
 		//bool set_format(int pixel_format, int width, int height);

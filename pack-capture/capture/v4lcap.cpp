@@ -183,7 +183,7 @@ bool v4lcap::init_mmap(int nbuffers) {
 	// = Memory map: mmap ======================================================
 	for (unsigned int i = 0; i < reqbuf.count; ++i) {
 
-		struct v4l2_buffer buffer = {0};
+		v4l2_buffer buffer = v4l2_buffer();
 
 		if (!query_buffer(&buffer, V4L2_BUF_TYPE_VIDEO_CAPTURE, V4L2_MEMORY_MMAP, i)) {
 			std::cout << "Can't request buffer " << i << std::endl;
@@ -252,7 +252,7 @@ bool v4lcap::start_capturing(enum memory_type mem_type, int nbuffers) {
 
 	// = Enqueue all buffers ===================================================
 	for (unsigned int i = 0; i < reqbuf.count; ++i) {
-		struct v4l2_buffer buffer = {0};
+		v4l2_buffer buffer = v4l2_buffer();
 		if (!enqueue_buff(&buffer, reqbuf.type, reqbuf.memory, i)) {
 			std::cout << "Can't enqueue buffer " << i << std::endl;
 		}
@@ -282,14 +282,14 @@ bool v4lcap::start_capturing(enum memory_type mem_type, int nbuffers) {
 		format_src = copy;
 	}
 
-	return streamon(V4L2_BUF_TYPE_VIDEO_CAPTURE) >= 0;
+	return streamon(V4L2_BUF_TYPE_VIDEO_CAPTURE);
 }
 
 bool v4lcap::start_capturing() {
 
 	// = Enqueue all buffers ===================================================
 	for (unsigned int i = 0; i < reqbuf.count; ++i) {
-		struct v4l2_buffer buffer = {0};
+		v4l2_buffer buffer = v4l2_buffer();
 		if (!enqueue_buff(&buffer, reqbuf.type, reqbuf.memory, i)) {
 			std::cout << "Can't enqueue buffer " << i << std::endl;
 		}
@@ -319,7 +319,7 @@ bool v4lcap::start_capturing() {
 		format_src = copy;
 	}
 
-	return streamon(V4L2_BUF_TYPE_VIDEO_CAPTURE) >= 0;
+	return streamon(V4L2_BUF_TYPE_VIDEO_CAPTURE);
 }
 
 void *v4lcap::grab_raw(unsigned char *raw) {
@@ -586,8 +586,7 @@ bool v4lcap::enum_frame_size(struct v4l2_frmsizeenum *frmsize, int pixel_format,
 	return xioctl(fd, VIDIOC_ENUM_FRAMESIZES, frmsize) >= 0;
 }
 
-bool v4lcap::enum_frame_interval(struct v4l2_frmivalenum *frmi, int pixel_format, int width, int height, int index,
-								 bool init) {
+bool v4lcap::enum_frame_interval(struct v4l2_frmivalenum *frmi, int pixel_format, int width, int height, bool init) {
 
 	if (init) frmi->index = 0;
 	else ++frmi->index;
@@ -646,7 +645,7 @@ bool v4lcap::enum_control_private_base(struct v4l2_queryctrl *qctrl, bool init) 
 	return true;
 }
 
-bool v4lcap::enum_control_menu(struct v4l2_querymenu *qmenu, struct v4l2_queryctrl &ctrl, int index, bool init) {
+bool v4lcap::enum_control_menu(struct v4l2_querymenu *qmenu, struct v4l2_queryctrl &ctrl, bool init) {
 
 	if (init) {
 		//memset(qmenu, 0, sizeof(struct v4l2_querymenu));
