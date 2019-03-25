@@ -46,14 +46,14 @@ class Xbee {
 		}
 
 //		Caso base da recursão
-		static void set_buffer(uint8_t* buffer) {}
+//		static void set_buffer(uint8_t* buffer) {}
 //		Preenche o buffer com os valores a serem enviados, de forma sequencial
-		template <typename First, typename... Others>
-		static void set_buffer(uint8_t* buffer, const First & first_value,
-						const Others &... other_values) {
-			std::memcpy(buffer, &first_value, sizeof(first_value));
-			set_buffer(buffer + sizeof(first_value), other_values...);
-		}
+//		template <typename First, typename... Others>
+//		static void set_buffer(uint8_t* buffer, const First & first_value,
+//						const Others &... other_values) {
+//			std::memcpy(buffer, &first_value, sizeof(first_value));
+//			set_buffer(buffer + sizeof(first_value), other_values...);
+//		}
 
 	public:
 		Xbee(const std::string &port, int baud);
@@ -71,13 +71,13 @@ class Xbee {
 
 //		Envia os valores de forma sequencial: Um byte indicando tipo de mensagem
 //		e bytes seguintes são o conteudo da mensagem
-		template <typename... Data>
-		void send(char ID, uint8_t type, const Data &... data) {
-			uint8_t buffer[byte_size(type, data...)];
-			set_buffer(buffer, type, data...);
-			uint8_t ack;
-			xbee_connTx(robots[ID].con, &ack, buffer, sizeof buffer);
-      
+//		template <typename... Data>
+//		void send(char ID, uint8_t type, const Data &... data) {
+//			uint8_t buffer[byte_size(type, data...)];
+//			set_buffer(buffer, type, data...);
+//			uint8_t ack;
+//			xbee_connTx(robots[ID].con, &ack, buffer, sizeof buffer);
+//
 //			Le resposta para debugar
 //			if (ID == 'B') {
 //				auto msgs = get_messages();
@@ -85,7 +85,7 @@ class Xbee {
 //					std::cout << m.data << std::endl;
 //				}
 //			}
-		}
+//		}
 };
 
 #endif //VSSS_XBEE_H

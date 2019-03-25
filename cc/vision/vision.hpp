@@ -42,7 +42,7 @@ namespace vision
 	class Vision {
 	public:
 
-		static const unsigned long MAX_COLORS = Color::Adv - Color::Main + 1;
+		static const unsigned int MAX_COLORS = Color::Adv - Color::Main + 1;
 //		Numero da tag é definido pela sua posicao no std::array retornado
 		struct RecognizedTag {
 			cv::Point position = {ROBOT_RADIUS/2, 0};
@@ -57,6 +57,10 @@ namespace vision
 		};
 
 	private:
+
+		// image size
+		int width;
+		int height;
 
 		// Frames
 		cv::Mat in_frame, lab_frame;
@@ -81,9 +85,7 @@ namespace vision
 		int blur[MAX_COLORS];
 		int areaMin[MAX_COLORS];
 
-		// image size
-		int width;
-		int height;
+
 
 		// threads
 		boost::thread_group threshold_threads;
@@ -94,9 +96,9 @@ namespace vision
 		void searchTags(unsigned long color);
 		void searchGMMTags(std::vector<cv::Mat> thresholds);
 		void findTags();
-		void pick_a_tag(std::vector<VisionROI> *windowsList);
+		//void pick_a_tag(std::vector<VisionROI> *windowsList);
 		std::map<unsigned int, RecognizedTag> pick_a_tag();
-		int in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *secondary_tags, double *orientation);
+		int in_sphere(cv::Point secondary, Tag &main_tag, double &orientation);
 
 	public:
 
@@ -104,7 +106,7 @@ namespace vision
 		~Vision();
 
 		std::map<unsigned int, RecognizedTag> run(cv::Mat raw_frame);
-		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
+//		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		double calcDistance(cv::Point p1, cv::Point p2) const;
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
 

@@ -10,18 +10,23 @@ namespace onClick {
 			bool m_is_active;
 
 			const std::array<Robot2 *, 3>& m_robots;
+			const Geometry::Point& m_ball;
 			Robot2* m_selected_robot;
+
+			const double m_ball_radius = 0.02135; // metros
 
 			Robot2::Command m_command;
 
 			Geometry::Point m_target;
 			Geometry::Vector m_orientation;
 
-			const bool is_target_valid() const { return m_target.x >= 0 || m_target.y >= 0; };
+			bool m_is_target_ball;
+
+			bool is_target_valid() const { return  m_is_target_ball || (m_target.x >= 0 && m_target.y >= 0); };
 
 		public:
 
-			explicit TestOnClick(const std::array<Robot2 *, 3> &robots);
+			explicit TestOnClick(const std::array<Robot2 *, 3> &robots, const Geometry::Point &ball);
 
 			void run();
 
@@ -32,7 +37,7 @@ namespace onClick {
 			Robot2::Command get_command() const { return m_command; };
 			Robot2* get_selected_robot() const { return m_selected_robot; };
 			double get_orientation_value() const { return m_orientation.theta; };
-			Geometry::Point get_target() const { return m_target; };
+			Geometry::Point get_target() const { return m_is_target_ball? m_ball : m_target; };
 
 			bool is_active() const { return m_is_active; };
 			bool has_robot() const { return m_selected_robot != nullptr; };

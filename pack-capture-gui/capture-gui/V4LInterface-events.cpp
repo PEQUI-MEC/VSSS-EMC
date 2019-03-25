@@ -100,6 +100,8 @@ void V4LInterface::__event_bt_start_clicked() {
 			return;
 		}
 
+
+
 		// = Actualize the displayed frame size ========================
 		struct v4l2_format format{};
 		vcap.get_format(&format, V4L2_BUF_TYPE_VIDEO_CAPTURE);
@@ -171,6 +173,43 @@ void V4LInterface::__event_bt_start_clicked() {
 		bt_invert_field.set_state(Gtk::STATE_INSENSITIVE);
 		m_signal_start.emit(false);
 	}
+}
+
+void V4LInterface::__event_bt_refresh_clicked() {
+
+	Glib::ustring label = bt_refresh.get_label();
+
+
+	if (!vcap.stop_capturing()) {
+		std::cout << "Can't stop device!" << std::endl;
+	}
+
+	if (!vcap.uninit_mmap()) {
+		std::cout << "Can't unmmap device memory!" << std::endl;
+	}
+
+	bt_start.set_label("start");
+	cb_device.set_state(Gtk::STATE_NORMAL);
+	cb_input.set_state(Gtk::STATE_NORMAL);
+	cb_standard.set_state(Gtk::STATE_NORMAL);
+	cb_frame_size.set_state(Gtk::STATE_NORMAL);
+	cb_format_desc.set_state(Gtk::STATE_NORMAL);
+	sp_width.set_state(Gtk::STATE_NORMAL);
+	sp_height.set_state(Gtk::STATE_NORMAL);
+	cb_frame_interval.set_state(Gtk::STATE_NORMAL);
+	visionGUI.bt_LAB_calib.set_state(Gtk::STATE_INSENSITIVE);
+	bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
+	bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
+	bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
+	bt_save.set_state(Gtk::STATE_INSENSITIVE);
+	bt_load.set_state(Gtk::STATE_INSENSITIVE);
+	bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
+	bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
+	bt_invert_field.set_state(Gtk::STATE_INSENSITIVE);
+	m_signal_start.emit(false);
+
+	__update_cb_device();
+
 }
 
 void V4LInterface::__event_bt_warp_start_clicked() {
@@ -373,7 +412,7 @@ void V4LInterface::__event_cb_frame_interval_changed() {
 	__update_all();
 }
 
-bool V4LInterface::__set_control_hscale(int type, double val, std::list<ControlHolder> *list, Gtk::Widget *wctrl) {
+void V4LInterface::__set_control_hscale(std::list<ControlHolder> *list, Gtk::Widget *wctrl) {
 	std::list<ControlHolder>::iterator iter;
 
 	for (iter = list->begin(); iter != list->end(); ++iter) {
@@ -385,15 +424,14 @@ bool V4LInterface::__set_control_hscale(int type, double val, std::list<ControlH
 
 	if (!vcap.set_control(qctrl.id, static_cast<int>(value))) {
 		std::cout << "Can not update control [" << qctrl.name << "] with value " << value << std::endl;
-		return false;
+		return;
 	}
 
 	struct v4l2_control ctrl{};
-	if (!vcap.get_control(&ctrl, qctrl.id)) return false;
+	if (!vcap.get_control(&ctrl, qctrl.id)) return;
 
 	__update_control_widgets(ctrl_list_default);
 
-	return true;
 }
 
 void V4LInterface::__set_control(std::list<ControlHolder> *list, Gtk::Widget *wctrl) {

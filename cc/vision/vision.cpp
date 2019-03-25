@@ -13,17 +13,17 @@ std::map<unsigned int, Vision::RecognizedTag> Vision::run(cv::Mat raw_frame) {
 	return pick_a_tag();
 }
 
-void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList) {
-	searchGMMTags(std::move(thresholds));
-	pick_a_tag(windowsList);
-}
+//void Vision::runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList) {
+//	searchGMMTags(std::move(thresholds));
+//	pick_a_tag(windowsList);
+//}
 
 void Vision::preProcessing() {
 	cv::cvtColor(in_frame, lab_frame, cv::COLOR_RGB2Lab);
 }
 
 void Vision::findTags() {
-	for (int color = 0; color < MAX_COLORS; color++) {
+	for (unsigned int color = 0; color < MAX_COLORS; color++) {
 		threshold_threads.add_thread(new boost::thread(&Vision::segmentAndSearch, this, color));
 	}
 	threshold_threads.join_all();
@@ -40,8 +40,19 @@ void Vision::segmentAndSearch(const unsigned long color) {
 }
 
 void Vision::posProcessing(const unsigned long color) {
-	cv::Mat erodeElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
-	cv::Mat dilateElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	int  morphShape;
+	cv::Size size;
+
+	if (color == Color::Ball) {
+		morphShape = cv::MORPH_ELLIPSE;
+		size = cv::Size(15, 15);
+	} else {
+		morphShape = cv::MORPH_RECT;
+		size = cv::Size(3, 3);
+	}
+
+	cv::Mat erodeElement = cv::getStructuringElement(morphShape, size);
+	cv::Mat dilateElement = cv::getStructuringElement(morphShape, size);
 
 	if (blur[color] > 0) {
 		cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
@@ -60,7 +71,7 @@ void Vision::searchGMMTags(std::vector<cv::Mat> thresholds) {
 		tags.at(color).clear();
 
 		cv::Mat tmp;
-		cv::cvtColor(thresholds.at(color), tmp, CV_RGB2GRAY);
+		cv::cvtColor(thresholds.at(color), tmp, cv::COLOR_RGB2GRAY);
 
 		cv::findContours(tmp, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);
 
@@ -132,7 +143,7 @@ void Vision::searchTags(const unsigned long color) {
 /// <description>
 /// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
 /// </description>
-void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
+//void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 //	int dist, tmpSide;
 //
 //	// Define inicialmente que o objeto de cada janela não foi encontrado
@@ -210,7 +221,7 @@ void Vision::pick_a_tag(std::vector<VisionROI> *windowsList) {
 //		// std::cout << "Ball: " << ball.x << ", " << ball.y << std::endl;
 //		windowsList->at(3).setCenter(ball);
 //	}
-}
+//}
 
 /// <summary>
 /// Seleciona um conjunto de tags para representar cada robô
@@ -224,7 +235,7 @@ std::map<unsigned int, Vision::RecognizedTag> Vision::pick_a_tag() {
 	advRobots.clear();
 
 	// OUR ROBOTS
-	for (int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
+	for (unsigned int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
 		std::vector<Tag> secondary_tags;
 
 		Tag main_tag = tags.at(Color::Main).at(i);
@@ -240,7 +251,7 @@ std::map<unsigned int, Vision::RecognizedTag> Vision::pick_a_tag() {
 		for (Tag &secondary_tag : tags.at(Color::Green)) {
 
 			// Altera a orientação caso esteja errada
-			int tag_side = in_sphere(secondary_tag.position, &main_tag, &secondary_tags, &orientation);
+			int tag_side = in_sphere(secondary_tag.position, main_tag, orientation);
 			if (tag_side != 0) {
 				secondary_tag.left = tag_side > 0;
 				// calculos feitos, joga tag no vetor
@@ -362,21 +373,21 @@ std::map<unsigned int, Vision::RecognizedTag> Vision::pick_a_tag() {
 /// -1, caso a secundária esteja à esquerda;
 /// 1, caso a secundária esteja à direita
 /// </returns>
-int Vision::in_sphere(cv::Point secondary, Tag *main_tag, std::vector<Tag> *secondary_tags, double *orientation) {
+int Vision::in_sphere(cv::Point secondary, Tag &main_tag, double &orientation) {
 	// se esta secundária faz parte do robô
-	if (calcDistance(main_tag->position, secondary) <= ROBOT_RADIUS) {
-		if (calcDistance(main_tag->frontPoint, secondary) < calcDistance(main_tag->rearPoint, secondary)) {
-			main_tag->switchPoints();
-			// recalcula a orientação com os novos pontos (isso só é feito uma vez em cada robô, se necessário)
-			*orientation = atan2((main_tag->frontPoint.y - main_tag->position.y) * field::field_height / height,
-								(main_tag->frontPoint.x - main_tag->position.x) * field::field_width / width);
+	if (calcDistance(main_tag.position, secondary) <= ROBOT_RADIUS) {
+		if (calcDistance(main_tag.frontPoint, secondary) < calcDistance(main_tag.rearPoint, secondary)) {
+			main_tag.switchPoints();
+			// calcula a orientação do robô
+			orientation = atan2((main_tag.frontPoint.y - main_tag.position.y) * field::field_height / height,
+								 (main_tag.frontPoint.x - main_tag.position.x) * field::field_width / width);
 		}
 
-		float secSide = atan2((secondary.y - main_tag->position.y) * field::field_height / height,
-							  (secondary.x - main_tag->position.x) * field::field_width / width);
+		double secSide = atan2((secondary.y - main_tag.position.y) * field::field_height / height,
+							  (secondary.x - main_tag.position.x) * field::field_width / width);
 
 		// Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
-		return (atan2(sin(secSide - *orientation + 3.1415), cos(secSide - *orientation + 3.1415))) > 0 ? 1 : -1;
+		return (atan2(sin(secSide - orientation + 3.1415), cos(secSide - orientation + 3.1415))) > 0 ? 1 : -1;
 	}
 	return 0;
 }
@@ -505,8 +516,8 @@ void Vision::cameraCalibration() {
 	distanceCoeficents = cv::Mat::zeros(8, 1, CV_64F);
 
     int flag = 0;
-    flag |= CV_CALIB_FIX_K4;
-    flag |= CV_CALIB_FIX_K5;
+    flag |= cv::CALIB_FIX_K4;
+    flag |= cv::CALIB_FIX_K5;
 
 	//root mean square (RMS) reprojection error and should be between 0.1 and 1.0 pixels in a good calibration.
     double rms = cv::calibrateCamera(worldSpaceCornersPoints, checkerBoardImageSpacePoints, in_frame.size(),
@@ -527,7 +538,7 @@ void Vision::cameraCalibration() {
 
 
 void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::vector<cv::Point3f>>& pts3d,std::vector<std::vector<cv::Point2f>>& pts2d) const {
-	cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+	cv::TermCriteria termCriteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
 	cv::Mat grayFrame;
 	//std::vector<std::vector<cv::Point2f>> allFoundCorners;
 	for (auto &image : images) {
@@ -535,7 +546,7 @@ void Vision::getChessBoardCorners(std::vector<cv::Mat> images, std::vector<std::
         std::vector<cv::Point3f> corners;
 
 		bool found = cv::findChessboardCorners(image, CHESSBOARD_DIMENSION, pointBuf,
-											   CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+											   cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
         for (int i = 0; i < CHESSBOARD_DIMENSION.height; i++) {
             for (int j = 0; j < CHESSBOARD_DIMENSION.width; ++j) {
                 corners.emplace_back(j * CALIBRATION_SQUARE_DIMENSION, i * CALIBRATION_SQUARE_DIMENSION, 0.0f);
@@ -557,7 +568,7 @@ bool Vision::foundChessBoardCorners() const {
 	temp = in_frame.clone();
 
 	return cv::findChessboardCorners(temp, CHESSBOARD_DIMENSION, foundPoints,
-									 CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+									 cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 }
 
 void Vision::saveCameraCalibPicture(const std::string in_name, const std::string directory) {
@@ -630,11 +641,19 @@ void Vision::setFrameSize(const int inWidth, const int inHeight) {
 	if (inHeight >= 0) height = inHeight;
 }
 
-Vision::Vision(int w, int h) : width(w), height(h), cieL{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
-							   cieA{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
-							   cieB{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
-							   threshold_frame(MAX_COLORS), tags(MAX_COLORS), areaMin{0, 0, 0, 0},
-							   dilate{0, 0, 0, 0}, erode{0, 0, 0, 0}, blur{3, 3, 3, 3} {
+Vision::Vision(int w, int h)
+		:
+		width(w),
+		height(h),
+		threshold_frame(MAX_COLORS),
+		tags(MAX_COLORS),
+		cieL{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
+		cieA{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
+		cieB{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
+		dilate{0, 0, 0, 0},
+		erode{0, 0, 0, 0},
+		blur{3, 3, 3, 3},
+		areaMin{0, 0, 0, 0} {
 }
 
 Vision::~Vision() = default;

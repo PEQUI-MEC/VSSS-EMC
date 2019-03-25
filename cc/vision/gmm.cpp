@@ -1,4 +1,5 @@
 #include "gmm.hpp"
+#include <fstream>
 
 void GMM::run(cv::Mat frame) {
 

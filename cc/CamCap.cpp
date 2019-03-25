@@ -101,7 +101,7 @@ bool CamCap::capture_and_show() {
 		!interface.visionGUI.vision->flag_cam_calibrated) {
 
 		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
-													CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE);
+													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
 
 	if (interface.imageView.gmm_ready_flag) {
@@ -204,7 +204,7 @@ bool CamCap::capture_and_show() {
 
 	if (!interface.visionGUI.CIELAB_calib_event_flag && !interface.visionGUI.getIsSplitView()) {
 		if (chessBoardFound) {
-			cv::TermCriteria termCriteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+			cv::TermCriteria termCriteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
 			cv::Mat grayFrame;
 			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
 			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
@@ -273,13 +273,13 @@ void CamCap::calculate_ball_est() {
 	ball_est.y = ls_y.estimate(10);
 }
 
-CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(nullptr), width(0), height(0), frameCounter(0),
-														  screenWidth(screenW), screenHeight(screenH),
+CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(nullptr), width(0), height(0), frameCounter(0),
 														  msg_thread(&CamCap::send_cmd_thread, this),
-														  robotGUI(robots, isLowRes),
-														  interface(&interface.controlGUI.messenger, robots, robotGUI, isLowRes),
 														  strategy(attacker, defender, goalkeeper, ball, ball_est),
-														  robots{&attacker, &defender, &goalkeeper} {
+														  robotGUI(robots, isLowRes),
+								interface(robots,
+										  ball, robotGUI, isLowRes)
+														   {
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);

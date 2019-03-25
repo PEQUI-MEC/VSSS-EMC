@@ -79,7 +79,8 @@ class VisionGUI : public Gtk::VBox {
 
 		// Frame Split View
 		Gtk::Frame fr_splitView;
-		bool isSplitView, disableSplitView;
+		bool isSplitView;
+		bool disableSplitView;
 
 		// Frame CIELAB Calibration
 		Gtk::Frame fr_CIELAB;
@@ -110,7 +111,8 @@ class VisionGUI : public Gtk::VBox {
 				"Purple", "Brown", "Silver", "Cyan", "Dark Green", "Baby Pink", "Dark Grey"
 		};
 		bool samplesEventFlag;
-		bool gaussiansFrame_flag, finalFrame_flag;
+		bool gaussiansFrame_flag;
+		bool finalFrame_flag;
 		bool thresholdFrame_flag;
 
 		void __event_bt_CIELAB_calib_pressed();

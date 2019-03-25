@@ -75,7 +75,7 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 						font, scale, warp_color, thickness, cv::LINE_AA);
 		}
 
-		for (unsigned short index = 0; index < warp_mat.get_size(); index++) {
+		for (unsigned short index = 0; index < warp_mat.size(); index++) {
 			cv::Point point = warp_mat.unordered_at(index);
 			cv::circle(frame, point, 2, warp_color, 2);
 			cv::putText(frame, std::to_string(index + 1), {point.x + 5, point.y - 5},
@@ -101,9 +101,26 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 						font, scale, adjust_color, thickness, cv::LINE_AA);
 		}
 
-		for (unsigned short index = 0; index < adjust_mat.get_size(); index++) {
+		for (unsigned short index = 0; index < adjust_mat.size(); index++) {
 			cv::Point point = adjust_mat.unordered_at(index);
+
+			// desenhar retầngulos
+			if (point.x <= width / 2 && point.y <= height / 2) {
+				cv::line(frame, {point.x, 0}, point, adjust_color, 1, cv::LINE_AA);
+				cv::line(frame, {0, point.y}, point, adjust_color, 1, cv::LINE_AA);
+			} else if (point.x <= width / 2 && point.y > height / 2) {
+				cv::line(frame, {point.x, height}, point, adjust_color, 1, cv::LINE_AA);
+				cv::line(frame, {0, point.y}, point, adjust_color, 1, cv::LINE_AA);
+			} else if (point.x > width / 2 && point.y <= height / 2) {
+				cv::line(frame, {point.x, 0}, point, adjust_color, 1, cv::LINE_AA);
+				cv::line(frame, {width, point.y}, point, adjust_color, 1, cv::LINE_AA);
+			} else {
+				cv::line(frame, {point.x, height}, point, adjust_color, 1, cv::LINE_AA);
+				cv::line(frame, {width, point.y}, point, adjust_color, 1, cv::LINE_AA);
+			}
+
 			cv::circle(frame, point, 2, adjust_color, thickness);
+
 			cv::putText(frame, std::to_string(index + 1), {point.x + 5, point.y - 5},
 						cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, adjust_color, 1, cv::LINE_AA);
 		}
@@ -152,7 +169,11 @@ void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
 	} // switch
 }
 
-ImageArt::ImageArt(warp::PointArray &warp, warp::PointArray &adjust, TestOnClick & test)
-	: warp_mat(warp), adjust_mat(adjust), test_on_click(test){
+ImageArt::ImageArt(warp::PointArray &warp, warp::PointArray &adjust, onClick::TestOnClick &test, int &width, int &height)
+	: warp_mat(warp),
+	adjust_mat(adjust),
+	test_on_click(test),
+	width(width),
+	height(height){
 
 }

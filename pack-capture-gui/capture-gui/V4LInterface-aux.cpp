@@ -97,7 +97,10 @@ void V4LInterface::__create_frm_device_info() {
 	hbox->pack_start(cb_device, false, true, 0);
 
 	bt_start.set_label("start");
-	hbox->pack_start(bt_start, false, true, 0);
+	hbox->pack_start(bt_start, false, true, 10);
+
+	bt_refresh.set_label("Refresh");
+	hbox->pack_start(bt_refresh, false, true, 1);
 
 	hbox = new Gtk::HBox();
 	vbox->pack_start(*hbox, false, true, 0);
@@ -298,7 +301,7 @@ void V4LInterface::__create_frm_warp() {
 void V4LInterface::__update_cb_device() {
 
 	char device[16];
-
+	cb_device.remove_all();
 	if (capture::v4lcap::enum_device_name(device, 20, true)) {
 		do {
 			cb_device.append(device);
@@ -439,7 +442,7 @@ void V4LInterface::__update_cb_frame_interval() {
 	struct v4l2_streamparm streamparm{};
 	vcap.get_stream_parameter(&streamparm, V4L2_BUF_TYPE_VIDEO_CAPTURE);
 
-	if (vcap.enum_frame_interval(&frminterval, fmt.fmt.pix.pixelformat, width, height, 0, true)) {
+	if (vcap.enum_frame_interval(&frminterval, fmt.fmt.pix.pixelformat, width, height, true)) {
 		do {
 			Gtk::TreeModel::Row row = *(ls_frame_interval->append());
 			float fps = (float) frminterval.discrete.denominator / (float) frminterval.discrete.numerator;
@@ -452,7 +455,7 @@ void V4LInterface::__update_cb_frame_interval() {
 				&& streamparm.parm.capture.timeperframe.denominator == frminterval.discrete.denominator) {
 				cb_frame_interval.set_active(row);
 			}
-		} while (vcap.enum_frame_interval(&frminterval, fmt.fmt.pix.pixelformat, width, height));
+		} while (vcap.enum_frame_interval(&frminterval, fmt.fmt.pix.pixelformat, width, height, false));
 	}
 	cb_frame_interval_signal.block(false);
 }
@@ -492,7 +495,7 @@ void V4LInterface::__make_control_list_default() {
 					dynamic_cast<Gtk::HScale *>(wctrl)->set_value_pos(Gtk::POS_RIGHT);
 					dynamic_cast<Gtk::HScale *>(wctrl)->set_range(qctrl.minimum, qctrl.maximum);
 					dynamic_cast<Gtk::HScale *>(wctrl)->set_increments(qctrl.step, 10 * qctrl.step);
-					hold.con = dynamic_cast<Gtk::HScale *>(wctrl)->signal_change_value().connect(
+					hold.con = dynamic_cast<Gtk::HScale *>(wctrl)->signal_value_changed().connect(
 							sigc::bind<std::list<ControlHolder> *, Gtk::Widget *>(
 									sigc::mem_fun(*this, &V4LInterface::__set_control_hscale),
 									&ctrl_list_default, wctrl));
@@ -529,7 +532,7 @@ void V4LInterface::__make_control_list_default() {
 					dynamic_cast<Gtk::ComboBox *>(wctrl)->set_model(lstore);
 					dynamic_cast<Gtk::ComboBox *>(wctrl)->pack_start(model_control_menu.m_col_name);
 
-					if (vcap.enum_control_menu(&qmenu, qctrl, 0, true)) {
+					if (vcap.enum_control_menu(&qmenu, qctrl, true)) {
 						do {
 							Gtk::TreeModel::Row row = *(lstore->append());
 							Glib::ustring name = (const char *) qmenu.name;
@@ -842,6 +845,7 @@ void V4LInterface::initInterface() {
 	bt_load.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_load_clicked));
 
 	bt_start.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_start_clicked));
+	bt_refresh.signal_clicked().connect(sigc::mem_fun(*this, &V4LInterface::__event_bt_refresh_clicked));
 
 	cb_input_signal = cb_device.signal_changed().connect(
 			sigc::mem_fun(*this, &V4LInterface::__event_cb_device_changed));
@@ -953,16 +957,15 @@ void V4LInterface::__create_frm_cam_calib() {
 }
 
 // Constructor
-V4LInterface::V4LInterface(Messenger *messenger_ptr, const std::array<Robot2 *, 3> &robots_ref, RobotGUI &robot_gui,
-						   bool isLow)
+V4LInterface::V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball,
+						   RobotGUI &robot_gui, bool isLow)
 		:
 		Gtk::VBox(false, 0),
 		isLowRes(isLow),
 		robots(robots_ref),
 		robotGUI(robot_gui),
-		imageView(controlGUI.test_controller),
-		controlGUI(robots_ref) {
+		controlGUI(robots_ref, ball),
+		imageView(controlGUI.test_controller) {
 
-	messenger = messenger_ptr;
 	initInterface();
 }

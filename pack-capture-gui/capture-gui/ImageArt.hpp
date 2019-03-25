@@ -12,7 +12,6 @@
 #include "TestOnClick.hpp"
 
 namespace art {
-
 	class ImageArt {
 		private:
 			bool is_warping = false;
@@ -21,6 +20,9 @@ namespace art {
 			const warp::PointArray& warp_mat;
 			const warp::PointArray& adjust_mat;
 			const onClick::TestOnClick& test_on_click;
+
+			int& width;
+			int& height;
 
 			const cv::Scalar strategy_color = {127, 255, 127}; // green
 			const cv::Scalar test_color = {250, 28, 250}; // pink
@@ -35,7 +37,7 @@ namespace art {
 			void draw_targets(const Robot2 *robot, cv::Mat &frame);
 
 		public:
-			ImageArt(warp::PointArray& warp, warp::PointArray& adjust, onClick::TestOnClick& test);
+			ImageArt(warp::PointArray &warp, warp::PointArray &adjust, onClick::TestOnClick &test, int &width, int &height);
 			void draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
 					  const std::map<unsigned int, vision::Vision::RecognizedTag> &our_tags,
 					  const std::vector<cv::Point> &adv_tags,

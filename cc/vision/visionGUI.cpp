@@ -209,7 +209,7 @@ void VisionGUI::__create_frm_gmm() {
 	hbox->set_halign(Gtk::ALIGN_CENTER);
 	hbox->set_valign(Gtk::ALIGN_CENTER);
 	cb_gaussianColor.append("Select Gaus.:");
-	for (unsigned long i = 0; i < gmm->getClusters(); i++) {
+	for (int i = 0; i < gmm->getClusters(); i++) {
 		cb_gaussianColor.append(gaussianColors.at(i));
 	}
 	cb_gaussianColor.set_active(0);
@@ -416,7 +416,7 @@ void VisionGUI::HScale_clusters_value_changed() {
 	cb_gaussianColor.remove_all();
 	cb_gaussianColor.append("Select Gaussian:");
 	cb_gaussianColor.set_active(0);
-	for (unsigned long i = 0; i < gmm->getClusters(); i++) {
+	for (int i = 0; i < gmm->getClusters(); i++) {
 		cb_gaussianColor.append(gaussianColors.at(i));
 	}
 }
@@ -703,7 +703,7 @@ void VisionGUI::__create_frm_cielab() {
 
 	HScale_Erode.set_digits(0);
 	HScale_Erode.set_increments(1, 1);
-	HScale_Erode.set_range(0, 50);
+	HScale_Erode.set_range(0, 10);
 	HScale_Erode.set_value_pos(Gtk::POS_TOP);
 	HScale_Erode.set_draw_value();
 	grid->attach(HScale_Erode, 1, 3, 2, 1);
@@ -714,7 +714,7 @@ void VisionGUI::__create_frm_cielab() {
 
 	HScale_Dilate.set_digits(0);
 	HScale_Dilate.set_increments(1, 1);
-	HScale_Dilate.set_range(0, 50);
+	HScale_Dilate.set_range(0, 10);
 	HScale_Dilate.set_value_pos(Gtk::POS_TOP);
 	HScale_Dilate.set_draw_value();
 	grid->attach(HScale_Dilate, 4, 3, 2, 1);
@@ -1039,20 +1039,21 @@ bool VisionGUI::getIsCIELAB() {
 }
 
 VisionGUI::VisionGUI() :
-		CIELAB_calib_event_flag(false),
+		vision(std::make_unique<Vision>(640, 480)),
+		gmm(std::make_unique<GMM>(640, 480)),
+		recorder(640, 480),
 		Img_id(0),
-		samplesEventFlag(false),
-		totalSamples(0),
-		gaussiansFrame_flag(false),
-		finalFrame_flag(false),
-		thresholdFrame_flag(false),
-		colorIndex(0), isCIELAB(true),
+		CIELAB_calib_event_flag(false),
+		isCIELAB(true),
+		draw_info_flag(false),
 		isSplitView(false),
 		disableSplitView(false),
-		draw_info_flag(false),
-		recorder(640, 480),
-		vision(std::make_unique<Vision>(640, 480)),
-		gmm(std::make_unique<GMM>(640, 480)) {
+		totalSamples(0),
+		colorIndex(0),
+		samplesEventFlag(false),
+		gaussiansFrame_flag(false),
+		finalFrame_flag(false),
+		thresholdFrame_flag(false) {
 
 	//__create_frm_calib_mode();
 	__create_frm_capture();
