@@ -40,8 +40,19 @@ void Vision::segmentAndSearch(const unsigned long color) {
 }
 
 void Vision::posProcessing(const unsigned long color) {
-	cv::Mat erodeElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
-	cv::Mat dilateElement = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+	int  morphShape;
+	cv::Size size;
+
+	if (color == Color::Ball) {
+		morphShape = cv::MORPH_ELLIPSE;
+		size = cv::Size(15, 15);
+	} else {
+		morphShape = cv::MORPH_RECT;
+		size = cv::Size(3, 3);
+	}
+
+	cv::Mat erodeElement = cv::getStructuringElement(morphShape, size);
+	cv::Mat dilateElement = cv::getStructuringElement(morphShape, size);
 
 	if (blur[color] > 0) {
 		cv::medianBlur(threshold_frame.at(color), threshold_frame.at(color), blur[color]);
