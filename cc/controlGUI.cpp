@@ -481,6 +481,7 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 
 		//Radio Frame
 		radio_connect_bt.set_state(Gtk::STATE_INSENSITIVE);
+		radio_xbee_cb.set_state(Gtk::STATE_INSENSITIVE);
 		radio_skip_sbt.set_state(Gtk::STATE_NORMAL);
 		radio_ekf_chbt.set_state(Gtk::STATE_NORMAL);
 		radio_acks_chbt.set_state(Gtk::STATE_NORMAL);
@@ -505,6 +506,7 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 
 		//Radio Frame
 		radio_connect_bt.set_state(Gtk::STATE_NORMAL);
+		radio_xbee_cb.set_state(Gtk::STATE_NORMAL);
 		radio_skip_sbt.set_state(Gtk::STATE_INSENSITIVE);
 		radio_ekf_chbt.set_state(Gtk::STATE_INSENSITIVE);
 		radio_acks_chbt.set_state(Gtk::STATE_INSENSITIVE);
