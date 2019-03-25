@@ -703,7 +703,7 @@ void VisionGUI::__create_frm_cielab() {
 
 	HScale_Erode.set_digits(0);
 	HScale_Erode.set_increments(1, 1);
-	HScale_Erode.set_range(0, 50);
+	HScale_Erode.set_range(0, 10);
 	HScale_Erode.set_value_pos(Gtk::POS_TOP);
 	HScale_Erode.set_draw_value();
 	grid->attach(HScale_Erode, 1, 3, 2, 1);
@@ -714,7 +714,7 @@ void VisionGUI::__create_frm_cielab() {
 
 	HScale_Dilate.set_digits(0);
 	HScale_Dilate.set_increments(1, 1);
-	HScale_Dilate.set_range(0, 50);
+	HScale_Dilate.set_range(0, 10);
 	HScale_Dilate.set_value_pos(Gtk::POS_TOP);
 	HScale_Dilate.set_draw_value();
 	grid->attach(HScale_Dilate, 4, 3, 2, 1);
