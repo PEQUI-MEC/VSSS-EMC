@@ -17,12 +17,12 @@ namespace art {
 			bool is_warping = false;
 			bool is_adjusting = false;
 
-			int& width;
-			int& height;
-
 			const warp::PointArray& warp_mat;
 			const warp::PointArray& adjust_mat;
 			const onClick::TestOnClick& test_on_click;
+
+			int& width;
+			int& height;
 
 			const cv::Scalar strategy_color = {127, 255, 127}; // green
 			const cv::Scalar test_color = {250, 28, 250}; // pink

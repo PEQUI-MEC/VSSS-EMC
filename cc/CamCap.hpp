@@ -31,7 +31,6 @@
 #include <cmath>
 #include <fstream>
 #include <chrono>
-#include "Constants.hpp"
 #include "LS.h"
 
 #define MAX_THETA_TOLERATION 3
@@ -46,27 +45,34 @@ class CamCap : public Gtk::HBox {
 
 		Geometry::Point ball;
 		Geometry::Point ball_est;
-		LS ls_x, ls_y;
 
 		std::array<Robot2 *, 3> robots;
 
-		Strategy2 strategy;
-
-		int screenWidth, screenHeight;
-
-		int width, height;
-		int fps_average = 0;
-		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
-
 		unsigned char *data;
+
+		int width;
+		int height;
 
 		int frameCounter;
 
-		cv::Point2f Ball_Est;
+		boost::thread msg_thread;
+		boost::condition_variable data_ready_cond;
+		boost::mutex data_ready_mutex;
+		bool data_ready_flag = false;
+		bool ekf_data_ready = false;
+
+		Strategy2 strategy;
 
 		StrategyGUI strategyGUI;
 		RobotGUI robotGUI;
 		capture::V4LInterface interface;
+
+		LS ls_x, ls_y;
+
+		int fps_average = 0;
+		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
+
+		cv::Point2f Ball_Est;
 
 		Gtk::Frame fm;
 		Gtk::Frame info_fm;
@@ -75,12 +81,6 @@ class CamCap : public Gtk::HBox {
 
 		sigc::connection con;
 
-		boost::thread msg_thread;
-		boost::condition_variable data_ready_cond;
-		boost::mutex data_ready_mutex;
-		bool data_ready_flag = false;
-		bool ekf_data_ready = false;
-
 		void update_positions(const std::map<unsigned int, vision::Vision::RecognizedTag>& tags);
 		bool start_signal(bool b);
 		bool capture_and_show();
@@ -88,7 +88,7 @@ class CamCap : public Gtk::HBox {
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
 		void calculate_ball_est();
-		CamCap(int screenW, int screenH, bool isLowRes);
+		explicit CamCap(bool isLowRes);
 		~CamCap() override;
 };
 

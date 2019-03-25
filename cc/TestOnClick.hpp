@@ -15,14 +15,14 @@ namespace onClick {
 
 			const double m_ball_radius = 0.02135; // metros
 
-			bool m_is_target_ball;
-
 			Robot2::Command m_command;
 
 			Geometry::Point m_target;
 			Geometry::Vector m_orientation;
 
-			const bool is_target_valid() const { return  m_is_target_ball || (m_target.x >= 0 && m_target.y >= 0); };
+			bool m_is_target_ball;
+
+			bool is_target_valid() const { return  m_is_target_ball || (m_target.x >= 0 && m_target.y >= 0); };
 
 		public:
 

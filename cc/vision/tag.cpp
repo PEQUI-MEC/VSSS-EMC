@@ -1,6 +1,8 @@
+#include <utility>
+
 #include "tag.hpp"
 
-Tag::Tag(cv::Point pos, double myarea) : position(pos), area(myarea), left(false), frontPoint(0), rearPoint(0) {
+Tag::Tag(cv::Point pos, double myarea) : position(std::move(pos)), frontPoint(0), rearPoint(0), area(myarea), left(false) {
 }
 
 /// <summary>

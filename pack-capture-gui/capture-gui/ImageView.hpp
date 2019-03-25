@@ -38,11 +38,14 @@ class capture::ImageView : public Gtk::DrawingArea {
 		void select_point(gdouble x, gdouble y, bool is_warp = true);
 		bool is_point_selected() const { return selected_pt != no_point; };
 	public:
-		warp::ImageWarp imageWarp;
-		art::ImageArt imageArt;
 
 		unsigned char *data;
-		int width, height, stride;
+		int width;
+		int height;
+		int stride;
+
+		warp::ImageWarp imageWarp;
+		art::ImageArt imageArt;
 
 		int gmm_clicks[2][2];
 

@@ -273,14 +273,13 @@ void CamCap::calculate_ball_est() {
 	ball_est.y = ls_y.estimate(10);
 }
 
-CamCap::CamCap(int screenW, int screenH, bool isLowRes) : data(nullptr), width(0), height(0), frameCounter(0),
-														  screenWidth(screenW), screenHeight(screenH),
+CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(nullptr), width(0), height(0), frameCounter(0),
 														  msg_thread(&CamCap::send_cmd_thread, this),
-														  robotGUI(robots, isLowRes),
-														  interface(&interface.controlGUI.messenger, robots,
-																	ball, robotGUI, isLowRes),
 														  strategy(attacker, defender, goalkeeper, ball, ball_est),
-														  robots{&attacker, &defender, &goalkeeper} {
+														  robotGUI(robots, isLowRes),
+								interface(robots,
+										  ball, robotGUI, isLowRes)
+														   {
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);

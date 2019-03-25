@@ -6,13 +6,14 @@
 namespace rec {
 	class VideoRecorder {
 		private:
-			// record video flag
-			bool is_on_air;
 			cv::Mat frame;
 			// video
 			cv::VideoWriter video;
 
 			int width, height;
+
+			// record video flag
+			bool is_on_air;
 
 		public:
 			VideoRecorder(int w, int h) : width(w), height(h), is_on_air(false) {};

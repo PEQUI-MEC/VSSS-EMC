@@ -408,7 +408,7 @@ void V4LInterface::__event_cb_frame_interval_changed() {
 	__update_all();
 }
 
-bool V4LInterface::__set_control_hscale(int type, double val, std::list<ControlHolder> *list, Gtk::Widget *wctrl) {
+void V4LInterface::__set_control_hscale(std::list<ControlHolder> *list, Gtk::Widget *wctrl) {
 	std::list<ControlHolder>::iterator iter;
 
 	for (iter = list->begin(); iter != list->end(); ++iter) {
@@ -420,15 +420,14 @@ bool V4LInterface::__set_control_hscale(int type, double val, std::list<ControlH
 
 	if (!vcap.set_control(qctrl.id, static_cast<int>(value))) {
 		std::cout << "Can not update control [" << qctrl.name << "] with value " << value << std::endl;
-		return false;
+		return;
 	}
 
 	struct v4l2_control ctrl{};
-	if (!vcap.get_control(&ctrl, qctrl.id)) return false;
+	if (!vcap.get_control(&ctrl, qctrl.id)) return;
 
 	__update_control_widgets(ctrl_list_default);
 
-	return true;
 }
 
 void V4LInterface::__set_control(std::list<ControlHolder> *list, Gtk::Widget *wctrl) {

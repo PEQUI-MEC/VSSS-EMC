@@ -44,10 +44,11 @@ TestOnClick::TestOnClick(const std::array<Robot2 *, 3> &robots, const Geometry::
 		: m_is_active(false),
 		m_robots(robots),
 		m_ball(ball),
+		m_selected_robot(nullptr),
 		m_command(Robot2::Command::None),
 		m_target({-1, -1}),
 		m_orientation(1, 0),
-		m_selected_robot(nullptr),
+
 		m_is_target_ball(false) {
 }
 
