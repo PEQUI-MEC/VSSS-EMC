@@ -29,7 +29,8 @@ void V4LInterface::HScale_offsetL_value_changed() {
 
 // signals
 void V4LInterface::__event_bt_quick_save_clicked() {
-	if(vcap.is_opened()) {
+
+	if(vcap.isCameraON) {
 		std::cout << "QUICK SAVE" << std::endl;
 		jsonSaveManager config(this);
 		config.save();

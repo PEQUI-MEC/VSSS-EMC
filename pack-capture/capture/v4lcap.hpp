@@ -44,6 +44,7 @@ class capture::v4lcap {
 			struct buffer *buffs = nullptr;
 		};
 		struct buffer_holder buffers;
+		bool isCameraON;
 
 		int xioctl(int fd, int request, void *arg);
 

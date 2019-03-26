@@ -395,6 +395,9 @@ void *v4lcap::grab_rgb(unsigned char *rgb) {
 	// =========================================================================
 	if (!enqueue_buff(&vbuf)) {
 		std::cout << "Can't enqueue buffer " << vbuf.index << " !" << std::endl;
+		isCameraON = false ;
+	}else{
+		isCameraON = true ;
 	}
 
 	return NULL;
