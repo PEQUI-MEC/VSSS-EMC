@@ -31,6 +31,8 @@ class capture::ImageView : public Gtk::DrawingArea {
 		const cv::Point no_point = cv::Point(-1, -1);
 		cv::Point selected_pt;
 
+		bool has_right_click;
+
 		bool on_button_press_event(GdkEventButton *event) override;
 		bool on_button_release_event(GdkEventButton *event) override;
 		bool on_motion_notify_event(GdkEventMotion* event) override;

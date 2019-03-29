@@ -5,31 +5,27 @@
 using namespace onClick;
 
 void TestOnClick::run() {
-	if (!m_is_active || !has_robot())
+	if (!m_is_active || !has_robot() || !m_is_ready)
 		return;
 
-	if (!is_target_valid())
-		m_selected_robot->stop();
-	else {
-		switch (m_command) {
-			case Robot2::Command::Position:
-					m_selected_robot->go_to_and_stop(get_target());
-				break;
-			case Robot2::Command::UVF:
-				if (Geometry::distance(m_selected_robot->get_position(), get_target()) > 0.08)
-					m_selected_robot->go_to_pose(get_target(), m_orientation);
-				else
-					m_selected_robot->set_target_orientation(m_orientation);
-				break;
-			case Robot2::Command::Orientation:
+	switch (m_command) {
+		case Robot2::Command::Position:
+			m_selected_robot->go_to_and_stop(get_target());
+			break;
+		case Robot2::Command::UVF:
+			if (Geometry::distance(m_selected_robot->get_position(), get_target()) > 0.08)
+				m_selected_robot->go_to_pose(get_target(), m_orientation);
+			else
 				m_selected_robot->set_target_orientation(m_orientation);
-				break;
-			case Robot2::Command::Vector:
-				m_selected_robot->go_in_direction(m_orientation);
-				break;
-			default:
-				m_selected_robot->stop();
-		}
+			break;
+		case Robot2::Command::Orientation:
+			m_selected_robot->set_target_orientation(m_orientation);
+			break;
+		case Robot2::Command::Vector:
+			m_selected_robot->go_in_direction(m_orientation);
+			break;
+		default:
+			m_selected_robot->stop();
 	}
 }
 
@@ -40,6 +36,14 @@ void TestOnClick::set_orientation(const double orientation) {
 	m_orientation = Geometry::Vector(1, Geometry::degree_to_rad(orientation));
 }
 
+void TestOnClick::set_orientation(const double x, const double y) {
+	if (!m_is_active || !has_robot())
+		return;
+
+	Geometry::Point pt = Geometry::from_cv_point(x,y);
+	m_orientation = Geometry::Vector(pt - m_selected_robot->get_position());
+}
+
 TestOnClick::TestOnClick(const std::array<Robot2 *, 3> &robots, const Geometry::Point &ball)
 		: m_is_active(false),
 		m_robots(robots),
@@ -48,14 +52,15 @@ TestOnClick::TestOnClick(const std::array<Robot2 *, 3> &robots, const Geometry::
 		m_command(Robot2::Command::None),
 		m_target({-1, -1}),
 		m_orientation(1, 0),
-
-		m_is_target_ball(false) {
+		m_is_target_ball(false),
+		m_is_ready(true) {
 }
 
 void TestOnClick::select_robot(const double x,const double y) {
 	for (auto &robot : m_robots) {
 		if (Geometry::distance(robot->get_position(), Geometry::from_cv_point(x,y)) < robot->SIZE/2 ) {
 			m_selected_robot = robot;
+			m_selected_robot->stop();
 			return;
 		}
 	}
@@ -97,4 +102,13 @@ void TestOnClick::set_command(const Robot2::Command command) {
 	m_command = command;
 	m_target = {-1, -1};
 	m_is_target_ball = false;
+	if (has_robot())
+		m_selected_robot->stop();
+	m_is_ready = false;
 }
+
+void TestOnClick::set_ready(bool is_rdy) {
+	m_is_ready = is_rdy;
+}
+
+

@@ -21,8 +21,7 @@ namespace onClick {
 			Geometry::Vector m_orientation;
 
 			bool m_is_target_ball;
-
-			bool is_target_valid() const { return  m_is_target_ball || (m_target.x >= 0 && m_target.y >= 0); };
+			bool m_is_ready;
 
 		public:
 
@@ -30,9 +29,12 @@ namespace onClick {
 
 			void run();
 
+			void set_ready(bool is_rdy = true);
+
 			void set_active(bool is_active = true);
 			void set_command(Robot2::Command command);
 			void set_orientation(double orientation);
+			void set_orientation(double x, double y);
 
 			Robot2::Command get_command() const { return m_command; };
 			Robot2* get_selected_robot() const { return m_selected_robot; };
