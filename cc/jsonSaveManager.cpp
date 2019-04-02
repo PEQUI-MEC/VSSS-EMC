@@ -226,7 +226,11 @@ void jsonSaveManager::save(const string file_path) {
 	if (error == 1) cout << "Creating " << file_path << endl;
 	else if (error == 2) cout << file_path << " is not a valid JSON file, will be overwritten" << endl;
 
-	save_camera();
+	if(interface->vcap.isCameraON) {
+		save_camera();
+	}else{
+		std::cout << "CAN'T SAVE, CAMERA DISCONNECTED" << std::endl;
+	}
 	save_robots();
 	write_configs_to_file(file_path);
 }

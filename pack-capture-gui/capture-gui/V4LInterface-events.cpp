@@ -30,13 +30,9 @@ void V4LInterface::HScale_offsetL_value_changed() {
 // signals
 void V4LInterface::__event_bt_quick_save_clicked() {
 
-	if(vcap.isCameraON) {
 		std::cout << "QUICK SAVE" << std::endl;
 		jsonSaveManager config(this);
 		config.save();
-	}else{
-		std::cout << "CAN'T SAVE, CAMERA DISCONNECTED" << std::endl;
-	}
 }
 
 void V4LInterface::__event_bt_save_clicked() {
