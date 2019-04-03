@@ -15,6 +15,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 #Encontra bibliotecas
 find_package(PkgConfig)
 
+find_package(catkin REQUIRED COMPONENTS
+    roscpp rospy std_msgs geometry_msgs vsss_msgs)
+
 pkg_check_modules(GTKMM gtkmm-3.0)
 link_directories(${GTKMM_LIBRARY_DIRS})
 
@@ -77,7 +80,8 @@ include_directories(cc/
     ${GTKMM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
-    ${V4L2_INCLUDE_DIRS})
+    ${V4L2_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "-std=c++17 -isystem /usr/include/sigc++-2.0 -isystem /usr/include/gtk-3.0/ \
     -Wall -Wextra -g -m64 -pipe -pthread -lpthread -lopencv_stitching \
@@ -96,6 +100,7 @@ target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
 target_link_libraries(VSSS ${LIBXBEE})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 if (CUDA_FOUND)
     target_link_libraries(VSSS ${CUDA_LIBRARIES})
 endif ()

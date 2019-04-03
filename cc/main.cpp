@@ -1,5 +1,7 @@
 #include <gtkmm.h>
 #include "CamCap.hpp"
+#include "ros/ros.h"
+#include "vsss_msgs/Control.h"
 
 int main(int argc, char **argv) {
 
