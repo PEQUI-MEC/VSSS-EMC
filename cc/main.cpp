@@ -5,6 +5,8 @@
 
 int main(int argc, char **argv) {
 
+	ros::init(argc, argv, "vsss");
+
 	#ifdef CUDA_FOUND
 		std::cout << "CUDA is enabled." << std::endl;
 	#else

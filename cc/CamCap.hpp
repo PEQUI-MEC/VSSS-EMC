@@ -32,13 +32,30 @@
 #include <fstream>
 #include <chrono>
 #include "LS.h"
+#include <ros/ros.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PointStamped.h>
+#include <message_filters/subscriber.h>
+#include <message_filters/time_synchronizer.h>
+#include <thread>
 
 #define MAX_THETA_TOLERATION 3
 #define MAX_POSITIONING_VEL 0.1
 
+using PoseStamped = geometry_msgs::PoseStamped;
+using PoseStampedPtr = geometry_msgs::PoseStampedPtr;
+using PointStampedPtr = geometry_msgs::PointStampedPtr;
+using PointStamped = geometry_msgs::PointStamped;
+
 class CamCap : public Gtk::HBox {
 
 	public:
+
+		bool use_simulator = false;
+		std::thread * simulator_thread;
+		void ros_callback(const PoseStampedPtr &robot1, const PoseStampedPtr &robot2,
+						  const PoseStampedPtr &robot3, const PointStampedPtr &ball_msg);
+
 		Attacker attacker;
 		Defender defender;
 		Goalkeeper goalkeeper;
@@ -80,6 +97,14 @@ class CamCap : public Gtk::HBox {
 		Gtk::Notebook notebook;
 
 		sigc::connection con;
+
+		ros::NodeHandle nh;
+		message_filters::Subscriber<PoseStamped> robot1_pose_sub;
+		message_filters::Subscriber<PoseStamped> robot2_pose_sub;
+		message_filters::Subscriber<PoseStamped> robot3_pose_sub;
+		message_filters::Subscriber<PointStamped> ball_position_sub;
+		message_filters::TimeSynchronizer<PoseStamped, PoseStamped, PoseStamped, PointStamped> sync;
+		std::array<ros::Publisher, 3> robots_pub;
 
 		void update_positions(const std::map<unsigned int, vision::Vision::RecognizedTag>& tags);
 		bool start_signal(bool b);

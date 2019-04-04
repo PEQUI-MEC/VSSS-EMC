@@ -16,7 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(PkgConfig)
 
 find_package(catkin REQUIRED COMPONENTS
-    roscpp rospy std_msgs geometry_msgs vsss_msgs)
+    roscpp rospy std_msgs geometry_msgs vsss_msgs message_filters)
 
 pkg_check_modules(GTKMM gtkmm-3.0)
 link_directories(${GTKMM_LIBRARY_DIRS})

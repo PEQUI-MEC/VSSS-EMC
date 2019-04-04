@@ -18,7 +18,7 @@ class Robot2 {
 		};
 
 		enum class Command { // Comandos que o Messenger pode enviar para o robô
-			Position, Vector, UVF, Orientation, Angular_Vel, None
+			Position = 1, Vector = 2, UVF = 3, Orientation = 4, Angular_Vel = 5, None = 0
 		};
 
 		enum class Role {
@@ -90,6 +90,10 @@ class Robot2 {
 		Pose get_target() const { return target; }
 		Command get_command() const { return command; }
 		void set_pose(cv::Point position, double orientation);
+		void set_pose_simu(Geometry::Point position, double orientation) {
+			pose.position = position;
+			pose.orientation = orientation;
+		}
 		void set_pose(const Pose &new_pose);
 		virtual Role get_role() { return Role::None; };
 		virtual std::string get_role_name() { return "None"; };
