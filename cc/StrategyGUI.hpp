@@ -29,7 +29,7 @@ class StrategyGUI : public Gtk::VBox {
 
 		void configureTestFrame();
 		StrategyGUI();
-		~StrategyGUI() override = default;;
+		~StrategyGUI() override = default;
 };
 
 #endif /* STRATEGYGUI_HPP_ */

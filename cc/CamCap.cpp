@@ -20,8 +20,8 @@ void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag
 	interface.updateRobotLabels();
 
 	const Vision::Ball cv_ball = interface.visionGUI.vision->getBall();
-	ball = Geometry::from_cv_point(cv_ball.position);
-	interface.update_ball_position(ball);
+	ball.position = Geometry::from_cv_point(cv_ball.position);
+	interface.update_ball_position(ball.position);
 }
 
 bool CamCap::start_signal(bool b) {
@@ -162,7 +162,7 @@ bool CamCap::capture_and_show() {
 
 	interface.visionGUI.recorder.run(imageView);
 
-	calculate_ball_est();
+	ball.update_estimate();
 	update_positions(tags);
 
 	interface.updateFPS(fps_average);
@@ -264,73 +264,18 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-
-void CamCap::calculate_ball_est() {
-	ls_x.addValue(ball.x);
-	ls_y.addValue(ball.y);
-
-	ball_est.x = ls_x.estimate(10);
-	ball_est.y = ls_y.estimate(10);
-}
-
-double quat_to_euler(double a, double b, double c, double d) {
-	return std::atan2(2 * (a * d + b * c),
-			1 - 2 * (std::pow(c, 2) + std::pow(d, 2)));
-}
-
-void CamCap::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
-						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg) {
-
-	if (!interface.get_start_game_flag()) return;
-
-	const std::array<const PoseStampedPtr *, 3> msgs_ptr{&robot1_msg, &robot2_msg, &robot3_msg};
-
-	for (auto& robot : robots) {
-		const auto& msg = msgs_ptr[robot->tag]->get();
-		const auto& position = msg->pose.position;
-		const auto& quat = msg->pose.orientation;
-		auto theta = quat_to_euler(quat.w, quat.x, quat.y, quat.z);
-		robot->set_pose_simu({position.x, position.y}, theta);
-	}
-
-	auto ball_position = ball_msg.get()->point;
-	ball = {ball_position.x, ball_position.y};
-	calculate_ball_est();
-
-	strategy.run();
-
-	for (auto& robot : robots) {
-		auto target = robot->get_target();
-
-		vsss_msgs::Control control_msg;
-		control_msg.command = (uint8_t) robot->get_command();
-		control_msg.pose.x = target.position.x;
-		control_msg.pose.y = target.position.y;
-		control_msg.pose.theta = target.orientation;
-		control_msg.velocity.linear.x = target.velocity;
-		control_msg.velocity.angular.z = target.angular_velocity;
-
-		ros_robots[robot->tag].control_pub.publish(control_msg);
-	}
-}
-
-
-CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(nullptr), width(0), height(0), frameCounter(0),
-														  msg_thread(&CamCap::send_cmd_thread, this),
-														  strategy(attacker, defender, goalkeeper, ball, ball_est),
-														  robotGUI(robots, isLowRes),
-								interface(robots,ball, robotGUI, isLowRes),
-								ros_robots({RosRobot{nh, "1"}, RosRobot{nh, "2"}, RosRobot{nh, "3"}}),
-								ball_position_sub(nh, "ball/position", 1),
-								sync(*ros_robots[0].pose_sub, *ros_robots[1].pose_sub,
-									 *ros_robots[2].pose_sub, ball_position_sub, 10) {
+CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper},
+								simulation(robots, ball),
+								data(nullptr), width(0), height(0), frameCounter(0),
+								msg_thread(&CamCap::send_cmd_thread, this),
+								strategy(attacker, defender, goalkeeper, ball.position, ball.estimate),
+								robotGUI(robots, isLowRes),
+								interface(robots, ball.position, robotGUI, isLowRes, simulation) {
 
 	attacker.tag = 0;
 	defender.tag = 1;
 	goalkeeper.tag = 2;
 
-	ls_x.init(15, 1);
-	ls_y.init(15, 1);
 
 	fm.set_label("imageView");
 	fm.add(interface.imageView);
@@ -344,6 +289,7 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(
 		notebook.append_page(robotGUI, "Robot");
 	}
 	notebook.append_page(strategyGUI, "Strategy");
+	notebook.append_page(interface.simulationGUI, "Simulator");
 
 	camera_vbox.pack_start(fm, false, true, 5);
 	camera_vbox.pack_start(info_fm, false, true, 5);
@@ -353,11 +299,6 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(
 	pack_start(notebook, false, false, 10);
 
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
-
-	sync.registerCallback(&CamCap::ros_callback, this);
-	simulator_thread = new std::thread([] {
-		ros::spin();
-	});
 }
 
 CamCap::~CamCap() {
