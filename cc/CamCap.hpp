@@ -37,6 +37,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
+#include <vsss_msgs/Control.h>
 #include <thread>
 
 #define MAX_THETA_TOLERATION 3
@@ -47,14 +48,21 @@ using PoseStampedPtr = geometry_msgs::PoseStampedPtr;
 using PointStampedPtr = geometry_msgs::PointStampedPtr;
 using PointStamped = geometry_msgs::PointStamped;
 
+struct RosRobot {
+	using PoseSub = message_filters::Subscriber<PoseStamped>;
+	std::unique_ptr<PoseSub> pose_sub;
+	ros::Publisher control_pub;
+	RosRobot() = default;
+	RosRobot(ros::NodeHandle& nh, const std::string& id):
+			pose_sub() {
+		pose_sub = std::make_unique<PoseSub>(nh, "robot" + id + "/pose", 1);
+		control_pub = nh.advertise<vsss_msgs::Control>("robot" + id + "/control", 1);
+	}
+};
+
 class CamCap : public Gtk::HBox {
 
 	public:
-
-		bool use_simulator = false;
-		std::thread * simulator_thread;
-		void ros_callback(const PoseStampedPtr &robot1, const PoseStampedPtr &robot2,
-						  const PoseStampedPtr &robot3, const PointStampedPtr &ball_msg);
 
 		Attacker attacker;
 		Defender defender;
@@ -98,14 +106,17 @@ class CamCap : public Gtk::HBox {
 
 		sigc::connection con;
 
-		ros::NodeHandle nh;
-		message_filters::Subscriber<PoseStamped> robot1_pose_sub;
-		message_filters::Subscriber<PoseStamped> robot2_pose_sub;
-		message_filters::Subscriber<PoseStamped> robot3_pose_sub;
-		message_filters::Subscriber<PointStamped> ball_position_sub;
-		message_filters::TimeSynchronizer<PoseStamped, PoseStamped, PoseStamped, PointStamped> sync;
-		std::array<ros::Publisher, 3> robots_pub;
+		bool use_simulator = false;
+		std::thread * simulator_thread;
 
+		ros::NodeHandle nh;
+		std::array<RosRobot, 3> ros_robots;
+		message_filters::Subscriber<PointStamped> ball_position_sub;
+		message_filters::TimeSynchronizer<PoseStamped,
+				PoseStamped, PoseStamped, PointStamped> sync;
+
+		void ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
+						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg);
 		void update_positions(const std::map<unsigned int, vision::Vision::RecognizedTag>& tags);
 		bool start_signal(bool b);
 		bool capture_and_show();

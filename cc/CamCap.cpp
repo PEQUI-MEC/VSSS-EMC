@@ -278,45 +278,39 @@ double quat_to_euler(double a, double b, double c, double d) {
 			1 - 2 * (std::pow(c, 2) + std::pow(d, 2)));
 }
 
-void CamCap::ros_callback(const PoseStampedPtr &robot1, const PoseStampedPtr &robot2,
-						  const PoseStampedPtr &robot3, const PointStampedPtr &ball_msg) {
+void CamCap::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
+						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg) {
 
 	if (!interface.get_start_game_flag()) return;
 
-	auto pose0 = robot1.get();
-	auto pos0 = pose0->pose.position;
-	auto quat0 = pose0->pose.orientation;
-	auto theta0 = quat_to_euler(quat0.w, quat0.x, quat0.y, quat0.z);
-	robots[0]->set_pose_simu({pos0.x, pos0.y}, theta0);
+	const std::array<const PoseStampedPtr *, 3> msgs_ptr{&robot1_msg, &robot2_msg, &robot3_msg};
 
-	auto pose1 = robot2.get();
-	auto pos1 = pose1->pose.position;
-	auto quat1 = pose1->pose.orientation;
-	auto theta1 = quat_to_euler(quat1.w, quat1.x, quat1.y, quat1.z);
-	robots[1]->set_pose_simu({pos1.x, pos1.y}, theta1);
+	for (auto& robot : robots) {
+		const auto& msg = msgs_ptr[robot->tag]->get();
+		const auto& position = msg->pose.position;
+		const auto& quat = msg->pose.orientation;
+		auto theta = quat_to_euler(quat.w, quat.x, quat.y, quat.z);
+		robot->set_pose_simu({position.x, position.y}, theta);
+	}
 
-	auto pose2 = robot3.get();
-	auto pos2 = pose2->pose.position;
-	auto quat2 = pose2->pose.orientation;
-	auto theta2 = quat_to_euler(quat2.w, quat2.x, quat2.y, quat2.z);
-	robots[2]->set_pose_simu({pos2.x, pos2.y}, theta2);
-
-	auto position_ball = ball_msg.get();
-	ball = {position_ball->point.x, position_ball->point.y};
+	auto ball_position = ball_msg.get()->point;
+	ball = {ball_position.x, ball_position.y};
 	calculate_ball_est();
 
 	strategy.run();
 
-	for (auto i = 0; i < 3; i++) {
-		vsss_msgs::Control control;
-		auto target = robots[i]->get_target();
-		control.command = (uint8_t) robots[i]->get_command();
-		control.pose.x = target.position.x;
-		control.pose.y = target.position.y;
-		control.pose.theta = target.orientation;
-		control.velocity.linear.x = target.velocity;
-		control.velocity.angular.z = target.angular_velocity;
-		robots_pub[i].publish(control);
+	for (auto& robot : robots) {
+		auto target = robot->get_target();
+
+		vsss_msgs::Control control_msg;
+		control_msg.command = (uint8_t) robot->get_command();
+		control_msg.pose.x = target.position.x;
+		control_msg.pose.y = target.position.y;
+		control_msg.pose.theta = target.orientation;
+		control_msg.velocity.linear.x = target.velocity;
+		control_msg.velocity.angular.z = target.angular_velocity;
+
+		ros_robots[robot->tag].control_pub.publish(control_msg);
 	}
 }
 
@@ -326,14 +320,14 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(
 														  strategy(attacker, defender, goalkeeper, ball, ball_est),
 														  robotGUI(robots, isLowRes),
 								interface(robots,ball, robotGUI, isLowRes),
-
-								robot1_pose_sub(nh, "robot1/pose", 1),
-								robot2_pose_sub(nh, "robot2/pose", 1),
-								robot3_pose_sub(nh, "robot3/pose", 1),
+								ros_robots({RosRobot{nh, "1"}, RosRobot{nh, "2"}, RosRobot{nh, "3"}}),
 								ball_position_sub(nh, "ball/position", 1),
-								sync(robot1_pose_sub, robot2_pose_sub,
-										robot3_pose_sub, ball_position_sub, 10)
-										{
+								sync(*ros_robots[0].pose_sub, *ros_robots[1].pose_sub,
+									 *ros_robots[2].pose_sub, ball_position_sub, 10) {
+
+	attacker.tag = 0;
+	defender.tag = 1;
+	goalkeeper.tag = 2;
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);
@@ -364,9 +358,6 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(
 	simulator_thread = new std::thread([] {
 		ros::spin();
 	});
-	robots_pub[0] = nh.advertise<vsss_msgs::Control>("robot1/control", 1);
-	robots_pub[1] = nh.advertise<vsss_msgs::Control>("robot2/control", 1);
-	robots_pub[2] = nh.advertise<vsss_msgs::Control>("robot3/control", 1);
 }
 
 CamCap::~CamCap() {
