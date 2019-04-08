@@ -41,7 +41,11 @@ void TestOnClick::set_orientation(const double x, const double y) {
 		return;
 
 	Geometry::Point pt = Geometry::from_cv_point(x,y);
-	m_orientation = Geometry::Vector(pt - m_selected_robot->get_position());
+	if (m_command == Robot2::Command::UVF)
+		m_orientation = Geometry::Vector(pt - m_target);
+	else
+		m_orientation = Geometry::Vector(pt - m_selected_robot->get_position());
+
 }
 
 TestOnClick::TestOnClick(const std::array<Robot2 *, 3> &robots, const Geometry::Point &ball)
