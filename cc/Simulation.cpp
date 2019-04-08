@@ -1,14 +1,15 @@
 #include "Simulation.hpp"
 
-Simulation::Simulation(std::array<Robot2 *, 3>& robots, Ball& ball):
+Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref) :
 		ros_robots({RosRobot{nh, "1"}, RosRobot{nh, "2"}, RosRobot{nh, "3"}}),
 		ball_position_sub(nh, "ball/position", 1),
 		sync(*ros_robots[0].pose_sub, *ros_robots[1].pose_sub,
 			 *ros_robots[2].pose_sub, ball_position_sub, 10),
-		robots(robots), ball(ball) {
+		robots(robots), ball(ball), strategy(strategy_ref) {
 
 	sync.registerCallback(&Simulation::ros_callback, this);
 	simulator_thread = new std::thread([] {
+		std::cout << "simu thread running!" << std::endl;
 		ros::spin();
 	});
 }
@@ -20,8 +21,8 @@ double quat_to_euler(double a, double b, double c, double d) {
 
 void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
 							  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg) {
-
-//	if (!interface.get_start_game_flag()) return;
+	std::cout << "callback!" << std::endl;
+	if (!play_game) return;
 
 	const std::array<const PoseStampedPtr *, 3> msgs_ptr{&robot1_msg, &robot2_msg, &robot3_msg};
 
@@ -37,7 +38,7 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 	ball.position = {ball_position.x, ball_position.y};
 	ball.update_estimate();
 
-//	strategy.run();
+	strategy.run();
 
 	for (auto& robot : robots) {
 		auto target = robot->get_target();

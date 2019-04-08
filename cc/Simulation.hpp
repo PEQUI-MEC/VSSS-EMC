@@ -9,6 +9,7 @@
 #include <vsss_msgs/Control.h>
 #include <thread>
 #include <Strategy2/Robot2.h>
+#include <Strategy2/Strategy2.hpp>
 #include "Ball.hpp"
 
 using PoseStamped = geometry_msgs::PoseStamped;
@@ -30,6 +31,7 @@ struct RosRobot {
 
 class Simulation {
 		bool use_simulator = false;
+		bool play_game = true;
 
 		ros::NodeHandle nh;
 		std::array<RosRobot, 3> ros_robots;
@@ -41,12 +43,13 @@ class Simulation {
 //		References from other classes
 		std::array<Robot2 *, 3> &robots;
 		Ball& ball;
+		Strategy2 strategy;
 
 		void ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
 						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg);
 
 	public:
-		Simulation(std::array<Robot2 *, 3>& robots, Ball& ball);
+		Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref);
 };
 
 #endif //VSSS_SIMULATION_HPP
