@@ -265,10 +265,10 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 }
 
 CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper},
-								simulation(robots, ball, strategy),
 								data(nullptr), width(0), height(0), frameCounter(0),
 								msg_thread(&CamCap::send_cmd_thread, this),
 								strategy(attacker, defender, goalkeeper, ball.position, ball.estimate),
+								simulation(robots, ball, strategy),
 								robotGUI(robots, isLowRes),
 								interface(robots, ball.position, robotGUI, isLowRes, simulation) {
 

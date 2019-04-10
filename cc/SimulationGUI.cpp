@@ -11,4 +11,9 @@ SimulationGUI::SimulationGUI(Simulation& simulation_ref):
 }
 
 void SimulationGUI::enable_simulator_callback() {
+	if (use_simu_button.get_active()) {
+		simulation.start_ros_thread();
+	} else {
+		simulation.stop_ros_thread();
+	}
 }

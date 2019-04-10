@@ -8,10 +8,6 @@ Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &s
 		robots(robots), ball(ball), strategy(strategy_ref) {
 
 	sync.registerCallback(&Simulation::ros_callback, this);
-	simulator_thread = new std::thread([] {
-		std::cout << "simu thread running!" << std::endl;
-		ros::spin();
-	});
 }
 
 double quat_to_euler(double a, double b, double c, double d) {
@@ -21,7 +17,6 @@ double quat_to_euler(double a, double b, double c, double d) {
 
 void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
 							  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg) {
-	std::cout << "callback!" << std::endl;
 	if (!play_game) return;
 
 	const std::array<const PoseStampedPtr *, 3> msgs_ptr{&robot1_msg, &robot2_msg, &robot3_msg};
@@ -53,4 +48,20 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 
 		ros_robots[robot->tag].control_pub.publish(control_msg);
 	}
+}
+
+void Simulation::start_ros_thread() {
+	assert(ros_thread == std::nullopt);
+	run_ros_thread = true;
+	ros_thread = std::optional<std::thread>{[&] {
+		while (run_ros_thread) ros::spinOnce();
+	}};
+}
+
+void Simulation::stop_ros_thread() {
+	run_ros_thread = false;
+	auto &thread = ros_thread.value();
+	while (!thread.joinable());
+	thread.join();
+	ros_thread = std::nullopt;
 }

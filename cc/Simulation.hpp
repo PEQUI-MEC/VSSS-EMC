@@ -8,6 +8,7 @@
 #include <message_filters/time_synchronizer.h>
 #include <vsss_msgs/Control.h>
 #include <thread>
+#include <optional>
 #include <Strategy2/Robot2.h>
 #include <Strategy2/Strategy2.hpp>
 #include "Ball.hpp"
@@ -30,12 +31,10 @@ struct RosRobot {
 };
 
 class Simulation {
-		bool use_simulator = false;
-		bool play_game = true;
-
 		ros::NodeHandle nh;
 		std::array<RosRobot, 3> ros_robots;
-		std::thread * simulator_thread;
+		bool run_ros_thread = false;
+		std::optional<std::thread> ros_thread;
 		message_filters::Subscriber<PointStamped> ball_position_sub;
 		message_filters::TimeSynchronizer<PoseStamped,
 		PoseStamped, PoseStamped, PointStamped> sync;
@@ -49,7 +48,11 @@ class Simulation {
 						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg);
 
 	public:
+		bool play_game = false;
+
 		Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref);
+		void start_ros_thread();
+		void stop_ros_thread();
 };
 
 #endif //VSSS_SIMULATION_HPP

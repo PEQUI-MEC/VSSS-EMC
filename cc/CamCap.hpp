@@ -51,8 +51,6 @@ class CamCap : public Gtk::HBox {
 
 		Ball ball;
 
-		Simulation simulation;
-
 		unsigned char *data;
 
 		int width;
@@ -67,6 +65,8 @@ class CamCap : public Gtk::HBox {
 		bool ekf_data_ready = false;
 
 		Strategy2 strategy;
+
+		Simulation simulation;
 
 		StrategyGUI strategyGUI;
 		RobotGUI robotGUI;

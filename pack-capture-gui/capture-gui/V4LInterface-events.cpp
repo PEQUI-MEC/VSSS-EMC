@@ -488,6 +488,7 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 
 		record_video_checkbox.set_sensitive(false);
 		start_game_flag = true;
+		simulationGUI.simulation.play_game = true;
 		start_game_bt.set_image(red_button_pressed);
 		btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
 		btn_camCalib.set_active(false);
@@ -524,6 +525,7 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_text("");
 		start_game_flag = false;
+		simulationGUI.simulation.play_game = false;
 		start_game_bt.set_image(red_button_released);
 
 		// Para os robôs. Importante para não atrapalhar o Test On Click.
