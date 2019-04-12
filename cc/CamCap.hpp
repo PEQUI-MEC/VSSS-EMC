@@ -18,10 +18,10 @@
 #include <opencv2/video/tracking.hpp>
 
 #include "StrategyGUI.hpp"
-#include "SimulationGUI.hpp"
 #include "RobotGUI.hpp"
 #include "vision/vision.hpp"
 #include "V4LInterface.hpp"
+#include "SimulationGUI.hpp"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
@@ -66,11 +66,12 @@ class CamCap : public Gtk::HBox {
 
 		Strategy2 strategy;
 
-		Simulation simulation;
-
 		StrategyGUI strategyGUI;
 		RobotGUI robotGUI;
 		capture::V4LInterface interface;
+
+		Simulation simulation;
+		SimulationGUI simulationGUI;
 
 		int fps_average = 0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;

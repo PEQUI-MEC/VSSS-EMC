@@ -268,9 +268,10 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper},
 								data(nullptr), width(0), height(0), frameCounter(0),
 								msg_thread(&CamCap::send_cmd_thread, this),
 								strategy(attacker, defender, goalkeeper, ball.position, ball.estimate),
-								simulation(robots, ball, strategy),
 								robotGUI(robots, isLowRes),
-								interface(robots, ball.position, robotGUI, isLowRes, simulation) {
+								interface(robots, ball.position, robotGUI, isLowRes),
+								simulation(robots, ball, strategy, interface),
+								simulationGUI(simulation) {
 
 	attacker.tag = 0;
 	defender.tag = 1;
@@ -289,7 +290,7 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper},
 		notebook.append_page(robotGUI, "Robot");
 	}
 	notebook.append_page(strategyGUI, "Strategy");
-	notebook.append_page(interface.simulationGUI, "Simulator");
+	notebook.append_page(simulationGUI, "Simulator");
 
 	camera_vbox.pack_start(fm, false, true, 5);
 	camera_vbox.pack_start(info_fm, false, true, 5);

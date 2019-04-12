@@ -14,7 +14,7 @@ class SimulationGUI : public Gtk::VBox {
 
 		bool enable_simulator = false;
 
-		SimulationGUI(Simulation& simulation_ref);
+		SimulationGUI(Simulation &simulation_ref);
 		void enable_simulator_callback();
 };
 

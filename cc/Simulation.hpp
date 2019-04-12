@@ -12,6 +12,7 @@
 #include <Strategy2/Robot2.h>
 #include <Strategy2/Strategy2.hpp>
 #include "Ball.hpp"
+#include <V4LInterface.hpp>
 
 using PoseStamped = geometry_msgs::PoseStamped;
 using PoseStampedPtr = geometry_msgs::PoseStampedPtr;
@@ -48,9 +49,10 @@ class Simulation {
 						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg);
 
 	public:
-		bool play_game = false;
+		capture::V4LInterface& interface;
 
-		Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref);
+		Simulation(std::array<Robot2 *, 3> &robots, Ball &ball,
+				Strategy2 &strategy_ref, capture::V4LInterface& interface_ref);
 		void start_ros_thread();
 		void stop_ros_thread();
 };

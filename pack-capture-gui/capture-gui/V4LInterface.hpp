@@ -27,8 +27,6 @@
 #include <ctime>
 #include <chrono>
 #include <ImageWarp.hpp>
-#include <Simulation.hpp>
-#include <SimulationGUI.hpp>
 
 #define PI 3.14159265453
 
@@ -53,7 +51,6 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		VisionGUI visionGUI;
 		ControlGUI controlGUI;
-		SimulationGUI simulationGUI;
 
 		bool init_frame = true;
 
@@ -88,7 +85,8 @@ class capture::V4LInterface : public Gtk::VBox {
 		capture::v4lcap vcap;
 
 		explicit V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball,
-							  RobotGUI &robot_gui, bool isLow, Simulation &simulation);
+							  RobotGUI &robot_gui,
+							  bool isLow);
 		void initInterface();
 
 		Gtk::Scale HScale_offsetL;
@@ -163,15 +161,13 @@ class capture::V4LInterface : public Gtk::VBox {
 		SignalStart signal_start() {
 			return m_signal_start;
 		}
-
+		bool start_game_flag = false;
 	protected:
 		SignalStart m_signal_start;
 
 		bool on_button_press_event(GdkEventButton *event) override;
 
 	private:
-
-		bool start_game_flag = false;
 
 		void __init_combo_boxes();
 		void __create_frm_device_info();

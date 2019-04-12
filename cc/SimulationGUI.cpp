@@ -1,6 +1,7 @@
+#include <V4LInterface.hpp>
 #include "SimulationGUI.hpp"
 
-SimulationGUI::SimulationGUI(Simulation& simulation_ref):
+SimulationGUI::SimulationGUI(Simulation &simulation_ref) :
 								simulation(simulation_ref) {
 	use_simu_label.set_label("Use simulator");
 	use_simu_button.signal_clicked().connect(sigc::mem_fun(*this,
@@ -13,7 +14,9 @@ SimulationGUI::SimulationGUI(Simulation& simulation_ref):
 void SimulationGUI::enable_simulator_callback() {
 	if (use_simu_button.get_active()) {
 		simulation.start_ros_thread();
+		simulation.interface.robotGUI.enable_main_buttons();
 	} else {
 		simulation.stop_ros_thread();
+		simulation.interface.robotGUI.enable_main_buttons(false);
 	}
 }

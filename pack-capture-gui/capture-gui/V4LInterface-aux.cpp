@@ -957,16 +957,15 @@ void V4LInterface::__create_frm_cam_calib() {
 }
 
 // Constructor
-V4LInterface::V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball,
-						   RobotGUI &robot_gui, bool isLow, Simulation &simulation)
+V4LInterface::V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball, RobotGUI &robot_gui,
+						   bool isLow)
 		:
 		Gtk::VBox(false, 0),
 		isLowRes(isLow),
 		robots(robots_ref),
 		robotGUI(robot_gui),
 		controlGUI(robots_ref, ball),
-		imageView(controlGUI.test_controller),
-		simulationGUI(simulation){
+		imageView(controlGUI.test_controller) {
 
 	initInterface();
 }

@@ -1,11 +1,13 @@
 #include "Simulation.hpp"
 
-Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref) :
+Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball,
+		Strategy2 &strategy_ref, capture::V4LInterface& interface_ref):
 		ros_robots({RosRobot{nh, "1"}, RosRobot{nh, "2"}, RosRobot{nh, "3"}}),
 		ball_position_sub(nh, "ball/position", 1),
 		sync(*ros_robots[0].pose_sub, *ros_robots[1].pose_sub,
 			 *ros_robots[2].pose_sub, ball_position_sub, 10),
-		robots(robots), ball(ball), strategy(strategy_ref) {
+		robots(robots), ball(ball), strategy(strategy_ref),
+		interface(interface_ref) {
 
 	sync.registerCallback(&Simulation::ros_callback, this);
 }
@@ -17,7 +19,7 @@ double quat_to_euler(double a, double b, double c, double d) {
 
 void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
 							  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg) {
-	if (!play_game) return;
+	if (!interface.get_start_game_flag()) return;
 
 	const std::array<const PoseStampedPtr *, 3> msgs_ptr{&robot1_msg, &robot2_msg, &robot3_msg};
 
@@ -48,6 +50,11 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 
 		ros_robots[robot->tag].control_pub.publish(control_msg);
 	}
+
+	interface.updateRobotLabels();
+	interface.robotGUI.update_speed_progressBars();
+	interface.robotGUI.update_robot_functions();
+	interface.update_ball_position(ball.position);
 }
 
 void Simulation::start_ros_thread() {
