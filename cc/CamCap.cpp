@@ -28,6 +28,10 @@ bool CamCap::start_signal(bool b) {
 	if (b) {
 		cout << "Start Clicked!" << endl;
 
+		if (simulationGUI.use_simu_button.get_active()) {
+			simulationGUI.use_simu_button.set_active(false);
+		}
+
 		if (data) {
 			interface.imageView.disable_image_show();
 			free(data);

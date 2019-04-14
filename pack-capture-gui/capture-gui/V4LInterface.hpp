@@ -8,11 +8,6 @@
 #ifndef V4LINTERFACE_HPP_
 #define V4LINTERFACE_HPP_
 
-#include <Goalkeeper.hpp>
-#include <Defender.hpp>
-#include <Attacker.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <gtkmm.h>
@@ -20,7 +15,6 @@
 #include <linux/videodev2.h>
 #include "v4lcap.hpp"
 #include "ImageView.hpp"
-#include "Messenger.h"
 #include "RobotGUI.hpp"
 #include "visionGUI.hpp"
 #include "controlGUI.hpp"
@@ -55,7 +49,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool init_frame = true;
 
 		ImageView imageView;
-		Messenger messenger;
 
 		std::list<ControlHolder> ctrl_list_default;
 
@@ -162,6 +155,7 @@ class capture::V4LInterface : public Gtk::VBox {
 			return m_signal_start;
 		}
 		bool start_game_flag = false;
+		Gtk::Button bt_start;
 	protected:
 		SignalStart m_signal_start;
 
@@ -187,7 +181,6 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		Gtk::Frame frm_device_info;
 		Gtk::ComboBoxText cb_device;
-		Gtk::Button bt_start;
 		Gtk::Button bt_refresh;
 		Gtk::Button bt_reset_warp;
 
