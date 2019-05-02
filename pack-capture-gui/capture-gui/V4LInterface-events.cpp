@@ -324,8 +324,6 @@ void V4LInterface::__event_cb_device_changed() {
 
 	__make_control_list_default();
 
-	__event_bt_quick_load_clicked();
-
 	__make_control_table(ctrl_list_default, "Cam Configs");
 
 	__update_control_widgets(ctrl_list_default);

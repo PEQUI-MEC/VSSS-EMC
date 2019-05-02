@@ -45,6 +45,9 @@ bool CamCap::start_signal(bool b) {
 
 		interface.imageView.set_size_request(width, height);
 		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
+
+		interface.__event_bt_quick_load_clicked();
+		interface.visionGUI.quickLoadGMM();
 	} else {
 		cout << "Stop Button Clicked!" << endl;
 		con.disconnect();
@@ -52,9 +55,6 @@ bool CamCap::start_signal(bool b) {
 		// Travar os botões de edit
 		robotGUI.enable_main_buttons(false);
 	}
-
-	interface.__event_bt_quick_load_clicked();
-	interface.visionGUI.quickLoadGMM();
 
 	return true;
 } // start_signal
