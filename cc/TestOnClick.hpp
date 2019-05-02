@@ -43,6 +43,7 @@ namespace onClick {
 
 			bool is_active() const { return m_is_active; };
 			bool has_robot() const { return m_selected_robot != nullptr; };
+			bool is_target_valid() const { return m_target.x >= 0 && m_target.y >= 0; }
 
 			void select_robot(double x, double y);
 			void select_target(double x, double y);

@@ -8,25 +8,31 @@ void TestOnClick::run() {
 	if (!m_is_active || !has_robot() || !m_is_ready)
 		return;
 
-	switch (m_command) {
-		case Robot2::Command::Position:
-			m_selected_robot->go_to_and_stop(get_target());
-			break;
-		case Robot2::Command::UVF:
-			if (Geometry::distance(m_selected_robot->get_position(), get_target()) > 0.08)
-				m_selected_robot->go_to_pose(get_target(), m_orientation);
-			else
+	if (is_target_valid()) {
+		switch (m_command) {
+			case Robot2::Command::Position:
+				m_selected_robot->go_to_and_stop(get_target());
+				break;
+			case Robot2::Command::UVF:
+				if (Geometry::distance(m_selected_robot->get_position(), get_target()) > 0.08)
+					m_selected_robot->go_to_pose(get_target(), m_orientation);
+				else
+					m_selected_robot->set_target_orientation(m_orientation);
+				break;
+			case Robot2::Command::Orientation:
 				m_selected_robot->set_target_orientation(m_orientation);
-			break;
-		case Robot2::Command::Orientation:
-			m_selected_robot->set_target_orientation(m_orientation);
-			break;
-		case Robot2::Command::Vector:
-			m_selected_robot->go_in_direction(m_orientation);
-			break;
-		default:
-			m_selected_robot->stop();
+				break;
+			case Robot2::Command::Vector:
+				m_selected_robot->go_in_direction(m_orientation);
+				break;
+			default:
+				m_selected_robot->stop();
+		}
+	} else {
+		m_selected_robot->stop();
 	}
+
+	printf("%d/n", m_selected_robot->get_command());
 }
 
 void TestOnClick::set_orientation(const double orientation) {
@@ -64,7 +70,7 @@ void TestOnClick::select_robot(const double x,const double y) {
 	for (auto &robot : m_robots) {
 		if (Geometry::distance(robot->get_position(), Geometry::from_cv_point(x,y)) < robot->SIZE/2 ) {
 			m_selected_robot = robot;
-			m_selected_robot->stop();
+			m_target = {-1, -1};
 			return;
 		}
 	}
@@ -108,7 +114,6 @@ void TestOnClick::set_command(const Robot2::Command command) {
 	m_is_target_ball = false;
 	if (has_robot())
 		m_selected_robot->stop();
-	m_is_ready = false;
 }
 
 void TestOnClick::set_ready(bool is_rdy) {
