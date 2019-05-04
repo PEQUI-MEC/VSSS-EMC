@@ -488,7 +488,6 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 
 		//Test On Click Frame
 		test_start_bt.set_state(Gtk::STATE_NORMAL);
-		test_command_cb.set_state(Gtk::STATE_NORMAL);
 		test_angle_scale.set_state(Gtk::STATE_NORMAL);
 		test_set_bt.set_state(Gtk::STATE_NORMAL);
 

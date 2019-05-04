@@ -31,8 +31,6 @@ void TestOnClick::run() {
 	} else {
 		m_selected_robot->stop();
 	}
-
-	printf("%d/n", m_selected_robot->get_command());
 }
 
 void TestOnClick::set_orientation(const double orientation) {
