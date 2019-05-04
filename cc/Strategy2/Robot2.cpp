@@ -34,6 +34,7 @@ void Robot2::go_in_direction(Geometry::Vector vector, double velocity) {
 void Robot2::set_target_orientation(Geometry::Vector orientation) {
 	command = Command::Orientation;
 	target.orientation = orientation.theta;
+	target.velocity = default_target_velocity;
 }
 
 void Robot2::spin(double angular_velocity) {
