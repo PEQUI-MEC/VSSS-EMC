@@ -268,14 +268,13 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper},
-								data(nullptr), width(0), height(0), frameCounter(0),
-								msg_thread(&CamCap::send_cmd_thread, this),
-								strategy(attacker, defender, goalkeeper, ball.position, ball.estimate),
-								robotGUI(robots, isLowRes),
-								interface(robots, ball.position, robotGUI, isLowRes),
-								simulation(robots, ball, strategy, interface),
-								simulationGUI(simulation) {
+CamCap::CamCap(bool isLowRes, int argc, char **argv) : robots{&attacker, &defender, &goalkeeper},
+													   data(nullptr), width(0), height(0), frameCounter(0),
+													   msg_thread(&CamCap::send_cmd_thread, this),
+													   strategy(attacker, defender, goalkeeper, ball.position, ball.estimate),
+													   robotGUI(robots, isLowRes),
+													   interface(robots, ball.position, robotGUI, isLowRes),
+													   simulationGUI(robots, ball, strategy, interface, argc, argv) {
 
 	attacker.tag = 0;
 	defender.tag = 1;

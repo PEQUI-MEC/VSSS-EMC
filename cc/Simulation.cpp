@@ -1,7 +1,7 @@
 #include "Simulation.hpp"
 
-Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball,
-		Strategy2 &strategy_ref, capture::V4LInterface& interface_ref):
+Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref,
+					   capture::V4LInterface &interface_ref) :
 		ros_robots({RosRobot{nh, "1"}, RosRobot{nh, "2"}, RosRobot{nh, "3"}}),
 		ball_position_sub(nh, "ball/position", 1),
 		sync(*ros_robots[0].pose_sub, *ros_robots[1].pose_sub,
@@ -10,6 +10,7 @@ Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball,
 		interface(interface_ref) {
 
 	sync.registerCallback(&Simulation::ros_callback, this);
+	start_ros_thread();
 }
 
 double quat_to_euler(double a, double b, double c, double d) {

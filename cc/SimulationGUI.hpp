@@ -6,15 +6,22 @@
 
 class SimulationGUI : public Gtk::VBox {
 	public:
-		Simulation& simulation;
+//		References from other classes
+		std::array<Robot2 *, 3> &robots;
+		Ball& ball;
+		Strategy2 strategy;
+		capture::V4LInterface& interface;
+		int argc;
+		char** argv;
+
+		std::optional<Simulation> simulation = std::nullopt;
 
 		Gtk::HBox use_simu_hbox;
 		Gtk::CheckButton use_simu_button;
 		Gtk::Label use_simu_label;
 
-		bool enable_simulator = false;
-
-		SimulationGUI(Simulation &simulation_ref);
+		SimulationGUI(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref,
+					  capture::V4LInterface &interface_ref, int argc, char **argv);
 		void enable_simulator_callback();
 };
 

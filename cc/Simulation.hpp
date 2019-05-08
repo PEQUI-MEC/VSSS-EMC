@@ -51,10 +51,13 @@ class Simulation {
 	public:
 		capture::V4LInterface& interface;
 
-		Simulation(std::array<Robot2 *, 3> &robots, Ball &ball,
-				Strategy2 &strategy_ref, capture::V4LInterface& interface_ref);
+		Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref,
+				   capture::V4LInterface &interface_ref);
 		void start_ros_thread();
 		void stop_ros_thread();
+		~Simulation() {
+			stop_ros_thread();
+		}
 };
 
 #endif //VSSS_SIMULATION_HPP

@@ -70,7 +70,6 @@ class CamCap : public Gtk::HBox {
 		RobotGUI robotGUI;
 		capture::V4LInterface interface;
 
-		Simulation simulation;
 		SimulationGUI simulationGUI;
 
 		int fps_average = 0;
@@ -91,7 +90,7 @@ class CamCap : public Gtk::HBox {
 		void send_cmd_thread();
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
-		explicit CamCap(bool isLowRes);
+		explicit CamCap(bool isLowRes, int argc, char **argv);
 		~CamCap() override;
 };
 
