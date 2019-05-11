@@ -21,6 +21,7 @@
 #include <ctime>
 #include <chrono>
 #include <ImageWarp.hpp>
+#include <Strategy2/Ball.hpp>
 
 #define PI 3.14159265453
 
@@ -41,6 +42,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool isLowRes = false;
 
 		const std::array<Robot2*, 3>& robots;
+		Ball& ball;
 		RobotGUI &robotGUI;
 
 		VisionGUI visionGUI;
@@ -79,7 +81,7 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		explicit V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball,
 							  RobotGUI &robot_gui,
-							  bool isLow);
+							  bool isLow, Ball& ball_ref);
 		void initInterface();
 
 		Gtk::Scale HScale_offsetL;
@@ -156,6 +158,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		}
 		bool start_game_flag = false;
 		Gtk::Button bt_start;
+		bool update_gui();
 	protected:
 		SignalStart m_signal_start;
 

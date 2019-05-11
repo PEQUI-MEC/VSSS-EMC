@@ -52,13 +52,7 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 
 			ros_robots[robot->tag].control_pub.publish(control_msg);
 		}
-
-		interface.robotGUI.update_robot_functions();
-		interface.robotGUI.update_speed_progressBars();
 	}
-
-	interface.updateRobotLabels();
-	interface.update_ball_position(ball.position);
 }
 
 void Simulation::start_ros_thread() {

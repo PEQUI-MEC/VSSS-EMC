@@ -958,14 +958,24 @@ void V4LInterface::__create_frm_cam_calib() {
 
 // Constructor
 V4LInterface::V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball, RobotGUI &robot_gui,
-						   bool isLow)
-		:
+						   bool isLow, Ball& ball_ref) :
 		Gtk::VBox(false, 0),
 		isLowRes(isLow),
 		robots(robots_ref),
+		ball(ball_ref),
 		robotGUI(robot_gui),
 		controlGUI(robots_ref, ball),
 		imageView(controlGUI.test_controller) {
 
 	initInterface();
+}
+
+bool capture::V4LInterface::update_gui() {
+	if (get_start_game_flag()) {
+		robotGUI.update_robot_functions();
+		robotGUI.update_speed_progressBars();
+	}
+	updateRobotLabels();
+	update_ball_position(ball.position);
+	return true;
 }

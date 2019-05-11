@@ -273,7 +273,7 @@ CamCap::CamCap(bool isLowRes, int argc, char **argv) : robots{&attacker, &defend
 													   msg_thread(&CamCap::send_cmd_thread, this),
 													   strategy(attacker, defender, goalkeeper, ball.position, ball.estimate),
 													   robotGUI(robots, isLowRes),
-													   interface(robots, ball.position, robotGUI, isLowRes),
+													   interface(robots, ball.position, robotGUI, isLowRes, ball),
 													   simulationGUI(robots, ball, strategy, interface, argc, argv) {
 
 	attacker.tag = 0;
@@ -303,6 +303,7 @@ CamCap::CamCap(bool isLowRes, int argc, char **argv) : robots{&attacker, &defend
 	pack_start(notebook, false, false, 10);
 
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
+	Glib::signal_idle().connect( sigc::mem_fun(interface, &capture::V4LInterface::update_gui) );
 }
 
 CamCap::~CamCap() {
