@@ -131,14 +131,25 @@ void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
 	if (robot == nullptr)
 		return;
 
-	cv::Scalar color = test_on_click.is_active()? test_color : strategy_color;
-	double angle = test_on_click.is_active()? test_on_click.get_orientation_value() : robot->get_target().orientation;
-	cv::Point target = test_on_click.is_active()? test_on_click.get_target().to_cv_point() : robot->get_target().position.to_cv_point();
+	cv::Scalar color;
+	double angle;
+	cv::Point target;
 	cv::Point position = robot->get_position().to_cv_point();
+	bool is_test_on_click = test_on_click.is_active();
 
-	switch (robot->get_command()) {
+	if (is_test_on_click) {
+		color = test_color;
+		angle = test_on_click.get_orientation_value();
+		target = test_on_click.get_target().to_cv_point();
+	} else {
+		color = strategy_color;
+		angle = robot->get_target().orientation;
+		robot->get_target().position.to_cv_point();
+	}
+
+	switch (is_test_on_click? test_on_click.get_command() : robot->get_command()) {
 		case Robot2::Command::Vector:
-			BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case Robot2::Command::Orientation: {
 			auto x2 = static_cast<int>(position.x + 16 * cos(angle));
 			auto y2 = static_cast<int>(position.y - 16 * sin(angle));
