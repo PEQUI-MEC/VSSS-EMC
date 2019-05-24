@@ -11,7 +11,7 @@ using std::endl;
 using std::vector;
 
 void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag> &tags) {
-	for (const auto &robot : robots) {
+	for (const auto &robot : team.robots) {
 		auto search = tags.find(robot->tag);
 		if (search != tags.end())
 			robot->set_pose(search->second.position, search->second.orientation);
@@ -191,7 +191,7 @@ bool CamCap::capture_and_show() {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
-		strategy.run();
+		team.strategy.run();
 
 		interface.controlGUI.update_msg_time();
 		notify_data_ready(false);
@@ -222,7 +222,7 @@ bool CamCap::capture_and_show() {
 											  interface.visionGUI.vision->getBall(),
 											  tags,
 											  interface.visionGUI.vision->get_adv_robots(),
-											  robots,
+											  team.robots,
 											  is_game_on);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
@@ -249,11 +249,11 @@ void CamCap::send_cmd_thread() {
 		}
 		data_ready_flag = false;
 		if (ekf_data_ready) {
-			for (auto &robot : this->robots)
+			for (auto &robot : this->team.robots)
 				interface.controlGUI.messenger.send_ekf_data(*robot);
 			ekf_data_ready = false;
 		} else {
-			interface.controlGUI.messenger.send_commands(this->robots);
+			interface.controlGUI.messenger.send_commands(this->team.robots);
 		}
 	}
 }
@@ -268,17 +268,12 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-CamCap::CamCap(bool isLowRes, int argc, char **argv) : robots{&attacker, &defender, &goalkeeper},
+CamCap::CamCap(bool isLowRes, int argc, char **argv) : team(ball),
 													   data(nullptr), width(0), height(0), frameCounter(0),
 													   msg_thread(&CamCap::send_cmd_thread, this),
-													   strategy(attacker, defender, goalkeeper, ball.position, ball.estimate),
-													   robotGUI(robots, isLowRes),
-													   interface(robots, ball.position, robotGUI, isLowRes, ball),
-													   simulationGUI(robots, ball, strategy, interface, argc, argv) {
-
-	attacker.tag = 0;
-	defender.tag = 1;
-	goalkeeper.tag = 2;
+													   robotGUI(team.robots, isLowRes),
+													   interface(team.robots, ball.position, robotGUI, isLowRes, ball),
+													   simulationGUI(ball, interface, argc, argv) {
 
 
 	fm.set_label("imageView");

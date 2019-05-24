@@ -32,6 +32,7 @@
 #include <cmath>
 #include <fstream>
 #include <chrono>
+#include <Strategy2/Team.h>
 #include "Simulation.hpp"
 
 #define MAX_THETA_TOLERATION 3
@@ -42,14 +43,9 @@
 class CamCap : public Gtk::HBox {
 
 	public:
-
-		Attacker attacker;
-		Defender defender;
-		Goalkeeper goalkeeper;
-
-		std::array<Robot2 *, 3> robots;
-
 		Ball ball;
+
+		Team team;
 
 		unsigned char *data;
 
@@ -63,8 +59,6 @@ class CamCap : public Gtk::HBox {
 		boost::mutex data_ready_mutex;
 		bool data_ready_flag = false;
 		bool ekf_data_ready = false;
-
-		Strategy2 strategy;
 
 		StrategyGUI strategyGUI;
 		RobotGUI robotGUI;

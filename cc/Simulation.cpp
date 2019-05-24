@@ -1,13 +1,12 @@
 #include "Simulation.hpp"
 
-Simulation::Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref,
-					   capture::V4LInterface &interface_ref) :
-		ros_robots({RosRobot{nh, "1"}, RosRobot{nh, "2"}, RosRobot{nh, "3"}}),
+Simulation::Simulation(const std::string &name1, const std::string &name2, const std::string &name3,
+		Ball &ball, capture::V4LInterface &interface_ref) :
+		ros_robots({RosRobot{nh, name1}, RosRobot{nh, name2}, RosRobot{nh, name3}}),
 		ball_position_sub(nh, "ball/position", 1),
 		sync(*ros_robots[0].pose_sub, *ros_robots[1].pose_sub,
 			 *ros_robots[2].pose_sub, ball_position_sub, 10),
-		robots(robots), ball(ball), strategy(strategy_ref),
-		interface(interface_ref) {
+		team(ball), ball(ball), interface(interface_ref) {
 
 	sync.registerCallback(&Simulation::ros_callback, this);
 	start_ros_thread();
@@ -23,7 +22,7 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 
 	const std::array<const PoseStampedPtr *, 3> msgs_ptr{&robot1_msg, &robot2_msg, &robot3_msg};
 
-	for (auto& robot : robots) {
+	for (auto& robot : team.robots) {
 		const auto& msg = msgs_ptr[robot->tag]->get();
 		const auto& position = msg->pose.position;
 		const auto& quat = msg->pose.orientation;
@@ -37,9 +36,9 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 	if (interface.get_start_game_flag()) {
 		ball.update_estimate();
 
-		strategy.run();
+		team.strategy.run();
 
-		for (auto& robot : robots) {
+		for (auto& robot : team.robots) {
 			auto target = robot->get_target();
 
 			vsss_msgs::Control control_msg;

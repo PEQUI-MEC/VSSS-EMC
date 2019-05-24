@@ -13,6 +13,7 @@
 #include <Strategy2/Strategy2.hpp>
 #include "Ball.hpp"
 #include <V4LInterface.hpp>
+#include <Strategy2/Team.h>
 
 using PoseStamped = geometry_msgs::PoseStamped;
 using PoseStampedPtr = geometry_msgs::PoseStampedPtr;
@@ -41,9 +42,8 @@ class Simulation {
 		PoseStamped, PoseStamped, PointStamped> sync;
 
 //		References from other classes
-		std::array<Robot2 *, 3> &robots;
+		Team team;
 		Ball& ball;
-		Strategy2 strategy;
 
 		void ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
 						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg);
@@ -51,8 +51,8 @@ class Simulation {
 	public:
 		capture::V4LInterface& interface;
 
-		Simulation(std::array<Robot2 *, 3> &robots, Ball &ball, Strategy2 &strategy_ref,
-				   capture::V4LInterface &interface_ref);
+		Simulation(const std::string &name1, const std::string &name2, const std::string &name3,
+				Ball &ball, capture::V4LInterface &interface_ref);
 		void start_ros_thread();
 		void stop_ros_thread();
 		~Simulation() {
