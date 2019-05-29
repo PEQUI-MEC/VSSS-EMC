@@ -1,8 +1,8 @@
 #include <V4LInterface.hpp>
 #include "SimulationGUI.hpp"
 
-SimulationGUI::SimulationGUI(Ball &ball, capture::V4LInterface &interface_ref, int argc, char **argv) :
-							 ball(ball), interface(interface_ref), argc(argc), argv(argv) {
+SimulationGUI::SimulationGUI(capture::V4LInterface &interface_ref, int argc, char **argv) :
+							 interface(interface_ref), argc(argc), argv(argv) {
 
 	use_simu_label.set_label("Use simulator");
 	use_simu_button.signal_clicked().connect(sigc::mem_fun(*this,
@@ -17,8 +17,8 @@ void SimulationGUI::enable_simulator_callback() {
 		if (!ros::isInitialized()) {
 			ros::init(argc, argv, "vsss");
 		}
-		simulation.emplace("1", "2", "3", ball, interface);
-		simulation_team2.emplace("4", "5", "6", ball, interface);
+		simulation.emplace("1", "2", "3", false, interface);
+		simulation_team2.emplace("4", "5", "6", true, interface);
 		simulation->interface.robotGUI.enable_main_buttons();
 	} else {
 		simulation.reset();

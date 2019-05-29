@@ -43,7 +43,7 @@ class Simulation {
 
 //		References from other classes
 		Team team;
-		Ball& ball;
+		bool is_team2;
 
 		void ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
 						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg);
@@ -51,8 +51,8 @@ class Simulation {
 	public:
 		capture::V4LInterface& interface;
 
-		Simulation(const std::string &name1, const std::string &name2, const std::string &name3,
-				Ball &ball, capture::V4LInterface &interface_ref);
+		Simulation(const std::string &name1, const std::string &name2, const std::string &name3, bool is_team2,
+					capture::V4LInterface &interface_ref);
 		void start_ros_thread();
 		void stop_ros_thread();
 		~Simulation() {

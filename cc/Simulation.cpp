@@ -1,12 +1,12 @@
 #include "Simulation.hpp"
 
 Simulation::Simulation(const std::string &name1, const std::string &name2, const std::string &name3,
-		Ball &ball, capture::V4LInterface &interface_ref) :
+		bool is_team2, capture::V4LInterface &interface_ref) :
 		ros_robots({RosRobot{nh, name1}, RosRobot{nh, name2}, RosRobot{nh, name3}}),
 		ball_position_sub(nh, "ball/position", 1),
 		sync(*ros_robots[0].pose_sub, *ros_robots[1].pose_sub,
 			 *ros_robots[2].pose_sub, ball_position_sub, 10),
-		team(ball), ball(ball), interface(interface_ref) {
+			 is_team2(is_team2), interface(interface_ref) {
 
 	sync.registerCallback(&Simulation::ros_callback, this);
 	start_ros_thread();
@@ -27,14 +27,22 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 		const auto& position = msg->pose.position;
 		const auto& quat = msg->pose.orientation;
 		auto theta = quat_to_euler(quat.w, quat.x, quat.y, quat.z);
-		robot->set_pose_simu({position.x, position.y}, theta);
+		if (!is_team2) {
+			robot->set_pose_simu({position.x, position.y}, theta);
+		} else {
+			robot->set_pose_simu({1.7 - position.x, 1.3 - position.y}, Geometry::wrap(theta + PI));
+		}
 	}
 
 	auto ball_position = ball_msg.get()->point;
-	ball.position = {ball_position.x, ball_position.y};
+	if (!is_team2) {
+		team.ball.position = {ball_position.x, ball_position.y};
+	} else {
+		team.ball.position = {1.7 - ball_position.x, 1.3 - ball_position.y};
+	}
 
 	if (interface.get_start_game_flag()) {
-		ball.update_estimate();
+		team.ball.update_estimate();
 
 		team.strategy.run();
 
@@ -43,9 +51,15 @@ void Simulation::ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampe
 
 			vsss_msgs::Control control_msg;
 			control_msg.command = (uint8_t) robot->get_command();
-			control_msg.pose.x = target.position.x;
-			control_msg.pose.y = target.position.y;
-			control_msg.pose.theta = target.orientation;
+			if (!is_team2) {
+				control_msg.pose.x = target.position.x;
+				control_msg.pose.y = target.position.y;
+				control_msg.pose.theta = target.orientation;
+			} else {
+				control_msg.pose.x = 1.7 - target.position.x;
+				control_msg.pose.y = 1.3 - target.position.y;
+				control_msg.pose.theta = Geometry::wrap(target.orientation + PI);
+			}
 			control_msg.velocity.linear.x = target.velocity;
 			control_msg.velocity.angular.z = target.angular_velocity;
 

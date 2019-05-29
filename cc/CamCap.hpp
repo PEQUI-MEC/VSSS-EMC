@@ -43,9 +43,8 @@
 class CamCap : public Gtk::HBox {
 
 	public:
-		Ball ball;
-
 		Team team;
+		Ball& ball;
 
 		unsigned char *data;
 

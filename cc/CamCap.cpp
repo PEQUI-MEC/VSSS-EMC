@@ -268,12 +268,12 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-CamCap::CamCap(bool isLowRes, int argc, char **argv) : team(ball),
+CamCap::CamCap(bool isLowRes, int argc, char **argv) : ball(team.ball),
 													   data(nullptr), width(0), height(0), frameCounter(0),
 													   msg_thread(&CamCap::send_cmd_thread, this),
 													   robotGUI(team.robots, isLowRes),
 													   interface(team.robots, ball.position, robotGUI, isLowRes, ball),
-													   simulationGUI(ball, interface, argc, argv) {
+													   simulationGUI(interface, argc, argv) {
 
 
 	fm.set_label("imageView");
