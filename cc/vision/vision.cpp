@@ -653,7 +653,7 @@ Vision::Vision(int w, int h)
 		dilate{0, 0, 0, 0},
 		erode{0, 0, 0, 0},
 		blur{3, 3, 3, 3},
-		areaMin{0, 0, 0, 0} {
+		areaMin{50, 20, 30, 30} {
 }
 
 Vision::~Vision() = default;
