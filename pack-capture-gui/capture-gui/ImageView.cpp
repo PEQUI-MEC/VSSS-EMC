@@ -4,17 +4,6 @@ using capture::ImageView;
 using namespace onClick;
 
 bool ImageView::on_button_press_event(GdkEventButton *event) {
-
-	if (gmm_sample_flag && event->button == 1) {
-
-		gmm_clicks[gmm_counter][0] = static_cast<int>(event->x);
-		gmm_clicks[gmm_counter][1] = static_cast<int>(event->y);
-		if (gmm_counter == 1) {
-			gmm_counter = 0;
-			gmm_ready_flag = true;
-		} else gmm_counter++;
-	}
-
 	if (split_flag) {
 		if (event->x <= std::round(width / 2) && event->y <= std::round(height / 2)) sector = 0;
 		else if (event->x <= std::round(width / 2) && event->y > std::round(height / 2)) sector = 2;
@@ -62,9 +51,7 @@ ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_control
 													 		  imageWarp.get_adjust(),
 															  test_controller,
 															  width,
-															  height),
-												      gmm_clicks{{0, 0}, {0, 0}}
-												      {
+															  height) {
 }
 
 void ImageView::set_data(unsigned char *data, int width, int height) {

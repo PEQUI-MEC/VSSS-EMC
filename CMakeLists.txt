@@ -40,8 +40,6 @@ set(SOURCE_FILES cc/main.cpp
     cc/jsonSaveManager.cpp
     cc/TestFrame.cpp
     cc/LS.cpp
-    cc/vision/visionROI.cpp
-    cc/vision/gmm.cpp
     cc/vision/tag.cpp
     cc/vision/vision.cpp
     cc/vision/visionGUI.cpp
