@@ -26,7 +26,7 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 		if (event->button == 1) {
 			select_point(event->x, event->y);
 			if (!is_point_selected())
-				warp_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
+				imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
 		} else if (event->button == 3)
 			imageWarp.warp_undo();
 	}
@@ -35,7 +35,7 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 		if (event->button == 1) {
 			select_point(event->x, event->y, false);
 			if (!is_point_selected())
-				adjust_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
+				imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
 		} else if (event->button == 3)
 			imageWarp.adjust_undo();
 	}
@@ -58,6 +58,7 @@ ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_control
 													 width(0),
 													 height(0),
 													 stride(0),
+													 imageWarp(this->width, this->height),
 													 imageArt(imageWarp.get_warp(),
 													 		  imageWarp.get_adjust(),
 															  test_controller,
