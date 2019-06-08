@@ -25,7 +25,7 @@ using std::cout;
 using std::endl;
 using capture::v4lcap;
 
-v4lcap::v4lcap() : fd(0), emulate_format(true), needs_convert(false), v4lconv(nullptr), status(0) {
+v4lcap::v4lcap() : fd(0), emulate_format(true), needs_convert(false), v4lconv(nullptr), status(0), isCameraON(true) {
 }
 
 int v4lcap::xioctl(int fd, int request, void *arg) {
@@ -383,7 +383,17 @@ void *v4lcap::grab_rgb(unsigned char *rgb) {
 		int err = 0;
 		err = v4lconvert_convert(v4lconv, &format_src, &format_dest, (unsigned char *) data, vbuf.bytesused, rgb,
 								 format_dest.fmt.pix.sizeimage);
-		if (err < 0 && isCameraON) std::cout << "OOpsss " << std::endl;
+		if (err < 0) {
+			if (isCameraON) {
+				std::cout << ":( CAMERA OFF ..." << std::endl;
+				isCameraON = false;
+			}
+		} else {
+			if (!isCameraON) {
+				std::cout << ":) CAMERA ON!" << std::endl;
+				isCameraON = true;
+			}
+		}
 	}
 
 //		for (int i = 0; i < format_dest.fmt.pix.sizeimage; ++i) {
@@ -393,18 +403,6 @@ void *v4lcap::grab_rgb(unsigned char *rgb) {
 //		}
 
 	// =========================================================================
-	if (!enqueue_buff(&vbuf)) {
-		if(isCameraON == true) {
-			//std::cout << "Can't enqueue buffer " << vbuf.index << " !" << std::endl;
-			std::cout << ":( CAMERA OFF ..." << std::endl;
-		}
-		isCameraON = false ;
-	}else{
-		if(isCameraON == false) {
-			std::cout << ":) CAMERA ON!" << std::endl;
-		}
-		isCameraON = true ;
-	}
 
 	return NULL;
 }
