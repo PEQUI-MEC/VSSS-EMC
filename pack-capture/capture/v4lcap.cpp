@@ -383,7 +383,7 @@ void *v4lcap::grab_rgb(unsigned char *rgb) {
 		int err = 0;
 		err = v4lconvert_convert(v4lconv, &format_src, &format_dest, (unsigned char *) data, vbuf.bytesused, rgb,
 								 format_dest.fmt.pix.sizeimage);
-		if (err < 0) std::cout << "OOpsss \n";
+		if (err < 0 && isCameraON) std::cout << "OOpsss " << std::endl;
 	}
 
 //		for (int i = 0; i < format_dest.fmt.pix.sizeimage; ++i) {
@@ -394,9 +394,15 @@ void *v4lcap::grab_rgb(unsigned char *rgb) {
 
 	// =========================================================================
 	if (!enqueue_buff(&vbuf)) {
-		std::cout << "Can't enqueue buffer " << vbuf.index << " !" << std::endl;
+		if(isCameraON == true) {
+			//std::cout << "Can't enqueue buffer " << vbuf.index << " !" << std::endl;
+			std::cout << ":( CAMERA OFF ..." << std::endl;
+		}
 		isCameraON = false ;
 	}else{
+		if(isCameraON == false) {
+			std::cout << ":) CAMERA ON!" << std::endl;
+		}
 		isCameraON = true ;
 	}
 
