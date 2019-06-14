@@ -22,7 +22,6 @@ int main(int argc, char **argv) {
 
 	window.show_all();
 
-	camcap.interface.visionGUI.hideGMM();
 	camcap.interface.fr_camCalib_offline.hide();
 	camcap.interface.controlGUI.update_ack_interface();
 

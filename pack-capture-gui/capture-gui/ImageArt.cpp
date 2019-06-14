@@ -8,7 +8,7 @@ using namespace vision;
 using namespace art;
 using namespace onClick;
 
-void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
+void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 					const std::map<unsigned int, Vision::RecognizedTag> &our_tags,
 					const std::vector<cv::Point> &adv_tags,
 					const std::array<Robot2 *, 3> &our_robots, bool is_game_on) {
@@ -46,11 +46,6 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 
 		if (robot != nullptr)
 			cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
-	}
-
-	// GMM draw points
-	for (unsigned long i = 0; i < gmm_points.size(); i = i + 2) {
-		cv::rectangle(frame, gmm_points.at(i), gmm_points.at(i + 1), gmm_color, cv::LINE_AA);
 	}
 
 	// Warp

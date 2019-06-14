@@ -31,14 +31,13 @@ namespace art {
 			const cv::Scalar our_robots_color[2] = {{255, 255, 0}, {255, 0, 0}};
 			const cv::Scalar ball_color = {255, 255, 255}; // white
 			const cv::Scalar adv_robots_color = {0, 0, 255}; // blue
-			const cv::Scalar gmm_color = {0, 255, 255};
 
 
 			void draw_targets(const Robot2 *robot, cv::Mat &frame);
 
 		public:
 			ImageArt(warp::PointArray &warp, warp::PointArray &adjust, onClick::TestOnClick &test, int &width, int &height);
-			void draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
+			void draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 					  const std::map<unsigned int, vision::Vision::RecognizedTag> &our_tags,
 					  const std::vector<cv::Point> &adv_tags,
 					  const std::array<Robot2 *, 3> &our_robots, bool is_game_on);
