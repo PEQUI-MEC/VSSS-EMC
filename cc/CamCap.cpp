@@ -43,7 +43,7 @@ bool CamCap::start_signal(bool b) {
 
 		data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
-		interface.imageView.set_size_request(width, height);
+		interface.imageView.set_frame_size(width, height);
 		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
 
 		interface.__event_bt_quick_load_clicked();
@@ -72,7 +72,7 @@ bool CamCap::capture_and_show() {
 	frameCounter++;
 
 	interface.vcap.grab_rgb(data);
-	interface.imageView.set_data(data, width, height);
+	interface.imageView.set_data(data);
 	interface.imageView.refresh();
 
 	cv::Mat imageView(height, width, CV_8UC3, data);
@@ -172,11 +172,10 @@ bool CamCap::capture_and_show() {
 	}
 
 	if (interface.visionGUI.getIsSplitView()) {
-		interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);
+		interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data);
 		interface.imageView.refresh();
 	} else if (interface.visionGUI.CIELAB_calib_event_flag) {
-		interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data,
-									 width, height);
+		interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data);
 		interface.imageView.refresh();
 	}
 

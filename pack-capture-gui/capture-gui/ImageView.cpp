@@ -68,11 +68,8 @@ ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_control
 												      {
 }
 
-void ImageView::set_data(unsigned char *data, int width, int height) {
-	this->data = data;
-	this->width = width;
-	this->height = height;
-	this->stride = width * 3;
+void ImageView::set_data(unsigned char *i_data) {
+	data = i_data;
 }
 
 void ImageView::disable_image_show() {
@@ -168,4 +165,11 @@ void capture::ImageView::select_point(const gdouble x, const gdouble y, const bo
 		}
 	}
 	selected_pt = no_point;
+}
+
+void capture::ImageView::set_frame_size(int w, int h) {
+	set_size_request(w, h);
+	width = w;
+	height = h;
+	stride = w * 3;
 }

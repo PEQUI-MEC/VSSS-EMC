@@ -60,7 +60,8 @@ class capture::ImageView : public Gtk::DrawingArea {
 		int sector = -1;
 
 		explicit ImageView(onClick::TestOnClick &test_controller);
-		void set_data(unsigned char *data, int width, int height);
+		void set_data(unsigned char *i_data);
+		void set_frame_size(int width, int height);
 		void disable_image_show();
 		void refresh();
 		bool on_draw(const Cairo::RefPtr<Cairo::Context> &cr) override;
