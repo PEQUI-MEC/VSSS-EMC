@@ -47,7 +47,6 @@ bool CamCap::start_signal(bool b) {
 		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
 
 		interface.__event_bt_quick_load_clicked();
-		interface.visionGUI.quickLoadGMM();
 	} else {
 		cout << "Stop Button Clicked!" << endl;
 		con.disconnect();
@@ -78,7 +77,6 @@ bool CamCap::capture_and_show() {
 	cv::Mat imageView(height, width, CV_8UC3, data);
 
 	interface.imageView.split_flag = interface.visionGUI.getIsSplitView();
-	interface.imageView.gmm_sample_flag = interface.visionGUI.getSamplesEventFlag();
 
 	if (interface.imageView.sector != -1) {
 		interface.visionGUI.selectFrame(interface.imageView.sector);
@@ -103,60 +101,6 @@ bool CamCap::capture_and_show() {
 		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
 													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
-
-	if (interface.imageView.gmm_ready_flag) {
-		interface.visionGUI.gmm->setFrame(imageView);
-		interface.visionGUI.gmm->pushSample(interface.imageView.gmm_clicks);
-		interface.visionGUI.incrementSamples();
-		interface.imageView.gmm_ready_flag = false;
-	}
-//	if (!interface.visionGUI.getIsHSV()) { // GMM
-//		if (interface.visionGUI.gmm->getIsTrained()) {
-//			interface.visionGUI.gmm->run(imageView);
-//			updateAllPositions();
-//			if (control.ekf_always_send || is_game_on || interface.imageView.PID_test_flag) {
-//				notify_data_ready(true);
-//			}
-//			interface.visionGUI.vision->recordVideo(imageView);
-//			if (interface.visionGUI.gmm->getDoneFlag()) {
-//				for (auto &window : interface.visionGUI.gmm->windowsList) {
-//					rectangle(imageView, window.getPosition(),
-//							  window.getEnd(), cv::Scalar(250, 155, 0));
-//				}
-//			}
-//
-//			interface.visionGUI.vision->runGMM(interface.visionGUI.gmm->getAllThresholds(),
-//											   interface.visionGUI.gmm->getWindowsList());
-//
-//			if (interface.visionGUI.getGaussiansFrameFlag()) {
-//				interface.imageView.set_data(interface.visionGUI.gmm->getGaussiansFrame().data, width, height);
-//				interface.imageView.refresh();
-//			} else if (interface.visionGUI.getFinalFrameFlag()) {
-//				interface.imageView.set_data(interface.visionGUI.gmm->getFinalFrame().data, width, height);
-//				interface.imageView.refresh();
-//			} else if (interface.visionGUI.getThresholdFrameFlag()) {
-//				interface.imageView.set_data(
-//						interface.visionGUI.gmm->getThresholdFrame(interface.visionGUI.getGMMColorIndex()).data,
-//						width, height);
-//				interface.imageView.refresh();
-//			}
-//		}
-//	} else { // HSV Simples
-//		interface.visionGUI.vision->run(imageView);
-//		updateAllPositions();
-//		if (control.ekf_always_send || is_game_on || interface.imageView.PID_test_flag) {
-//			notify_data_ready(true);
-//		}
-//
-//		if (interface.visionGUI.getIsSplitView()) {
-//			interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data, width, height);
-//			interface.imageView.refresh();
-//		} else if (interface.visionGUI.HSV_calib_event_flag) {
-//			interface.imageView.set_data(interface.visionGUI.vision->getThreshold(interface.visionGUI.Img_id).data,
-//										 width, height);
-//			interface.imageView.refresh();
-//		}
-//	}
 
 	std::map<unsigned int, Vision::RecognizedTag> tags = interface.visionGUI.vision->run(imageView);
 
@@ -213,7 +157,6 @@ bool CamCap::capture_and_show() {
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 
 			interface.imageView.imageArt.draw(imageView,
-											  interface.visionGUI.gmm->getSamplePoints(),
 											  interface.visionGUI.vision->getBall(),
 											  tags,
 											  interface.visionGUI.vision->get_adv_robots(),

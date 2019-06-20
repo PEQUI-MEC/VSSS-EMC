@@ -49,13 +49,8 @@ class capture::ImageView : public Gtk::DrawingArea {
 		warp::ImageWarp imageWarp;
 		art::ImageArt imageArt;
 
-		int gmm_clicks[2][2];
-
-		int gmm_counter = 0;
 		bool warp_event_flag = false;
 		bool adjust_event_flag = false;
-		bool gmm_sample_flag = false;
-		bool gmm_ready_flag = false;
 		bool split_flag = false;
 		int sector = -1;
 

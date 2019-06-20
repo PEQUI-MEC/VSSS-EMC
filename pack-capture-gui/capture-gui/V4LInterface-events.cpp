@@ -123,8 +123,6 @@ void V4LInterface::__event_bt_start_clicked() {
 		visionGUI.rb_split_view.set_state(Gtk::STATE_NORMAL);
 		visionGUI.rb_original_view.set_state(Gtk::STATE_NORMAL);
 		visionGUI.bt_LAB_calib.set_state(Gtk::STATE_NORMAL);
-		visionGUI.rb_mode_GMM.set_state(Gtk::STATE_NORMAL);
-		visionGUI.rb_mode_CIELAB.set_state(Gtk::STATE_NORMAL);
 		visionGUI.bt_record_video.set_state(Gtk::STATE_NORMAL);
 		visionGUI.bt_save_picture.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
