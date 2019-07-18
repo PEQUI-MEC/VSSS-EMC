@@ -13,28 +13,40 @@ namespace warp {
 
 	class PointArray {
 		private:
-			std::array<cv::Point, MAX_POINTS> mat;
-			std::array<cv::Point, MAX_POINTS> unordered_mat;
-			unsigned short counter = 0;
+			// Índice do array = quadrante do ponto na imagem:
+			// [0] - Segundo quadrante
+			// [1] - Terceiro quadrante
+			// [2] - Primeiro quadrante
+			// [3] - Quarto quadrante
+			// Pair: <Ponto, ordem de clique>
+			std::array<std::pair<cv::Point, int>, MAX_POINTS> mat;
+
+			int order = 0;
+			int &width;
+			int &height;
+
+			const cv::Point EMPTY_POINT = {-10, -10};
+
+			void do_add(int index, const cv::Point &point);
 
 		public:
-			cv::Point operator[](const unsigned short index) { return mat.at(index); };
+			PointArray(int &w, int &h);
+			cv::Point operator[](const unsigned short index) { return mat.at(index).first; };
 
 			const PointArray *operator->() { return this; };
 
-			cv::Point at(unsigned short index) const { return mat.at(index); };
+			cv::Point at(unsigned short index) const { return mat.at(index).first; };
 
-			// unordered_at é usado para renderizar os pontos na ordem coletada pelo usuário na imagem
-			cv::Point unordered_at(unsigned short index) const { return unordered_mat.at(index); };
+			std::vector<cv::Point> get_ordered_points() const;
 
-			void reset() { counter = 0; };
+			void reset();
 
-			bool is_full() const { return counter == MAX_POINTS; };
-			bool add_point(const cv::Point &point);
+			bool is_full() const { return order == MAX_POINTS; };
+			void add(const cv::Point &point);
 			void undo();
-			cv::Point replace(cv::Point old_pt, cv::Point new_pt);
+			cv::Point replace(const cv::Point& old_pt, const cv::Point& new_pt);
 
-			unsigned short size() const { return counter; };
+			unsigned short size() const { return order; };
 	};
 
 	class ImageWarp {
@@ -48,13 +60,15 @@ namespace warp {
 			bool is_invert_field = false;
 
 		public:
+			ImageWarp(int &w, int &h);
+
 			void set_offset_R(unsigned short offset);
 			void set_offset_L(unsigned short offset);
 
 			unsigned short get_offset_R() const { return offset_R; };
 
 			unsigned short get_offset_L() const { return offset_L; };
-			bool add_mat_point(cv::Point point, bool isAdjust = false);
+			void add_mat_point(const cv::Point &point, const bool isAdjust = false);
 			void clear_all_points();
 			void clear_warp_points();
 			void clear_adjust_points();

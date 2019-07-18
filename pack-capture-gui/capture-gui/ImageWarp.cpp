@@ -6,40 +6,82 @@
 
 using namespace warp;
 
-bool PointArray::add_point(const cv::Point &point) {
-	if (counter < MAX_POINTS) {
-		mat.at(counter) = point;
-		unordered_mat.at(counter) = point;
-		counter++;
+void PointArray::add(const cv::Point &point) {
+	if (is_full())
+		return;
 
-		if (is_full())
-			std::sort(mat.begin(), mat.end(), [](cv::Point a, cv::Point b) {
-				return (sqrt(pow(a.x, 2) + pow(a.y, 2)) <= sqrt(pow(b.x, 2) + pow(b.y, 2)));
-			});
-		return true;
+	if (point.x <= width / 2 && point.y <= height / 2) {
+		do_add(0, point);
+	} else if (point.x <= width / 2 && point.y > height / 2) {
+		do_add(1, point);
+	} else if (point.x > width / 2 && point.y <= height / 2) {
+		do_add(2, point);
+	} else {
+		do_add(3, point);
 	}
-	return false;
+}
+
+void PointArray::do_add(int index, const cv::Point &point) {
+	if (mat.at(index).first != warp::PointArray::EMPTY_POINT) {
+		mat.at(index).first = point;
+	} else {
+		mat.at(index) = {point, order++};
+	}
 }
 
 void PointArray::undo() {
-	if (counter == MAX_POINTS) {
-		counter--;
-		mat = unordered_mat;
-	} else if (counter > 0) {
-		counter--;
+	auto* find_pair = std::find_if(std::begin(mat), std::end(mat), [this](std::pair<cv::Point, int> pair) {
+		return order-1 == pair.second;
+	});
+
+	if (find_pair != std::end(mat))
+		*find_pair = {EMPTY_POINT, -1};
+
+	if (order > 0) {
+		order--;
 	}
 }
 
-cv::Point PointArray::replace(const cv::Point old_pt, const cv::Point new_pt) {
-	cv::Point* replace_pt = std::find(std::begin(mat), std::end(mat), old_pt);
-	if (replace_pt != std::end(mat)) {
-		*replace_pt = new_pt;
-		replace_pt = std::find(std::begin(unordered_mat), std::end(unordered_mat), old_pt);
-		*replace_pt = new_pt;
+cv::Point PointArray::replace(const cv::Point& old_pt, const cv::Point& new_pt) {
+	if (!is_full())
+		return old_pt;
+
+	auto* replace_pair = std::find_if(std::begin(mat), std::end(mat), [&old_pt](std::pair<cv::Point, int> pair) {
+		return (old_pt.x == pair.first.x && old_pt.y == pair.first.y);
+	});
+
+	if (replace_pair != std::end(mat)) {
+		replace_pair->first = new_pt;
 		return new_pt;
 	}
+
 	return old_pt;
-};
+}
+
+void PointArray::reset() {
+	order = 0;
+	for (auto &pair : mat) {
+		pair = {EMPTY_POINT, -1};
+	}
+}
+
+PointArray::PointArray(int &w, int &h) : width(w), height(h) {
+	std::fill(std::begin(mat), std::end(mat), std::make_pair(EMPTY_POINT, -1));
+}
+
+std::vector<cv::Point> PointArray::get_ordered_points() const {
+	std::vector<cv::Point> vec;
+	int index = 0;
+	while (index < order) {
+		auto pair = std::find_if(std::begin(mat), std::end(mat), [index, this](auto pair) {
+			return pair.first != EMPTY_POINT && index == pair.second;
+		});
+		vec.emplace_back(pair->first);
+		index++;
+	}
+
+	return vec;
+}
 
 void ImageWarp::set_offset_R(const unsigned short offset) {
 	offset_R = offset;
@@ -49,11 +91,11 @@ void ImageWarp::set_offset_L(const unsigned short offset) {
 	offset_L = offset;
 }
 
-bool ImageWarp::add_mat_point(const cv::Point point, const bool isAdjust) {
+void ImageWarp::add_mat_point(const cv::Point &point, const bool isAdjust) {
 	if (isAdjust) {
-		return adjust_mat.add_point(point);
+		adjust_mat.add(point);
 	} else {
-		return warp_mat.add_point(point);
+		warp_mat.add(point);
 	}
 }
 
@@ -126,4 +168,7 @@ void ImageWarp::clear_warp_points() {
 void ImageWarp::clear_adjust_points() {
 	adjust_mat.reset();
 	is_adjust_rdy = false;
+}
+
+ImageWarp::ImageWarp(int &w, int &h) : warp_mat(w, h), adjust_mat(w, h) {
 }
