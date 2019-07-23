@@ -59,14 +59,16 @@ sudo apt install ros-melodic-desktop
 sudo rosdep init
 rosdep update
 echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
-source ~/.bashrc
+source /opt/ros/melodic/setup.bash
 sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential -y
 
 echo "Installing vsss_msgs"
 cd vsss_msgs_ws
 VSSS_MSGS_LOCATION=/home/$USER/.vsss/vsss_msgs
 catkin_make install -DCMAKE_INSTALL_PREFIX=$VSSS_MSGS_LOCATION
+cd ..
 echo 'source /home/$USER/.vsss/vsss_msgs/setup.bash' >> ~/.bashrc
-source ~/.bashrc
+source /home/$USER/.vsss/vsss_msgs/setup.bash
 
 echo "All dependencies were installed. Run ./buildVSSS.sh to build the project."
+echo 'Run "source ~/.bashrc" to apply changes to this terminal'
