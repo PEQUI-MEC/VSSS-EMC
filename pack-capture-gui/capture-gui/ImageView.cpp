@@ -4,17 +4,6 @@ using capture::ImageView;
 using namespace onClick;
 
 bool ImageView::on_button_press_event(GdkEventButton *event) {
-
-	if (gmm_sample_flag && event->button == 1) {
-
-		gmm_clicks[gmm_counter][0] = static_cast<int>(event->x);
-		gmm_clicks[gmm_counter][1] = static_cast<int>(event->y);
-		if (gmm_counter == 1) {
-			gmm_counter = 0;
-			gmm_ready_flag = true;
-		} else gmm_counter++;
-	}
-
 	if (split_flag) {
 		if (event->x <= std::round(width / 2) && event->y <= std::round(height / 2)) sector = 0;
 		else if (event->x <= std::round(width / 2) && event->y > std::round(height / 2)) sector = 2;
@@ -26,7 +15,7 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 		if (event->button == 1) {
 			select_point(event->x, event->y);
 			if (!is_point_selected())
-				warp_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
+				imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)});
 		} else if (event->button == 3)
 			imageWarp.warp_undo();
 	}
@@ -35,7 +24,7 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 		if (event->button == 1) {
 			select_point(event->x, event->y, false);
 			if (!is_point_selected())
-				adjust_event_flag = imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
+				imageWarp.add_mat_point({static_cast<int>(event->x), static_cast<int>(event->y)}, true);
 		} else if (event->button == 3)
 			imageWarp.adjust_undo();
 	}
@@ -44,6 +33,8 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 		if (event->button == 1) {
 			test_on_click->select_robot(event->x, event->y);
 		} else if (event->button == 3) {
+			test_on_click->set_ready(false);
+			has_right_click = true;
 			test_on_click->select_target(event->x, event->y);
 		}
 	}
@@ -51,10 +42,12 @@ bool ImageView::on_button_press_event(GdkEventButton *event) {
 }
 
 ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_controller),
+													 has_right_click(false),
 													 data(nullptr),
 													 width(0),
 													 height(0),
 													 stride(0),
+													 imageWarp(this->width, this->height),
 													 imageArt(imageWarp.get_warp(),
 													 		  imageWarp.get_adjust(),
 															  test_controller,
@@ -62,11 +55,8 @@ ImageView::ImageView(TestOnClick &test_controller) : test_on_click(&test_control
 															  height) {
 }
 
-void ImageView::set_data(unsigned char *data, int width, int height) {
-	this->data = data;
-	this->width = width;
-	this->height = height;
-	this->stride = width * 3;
+void ImageView::set_data(unsigned char *i_data) {
+	data = i_data;
 }
 
 void ImageView::disable_image_show() {
@@ -126,6 +116,16 @@ bool capture::ImageView::on_motion_notify_event(GdkEventMotion *event) {
 			return true;
 		}
 	}
+
+	if (Robot2::Command cmd = test_on_click->get_command();
+			has_right_click && (cmd == Robot2::Command::UVF || cmd == Robot2::Command::Orientation)) {
+
+		test_on_click->set_orientation(event->x, event->y);
+		return true;
+	} else if (has_right_click && (cmd == Robot2::Command::Position || cmd == Robot2::Command::Vector)) {
+		test_on_click->select_target(event->x, event->y);
+		return true;
+	}
 	return false;
 }
 
@@ -133,6 +133,10 @@ bool capture::ImageView::on_button_release_event(GdkEventButton *event) {
 	if ((adjust_event_flag || warp_event_flag) && event->button == 1) {
 		selected_pt = no_point;
 		return true;
+	}
+	if (test_on_click->is_active() && test_on_click->has_robot() && event->button == 3) {
+		has_right_click = false;
+		test_on_click->set_ready();
 	}
 	return false;
 }
@@ -148,4 +152,11 @@ void capture::ImageView::select_point(const gdouble x, const gdouble y, const bo
 		}
 	}
 	selected_pt = no_point;
+}
+
+void capture::ImageView::set_frame_size(int w, int h) {
+	set_size_request(w, h);
+	width = w;
+	height = h;
+	stride = w * 3;
 }

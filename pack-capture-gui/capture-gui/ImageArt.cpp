@@ -8,7 +8,7 @@ using namespace vision;
 using namespace art;
 using namespace onClick;
 
-void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, const vision::Vision::Ball &ball,
+void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 					const std::map<unsigned int, Vision::RecognizedTag> &our_tags,
 					const std::vector<cv::Point> &adv_tags,
 					const std::array<Robot2 *, 3> &our_robots, bool is_game_on) {
@@ -48,11 +48,6 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 			cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
 	}
 
-	// GMM draw points
-	for (unsigned long i = 0; i < gmm_points.size(); i = i + 2) {
-		cv::rectangle(frame, gmm_points.at(i), gmm_points.at(i + 1), gmm_color, cv::LINE_AA);
-	}
-
 	// Warp
 	if (is_warping) {
 		auto scale = 1;
@@ -75,10 +70,11 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 						font, scale, warp_color, thickness, cv::LINE_AA);
 		}
 
-		for (unsigned short index = 0; index < warp_mat.size(); index++) {
-			cv::Point point = warp_mat.unordered_at(index);
+		auto points = warp_mat.get_ordered_points();
+		int index = 0;
+		for (const auto& point : points) {
 			cv::circle(frame, point, 2, warp_color, 2);
-			cv::putText(frame, std::to_string(index + 1), {point.x + 5, point.y - 5},
+			cv::putText(frame, std::to_string(index++ + 1), {point.x + 5, point.y - 5},
 						cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, warp_color, 1, cv::LINE_AA);
 		}
 	}
@@ -101,9 +97,10 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 						font, scale, adjust_color, thickness, cv::LINE_AA);
 		}
 
-		for (unsigned short index = 0; index < adjust_mat.size(); index++) {
-			cv::Point point = adjust_mat.unordered_at(index);
 
+		auto points = adjust_mat.get_ordered_points();
+		int index = 0;
+		for (const auto& point : points) {
 			// desenhar retầngulos
 			if (point.x <= width / 2 && point.y <= height / 2) {
 				cv::line(frame, {point.x, 0}, point, adjust_color, 1, cv::LINE_AA);
@@ -121,7 +118,7 @@ void ImageArt::draw(cv::Mat &frame, const std::vector<cv::Point> &gmm_points, co
 
 			cv::circle(frame, point, 2, adjust_color, thickness);
 
-			cv::putText(frame, std::to_string(index + 1), {point.x + 5, point.y - 5},
+			cv::putText(frame, std::to_string(index++ + 1), {point.x + 5, point.y - 5},
 						cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, adjust_color, 1, cv::LINE_AA);
 		}
 	}
@@ -131,14 +128,25 @@ void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
 	if (robot == nullptr)
 		return;
 
-	cv::Scalar color = test_on_click.is_active()? test_color : strategy_color;
-	double angle = test_on_click.is_active()? test_on_click.get_orientation_value() : robot->get_target().orientation;
-	cv::Point target = test_on_click.is_active()? test_on_click.get_target().to_cv_point() : robot->get_target().position.to_cv_point();
+	cv::Scalar color;
+	double angle;
+	cv::Point target;
 	cv::Point position = robot->get_position().to_cv_point();
+	bool is_test_on_click = test_on_click.is_active();
 
-	switch (robot->get_command()) {
+	if (is_test_on_click) {
+		color = test_color;
+		angle = test_on_click.get_orientation_value();
+		target = test_on_click.get_target().to_cv_point();
+	} else {
+		color = strategy_color;
+		angle = robot->get_target().orientation;
+		robot->get_target().position.to_cv_point();
+	}
+
+	switch (is_test_on_click? test_on_click.get_command() : robot->get_command()) {
 		case Robot2::Command::Vector:
-			BOOST_FALLTHROUGH;
+			[[fallthrough]];
 		case Robot2::Command::Orientation: {
 			auto x2 = static_cast<int>(position.x + 16 * cos(angle));
 			auto y2 = static_cast<int>(position.y - 16 * sin(angle));

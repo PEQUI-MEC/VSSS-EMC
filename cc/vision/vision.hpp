@@ -17,7 +17,6 @@
 #include <boost/bind.hpp>
 #include <iostream>
 #include "tag.hpp"
-#include "visionROI.hpp"
 
 namespace vision
 {
@@ -94,9 +93,7 @@ namespace vision
 		void posProcessing(unsigned long color);
 		void segmentAndSearch(unsigned long color);
 		void searchTags(unsigned long color);
-		void searchGMMTags(std::vector<cv::Mat> thresholds);
 		void findTags();
-		//void pick_a_tag(std::vector<VisionROI> *windowsList);
 		std::map<unsigned int, RecognizedTag> pick_a_tag();
 		int in_sphere(cv::Point secondary, Tag &main_tag, double &orientation);
 
@@ -106,7 +103,6 @@ namespace vision
 		~Vision();
 
 		std::map<unsigned int, RecognizedTag> run(cv::Mat raw_frame);
-//		void runGMM(std::vector<cv::Mat> thresholds, std::vector<VisionROI> *windowsList);
 		double calcDistance(cv::Point p1, cv::Point p2) const;
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
 
