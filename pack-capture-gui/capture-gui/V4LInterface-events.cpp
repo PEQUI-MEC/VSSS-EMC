@@ -29,9 +29,10 @@ void V4LInterface::HScale_offsetL_value_changed() {
 
 // signals
 void V4LInterface::__event_bt_quick_save_clicked() {
-	std::cout << "QUICK SAVE" << std::endl;
-	jsonSaveManager config(this);
-	config.save();
+
+		std::cout << "QUICK SAVE" << std::endl;
+		jsonSaveManager config(this);
+		config.save();
 }
 
 void V4LInterface::__event_bt_save_clicked() {
