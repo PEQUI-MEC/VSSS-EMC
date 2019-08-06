@@ -103,21 +103,6 @@ string Messenger::rounded_str(double num) {
 	return ss.str();
 }
 
-void Messenger::set_ack_enabled(bool enable) {
-	if (!xbee) return;
-	xbee->set_ack_enabled(enable);
-}
-
-ack_count Messenger::get_ack_count(char id) {
-	if (!xbee) return {-1, -1, -1};
-	else return xbee->get_ack_count(id);
-}
-
-void Messenger::reset_lost_acks() {
-	if (!xbee) return;
-	xbee->reset_lost_acks();
-}
-
 void Messenger::update_msg_time() {
 	auto now = std::chrono::system_clock::now();
 	std::chrono::duration<double, std::milli> time_diff = now - previous_msg_time;

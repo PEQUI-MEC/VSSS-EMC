@@ -63,6 +63,15 @@ set(SOURCE_FILES cc/main.cpp
     cc/TestOnClick.cpp
     cc/VideoRecorder.cpp)
 
+set(serialSRC
+    cc/lib/serial/src/serial.cc
+    cc/lib/serial/include/serial/serial.h
+    cc/lib/serial/include/serial/v8stdint.h
+    cc/lib/serial/src/impl/unix.cc)
+
+add_library(serial ${serialSRC})
+target_link_libraries(serial rt)
+
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
     cc/Fuzzy/
@@ -72,6 +81,7 @@ include_directories(cc/
     cc/Geometry/
     pack-capture/capture/
     pack-capture-gui/capture-gui/
+    cc/lib/serial/include
     ${GTKMM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
@@ -94,6 +104,7 @@ target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
 target_link_libraries(VSSS ${LIBXBEE})
+target_link_libraries(VSSS serial)
 if (CUDA_FOUND)
     target_link_libraries(VSSS ${CUDA_LIBRARIES})
 endif ()

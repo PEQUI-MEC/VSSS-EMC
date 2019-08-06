@@ -107,7 +107,7 @@ void ControlGUI::_update_cb_serial() {
 	xbee_connections = 0;
 
 	for (int i = 0; i < 256; ++i) {
-		std::string port = "/dev/ttyUSB";
+		std::string port = "/dev/ttyACM";
 		port.append(std::to_string(i));
 
 		int fd = open(port.c_str(), O_RDWR);
@@ -173,7 +173,7 @@ void ControlGUI::_create_status_frame() {
 
 void ControlGUI::update_ack_interface() {
 	bool is_active = radio_acks_chbt.get_active();
-	messenger.set_ack_enabled(is_active);
+//	messenger.set_ack_enabled(is_active);
 	if (is_active) {
 		for (Gtk::Label &label : dropped_frames) {
 			label.show();
@@ -193,22 +193,22 @@ void ControlGUI::ekf_always_send_enable() {
 }
 
 void ControlGUI::update_dropped_frames() {
-	for (int i = 0; i < TOTAL_ROBOTS; ++i) {
-		char id = get_robot_id(i);
-		ack_count ack = messenger.get_ack_count(id);
-		if (ack.total == -1) return;
-
-		std::stringstream stream;
-		stream << "Lost ACKs: ";
-		stream << std::fixed << std::setprecision(2) << ack.lost_rate << "%";
-		stream << ", Total: " << ack.total;
-		dropped_frames[i].set_text(stream.str());
-	}
+//	for (int i = 0; i < TOTAL_ROBOTS; ++i) {
+//		char id = get_robot_id(i);
+//		ack_count ack = messenger.get_ack_count(id);
+//		if (ack.total == -1) return;
+//
+//		std::stringstream stream;
+//		stream << "Lost ACKs: ";
+//		stream << std::fixed << std::setprecision(2) << ack.lost_rate << "%";
+//		stream << ", Total: " << ack.total;
+//		dropped_frames[i].set_text(stream.str());
+//	}
 }
 
 void ControlGUI::reset_lost_acks() {
-	messenger.reset_lost_acks();
-	update_dropped_frames();
+//	messenger.reset_lost_acks();
+//	update_dropped_frames();
 }
 
 void ControlGUI::set_frameskipper() {
