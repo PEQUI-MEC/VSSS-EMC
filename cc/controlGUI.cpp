@@ -1,7 +1,7 @@
 #include "controlGUI.hpp"
 
-ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots, const Geometry::Point &ball)
-	: test_controller(robots, ball) {
+ControlGUI::ControlGUI(const std::array<Team, 3> &teams, const Geometry::Point &ball)
+	: test_controller(teams[0].robots, ball) {
 
 	_create_radio_frame();
 	_create_commands_frame();

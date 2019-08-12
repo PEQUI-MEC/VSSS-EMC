@@ -3,6 +3,7 @@
 
 #include <lib/json.hpp>
 #include <V4LInterface.hpp>
+#include <Strategy2/Team.h>
 
 using json = nlohmann::json;
 

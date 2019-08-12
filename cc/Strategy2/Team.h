@@ -4,6 +4,12 @@
 #include "Strategy2.hpp"
 #include "Ball.hpp"
 
+enum class Teams {
+  Real,
+  LeftSimu,
+  RightSimu
+};
+
 struct Team {
 	Attacker attacker;
 	Defender defender;

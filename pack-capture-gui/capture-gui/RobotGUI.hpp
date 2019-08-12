@@ -2,12 +2,15 @@
 #define VSSS_ROBOTINFOGUI_HPP
 
 #include <gtkmm.h>
+#include <Strategy2/Team.h>
 #include "Robot2.h"
 
 class RobotGUI : public Gtk::Box {
 	private:
-		const std::array<Robot2*, 3>& robots;
+		const std::array<Team, 3>& teams;
 		const bool isLowRes;
+
+    const Teams& current_team;
 
 		bool robots_speed_edit_flag = false;
 		int robots_id_tmp[3];
@@ -22,6 +25,7 @@ class RobotGUI : public Gtk::Box {
 		Gtk::VBox id_vbox, speed_vbox, role_vbox, speed_bars_box[3];
 		Gtk::Grid id_grid, speed_grid, role_grid;
 		Gtk::Frame id_frame, speed_frame, role_frame;
+    Gtk::Label simu_on_lb;
 
 		Gtk::ComboBoxText robots_id_box[3];
 		Gtk::Button robots_id_edit_bt;
@@ -57,12 +61,13 @@ class RobotGUI : public Gtk::Box {
 		void event_robots_auto_bt_signal_pressed();
 
 	public:
-		RobotGUI(std::array<Robot2 *, 3> &robots, bool isLowRes);
+		RobotGUI(std::array<Team, 3> &teams, bool isLowRes, Teams& current_team);
 
 		void update_speed_progressBars();
 		void update_robot_functions();
 		void update_robots();
 		void enable_main_buttons(bool enable = true);
+    void hide_simu_lb() { simu_on_lb.hide(); };
 
 };
 

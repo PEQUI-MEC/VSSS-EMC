@@ -11,7 +11,7 @@ using std::endl;
 using std::vector;
 
 void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag> &tags) {
-	for (const auto &robot : team.robots) {
+	for (const auto &robot : teams[static_cast<int>(static_cast<int>(Teams::Real))].robots) {
 		auto search = tags.find(robot->tag);
 		if (search != tags.end())
 			robot->set_pose(search->second.position, search->second.orientation);
@@ -191,7 +191,7 @@ bool CamCap::capture_and_show() {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
-		team.strategy.run();
+		teams[static_cast<int>(Teams::Real)].strategy.run();
 
 		interface.controlGUI.update_msg_time();
 		notify_data_ready(false);
@@ -222,7 +222,7 @@ bool CamCap::capture_and_show() {
 											  interface.visionGUI.vision->getBall(),
 											  tags,
 											  interface.visionGUI.vision->get_adv_robots(),
-											  team.robots,
+											  teams[static_cast<int>(Teams::Real)].robots,
 											  is_game_on);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
@@ -249,11 +249,11 @@ void CamCap::send_cmd_thread() {
 		}
 		data_ready_flag = false;
 		if (ekf_data_ready) {
-			for (auto &robot : this->team.robots)
+			for (auto &robot : this->teams[static_cast<int>(Teams::Real)].robots)
 				interface.controlGUI.messenger.send_ekf_data(*robot);
 			ekf_data_ready = false;
 		} else {
-			interface.controlGUI.messenger.send_commands(this->team.robots);
+			interface.controlGUI.messenger.send_commands(this->teams[static_cast<int>(Teams::Real)].robots);
 		}
 	}
 }
@@ -268,12 +268,12 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-CamCap::CamCap(bool isLowRes, int argc, char **argv) : ball(team.ball),
+CamCap::CamCap(bool isLowRes, int argc, char **argv) : ball(teams[static_cast<int>(Teams::Real)].ball),
 													   data(nullptr), width(0), height(0), frameCounter(0),
 													   msg_thread(&CamCap::send_cmd_thread, this),
-													   robotGUI(team.robots, isLowRes),
-													   interface(team.robots, ball.position, robotGUI, isLowRes, ball),
-													   simulationGUI(interface, argc, argv) {
+													   robotGUI(teams, isLowRes, current_team),
+													   interface(teams, ball.position, robotGUI, isLowRes, ball, current_team),
+													   simulationGUI(interface, current_team, argc, argv) {
 
 
 	fm.set_label("imageView");

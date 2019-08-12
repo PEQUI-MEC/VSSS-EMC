@@ -9,6 +9,7 @@ void RobotGUI::createIDsFrame() {
 	id_frame.set_label("IDs");
 	id_vbox.pack_start(id_hbox, false, true, 5);
 	id_vbox.pack_start(id_grid, false, true, 5);
+  id_vbox.pack_start(simu_on_lb, false, true, 5);
 
 	id_hbox.pack_start(robots_id_edit_bt, false, true, 5);
 	id_hbox.pack_start(robots_auto_bt, false, true, 5);
@@ -38,8 +39,9 @@ void RobotGUI::createFunctionsFrame() {
 	role_hbox.pack_start(robots_role_edit_bt, false, true, 5);
 	role_hbox.pack_end(robots_role_done_bt, false, true, 5);
 
+  auto team = static_cast<int>(current_team);
 	for(int index = 0; index < 3; index++) {
-		Label *label = new Label(robots[index]->get_role_name()+":");
+		Label *label = new Label(teams[team].robots[index]->get_role_name()+":");
 		if (isLowRes) {
 			role_grid.attach(*label, index+2*index, 0, 1, 1);
 			role_grid.attach(cb_robot_role[index], index+2+2*index, 0, 1, 1);
@@ -60,9 +62,10 @@ void RobotGUI::createSpeedsFrame() {
 	speed_hbox.pack_start(robots_speed_edit_bt, false, true, 5);
 	speed_hbox.pack_end(robots_speed_done_bt, false, true, 5);
 
+  auto team = static_cast<int>(current_team);
 	for (int index = 0; index < 3; index++)
 	{
-		Label *label = new Gtk::Label(robots[index]->get_role_name()+":");
+		Label *label = new Gtk::Label(teams[team].robots[index]->get_role_name()+":");
 		speed_bars_box[index].pack_start(robots_speed_hscale[index], false, true, 0);
 		speed_bars_box[index].pack_start(robots_speed_progressBar[index], false, true, 0);
 		speed_grid.attach(*label, 0, index, 2, 1);
@@ -71,25 +74,35 @@ void RobotGUI::createSpeedsFrame() {
 }
 
 void RobotGUI::update_robot_functions() {
-	for (unsigned int i = 0; i < robots.size(); i++) {
-		cb_robot_role[i].set_active(robots[i]->tag);
+  auto team = static_cast<int>(current_team);
+	for (unsigned int i = 0; i < teams[team].robots.size(); i++) {
+		cb_robot_role[i].set_active(teams[team].robots[i]->tag);
 	}
 }
 
 void RobotGUI::update_speed_progressBars() {
-	for(unsigned int i = 0; i < robots.size(); i++) {
-		robots_speed_progressBar[i].set_fraction(robots[i]->default_target_velocity / 1.4);
-		const std::string velocity = std::to_string(robots[i]->default_target_velocity);
+  auto team = static_cast<int>(current_team);
+	for(unsigned int i = 0; i < teams[team].robots.size(); i++) {
+		robots_speed_progressBar[i].set_fraction(teams[team].robots[i]->default_target_velocity / 1.4);
+		const std::string velocity = std::to_string(teams[team].robots[i]->default_target_velocity);
 		robots_speed_progressBar[i].set_text(velocity.substr(0, 4));
 	}
 }
 
 void RobotGUI::update_robots() {
+  auto team = static_cast<int>(current_team);
 	for (int i = 0; i < 3; i++) {
-		Robot2* robot = robots[i];
+		Robot2* robot = teams[team].robots[i];
 
 		cb_robot_role[i].set_active(robot->tag);
-		robots_id_box[robot->tag].set_active(robot->ID - 'A');
+    if (current_team == Teams::Real) {
+      robots_id_box[robot->tag].set_active(robot->ID - 'A');
+      simu_on_lb.hide();
+      id_grid.show();
+    } else {
+      simu_on_lb.show();
+      id_grid.hide();
+    }
 
 		robots_speed_hscale[i].set_value(robot->default_target_velocity);
 		robots_speed_progressBar[i].set_fraction(robot->get_target().velocity / 1.4);
@@ -114,17 +127,20 @@ void RobotGUI::initRobotGUI() {
 	setup_bars();
 }
 
-RobotGUI::RobotGUI(std::array<Robot2 *, 3> &robots, bool isLowRes) :
-		robots(robots),
-		isLowRes(isLowRes) {
+RobotGUI::RobotGUI(std::array<Team, 3> &teams, bool isLowRes, Teams& current_team) :
+		teams(teams),
+		isLowRes(isLowRes),
+    current_team(current_team),
+    simu_on_lb("Simulation is ON.") {
 	initRobotGUI();
 }
 
 void RobotGUI::event_robots_role_done_bt_signal_clicked() {
-	for (unsigned int i = 0; i < robots.size(); ++i) {
+  auto team = static_cast<int>(current_team);
+	for (unsigned int i = 0; i < teams[team].robots.size(); ++i) {
 		int tag = cb_robot_role[i].get_active_row_number();
-		robots[i]->tag = static_cast<unsigned int>(tag);
-		robots[i]->ID = (char) robots_id_box[robots[i]->tag].get_active_row_number() + 'A';
+		teams[team].robots[i]->tag = static_cast<unsigned int>(tag);
+		teams[team].robots[i]->ID = (char) robots_id_box[teams[team].robots[i]->tag].get_active_row_number() + 'A';
 	}
 
 	robots_function_edit_flag = false;
@@ -161,8 +177,9 @@ void RobotGUI::event_robots_role_edit_bt_signal_clicked() {
 }
 
 void RobotGUI::event_robots_speed_done_bt_signal_clicked() {
+  auto team = static_cast<int>(current_team);
 	for (int i = 0; i < 3; i++) {
-		robots[i]->default_target_velocity = (float) robots_speed_hscale[i].get_value();
+		teams[team].robots[i]->default_target_velocity = (float) robots_speed_hscale[i].get_value();
 		robots_speed_hscale[i].set_state(Gtk::STATE_INSENSITIVE);
 	}
 	robots_speed_edit_flag = false;
@@ -195,7 +212,8 @@ void RobotGUI::event_robots_speed_edit_bt_signal_pressed() {
 }
 
 void RobotGUI::event_robots_id_done_bt_signal_clicked() {
-	for (Robot2* robot : robots) {
+  auto team = static_cast<int>(current_team);
+	for (Robot2* robot : teams[team].robots) {
 		if(robot->tag < 3) {
 			const char * id = robots_id_box[robot->tag].get_active_text().c_str();
 			robot->ID = *id;
@@ -249,7 +267,9 @@ void RobotGUI::enable_main_buttons(bool enable) {
 	if (enable) {
 		// FIXME: Implementar discoberta automatica de IDs para novo Robot (2/3)
 		//robots_auto_bt.set_state(STATE_NORMAL);
-		robots_id_edit_bt.set_state(STATE_NORMAL);
+		if (current_team == Teams::Real)
+      robots_id_edit_bt.set_state(STATE_NORMAL);
+    
 		robots_speed_edit_bt.set_state(STATE_NORMAL);
 		robots_role_edit_bt.set_state(STATE_NORMAL);
 	} else {
@@ -413,6 +433,7 @@ void RobotGUI::setup_buttons() {
 }
 
 void RobotGUI::setup_bars() {
+  auto team = static_cast<int>(current_team);
 	for (int index = 0; index < 3; index++)
 	{
 		robots_speed_hscale[index].set_digits(1);
@@ -424,10 +445,10 @@ void RobotGUI::setup_bars() {
 
 		robots_speed_progressBar[index].set_halign(Gtk::ALIGN_CENTER);
 		robots_speed_progressBar[index].set_valign(Gtk::ALIGN_CENTER);
-		robots_speed_progressBar[index].set_text(to_string(robots[index]->default_target_velocity));
+		robots_speed_progressBar[index].set_text(to_string(teams[team].robots[index]->default_target_velocity));
 		robots_speed_progressBar[index].set_show_text(true);
 		robots_speed_progressBar[index].set_size_request(100, -1);
-		robots_speed_progressBar[index].set_fraction(robots[index]->get_target().velocity / 1.4);
+		robots_speed_progressBar[index].set_fraction(teams[team].robots[index]->get_target().velocity / 1.4);
 	}
 }
 

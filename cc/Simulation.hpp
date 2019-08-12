@@ -42,8 +42,8 @@ class Simulation {
 		PoseStamped, PoseStamped, PointStamped> sync;
 
 //		References from other classes
-		Team team;
-		bool is_team2;
+    std::shared_ptr<Team> team;
+		bool is_right_team;
 
 		void ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,
 						  const PoseStampedPtr &robot3_msg, const PointStampedPtr &ball_msg);
@@ -51,7 +51,7 @@ class Simulation {
 	public:
 		capture::V4LInterface& interface;
 
-		Simulation(const std::string &name1, const std::string &name2, const std::string &name3, bool is_team2,
+		Simulation(const std::string &name1, const std::string &name2, const std::string &name3, bool is_right_team,
 					capture::V4LInterface &interface_ref);
 		void start_ros_thread();
 		void stop_ros_thread();

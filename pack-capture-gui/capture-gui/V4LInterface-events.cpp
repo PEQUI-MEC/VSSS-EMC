@@ -527,10 +527,12 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		start_game_bt.set_image(red_button_released);
 
 		// Para os robôs. Importante para não atrapalhar o Test On Click.
-		for (auto robot : robots) {
+    auto team = static_cast<int>(current_team);
+		for (auto robot : teams[team].robots) {
 			robot->stop();
 		}
 	}
+  
 }
 
 void V4LInterface::update_interface_camera() {

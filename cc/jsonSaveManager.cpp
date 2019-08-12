@@ -6,7 +6,8 @@ using std::endl;
 using vision::Vision;
 
 void jsonSaveManager::save_robots() {
-	for (Robot2* robot : interface->robots) {
+  auto team = static_cast<int>(Teams::Real);
+	for (Robot2* robot : interface->teams[team].robots) {
 		json &robot_config = configs["Robots"][robot->get_role_name()];
 
 		robot_config["ID"] = string(1, robot->ID);
@@ -18,7 +19,8 @@ void jsonSaveManager::save_robots() {
 void jsonSaveManager::load_robots() {
 	if (!exists(configs, "Robots")) return;
 
-	for (Robot2* robot : interface->robots) {
+  auto team = static_cast<int>(Teams::Real);
+	for (Robot2* robot : interface->teams[team].robots) {
 		json &robot_config = configs["Robots"][robot->get_role_name()];
 
 		if (exists(robot_config, "ID")) {

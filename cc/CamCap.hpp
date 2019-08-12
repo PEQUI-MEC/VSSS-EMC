@@ -38,13 +38,13 @@
 #define MAX_THETA_TOLERATION 3
 #define MAX_POSITIONING_VEL 0.1
 
-
-
 class CamCap : public Gtk::HBox {
 
 	public:
-		Team team;
+		std::array<Team, 3> teams;
 		Ball& ball;
+
+    Teams current_team = Teams::Real;
 
 		unsigned char *data;
 

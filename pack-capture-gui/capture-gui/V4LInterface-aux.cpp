@@ -695,8 +695,9 @@ void V4LInterface::__update_control_widgets(std::list<ControlHolder> &ctrl_list)
 }
 
 void V4LInterface::updateRobotLabels() {
+  auto team = static_cast<int>(current_team);
 	for (int i = 0; i < 3; i++) {
-		Robot2 *robot = robots[i];
+		Robot2 *robot = teams[team].robots[i];
 		auto pose = robot->get_pose();
 		std::stringstream ss;
 		ss << '(' << robot->tag + 1 << ", " << robot->ID << ") ("
@@ -729,8 +730,9 @@ void V4LInterface::createPositionsAndButtonsFrame() {
 	robots_pos_fm.add(robots_pos_vbox);
 	robots_pos_vbox.set_size_request(250, -1);
 
+  auto team = static_cast<int>(current_team);
 	for (unsigned long i = 0; i < 3; i++) {
-		label = new Gtk::Label(robots[i]->get_role_name() + ':');
+		label = new Gtk::Label(teams[team].robots[i]->get_role_name() + ':');
 		robot_pos_lb_list[i].set_text("-");
 		robots_pos_hbox[i].pack_start(*label, false, true, 5);
 		robots_pos_hbox[i].pack_start(robot_pos_lb_list[i], false, true, 0);
@@ -957,15 +959,17 @@ void V4LInterface::__create_frm_cam_calib() {
 }
 
 // Constructor
-V4LInterface::V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball, RobotGUI &robot_gui,
-						   bool isLow, Ball& ball_ref) :
+V4LInterface::V4LInterface(const std::array<Team, 3> &teams_ref, const Geometry::Point &ball, RobotGUI &robot_gui,
+						   bool isLow, Ball& ball_ref, Teams& current_team) :
 		Gtk::VBox(false, 0),
 		isLowRes(isLow),
-		robots(robots_ref),
+    current_team(current_team),
+		teams(teams_ref),
 		ball(ball_ref),
 		robotGUI(robot_gui),
-		controlGUI(robots_ref, ball),
-		imageView(controlGUI.test_controller) {
+		controlGUI(teams_ref, ball),
+		imageView(controlGUI.test_controller)
+    {
 
 	initInterface();
 }

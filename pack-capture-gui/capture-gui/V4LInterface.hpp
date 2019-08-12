@@ -41,7 +41,9 @@ class capture::V4LInterface : public Gtk::VBox {
 	public:
 		bool isLowRes = false;
 
-		const std::array<Robot2*, 3>& robots;
+    Teams& current_team;
+
+		const std::array<Team, 3>& teams;
 		Ball& ball;
 		RobotGUI &robotGUI;
 
@@ -79,9 +81,9 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		capture::v4lcap vcap;
 
-		explicit V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball,
+		explicit V4LInterface(const std::array<Team, 3> &teams_ref, const Geometry::Point &ball,
 							  RobotGUI &robot_gui,
-							  bool isLow, Ball& ball_ref);
+							  bool isLow, Ball& ball_ref, Teams& current_team);
 		void initInterface();
 
 		Gtk::Scale HScale_offsetL;

@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
 
 	camcap.interface.visionGUI.hideGMM();
 	camcap.interface.fr_camCalib_offline.hide();
+  camcap.interface.robotGUI.hide_simu_lb();
 	camcap.interface.controlGUI.update_ack_interface();
 
 	window.maximize();
