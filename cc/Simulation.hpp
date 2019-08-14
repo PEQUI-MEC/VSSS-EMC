@@ -42,7 +42,7 @@ class Simulation {
 		PoseStamped, PoseStamped, PointStamped> sync;
 
 //		References from other classes
-    std::shared_ptr<Team> team;
+    	Team * team;
 		bool is_right_team;
 
 		void ros_callback(const PoseStampedPtr &robot1_msg, const PoseStampedPtr &robot2_msg,

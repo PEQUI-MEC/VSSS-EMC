@@ -9,9 +9,9 @@ Simulation::Simulation(const std::string &name1, const std::string &name2, const
 			 is_right_team(is_right_team), interface(interface_ref) {
 
   if (is_right_team)
-    team = std::make_shared<Team>(interface.teams[static_cast<int>(Teams::RightSimu)]);
+    team = &interface.teams[static_cast<int>(Teams::RightSimu)];
   else
-    team = std::make_shared<Team>(interface.teams[static_cast<int>(Teams::LeftSimu)]);
+    team = &interface.teams[static_cast<int>(Teams::LeftSimu)];
   
 	sync.registerCallback(&Simulation::ros_callback, this);
 	start_ros_thread();

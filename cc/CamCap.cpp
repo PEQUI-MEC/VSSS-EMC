@@ -272,7 +272,7 @@ CamCap::CamCap(bool isLowRes, int argc, char **argv) : ball(teams[static_cast<in
 													   data(nullptr), width(0), height(0), frameCounter(0),
 													   msg_thread(&CamCap::send_cmd_thread, this),
 													   robotGUI(teams, isLowRes, current_team),
-													   interface(teams, ball.position, robotGUI, isLowRes, ball, current_team),
+													   interface(teams, robotGUI, isLowRes, current_team),
 													   simulationGUI(interface, current_team, argc, argv) {
 
 
