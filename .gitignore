@@ -13,3 +13,4 @@ build/
 !.idea/codeStyles/
 
 cmake-build-debug/
+vsss_msgs_ws/
