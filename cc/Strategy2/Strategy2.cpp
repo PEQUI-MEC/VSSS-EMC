@@ -27,6 +27,14 @@ void Strategy2::run() {
 
 bool Strategy2::transitions() {
 
+//	auto atk_dir = attacker.get_direction();
+//	if(atk_dir.size > 0) {
+//		auto atk_to_def = defender.get_position() - attacker.get_position();
+//		if(wrap(atk_to_def.theta - atk_dir.theta) < 20) {
+//
+//		}
+//	}
+
 	// Cruzamento
 	if (at_location(ball, Location::TheirBox) &&
 		distance(attacker.get_position(), ball) > distance(defender.get_position(), ball))

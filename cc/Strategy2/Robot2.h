@@ -41,6 +41,8 @@ class Robot2 {
 		const double TARGET_OFFSET = 0.03; // tolerância para saber se o robô chegou no ponto
 		const double BALL_OFFSET = 0.08; // tolerância para saber se a bola está próxima ao robô
 
+		Geometry::Vector get_direction();
+
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 		 *	@param point Ponto em que o robô deve passar
 		 *	@param velocity	Velocidade do movimento. Caso não seja definida,
