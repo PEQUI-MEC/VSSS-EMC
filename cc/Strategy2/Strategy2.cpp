@@ -27,13 +27,15 @@ void Strategy2::run() {
 
 bool Strategy2::transitions() {
 
-//	auto atk_dir = attacker.get_direction();
-//	if(atk_dir.size > 0) {
-//		auto atk_to_def = defender.get_position() - attacker.get_position();
-//		if(wrap(atk_to_def.theta - atk_dir.theta) < 20) {
-//
-//		}
-//	}
+
+	if (is_collision(goalkeeper, defender))
+		if (is_opposite_direction(goalkeeper, defender))
+			swap_robots(goalkeeper, defender);
+
+	if (is_collision(defender, attacker))
+		if (is_opposite_direction(defender, attacker))
+			swap_robots(defender, attacker);
+
 
 	// Cruzamento
 	if (at_location(ball, Location::TheirBox) &&
@@ -139,4 +141,54 @@ bool Strategy2::is_ball_est_ahead(const Point& point, double offset) {
 
 bool Strategy2::has_ball(const Robot2& robot) {
 	return distance(robot.get_position(), ball) < robot.BALL_OFFSET;
+}
+
+bool Strategy2::is_collision(Robot2 &robot1, Robot2 &robot2) {
+	return is_collision_axis_y(robot1, robot2) && is_collision_axis_x(robot1, robot2);
+}
+
+bool Strategy2::is_collision_axis_x(Robot2 &robot1, Robot2 &robot2) {
+	double robot1_y = robot1.get_position().y;
+	double robot2_y = robot2.get_position().y;
+
+	double robot1_y_start = robot1_y - robot1.SIZE / 2;
+	double robot1_y_end   = robot1_y + robot1.SIZE / 2;
+
+	double robot2_y_start = robot2_y - robot2.SIZE / 2;
+	double robot2_y_end   = robot2_y + robot2.SIZE / 2;
+
+	return (robot1_y_start >= robot2_y_start && robot1_y_start <= robot2_y_end) ||
+		(robot1_y_end >= robot2_y_start && robot1_y_start <= robot2_y_end);
+}
+
+bool Strategy2::is_collision_axis_y(Robot2 &robot1, Robot2 &robot2) {
+	double robot1_x = robot1.get_position().x;
+	double robot2_x = robot2.get_position().x;
+
+	double robot1_x_start = robot1_x - robot1.SIZE / 2;
+	double robot1_x_end   = robot1_x + robot1.SIZE / 2;
+
+	double robot2_x_start = robot2_x - robot2.SIZE / 2;
+	double robot2_x_end   = robot2_x + robot2.SIZE / 2;
+
+	return (robot1_x_start >= robot2_x_start && robot1_x_start <= robot2_x_end) ||
+		   (robot1_x_end >= robot2_x_start && robot1_x_start <= robot2_x_end);
+}
+
+bool Strategy2::is_opposite_direction(Robot2 &robot1, Robot2 &robot2) {
+	auto robot1_dir = robot1.get_direction();
+	if(robot1_dir.size > 0) {
+		auto robot1_to_robot2 = robot2.get_position() - robot1.get_position();
+
+		return wrap(robot1_to_robot2.theta - robot1_dir.theta) < 20;
+	}
+
+	auto robot2_dir = robot2.get_direction();
+	if (robot2_dir.size > 0) {
+		auto robot2_to_robot1 = robot1.get_position() - robot2.get_position();
+
+		return  wrap(robot2_to_robot1.theta - robot2_dir.theta) < 20;
+	}
+
+	return false;
 }

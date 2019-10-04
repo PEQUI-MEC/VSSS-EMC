@@ -33,6 +33,12 @@ class Strategy2 {
 		void execute_attacker();
 		void execute_defender();
 
+		bool is_collision(Robot2 &robot1, Robot2 &robot2);
+		bool is_collision_axis_y(Robot2 &robot1, Robot2 &robot2);
+		bool is_collision_axis_x(Robot2 &robot1, Robot2 &robot2);
+		bool is_opposite_direction(Robot2 &robot1, Robot2 &robot2);
+
+
 	public:
 		Strategy2(Attacker &attacker, Defender &defender, Goalkeeper &goalkeeper, Geometry::Point &ball,
 				  Geometry::Point &ball_est);
