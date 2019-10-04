@@ -26,18 +26,9 @@ void Strategy2::run() {
 }
 
 bool Strategy2::transitions() {
+	bool collided = trainstion_by_collision();
 
-
-	if (is_collision(goalkeeper, defender))
-		if (is_opposite_direction(goalkeeper, defender))
-			swap_robots(goalkeeper, defender);
-
-	if (is_collision(defender, attacker))
-		if (is_opposite_direction(defender, attacker))
-			swap_robots(defender, attacker);
-
-
-	// Cruzamento
+		// Cruzamento
 	if (at_location(ball, Location::TheirBox) &&
 		distance(attacker.get_position(), ball) > distance(defender.get_position(), ball))
 		swap_robots(attacker, defender);
@@ -58,7 +49,32 @@ bool Strategy2::transitions() {
 	else if (is_ball_behind(attacker) && is_ball_behind(defender) && at_location(ball, Location::WideDangerZone))
 		swap_all_robots();
 	else
+		return false | collided;
+
+	return true;
+}
+
+
+
+bool Strategy2::trainstion_by_collision() {
+	if (is_collision(goalkeeper, defender)) {
+		if (is_opposite_direction(goalkeeper, defender)) {
+			swap_robots(goalkeeper, defender);
+			std::cout << "troca de goleiro e defensor" << std::endl;
+		}
+	} else if (is_collision(defender, attacker)) {
+		if (is_opposite_direction(defender, attacker)) {
+			swap_robots(defender, attacker);
+			std::cout << "troca de defensor e atacante" << std::endl;
+		}
+	} else if (is_collision(goalkeeper, attacker)) {
+		if (is_opposite_direction(goalkeeper, attacker)) {
+			swap_robots(goalkeeper, attacker);
+			std::cout << "troca de goleiro e atacante" << std::endl;
+		}
+	} else {
 		return false;
+	}
 
 	return true;
 }

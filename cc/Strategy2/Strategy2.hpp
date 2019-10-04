@@ -23,6 +23,7 @@ class Strategy2 {
 
 //		Returns true if a transition happens
 		bool transitions();
+		bool trainstion_by_collision();
 		void swap_robots(Robot2 &robot1, Robot2 &robot2);
 		void swap_all_robots();
 		bool has_ball(const Robot2 &robot);
