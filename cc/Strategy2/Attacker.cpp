@@ -8,12 +8,28 @@ void Attacker::decide_spin_shot(const Geometry::Point &ball) {
 	double upper_x = get_position().x + SIZE/2;
 	double lower_x = get_position().x - SIZE/2;
 
-	if ((at_location(get_position(), Location::UpperField) && (ball.y > upper_y || ball.x > upper_x))
-		|| (at_location(get_position(), Location::LowerField) && (ball.y > upper_y || ball.x < lower_x))) {
-		spin(-35.0); // Robô gira no sentido horário
+	auto robot_to_ball = ball - get_position();
+
+	if (at_location(get_position(), Location::UpperField)) {
+		if (robot_to_ball.theta < -M_PI/2) {
+			spin(35);
+		} else {
+			spin(-35);
+		}
 	} else {
-		spin(35);//Robô gira no sentido anti-horário
+		if (robot_to_ball.theta > M_PI/2) {
+			spin(-35);
+		} else {
+			spin(35);
+		}
 	}
+
+//	if ((at_location(get_position(), Location::UpperField) && (ball.y > upper_y || ball.x > upper_x))
+//		|| (at_location(get_position(), Location::LowerField) && (ball.y > upper_y || ball.x < lower_x))) {
+//		spin(-35.0); // Robô gira no sentido horário
+//	} else {
+//		spin(35);//Robô gira no sentido anti-horário
+//	}
 }
 
 void Attacker::uvf_to_goal(const Geometry::Point &ball) {
