@@ -91,7 +91,7 @@ void Strategy2::execute_attacker() {
 	} else if (at_location(attacker, Location::AnyGoal)) {
 		attacker.exit_goal(ball);
 	} else {
-		attacker.uvf_to_goal(ball);
+		attacker.uvf_to_goal(ball, ball_est);
 	}
 
 }

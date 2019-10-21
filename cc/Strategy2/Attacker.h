@@ -8,10 +8,16 @@
 
 class Attacker : public Robot2 {
 	public:
+		enum UvfState {
+			seek_ball,
+			close_to_ball,
+			has_ball,
+		};
+		UvfState uvf_state = seek_ball;
 		/**	Robô vai para a bola usando o UVF
 		 *	@param ball posição da bola
 		 *	robô se move com velocidade "default_target_velocity" */
-		void uvf_to_goal(const Geometry::Point &ball);
+		void uvf_to_goal(const Geometry::Point &ball, const Geometry::Point &ball_est);
 
 		/** Robô gira com sentido horário ou anti-horário dependendo da posição da bola
 		 *	@param ball posição da bola

@@ -16,13 +16,50 @@ void Attacker::decide_spin_shot(const Geometry::Point &ball) {
 	}
 }
 
-void Attacker::uvf_to_goal(const Geometry::Point &ball) {
-	Vector ball_to_goal = their::goal::back::center - ball;
+void Attacker::uvf_to_goal(const Geometry::Point &ball, const Geometry::Point &ball_est) {
+	Point goal = their::goal::back::center;
+	Vector ball_to_pred = ball_est - ball;
+	Point target = ball + (ball_to_pred * 0.2);
 
-	if(distance(ball, get_position()) > 0.03){
-		go_to_pose(ball, ball_to_goal);
-	}else{
-	    go_in_direction(ball_to_goal);
+	Vector ball_to_goal = goal - ball;
+	Vector pred_to_goal = goal - target;
+	Vector robot_to_ball = ball - get_position();
+	double orientation_error = std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
+//	double orientation_error_backwards = std::abs(wrap(robot_to_ball.theta - (ball_to_goal.theta + M_PI)));
+	auto error_smaller_than = [&](double theta) {
+		return orientation_error < degree_to_rad(theta);
+	};
+	auto error_bigger_than = [&](double theta) {
+		return orientation_error > degree_to_rad(theta);
+	};
+
+	switch (uvf_state) {
+		case seek_ball:
+			if (error_smaller_than(35) && get_position().x < target.x && robot_to_ball.size < 0.15)
+				uvf_state = close_to_ball;
+			break;
+		case close_to_ball:
+			if (error_bigger_than(70))
+				uvf_state = seek_ball;
+			else if (robot_to_ball.size < 0.7)
+				uvf_state = has_ball;
+			break;
+		case has_ball:
+			if (error_bigger_than(70) || robot_to_ball.size > 0.15)
+				uvf_state = seek_ball;
+			break;
+	}
+
+	switch (uvf_state) {
+		case seek_ball:
+			go_to_pose(target, ball_to_goal);
+			break;
+		case close_to_ball:
+			go_to(ball);
+			break;
+		case has_ball:
+			go_to(goal, 1.4);
+			break;
 	}
 }
 
