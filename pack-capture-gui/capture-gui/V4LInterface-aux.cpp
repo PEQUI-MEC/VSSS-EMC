@@ -298,15 +298,17 @@ void V4LInterface::__create_frm_warp() {
 			sigc::mem_fun(*this, &V4LInterface::HScale_offsetR_value_changed));
 }
 
-void V4LInterface::__update_cb_device() {
-
+bool V4LInterface::__update_cb_device() {
 	char device[16];
 	cb_device.remove_all();
+	bool found_one = false;
 	if (capture::v4lcap::enum_device_name(device, 20, true)) {
 		do {
 			cb_device.append(device);
+			found_one = true;
 		} while (capture::v4lcap::enum_device_name(device, 20));
 	}
+	return found_one;
 }
 
 void V4LInterface::__update_cb_input() {
@@ -801,7 +803,11 @@ void V4LInterface::initInterface() {
 	capture_vbox.pack_start(frm_cam_calib, false, false, 10);
 	__create_frm_cam_calib();
 
-	__update_cb_device();
+	auto found_camera = __update_cb_device();
+	if(found_camera) {
+		cb_device.set_active(0);
+		__event_cb_device_changed();
+	}
 
 	if (isLowRes) {
 		red_button_pressed.set("img/pause_small.png");

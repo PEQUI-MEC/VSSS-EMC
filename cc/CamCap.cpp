@@ -247,6 +247,8 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(
 	pack_start(notebook, false, false, 10);
 
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
+
+	interface.__event_bt_start_clicked();
 }
 
 CamCap::~CamCap() {
