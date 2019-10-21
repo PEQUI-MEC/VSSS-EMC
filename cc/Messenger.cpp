@@ -93,7 +93,7 @@ double Messenger::get_battery(char id) {
 	if (!xbee) return -1;
 	string msg = xbee->send_get_answer(id, "B");
 	if (msg.empty() || msg[0] != 'B') return -1;
-	return ((stod(msg.substr(1)) - 6.4) / 2.0) * 100;
+	else return stod(msg.substr(1));
 }
 
 string Messenger::rounded_str(double num) {

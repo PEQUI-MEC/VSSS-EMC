@@ -96,7 +96,7 @@ class ControlGUI : public Gtk::VBox {
 		void _test_send_bt_event();
 
 		// Gets battery % and robot id to update a single robot's battery status
-		void updateInterfaceStatus(double battery, int id);
+		void updateInterfaceStatus(double battery, double voltage, int id);
 
 		// update the battery status of all robots
 		void _robot_status();

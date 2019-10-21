@@ -20,15 +20,16 @@ void ControlGUI::_send_command() {
 }
 
 // Gets battery % and robot id to update a single robot's battery status
-void ControlGUI::updateInterfaceStatus(double battery, int id) {
-	if (battery > 20) {
+void ControlGUI::updateInterfaceStatus(double battery, double voltage, int id) {
+	auto text = std::to_string(battery).substr(0, 4) + "%, " + std::to_string(voltage).substr(0, 4) + "V";
+	if (voltage > 6.6) {
 		status_img[id].set("img/online.png");
 		battery_bar[id].set_fraction(battery / 100);
-		status_lb[id].set_text(std::to_string(battery).substr(0, 5) + "%");
-	} else if (battery > 0) {
+		status_lb[id].set_text(text);
+	} else if (battery > 6.4) {
 		status_img[id].set("img/critical.png");
 		battery_bar[id].set_fraction(battery / 100);
-		status_lb[id].set_text(std::to_string(battery).substr(0, 5) + "%");
+		status_lb[id].set_text(text);
 	} else {
 		status_img[id].set("img/zombie.png");
 		battery_bar[id].set_fraction(0.0);
@@ -52,9 +53,10 @@ void ControlGUI::_robot_status() {
 	// update robot status
 	for (int i = 0; i < TOTAL_ROBOTS; ++i) {
 		char id = get_robot_id(i);
-		double battery = messenger.get_battery(id);
-		if (battery != -1) {
-			updateInterfaceStatus(battery, i);
+		double voltage = messenger.get_battery(id);
+		double battery = ((voltage - 6.4) / 2.0) * 100;
+		if (voltage != -1) {
+			updateInterfaceStatus(battery, voltage, i);
 		} else {
 			status_img[i].set("img/offline.png");
 			battery_bar[i].set_fraction(0.0);
