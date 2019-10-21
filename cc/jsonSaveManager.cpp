@@ -76,6 +76,7 @@ void jsonSaveManager::save_camera() {
 
 	camera_config["offsetL"] = interface->imageView.imageWarp.get_offset_L();
 	camera_config["offsetR"] = interface->imageView.imageWarp.get_offset_R();
+	camera_config["invert"] = interface->imageView.imageWarp.is_invert_field;
 
 	json &properties_config = camera_config["Camera Properties"];
 	for (ControlHolder ctrl : interface->ctrl_list_default) {
@@ -139,6 +140,10 @@ void jsonSaveManager::load_camera() {
 
 	if (exists(camera_config, "offsetL")) interface->imageView.imageWarp.set_offset_L(camera_config["offsetL"]);
 	if (exists(camera_config, "offsetR")) interface->imageView.imageWarp.set_offset_R(camera_config["offsetR"]);
+	if (exists(camera_config, "invert")) {
+		interface->imageView.imageWarp.is_invert_field = camera_config["invert"];
+		interface->bt_invert_field.set_active(interface->imageView.imageWarp.is_invert_field);
+	}
 
 	if (exists(camera_config, "Camera Properties")) {
 		json &properties_config = camera_config["Camera Properties"];

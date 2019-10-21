@@ -57,9 +57,9 @@ namespace warp {
 			PointArray adjust_mat;
 			bool is_warp_rdy = false;
 			bool is_adjust_rdy = false;
-			bool is_invert_field = false;
 
 		public:
+			bool is_invert_field = false;
 			ImageWarp(int &w, int &h);
 
 			void set_offset_R(unsigned short offset);
