@@ -38,6 +38,7 @@ void Robot2::set_target_orientation(Geometry::Vector orientation) {
 }
 
 void Robot2::spin(double angular_velocity) {
+//	std::cout << (angular_velocity > 0 ? "positivo" : "negativo") << std::endl;
 	command = Command::Angular_Vel;
 	target.angular_velocity = angular_velocity;
 }
