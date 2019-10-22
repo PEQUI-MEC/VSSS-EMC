@@ -23,6 +23,7 @@ class Strategy2 {
 
 //		Returns true if a transition happens
 		bool transitions();
+		bool trainstion_by_collision();
 		void swap_robots(Robot2 &robot1, Robot2 &robot2);
 		void swap_all_robots();
 		bool has_ball(const Robot2 &robot);
@@ -32,6 +33,12 @@ class Strategy2 {
 		void execute_goalkeeper();
 		void execute_attacker();
 		void execute_defender();
+
+		bool is_collision(Robot2 &robot1, Robot2 &robot2);
+		bool is_collision_axis_y(Robot2 &robot1, Robot2 &robot2);
+		bool is_collision_axis_x(Robot2 &robot1, Robot2 &robot2);
+		bool is_opposite_direction(Robot2 &robot1, Robot2 &robot2);
+
 
 	public:
 		Strategy2(Attacker &attacker, Defender &defender, Goalkeeper &goalkeeper, Geometry::Point &ball,
