@@ -65,7 +65,7 @@ void Messenger::send_command(char id, Pose target, Command command, Geometry::Po
 			case Command::UVF:
 				return "U" + rounded_str(target.position.x * 100) + ";" + rounded_str(target.position.y * 100)
 					   + ";" + rounded_str(uvf_ref.x * 100) + ";" + rounded_str(uvf_ref.y * 100)
-					   + ";" + rounded_str(1.8) + ";" + rounded_str(target.velocity);
+					   + ";" + rounded_str(0.9) + ";" + rounded_str(target.velocity);
 			case Command::Orientation:
 				return "O" + rounded_str(target.orientation * 180/M_PI)
 							 + ";" + rounded_str(target.velocity);
