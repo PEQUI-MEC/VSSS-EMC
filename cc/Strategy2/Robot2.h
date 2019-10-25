@@ -83,7 +83,7 @@ class Robot2 {
 		void go_to_pose(Geometry::Point point, Geometry::Vector direction);
 		void go_to_and_stop(Geometry::Point point);
 		void go_in_direction(Geometry::Vector vector);
-		void stop() { command = Command::None; };
+		void stop() { spin(0); };
 
 		Pose get_pose() const { return  pose; };
 		char get_ID() const { return ID; };

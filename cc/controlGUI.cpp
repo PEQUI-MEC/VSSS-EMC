@@ -448,11 +448,11 @@ void ControlGUI::_create_commands_frame() {
 	commands_L_hsc.set_increments(0.1, 0.5);
 	commands_L_hsc.set_range(-1.4, 1.4);
 	commands_L_hsc.set_size_request(50, -1);
-	commands_L_hsc.set_value(0.8);
+	commands_L_hsc.set_value(0.0);
 	commands_R_hsc.set_increments(0.1, 0.5);
 	commands_R_hsc.set_range(-1.4, 1.4);
 	commands_R_hsc.set_size_request(50, -1);
-	commands_R_hsc.set_value(0.8);
+	commands_R_hsc.set_value(0.0);
 
 	//ComboBoxText
 	commands_robots_cb.append("Robot A");

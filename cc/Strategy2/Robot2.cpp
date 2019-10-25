@@ -3,6 +3,7 @@
 void Robot2::go_to(Geometry::Point point, double velocity) {
 	command = Command::Vector;
 	Geometry::Vector direction = point - pose.position;
+	target.position = point;
 	target.orientation = direction.theta;
 	target.velocity = velocity;
 }
@@ -22,6 +23,7 @@ void Robot2::go_to_and_stop(Geometry::Point point, double velocity) {
 		target.velocity = velocity;
 	} else {
 		command = Command::None;
+		spin(0);
 	}
 }
 
@@ -77,10 +79,10 @@ void Robot2::set_ID(char new_ID) {
 Geometry::Vector Robot2::get_direction() {
 	switch (command) {
 		case Command::Position:
-		case Command::UVF:
 			return Geometry::Vector{target.position - get_position()}
 					.with_size(target.velocity);
 		case Command::Orientation:
+		case Command::UVF:
 		case Command::Vector:
 			return Geometry::Vector(target.velocity, target.orientation)
 			.with_size(target.velocity);
