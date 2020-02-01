@@ -61,7 +61,8 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/ImageArt.cpp
     pack-capture-gui/capture-gui/ImageWarp.cpp
     cc/TestOnClick.cpp
-    cc/VideoRecorder.cpp)
+    cc/VideoRecorder.cpp cc/Strategy2/StrategyWrapper.cpp
+    cc/RobotControl/include.h cc/RobotControl/SimuRobotControl.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
@@ -72,6 +73,7 @@ include_directories(cc/
     cc/Geometry/
     pack-capture/capture/
     pack-capture-gui/capture-gui/
+    cc/RobotControl/
     ${GTKMM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}

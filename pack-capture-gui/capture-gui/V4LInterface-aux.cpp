@@ -814,7 +814,7 @@ void V4LInterface::initInterface() {
 		red_button_released.set("img/play_small.png");
 	} else {
 		red_button_pressed.set("img/pause.png");
-		red_button_released.set("img/play.png");
+		red_button_released.set("img//*play*/.png");
 	}
 
 	createPositionsAndButtonsFrame();

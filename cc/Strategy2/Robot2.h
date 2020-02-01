@@ -1,6 +1,7 @@
 #ifndef VSSS_ROBOT_H
 #define VSSS_ROBOT_H
 
+#include <RobotControl/SimuRobotControl.h>
 #include "Geometry/Geometry.h"
 
 class Robot2 {
@@ -17,8 +18,8 @@ class Robot2 {
 			double reference_distance;
 		};
 
-		enum class Command { // Comandos que o Messenger pode enviar para o robô
-			Position, Vector, UVF, Orientation, Angular_Vel, None
+		enum class Command {
+				None = 0, Position = 1, Vector = 2, UVF = 3, Orientation = 4, Angular_Vel = 5
 		};
 
 		enum class Role {
@@ -40,6 +41,8 @@ class Robot2 {
 		double default_target_velocity = 0.8; // Velocidade padrão do robô
 		const double TARGET_OFFSET = 0.03; // tolerância para saber se o robô chegou no ponto
 		const double BALL_OFFSET = 0.08; // tolerância para saber se a bola está próxima ao robô
+
+		SimuRobotControl control;
 
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 		 *	@param point Ponto em que o robô deve passar
@@ -83,6 +86,8 @@ class Robot2 {
 		void go_in_direction(Geometry::Vector vector);
 		void stop() { command = Command::None; };
 
+		Control::WheelVelocity run_control(float vel_left, float vel_right, float time);
+
 		Pose get_pose() const { return  pose; };
 		char get_ID() const { return ID; };
 		void set_ID(char new_ID);
@@ -90,6 +95,7 @@ class Robot2 {
 		Pose get_target() const { return target; }
 		Command get_command() const { return command; }
 		void set_pose(cv::Point position, double orientation);
+		void set_pose_m(Geometry::Point position, double orientation);
 		void set_pose(const Pose &new_pose);
 		virtual Role get_role() { return Role::None; };
 		virtual std::string get_role_name() { return "None"; };

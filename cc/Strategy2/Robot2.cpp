@@ -40,6 +40,7 @@ void Robot2::set_target_orientation(Geometry::Vector orientation) {
 void Robot2::spin(double angular_velocity) {
 	command = Command::Angular_Vel;
 	target.angular_velocity = angular_velocity;
+	target.velocity = 0;
 }
 
 //	Overloads using default target velocity
@@ -64,6 +65,11 @@ void Robot2::set_pose(cv::Point position, double orientation) {
 	pose.orientation = -orientation;
 }
 
+void Robot2::set_pose_m(Geometry::Point position, double orientation) {
+	pose.position = position;
+	pose.orientation = orientation;
+}
+
 void Robot2::set_pose(const Pose &new_pose) {
 	// Note que não há conversão de cv::Point para Geometry::Point aqui
 	pose = new_pose;
@@ -71,4 +77,17 @@ void Robot2::set_pose(const Pose &new_pose) {
 
 void Robot2::set_ID(char new_ID) {
 	ID = new_ID;
+}
+
+Control::WheelVelocity Robot2::run_control(float vel_left, float vel_right, float time) {
+	auto control_command = (Control::Command) command;
+	Control::Target control_target {
+			{(float) target.position.x, (float) target.position.y},
+			(float) target.orientation,
+			(float) target.velocity,
+			(float) target.angular_velocity
+	};
+	control.set_target(control_command, control_target);
+	return control.control_step({(float) pose.position.x, (float) pose.position.y},
+			(float)pose.orientation, {vel_left, vel_right}, time);
 }

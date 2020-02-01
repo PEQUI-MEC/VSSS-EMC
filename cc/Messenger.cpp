@@ -3,7 +3,6 @@
 using std::string;
 using std::vector;
 using Pose = Robot2::Pose;
-using Command = Robot2::Command;
 
 void Messenger::start_xbee(const string &port, int baud) {
 	xbee = new Xbee(port, baud);
@@ -48,25 +47,25 @@ void Messenger::send_commands(const std::array<Robot2*, 3> &robots) {
 }
 
 constexpr float robot_size = 0.0675f;
-void Messenger::send_command(char id, Pose target, Command command, Geometry::Point uvf_ref) {
+void Messenger::send_command(char id, Pose target, Robot2::Command command, Geometry::Point uvf_ref) {
 	if(!xbee) return;
 	const string msg = [&] {
 		switch (command) {
-			case Command::Position:
+			case Robot2::Command::Position:
 				return "P" + rounded_str(target.position.x * 100)
 							 + ";" + rounded_str(target.position.y * 100)
 									 + ";" + rounded_str(target.velocity);
-			case Command::Angular_Vel:
+			case Robot2::Command::Angular_Vel:
 				return rounded_str(target.angular_velocity*robot_size/2)
 					   + ";" + rounded_str(-target.angular_velocity*robot_size/2);
-			case Command::Vector:
+			case Robot2::Command::Vector:
 				return ("V" + rounded_str(target.orientation * 180.0f/M_PI)
 							  + ";" + rounded_str(target.velocity));
-			case Command::UVF:
+			case Robot2::Command::UVF:
 				return "U" + rounded_str(target.position.x * 100) + ";" + rounded_str(target.position.y * 100)
 					   + ";" + rounded_str(uvf_ref.x * 100) + ";" + rounded_str(uvf_ref.y * 100)
 					   + ";" + rounded_str(1.8) + ";" + rounded_str(target.velocity);
-			case Command::Orientation:
+			case Robot2::Command::Orientation:
 				return "O" + rounded_str(target.orientation * 180/M_PI)
 							 + ";" + rounded_str(target.velocity);
 			default:
