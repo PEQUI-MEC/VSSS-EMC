@@ -6,7 +6,7 @@
 #define VSSS_GOALKEEPER_HPP
 
 #include "Robot2.h"
-#include "Geometry/Geometry.h"
+#include "../Geometry/Geometry.h"
 
 class Goalkeeper : public Robot2 {
 	private:

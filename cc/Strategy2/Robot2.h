@@ -1,8 +1,8 @@
 #ifndef VSSS_ROBOT_H
 #define VSSS_ROBOT_H
 
-#include <RobotControl/SimuRobotControl.h>
-#include "Geometry/Geometry.h"
+#include "../RobotControl/SimuRobotControl.h"
+#include "../Geometry/Geometry.h"
 
 class Robot2 {
 	public:
@@ -35,12 +35,12 @@ class Robot2 {
 	public:
 		Geometry::Point uvf_ref;
 
-    	const double SIZE = 0.08;
+    	static constexpr double SIZE = 0.08;
 		char ID = 'A';
 		unsigned int tag = 0;
-		double default_target_velocity = 0.8; // Velocidade padrão do robô
-		const double TARGET_OFFSET = 0.03; // tolerância para saber se o robô chegou no ponto
-		const double BALL_OFFSET = 0.08; // tolerância para saber se a bola está próxima ao robô
+		double default_target_velocity = 1.4; // Velocidade padrão do robô
+		static constexpr double TARGET_OFFSET = 0.03; // tolerância para saber se o robô chegou no ponto
+		static constexpr double BALL_OFFSET = 0.08; // tolerância para saber se a bola está próxima ao robô
 
 		SimuRobotControl control;
 

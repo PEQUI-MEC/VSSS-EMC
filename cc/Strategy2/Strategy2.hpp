@@ -1,11 +1,11 @@
 #ifndef VSSS_STRATEGY2_HPP
 #define VSSS_STRATEGY2_HPP
 
-#include "Geometry/Geometry.h"
-#include "Strategy2/Attacker.h"
-#include "Strategy2/Defender.hpp"
-#include "Strategy2/Goalkeeper.hpp"
-#include "Strategy2/Field.h"
+#include "../Geometry/Geometry.h"
+#include "Attacker.h"
+#include "Defender.hpp"
+#include "Goalkeeper.hpp"
+#include "Field.h"
 #include <chrono>
 
 class Strategy2 {
@@ -34,6 +34,7 @@ class Strategy2 {
 		void execute_defender();
 
 	public:
+		Strategy2();
 		Strategy2(Attacker &attacker, Defender &defender, Goalkeeper &goalkeeper, Geometry::Point &ball,
 				  Geometry::Point &ball_est);
 		void run();

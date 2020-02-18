@@ -2,22 +2,7 @@
 // Created by thiago on 01/02/2020.
 //
 
-#include <LS.h>
-#include <RobotControl/SimuRobotControl.h>
-#include "Attacker.h"
-#include "Defender.hpp"
-#include "Goalkeeper.hpp"
-#include "Strategy2.hpp"
-#include "Geometry.h"
-
-Attacker attacker;
-Defender defender;
-Goalkeeper goalkeeper;
-LS ls_x, ls_y;
-Geometry::Point ball;
-Geometry::Point ball_est;
-Strategy2 strategy(attacker, defender, goalkeeper, ball, ball_est);
-std::array<Robot2 *, 3> robots{&attacker, &defender, &goalkeeper};
+#include "StrategyWrapper.hpp"
 
 void init() {
 	ls_x.init(15, 1);
@@ -43,17 +28,11 @@ void update_ball_est() {
 	ball_est.y = ls_y.estimate(10);
 }
 
-struct Velocities {
-		Control::WheelVelocity vel1;
-		Control::WheelVelocity vel2;
-		Control::WheelVelocity vel3;
-};
-
 // data[0] e data[1]: x e y em metros, origem no canto inferior esquerdo
 // data[2]: orientacao de -pi a pi
 // data[3] e data[4]: vel da roda esquerda e direita
 // time: tempo em segundos entre cada iteracao do controle
-Velocities run(float robot1data[5], float robot2data[5], float robot3data[5], float ballpos[2], float time) {
+void run(float robot1data[5], float robot2data[5], float robot3data[5], float ballpos[2], float time, float out[6]) {
 	auto * robot1 = get_robot(1);
 	robot1->set_pose_m({robot1data[0], robot1data[1]}, robot1data[2]);
 	auto * robot2 = get_robot(2);
@@ -66,11 +45,16 @@ Velocities run(float robot1data[5], float robot2data[5], float robot3data[5], fl
 
 	strategy.run();
 
-	robot1 = get_robot(1);
-	robot2 = get_robot(1);
-	robot3 = get_robot(1);
+	// robot1 = get_robot(1);
+	// robot2 = get_robot(2);
+	// robot3 = get_robot(3);
 	auto vel1 = robot1->run_control(robot1data[3], robot1data[4], time);
-	auto vel2 = robot2->run_control(robot2data[4], robot2data[4], time);
-	auto vel3 = robot3->run_control(robot3data[4], robot3data[4], time);
-	return Velocities{vel1, vel2, vel3};
+	auto vel2 = robot2->run_control(robot2data[3], robot2data[4], time);
+	auto vel3 = robot3->run_control(robot3data[3], robot3data[4], time);
+	out[0] = vel1.left;
+	out[1] = vel1.right;
+	out[2] = vel2.left;
+	out[3] = vel2.right;
+	out[4] = vel3.left;
+	out[5] = vel3.right;
 }

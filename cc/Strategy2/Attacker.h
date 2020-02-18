@@ -1,9 +1,9 @@
 #ifndef VSSS_ATTACKER_H
 #define VSSS_ATTACKER_H
 
-#include "boost/variant.hpp"
+// #include "boost/variant.hpp"
 #include "Robot2.h"
-#include "Geometry/Geometry.h"
+#include "../Geometry/Geometry.h"
 #include "Field.h"
 
 class Attacker : public Robot2 {

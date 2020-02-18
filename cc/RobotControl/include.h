@@ -47,12 +47,6 @@ namespace Control {
 	struct WheelVelocity {
 		float left = -1;
 		float right = -1;
-
-		friend std::ostream &operator<<(std::ostream &os,
-										const WheelVelocity &vel) {
-			os << "left: " << vel.left << ", right: " << vel.right;
-			return os;
-		}
 	};
 
 	struct Vector {

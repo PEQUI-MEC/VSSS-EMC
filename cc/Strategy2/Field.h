@@ -1,8 +1,8 @@
 #ifndef VSSS_FIELD_H
 #define VSSS_FIELD_H
 
-#include "Geometry/Geometry.h"
-#include "Strategy2/Robot2.h"
+#include "../Geometry/Geometry.h"
+#include "Robot2.h"
 
 // A unidade de medida usada aqui é sempre me metros
 

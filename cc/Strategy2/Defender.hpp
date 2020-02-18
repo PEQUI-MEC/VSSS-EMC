@@ -2,7 +2,7 @@
 #define VSSS_DEFENDER_HPP
 
 #include "Robot2.h"
-#include "Geometry/Geometry.h"
+#include "../Geometry/Geometry.h"
 #include "Field.h"
 
 class Defender : public Robot2 {
