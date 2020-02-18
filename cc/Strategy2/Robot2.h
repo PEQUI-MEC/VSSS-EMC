@@ -44,6 +44,8 @@ class Robot2 {
 
 		SimuRobotControl control;
 
+		Geometry::Vector get_direction();
+
 		/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 		 *	@param point Ponto em que o robô deve passar
 		 *	@param velocity	Velocidade do movimento. Caso não seja definida,
@@ -84,7 +86,7 @@ class Robot2 {
 		void go_to_pose(Geometry::Point point, Geometry::Vector direction);
 		void go_to_and_stop(Geometry::Point point);
 		void go_in_direction(Geometry::Vector vector);
-		void stop() { command = Command::None; };
+		void stop() { spin(0); };
 
 		Control::WheelVelocity run_control(float vel_left, float vel_right, float time);
 

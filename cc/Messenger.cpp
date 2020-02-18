@@ -64,8 +64,8 @@ void Messenger::send_command(char id, Pose target, Robot2::Command command, Geom
 			case Robot2::Command::UVF:
 				return "U" + rounded_str(target.position.x * 100) + ";" + rounded_str(target.position.y * 100)
 					   + ";" + rounded_str(uvf_ref.x * 100) + ";" + rounded_str(uvf_ref.y * 100)
-					   + ";" + rounded_str(1.8) + ";" + rounded_str(target.velocity);
-			case Robot2::Command::Orientation:
+					   + ";" + rounded_str(0.9) + ";" + rounded_str(target.velocity);
+			case Command::Orientation:
 				return "O" + rounded_str(target.orientation * 180/M_PI)
 							 + ";" + rounded_str(target.velocity);
 			default:
@@ -92,7 +92,7 @@ double Messenger::get_battery(char id) {
 	if (!xbee) return -1;
 	string msg = xbee->send_get_answer(id, "B");
 	if (msg.empty() || msg[0] != 'B') return -1;
-	return ((stod(msg.substr(1)) - 6.4) / 2.0) * 100;
+	else return stod(msg.substr(1));
 }
 
 string Messenger::rounded_str(double num) {

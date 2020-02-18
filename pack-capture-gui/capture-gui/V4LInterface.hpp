@@ -178,7 +178,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		void __create_frm_warp();
 
 		// Combo properties updates
-		bool __update_cb_device();
+		int __update_cb_device();
 		void __update_cb_input();
 		void __update_cb_standard();
 		void __update_cb_format_desc();

@@ -3,6 +3,7 @@
 void Robot2::go_to(Geometry::Point point, double velocity) {
 	command = Command::Vector;
 	Geometry::Vector direction = point - pose.position;
+	target.position = point;
 	target.orientation = direction.theta;
 	target.velocity = velocity;
 }
@@ -10,7 +11,7 @@ void Robot2::go_to(Geometry::Point point, double velocity) {
 void Robot2::go_to_pose(Geometry::Point point, Geometry::Vector direction, double velocity) {
 	command = Command::UVF;
 	target.position = point;
-	uvf_ref = point + direction.with_size(0.1);
+	uvf_ref = point + direction.with_size(0.12);
 	target.orientation = direction.theta;
 	target.velocity = velocity;
 }
@@ -22,6 +23,7 @@ void Robot2::go_to_and_stop(Geometry::Point point, double velocity) {
 		target.velocity = velocity;
 	} else {
 		command = Command::None;
+		spin(0);
 	}
 }
 
@@ -38,6 +40,7 @@ void Robot2::set_target_orientation(Geometry::Vector orientation) {
 }
 
 void Robot2::spin(double angular_velocity) {
+//	std::cout << (angular_velocity > 0 ? "positivo" : "negativo") << std::endl;
 	command = Command::Angular_Vel;
 	target.angular_velocity = angular_velocity;
 	target.velocity = 0;
@@ -90,4 +93,19 @@ Control::WheelVelocity Robot2::run_control(float vel_left, float vel_right, floa
 	control.set_target(control_command, control_target);
 	return control.control_step({(float) pose.position.x, (float) pose.position.y},
 			(float)pose.orientation, {vel_left, vel_right}, time);
+}
+
+Geometry::Vector Robot2::get_direction() {
+	switch (command) {
+		case Command::Position:
+			return Geometry::Vector{target.position - get_position()}
+					.with_size(target.velocity);
+		case Command::Orientation:
+		case Command::UVF:
+		case Command::Vector:
+			return Geometry::Vector(target.velocity, target.orientation)
+			.with_size(target.velocity);
+		default:
+			return Geometry::Vector{0, 0};
+	}
 }

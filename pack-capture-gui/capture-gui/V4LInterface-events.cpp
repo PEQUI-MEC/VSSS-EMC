@@ -526,6 +526,7 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		for (auto robot : robots) {
 			robot->stop();
 		}
+		messenger.send_commands(robots);
 	}
 }
 

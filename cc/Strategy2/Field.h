@@ -9,13 +9,13 @@
 namespace field {
 
 	// Estas são as contantes definidas pelas regras da competição
-	const double field_height = 1.3;
-	const double field_width = 1.7;
-	const double goal_width = 0.1;
-	const double goal_height = 0.4;
+	const double field_height = 1.26;
+	const double field_width = 1.62;
+	const double goal_width = 0.08;
+	const double goal_height = 0.35;
 	const double area_width = 0.15;
-	const double area_height = 0.7;
-	const double corner_height = 0.3;
+	const double area_height = 0.65;
+	const double corner_height = 0.3; //distancia entre a lateral do campo e a area do gol
 	const double free_ball_dist = 0.2; // distância de cobrança de falta entre bola e robô
 	const double free_ball_height = 0.25; // distância entre a lateral do campo em y e o ponto de falta
 	// -----------------------------------------------------------------------------------------------------------------
@@ -132,10 +132,10 @@ namespace field {
 		}
 		namespace front {
 			namespace upper {
-				const Geometry::Point wait_point({0.73 * field_width, field_height/2+goal_height/2});
+				const Geometry::Point wait_point({0.62 * field_width, field_height/2+area_height/2});
 			}
 			namespace lower {
-				const Geometry::Point wait_point({0.73 * field_width, field_height/2-goal_height/2});
+				const Geometry::Point wait_point({0.62 * field_width, field_height/2-area_height/2});
 			}
 		}
 		namespace middle {
