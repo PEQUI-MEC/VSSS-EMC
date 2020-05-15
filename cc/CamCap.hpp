@@ -31,6 +31,7 @@
 #include <cmath>
 #include <fstream>
 #include <chrono>
+#include <Strategy2/AIStrategy.hpp>
 #include "LS.h"
 
 #define MAX_THETA_TOLERATION 3
@@ -62,6 +63,7 @@ class CamCap : public Gtk::HBox {
 		bool ekf_data_ready = false;
 
 		Strategy2 strategy;
+		AIStrategy ai_strategy;
 
 		StrategyGUI strategyGUI;
 		RobotGUI robotGUI;

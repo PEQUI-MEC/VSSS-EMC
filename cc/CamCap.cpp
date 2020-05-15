@@ -92,6 +92,14 @@ bool CamCap::capture_and_show() {
 
 	interface.imageView.imageWarp.run(imageView);
 
+//	Obter posicao dos adversarios
+	auto cv_adv = interface.visionGUI.vision->get_adv_robots();
+	std::array<Geometry::Point, 3> adv;
+	auto adv_count = std::min(adv.size(), cv_adv.size());
+	for(int i = 0; i < adv_count; i++) {
+		adv[i] = Geometry::from_cv_point(cv_adv[i])	;
+	}
+
 	bool is_game_on = interface.get_start_game_flag();
 	bool is_test_on_click_on = interface.controlGUI.test_controller.is_active();
 
@@ -130,7 +138,11 @@ bool CamCap::capture_and_show() {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
-		strategy.run();
+		if(strategyGUI.use_ai) {
+			ai_strategy.run_strategy(robots, ball, adv);
+		} else {
+			strategy.run();
+		}
 
 		interface.controlGUI.update_msg_time();
 		notify_data_ready(false);
@@ -222,6 +234,12 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(
 								interface(robots,
 										  ball, robotGUI, isLowRes)
 														   {
+	attacker.set_ID('A');
+	attacker.tag = 0;
+	defender.set_ID('B');
+	defender.tag = 1;
+	goalkeeper.set_ID('C');
+	goalkeeper.tag = 2;
 
 	ls_x.init(15, 1);
 	ls_y.init(15, 1);

@@ -22,6 +22,11 @@ class StrategyGUI : public Gtk::VBox {
 		Gtk::CheckButton transitions_button;
 		Gtk::Label transitions_label;
 
+		bool use_ai = false;
+		Gtk::HBox ai_hbox;
+		Gtk::CheckButton ai_button;
+		Gtk::Label ai_label;
+
 		TestFrame testFrame;
 
 		void configure_options_frame();

@@ -72,8 +72,20 @@ void Robot2::set_pose(const Pose &new_pose) {
 	pose = new_pose;
 }
 
+void Robot2::set_target_wheel_velocity(double left, double right) {
+	command = Command::Wheel_Vel;
+	target.left_wheel_vel = left;
+	target.right_wheel_vel = right;
+}
+
 void Robot2::set_ID(char new_ID) {
 	ID = new_ID;
+}
+
+PyObject * Robot2::python_pose() {
+	auto position = pose.position;
+	auto pyrobot = Py_BuildValue("(ddd)", position.x, position.y, pose.orientation);
+	return pyrobot;
 }
 
 Geometry::Vector Robot2::get_direction() {

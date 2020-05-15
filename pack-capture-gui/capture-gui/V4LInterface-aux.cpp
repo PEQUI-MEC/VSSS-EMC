@@ -831,7 +831,7 @@ void V4LInterface::initInterface() {
 	record_video_checkbox.set_label("Record Game");
 	record_video_checkbox.set_can_focus(false);
 	record_video_checkbox.set_margin_bottom(5);
-	record_video_checkbox.set_active(true);
+//	record_video_checkbox.set_active(true);
 
 	vbox->pack_start(start_game_bt, false, true, 0);
 	vbox->pack_start(record_video_checkbox, false, true, 0);

@@ -6,6 +6,7 @@ StrategyGUI::StrategyGUI() {
 	configureTestFrame();
 	pack_start(testFrame, false, true, 5);
 	transitions_button.clicked();
+	ai_button.clicked();
 }
 
 void StrategyGUI::configureTestFrame() {
@@ -23,11 +24,19 @@ void StrategyGUI::configureTestFrame() {
 }
 
 void StrategyGUI::configure_options_frame() {
+	ai_label.set_label("Use AI");
+	ai_hbox.pack_start(ai_button, false, false, 5);
+	ai_button.signal_clicked().connect([&](){
+		use_ai = ai_button.get_active();
+	});
+	ai_hbox.pack_start(ai_label, false, false, 0);
+
 	transitions_label.set_label("Transitions (full, half e mindcontrol)");
 	transitions_hbox.pack_start(transitions_button, false, false, 5);
 	transitions_button.signal_clicked().connect(sigc::mem_fun(*this, &StrategyGUI::set_transitions));
 	transitions_hbox.pack_start(transitions_label, false, false, 0);
 
+	options_vbox.pack_start(ai_hbox, false, false, 5);
 	options_vbox.pack_start(transitions_hbox, false, false, 5);
 	options_frame.set_label("Options");
 	options_frame.add(options_vbox);

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <Python.h>
 
 namespace Geometry {
 	struct Point;
@@ -20,8 +21,8 @@ namespace Geometry {
 	};
 
 	struct Point {
-		double x;
-		double y;
+		double x = 0;
+		double y = 0;
 
 		friend std::ostream& operator<<(std::ostream& os, const Point& p) {
 			os << "{ " << p.x << ", " << p.y << " }";
@@ -33,6 +34,7 @@ namespace Geometry {
 		Vector operator-(const Point &p2) const;
 		Point operator+(const Vector &v) const;
 		cv::Point to_cv_point();
+		PyObject * to_python() const;
 	};
 
 	struct Line {

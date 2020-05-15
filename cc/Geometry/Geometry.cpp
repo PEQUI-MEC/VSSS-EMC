@@ -52,6 +52,11 @@ cv::Point Point::to_cv_point() {
 			480 - static_cast<int>(y * 480 / 1.3) };
 }
 
+PyObject * Point::to_python() const {
+	auto pyposition = Py_BuildValue("(dd)", x, y);
+	return pyposition;
+}
+
 Vector::Vector(const Point &p) {
 	size = distance(p, {0,0});
 	theta = std::atan2(p.y, p.x);

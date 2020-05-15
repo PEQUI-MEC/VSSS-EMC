@@ -2,6 +2,7 @@
 #define VSSS_ROBOT_H
 
 #include "Geometry/Geometry.h"
+#include <Python.h>
 
 class Robot2 {
 	public:
@@ -10,6 +11,8 @@ class Robot2 {
 			double orientation;
 			double velocity;
 			double angular_velocity;
+			double left_wheel_vel;
+			double right_wheel_vel;
 		};
 
 		struct UVF_params {	// Parametros utilizados no UVF
@@ -18,7 +21,7 @@ class Robot2 {
 		};
 
 		enum class Command { // Comandos que o Messenger pode enviar para o robô
-			Position, Vector, UVF, Orientation, Angular_Vel, None
+			Position, Vector, UVF, Orientation, Angular_Vel, Wheel_Vel, None
 		};
 
 		enum class Role {
@@ -26,8 +29,8 @@ class Robot2 {
 		};
 
   	private:
-		Pose pose = { {0, 0}, 0, 0, 0.0 };	// Pose atual do robô
-		Pose target = { {0, 0}, 0, 0, 0.0 }; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
+		Pose pose = { {0, 0}, 0, 0, 0.0, 0.0, 0.0};	// Pose atual do robô
+		Pose target = { {0, 0}, 0, 0, 0.0, 0.0, 0.0}; //	Objetivo do robô. Uso de variáveis depende do comando utilizado
 		Command command = Command::None; // Tipo de comando que será enviado pelo Messenger
 		UVF_params uvf_data = { 1, 0.1 }; // Parâmetros utilizados no UVF
 
@@ -76,6 +79,10 @@ class Robot2 {
 		 *	Valores positivos significam giro anti-horário,
 		 *	valores negativos significam giro horário */
 		void spin(double angular_velocity);
+		/**	Robô se movimenta com as velocidades de rodas desejadas
+		 *	@param left Velocidade da roda esquerda
+		 *	@param right Velocidade da roda direita */
+		void set_target_wheel_velocity(double left, double right);
 
 		/**	Fazem o mesmo que foi descrito nos métodos acima,
 		 *	mas utilzam a velocidade padrão (definida na variável default_target_velocity) **/
@@ -85,6 +92,7 @@ class Robot2 {
 		void go_in_direction(Geometry::Vector vector);
 		void stop() { spin(0); };
 
+		PyObject * python_pose();
 		Pose get_pose() const { return  pose; };
 		char get_ID() const { return ID; };
 		void set_ID(char new_ID);

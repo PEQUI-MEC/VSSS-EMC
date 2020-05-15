@@ -69,6 +69,9 @@ void Messenger::send_command(char id, Pose target, Command command, Geometry::Po
 			case Command::Orientation:
 				return "O" + rounded_str(target.orientation * 180/M_PI)
 							 + ";" + rounded_str(target.velocity);
+			case Command::Wheel_Vel:
+				return rounded_str(target.right_wheel_vel)
+					   + ";" + rounded_str(target.left_wheel_vel);
 			default:
 				return string();
 		}

@@ -18,6 +18,9 @@ find_package(PkgConfig)
 pkg_check_modules(GTKMM gtkmm-3.0)
 link_directories(${GTKMM_LIBRARY_DIRS})
 
+set(Python_ADDITIONAL_VERSIONS 3)
+find_package(PythonLibs 3 REQUIRED)
+
 pkg_check_modules(V4L2 libv4l2 libv4lconvert)
 link_directories(${V4L2_LIBRARY_DIRS})
 
@@ -61,7 +64,7 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/ImageArt.cpp
     pack-capture-gui/capture-gui/ImageWarp.cpp
     cc/TestOnClick.cpp
-    cc/VideoRecorder.cpp)
+    cc/VideoRecorder.cpp cc/Strategy2/AIStrategy.cpp cc/Strategy2/AIStrategy.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
@@ -73,6 +76,7 @@ include_directories(cc/
     pack-capture/capture/
     pack-capture-gui/capture-gui/
     ${GTKMM_INCLUDE_DIRS}
+    ${PYTHON_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
     ${V4L2_INCLUDE_DIRS})
@@ -90,6 +94,7 @@ endif ()
 add_executable(VSSS ${SOURCE_FILES})
 
 target_link_libraries(VSSS ${GTKMM_LIBRARIES})
+target_link_libraries(VSSS ${PYTHON_LIBRARIES})
 target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
