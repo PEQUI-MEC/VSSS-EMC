@@ -1,6 +1,7 @@
 #ifndef VSSS_FIELD_H
 #define VSSS_FIELD_H
 
+#include <Strategy3/Robot3.hpp>
 #include "Geometry/Geometry.h"
 #include "Strategy2/Robot2.h"
 
@@ -147,6 +148,7 @@ namespace field {
 	// Função que será chamada pela estratégia para saber a localização dos agentes
 	bool at_location(const Geometry::Point& position, Location location);
 	bool at_location(const Robot2& robot, Location location);
+	bool at_location(const Robot3& robot, Location location);
 	bool match_y(const Geometry::Point &position, const Location &location);
 }
 

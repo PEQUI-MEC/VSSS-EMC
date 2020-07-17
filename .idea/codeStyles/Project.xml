@@ -1,7 +1,6 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <Objective-C>
-      <option name="INDENT_CLASS_MEMBERS" value="8" />
       <option name="INDENT_VISIBILITY_KEYWORDS" value="4" />
       <option name="INDENT_DIRECTIVE_AS_CODE" value="true" />
     </Objective-C>

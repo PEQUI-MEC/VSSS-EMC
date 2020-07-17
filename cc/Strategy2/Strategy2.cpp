@@ -4,7 +4,7 @@ using namespace field;
 using namespace Geometry;
 
 Strategy2::Strategy2(Attacker &attacker, Defender &defender, Goalkeeper& goalkeeper, Geometry::Point &ball,
-		Geometry::Point &ball_est) :
+					 Geometry::Point &ball_est) :
 		attacker(attacker),
 		defender(defender),
 		goalkeeper(goalkeeper),

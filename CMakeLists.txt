@@ -12,6 +12,8 @@ project(VSSS)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} )
+
 #Encontra bibliotecas
 find_package(PkgConfig)
 
@@ -26,7 +28,7 @@ link_directories(${V4L2_LIBRARY_DIRS})
 
 find_package(Boost REQUIRED COMPONENTS date_time filesystem wserialization system serialization thread regex)
 
-find_package(OpenCV 4.0.0 REQUIRED)
+find_package(OpenCV 4.0.1 REQUIRED PATHS "/home/thiago/Software/opencv")
 
 find_package(CUDA QUIET)
 
@@ -64,7 +66,12 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/ImageArt.cpp
     pack-capture-gui/capture-gui/ImageWarp.cpp
     cc/TestOnClick.cpp
-    cc/VideoRecorder.cpp cc/Strategy2/AIStrategy.cpp cc/Strategy2/AIStrategy.hpp)
+    cc/VideoRecorder.cpp cc/Strategy2/AIStrategy.cpp cc/Strategy2/AIStrategy.hpp cc/Strategy3/Team.cpp cc/Strategy3/Team.hpp
+    cc/Strategy3/Robot3.cpp cc/Strategy3/Robot3.hpp cc/Strategy3/Strategy3.cpp cc/Strategy3/Strategy3.hpp
+    cc/Strategy3/Types.hpp
+    cc/Strategy3/DefenderStrategy.cpp cc/Strategy3/DefenderStrategy.hpp
+    cc/Strategy3/AttackerStrategy.cpp cc/Strategy3/AttackerStrategy.hpp
+    cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp cc/Strategy3/Robots.hpp cc/Strategy3/RoleStrategy.hpp cc/MainLoop.cpp cc/MainLoop.hpp cc/GUI.cpp cc/GUI.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

@@ -50,6 +50,10 @@ bool field::at_location(const Robot2 &robot, const Location location) {
 	return at_location(robot.get_position(), location);
 }
 
+bool field::at_location(const Robot3 &robot, const Location location) {
+	return at_location(robot.get_position(), location);
+}
+
 // Verifica se o eixo Y da posição condiz com o eixo Y de uma localização do campo
 bool field::match_y(const Geometry::Point &position, const Location &location) {
 	switch (location) {
