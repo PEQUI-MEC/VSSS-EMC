@@ -16,10 +16,10 @@ class AI:
 
         # game_time: game time in seconds (suggestion: use half the match as you can reset after halftime)
 
-        self.OUR_GOAL = our_goal # posição [x,y]
-        self.THEIR_GOAL = their_goal # posição [x,y]
-        self.OUR_PLAYERS = 3 # numero de jogadores no "nosso" Time
-        self.THEIR_PLAYERS = 3 # numero de jogadores no Time "deles"
+        self.OUR_GOAL = our_goal # position [x,y] (suggestion: set it somewhere between the goalie line and the goal back "wall")
+        self.THEIR_GOAL = their_goal # position [x,y]
+        self.OUR_PLAYERS = 3 # number of players on "our" Team
+        self.THEIR_PLAYERS = 3 # number of players on "their" Team
         self.DEFAULT_PLAYERS = 3
         self.num_frames = num_frames
         print("Our goal (x, y) is " + str(self.OUR_GOAL[0]) + ", " + str(self.OUR_GOAL[1]))
@@ -39,6 +39,8 @@ class AI:
             raise Exception("Please provide a valid path to the model.zip file in AI(path='path')")
 
     def reset_timer(self, game_time=None):
+        # Resets the timer to the chosen game_time
+
         if game_time:
             self.time = game_time
         else:
@@ -46,6 +48,7 @@ class AI:
 
 
     def distance(self, a,b):
+        # Cartesian distance between two points
         return ((a[0] - b[0])**2 + (a[1] - b[1])**2)**(1/2)
 
     def run_strategy(self, robot0, robot1, robot2, ball, adv0, adv1, adv2, is_start=False):
@@ -56,6 +59,13 @@ class AI:
         print("Adv 1 (x, y) is " + str(adv1[0]) + ", " + str(adv1[1]))
         print("Adv 2 (x, y) is " + str(adv2[0]) + ", " + str(adv2[1]))
         print("Ball is (x, y) " + str(ball[0]) + ", " + str(ball[1]))
+
+        # The Following assumptions are made about the data
+        # The vision system acquires positions in meters and in relation to the lower left corner of the field
+        # The center of the field is located at the mark (0.75, 0.65) meters
+        # The positions and orientations are treated to make the left side ALWAYS "our side"
+        # Orientation data comes in the range of [-pi, pi] according to the X axis that points towards the adversary's goal
+        # No orientation data is acquired for the adversary players
 
         robot0, robot1, robot2, ball, adv0, adv1, adv2 = self.cartesian_translate([robot0, robot1, robot2, ball, adv0, adv1, adv2])
 
@@ -74,6 +84,7 @@ class AI:
         return tuple(tuple(sub) for sub in actions)
 
     def cartesian_translate(self, elements):
+        # Change the origin of a cartesian system for all points in the list
         new_origin = [0.75, 0.65]
         for obj in elements:
             obj[0] = obj[0] - new_origin[0]
@@ -89,6 +100,7 @@ class AI:
 
 
     def preprocess_info(self, robot0, robot1, robot2, ball, adv0, adv1, adv2):
+        # Use the information to genereta the normalized input data by calculating distances, sin and cos
 
         our_robots = [robot0, robot1, robot2]
         their_robots = [adv0, adv1, adv2]
@@ -197,8 +209,12 @@ class AI:
 
 
     def mount(self, frame_pos, frame_rot, Specifics, Specifics_dists, is_start=False):
-        # is_start: se é, ou não, o início de um novo jogo, neste caso ele não
-        # deverá ser empilhado com os anteriores
+        # Gathers the processed information to mount the input and pile up readings
+
+        # is_start: shows if it is or not a starting state, if it is, the previous readings
+        # are discarted and the new reading is repeated. Otherwise the new reading is piled
+        # on top of the old ones.
+
         if is_start:
             for l_ac in self.last_actions:
                 l_ac = 0.0
@@ -244,6 +260,8 @@ class AI:
                 self.state[i] = np.concatenate((self.state[i], s), axis=0)
 
     def random_test_AI(self):
+        # Test the AI with random positions and orientations
+
         # Generate positions and orientations
         robots = [[random.uniform(0.0, 1.7), random.uniform(0.0, 1.3), random.uniform(-math.pi, math.pi)] for _ in range(self.OUR_PLAYERS)]
         advs = [[random.uniform(0.0, 1.7), random.uniform(0.0, 1.3)] for _ in range(self.THEIR_PLAYERS)]
