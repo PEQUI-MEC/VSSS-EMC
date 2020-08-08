@@ -37,6 +37,8 @@ find_library(LIBXBEE libxbee.so libxbeep.so)
 # Protobuf
 find_package(Protobuf REQUIRED)
 
+find_library(EVPP libevpp_static.so)
+
 protobuf_generate_cpp(PROTO_CPP PROTO_H
     protobuf_msg/common.proto
     protobuf_msg/command.proto
@@ -84,7 +86,8 @@ set(SOURCE_FILES cc/main.cpp
     cc/Strategy3/AttackerStrategy.cpp cc/Strategy3/AttackerStrategy.hpp
     cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp cc/Strategy3/RoleStrategy.hpp
     cc/MainLoop.hpp cc/Strategy3/Game.cpp cc/Strategy3/Game.hpp cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp
-    cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp cc/Simulator/Simulator.cpp cc/Simulator/Simulator.hpp)
+    cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp
+    cc/Simulator/SimulatorClient.cpp cc/Simulator/SimulatorClient.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
@@ -121,6 +124,7 @@ target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
 target_link_libraries(VSSS ${LIBXBEE})
+target_link_libraries(VSSS ${EVPP})
 target_link_libraries(VSSS ${Protobuf_LIBRARIES})
 if (CUDA_FOUND)
     target_link_libraries(VSSS ${CUDA_LIBRARIES})

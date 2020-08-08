@@ -33,6 +33,7 @@
 #include <chrono>
 #include <Strategy2/AIStrategy.hpp>
 #include <Strategy3/Game.hpp>
+#include <Simulator/SimulatorClient.hpp>
 #include "LS.h"
 
 #define MAX_THETA_TOLERATION 3
@@ -42,6 +43,8 @@ class CamCap : public Gtk::HBox {
 
 	public:
 		Game game;
+
+		SimulatorClient simulator;
 
 		unsigned char *data;
 
