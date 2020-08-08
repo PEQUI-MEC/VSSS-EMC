@@ -34,8 +34,19 @@ find_package(CUDA QUIET)
 
 find_library(LIBXBEE libxbee.so libxbeep.so)
 
+# Protobuf
+find_package(Protobuf REQUIRED)
+
+protobuf_generate_cpp(PROTO_CPP PROTO_H
+    protobuf_msg/common.proto
+    protobuf_msg/command.proto
+    protobuf_msg/replacement.proto
+    protobuf_msg/packet.proto)
+
 #Define arquivos a serem compilados. Novos arquivos devem ser inclusos aqui
 set(SOURCE_FILES cc/main.cpp
+    ${PROTO_CPP}
+    ${PROTO_H}
     cc/controlGUI.cpp
     cc/filechooser.cpp
     cc/CamCap.cpp
@@ -71,7 +82,9 @@ set(SOURCE_FILES cc/main.cpp
     cc/Strategy3/Types.hpp
     cc/Strategy3/DefenderStrategy.cpp cc/Strategy3/DefenderStrategy.hpp
     cc/Strategy3/AttackerStrategy.cpp cc/Strategy3/AttackerStrategy.hpp
-    cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp cc/Strategy3/RoleStrategy.hpp cc/MainLoop.hpp cc/Strategy3/Game.cpp cc/Strategy3/Game.hpp cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp)
+    cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp cc/Strategy3/RoleStrategy.hpp
+    cc/MainLoop.hpp cc/Strategy3/Game.cpp cc/Strategy3/Game.hpp cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp
+    cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp cc/Simulator/Simulator.cpp cc/Simulator/Simulator.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
@@ -86,7 +99,9 @@ include_directories(cc/
     ${PYTHON_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
-    ${V4L2_INCLUDE_DIRS})
+    ${V4L2_INCLUDE_DIRS}
+    ${Protobuf_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_BINARY_DIR})
 
 set(CMAKE_CXX_FLAGS "-std=c++17 -isystem /usr/include/sigc++-2.0 -isystem /usr/include/gtk-3.0/ \
     -Wall -Wextra -g -m64 -pipe -pthread -lpthread -lopencv_stitching \
@@ -106,6 +121,7 @@ target_link_libraries(VSSS ${Boost_LIBRARIES})
 target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
 target_link_libraries(VSSS ${LIBXBEE})
+target_link_libraries(VSSS ${Protobuf_LIBRARIES})
 if (CUDA_FOUND)
     target_link_libraries(VSSS ${CUDA_LIBRARIES})
 endif ()
