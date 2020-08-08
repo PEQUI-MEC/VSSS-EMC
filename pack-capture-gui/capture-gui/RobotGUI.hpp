@@ -2,40 +2,43 @@
 #define VSSS_ROBOTINFOGUI_HPP
 
 #include <gtkmm.h>
+#include <Strategy3/Game.hpp>
 #include "Robot2.h"
 
 class RobotGUI : public Gtk::Box {
 	private:
-		const std::array<Robot2*, 3>& robots;
+	Game& game;
+//		const std::array<Robot2*, 3>& robots;
 		const bool isLowRes;
 
 		bool robots_speed_edit_flag = false;
-		int robots_id_tmp[3];
-		int robots_id_change_tmp[3];
+		std::vector<int> robots_id_tmp;
+		std::vector<int> robots_id_change_tmp;
 		bool robots_id_edit_flag = false;
-		int robots_function_tmp[3];
-		int robots_function_change_tmp[3];
+		std::vector<int> robots_function_tmp;
+		std::vector<int> robots_function_change_tmp;
 		bool robots_function_edit_flag = false;
-		double robots_speed_tmp[3];
+		std::vector<double> robots_speed_tmp;
 
 		Gtk::HBox id_hbox, speed_hbox, role_hbox;
-		Gtk::VBox id_vbox, speed_vbox, role_vbox, speed_bars_box[3];
+		Gtk::VBox id_vbox, speed_vbox, role_vbox;
+		std::vector<Gtk::VBox> speed_bars_box;
 		Gtk::Grid id_grid, speed_grid, role_grid;
 		Gtk::Frame id_frame, speed_frame, role_frame;
 
-		Gtk::ComboBoxText robots_id_box[3];
+		std::vector<Gtk::ComboBoxText> robots_id_box;
 		Gtk::Button robots_id_edit_bt;
 		Gtk::Button robots_auto_bt;
 		Gtk::Button robots_id_done_bt;
 
 		Gtk::Button robots_speed_edit_bt;
 		Gtk::Button robots_speed_done_bt;
-		Gtk::HScale robots_speed_hscale[3];
-		Gtk::ProgressBar robots_speed_progressBar[3];
+		std::vector<Gtk::HScale> robots_speed_hscale;
+		std::vector<Gtk::ProgressBar> robots_speed_progressBar;
 
 		Gtk::Button robots_role_edit_bt;
 		Gtk::Button robots_role_done_bt;
-		Gtk::ComboBoxText cb_robot_role[3];
+		std::vector<Gtk::ComboBoxText> cb_robot_role;
 
 		void initRobotGUI();
 		void createIDsFrame();
@@ -57,10 +60,11 @@ class RobotGUI : public Gtk::Box {
 		void event_robots_auto_bt_signal_pressed();
 
 	public:
-		RobotGUI(std::array<Robot2 *, 3> &robots, bool isLowRes);
+		RobotGUI(Game& game, bool isLowRes);
 
 		void update_speed_progressBars();
 		void update_robot_functions();
+		void update_robot_ids();
 		void update_robots();
 		void enable_main_buttons(bool enable = true);
 

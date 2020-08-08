@@ -12,6 +12,10 @@ class GoalkeeperStrategy : public RoleStrategy {
 	void protect_goal(const Geometry::Point& ball, const Geometry::Point& ball_est);
 	void spin_shot(const Geometry::Point& ball);
 	void exit_goal();
+
+	Role get_role() {
+		return Role::Goalkeeper;
+	}
 };
 
 #endif //VSSS_GOALKEEPER_HPP

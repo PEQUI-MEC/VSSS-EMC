@@ -47,7 +47,7 @@ Point Geometry::from_cv_point(const double x, const double y) {
 			1.3 - y * (1.3 / 480.0)};
 }
 
-cv::Point Point::to_cv_point() {
+cv::Point Point::to_cv_point() const {
 	return {static_cast<int>(x * 640 / 1.7),
 			480 - static_cast<int>(y * 480 / 1.3) };
 }

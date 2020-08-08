@@ -5,6 +5,7 @@
 #include "AttackerStrategy.hpp"
 #include "DefenderStrategy.hpp"
 #include "GoalkeeperStrategy.hpp"
+#include "Ball.hpp"
 
 class Strategy3 : public Strategy {
 	AttackerStrategy attacker;
@@ -16,6 +17,9 @@ class Strategy3 : public Strategy {
 					  Robots adversaries,
 					  Ball ball);
 
+	Strategy3 * clone() {
+		return new Strategy3(*this);
+	}
 
 	using sc = std::chrono::system_clock;
 	using duration_ms = std::chrono::duration<double, std::milli>;

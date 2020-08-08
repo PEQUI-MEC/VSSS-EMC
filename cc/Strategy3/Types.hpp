@@ -28,16 +28,14 @@ struct Target {
 	Command command = Command::None;
 	Pose pose;
 	Geometry::Point reference; // for UVF
-	double n; // for UVF
+	double n; // for UVthis->robotsF
 };
 
-struct Ball {
-	Geometry::Point position;
-	Geometry::Point estimative;
-};
-
+constexpr unsigned int ROLE_COUNT = 4;
 enum class Role {
-	Attacker, Goalkeeper, Defender, None
+	None = 0, Attacker = 1, Goalkeeper = 2, Defender = 3
 };
+
+std::string role_to_str(Role role);
 
 #endif //VSSS_TYPES_HPP

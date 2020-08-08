@@ -14,6 +14,10 @@ class DefenderStrategy : public RoleStrategy {
 	void wait_at_target(Geometry::Point target, Geometry::Point &ball);
 	void decide_spin_shot(const Geometry::Point &ball);
 	void exit_goal();
+
+	Role get_role() {
+		return Role::Defender;
+	}
 };
 
 #endif //VSSS_DEFENDERSTRATEGY_HPP

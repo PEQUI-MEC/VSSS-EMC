@@ -33,14 +33,13 @@ namespace art {
 			const cv::Scalar adv_robots_color = {0, 0, 255}; // blue
 
 
-			void draw_targets(const Robot2 *robot, cv::Mat &frame);
+			void draw_targets(const Robot3 &robot, cv::Mat &frame);
 
 		public:
 			ImageArt(warp::PointArray &warp, warp::PointArray &adjust, onClick::TestOnClick &test, int &width, int &height);
 			void draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 					  const std::map<unsigned int, vision::Vision::RecognizedTag> &our_tags,
-					  const std::vector<cv::Point> &adv_tags,
-					  const std::array<Robot2 *, 3> &our_robots, bool is_game_on);
+					  const std::vector<cv::Point> &adv_tags, const std::vector<Robot3> &our_robots, bool is_game_on);
 
 			void set_is_warping(bool warping = true) { is_warping = warping; };
 

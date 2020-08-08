@@ -32,6 +32,7 @@
 #include <fstream>
 #include <chrono>
 #include <Strategy2/AIStrategy.hpp>
+#include <Strategy3/Game.hpp>
 #include "LS.h"
 
 #define MAX_THETA_TOLERATION 3
@@ -40,14 +41,7 @@
 class CamCap : public Gtk::HBox {
 
 	public:
-		Attacker attacker;
-		Defender defender;
-		Goalkeeper goalkeeper;
-
-		Geometry::Point ball;
-		Geometry::Point ball_est;
-
-		std::array<Robot2 *, 3> robots;
+		Game game;
 
 		unsigned char *data;
 
@@ -62,14 +56,9 @@ class CamCap : public Gtk::HBox {
 		bool data_ready_flag = false;
 		bool ekf_data_ready = false;
 
-		Strategy2 strategy;
-		AIStrategy ai_strategy;
-
 		StrategyGUI strategyGUI;
 		RobotGUI robotGUI;
 		capture::V4LInterface interface;
-
-		LS ls_x, ls_y;
 
 		int fps_average = 0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
@@ -89,7 +78,6 @@ class CamCap : public Gtk::HBox {
 		void send_cmd_thread();
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
-		void calculate_ball_est();
 		explicit CamCap(bool isLowRes);
 		~CamCap() override;
 };

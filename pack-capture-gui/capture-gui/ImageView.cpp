@@ -117,12 +117,12 @@ bool capture::ImageView::on_motion_notify_event(GdkEventMotion *event) {
 		}
 	}
 
-	if (Robot2::Command cmd = test_on_click->get_command();
-			has_right_click && (cmd == Robot2::Command::UVF || cmd == Robot2::Command::Orientation)) {
+	if (Command cmd = test_on_click->get_command();
+			has_right_click && (cmd == Command::UVF || cmd == Command::Orientation)) {
 
 		test_on_click->set_orientation(event->x, event->y);
 		return true;
-	} else if (has_right_click && (cmd == Robot2::Command::Position || cmd == Robot2::Command::Vector)) {
+	} else if (has_right_click && (cmd == Command::Position || cmd == Command::Vector)) {
 		test_on_click->select_target(event->x, event->y);
 		return true;
 	}

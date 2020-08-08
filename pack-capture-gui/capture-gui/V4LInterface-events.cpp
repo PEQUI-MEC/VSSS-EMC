@@ -523,10 +523,10 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		start_game_bt.set_image(red_button_released);
 
 		// Para os robôs. Importante para não atrapalhar o Test On Click.
-		for (auto robot : robots) {
-			robot->stop();
+		for (auto robot : game.team->robots) {
+			robot.stop();
 		}
-		messenger.send_commands(robots);
+		messenger.send_commands(game.team->robots);
 	}
 }
 

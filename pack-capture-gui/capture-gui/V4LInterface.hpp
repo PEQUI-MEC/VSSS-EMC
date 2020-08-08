@@ -27,6 +27,7 @@
 #include <ctime>
 #include <chrono>
 #include <ImageWarp.hpp>
+#include <GameGUI.hpp>
 
 #define PI 3.14159265453
 
@@ -46,11 +47,13 @@ class capture::V4LInterface : public Gtk::VBox {
 	public:
 		bool isLowRes = false;
 
-		const std::array<Robot2*, 3>& robots;
+		Game& game;
 		RobotGUI &robotGUI;
 
 		VisionGUI visionGUI;
 		ControlGUI controlGUI;
+
+		GameGUI gameGUI;
 
 		bool init_frame = true;
 
@@ -64,12 +67,12 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::Image red_button_released;
 		Gtk::Image red_button_pressed;
 
-		Gtk::Label robot_pos_lb_list[3];
+		std::vector<Gtk::Label> robot_pos_lb_list;
 		Gtk::Label ball_pos_lb;
 
 		Gtk::HBox info_hbox;
 		Gtk::VBox robots_pos_vbox;
-		Gtk::HBox robots_pos_hbox[7];
+		std::vector<Gtk::HBox> robots_pos_hbox;
 		Gtk::HBox start_game_hbox;
 		Gtk::VBox buttons_vbox;
 		Gtk::Button start_game_bt;
@@ -84,8 +87,7 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		capture::v4lcap vcap;
 
-		explicit V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball,
-									  RobotGUI &robot_gui, bool isLow);
+		explicit V4LInterface(Game &game, RobotGUI &robot_gui, bool isLow);
 		void initInterface();
 
 		Gtk::Scale HScale_offsetL;

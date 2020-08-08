@@ -7,14 +7,16 @@ class Robot3 {
 	public:
 	Pose pose;
 	Target target;
-	int TAG = 0;
+	unsigned int TAG = 0;
 	char ID = 'A';
-	Role role;
+	Role role = Role::None;
 
 	const double SIZE = 0.08;
 	double default_target_velocity = 0.8;
 	const double TARGET_OFFSET = 0.03; // tolerância para saber se o robô chegou no ponto
 	const double BALL_OFFSET = 0.08; // tolerância para saber se a bola está próxima ao robô
+
+	Robot3(int TAG, char ID) : TAG(TAG), ID(ID){}
 
 	/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 	 *	@param point Ponto em que o robô deve passar
@@ -58,8 +60,23 @@ class Robot3 {
 	/** Retorna a direção do movimento do robô **/
 	Geometry::Vector get_direction();
 
+	void set_pose(cv::Point position, double orientation) {
+		pose.position = Geometry::from_cv_point(position);
+		pose.orientation = -orientation;
+	}
+
 	Geometry::Point get_position() const {
 		return pose.position;
+	}
+
+	PyObject * python_pose() const {
+		auto position = pose.position;
+		auto pyrobot = Py_BuildValue("(ddd)", position.x, position.y, pose.orientation);
+		return pyrobot;
+	}
+
+	std::string tag_name() {
+		return "Robot " + std::to_string(TAG);
 	}
 };
 

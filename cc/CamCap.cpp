@@ -10,17 +10,17 @@ using std::endl;
 using std::vector;
 
 void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag> &tags) {
-	for (const auto &robot : robots) {
-		auto search = tags.find(robot->tag);
+	for (auto &robot : game.team->robots) {
+		auto search = tags.find(robot.TAG);
 		if (search != tags.end())
-			robot->set_pose(search->second.position, search->second.orientation);
+			robot.set_pose(search->second.position, search->second.orientation);
 	}
 
 	interface.updateRobotLabels();
 
 	const Vision::Ball cv_ball = interface.visionGUI.vision->getBall();
-	ball = Geometry::from_cv_point(cv_ball.position);
-	interface.update_ball_position(ball);
+	game.ball.position = Geometry::from_cv_point(cv_ball.position);
+	interface.update_ball_position(game.ball.position);
 }
 
 bool CamCap::start_signal(bool b) {
@@ -96,7 +96,7 @@ bool CamCap::capture_and_show() {
 	auto cv_adv = interface.visionGUI.vision->get_adv_robots();
 	std::array<Geometry::Point, 3> adv;
 	auto adv_count = std::min(adv.size(), cv_adv.size());
-	for(int i = 0; i < adv_count; i++) {
+	for(unsigned i = 0; i < adv_count; i++) {
 		adv[i] = Geometry::from_cv_point(cv_adv[i])	;
 	}
 
@@ -114,7 +114,7 @@ bool CamCap::capture_and_show() {
 
 	interface.visionGUI.recorder.run(imageView);
 
-	calculate_ball_est();
+	game.ball.update_ls();
 	update_positions(tags);
 
 	interface.updateFPS(fps_average);
@@ -138,23 +138,22 @@ bool CamCap::capture_and_show() {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
-		if(strategyGUI.use_ai) {
-			ai_strategy.run_strategy(robots, ball, adv);
-		} else {
-			strategy.run();
-		}
+		game.team->strategy->run_strategy(game.team->robots, game.adversary->robots, game.ball);
+		game.adversary->strategy->run_strategy(game.adversary->robots, game.team->robots, game.ball);
 
 		interface.controlGUI.update_msg_time();
 		notify_data_ready(false);
 
-		robotGUI.update_speed_progressBars();
-		robotGUI.update_robot_functions();
 	} // ---------- TEST ON CLICK --------------//
 	else if (is_test_on_click_on) {
 		interface.controlGUI.test_controller.run();
 		interface.controlGUI.update_msg_time();
 		notify_data_ready(false);
 	}
+
+	robotGUI.update_robot_ids();
+	robotGUI.update_speed_progressBars();
+	robotGUI.update_robot_functions();
 	// -----------------------------------------//
 
 	if (!interface.visionGUI.CIELAB_calib_event_flag && !interface.visionGUI.getIsSplitView()) {
@@ -171,8 +170,7 @@ bool CamCap::capture_and_show() {
 			interface.imageView.imageArt.draw(imageView,
 											  interface.visionGUI.vision->getBall(),
 											  tags,
-											  interface.visionGUI.vision->get_adv_robots(),
-											  robots,
+											  interface.visionGUI.vision->get_adv_robots(), game.team->robots,
 											  is_game_on);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
@@ -199,11 +197,11 @@ void CamCap::send_cmd_thread() {
 		}
 		data_ready_flag = false;
 		if (ekf_data_ready) {
-			for (auto &robot : this->robots)
-				interface.controlGUI.messenger.send_ekf_data(*robot);
+			for (auto &robot : game.team->robots)
+				interface.controlGUI.messenger.send_ekf_data(robot);
 			ekf_data_ready = false;
 		} else {
-			interface.controlGUI.messenger.send_commands(this->robots);
+			interface.controlGUI.messenger.send_commands(game.team->robots);
 		}
 	}
 }
@@ -218,31 +216,10 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-
-void CamCap::calculate_ball_est() {
-	ls_x.addValue(ball.x);
-	ls_y.addValue(ball.y);
-
-	ball_est.x = ls_x.estimate(10);
-	ball_est.y = ls_y.estimate(10);
-}
-
-CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(nullptr), width(0), height(0), frameCounter(0),
-														  msg_thread(&CamCap::send_cmd_thread, this),
-														  strategy(attacker, defender, goalkeeper, ball, ball_est),
-														  robotGUI(robots, isLowRes),
-								interface(robots,
-										  ball, robotGUI, isLowRes)
-														   {
-	attacker.set_ID('A');
-	attacker.tag = 0;
-	defender.set_ID('B');
-	defender.tag = 1;
-	goalkeeper.set_ID('C');
-	goalkeeper.tag = 2;
-
-	ls_x.init(15, 1);
-	ls_y.init(15, 1);
+CamCap::CamCap(bool isLowRes) : data(nullptr), width(0), height(0), frameCounter(0),
+								msg_thread(&CamCap::send_cmd_thread, this),
+								robotGUI(game, isLowRes),
+								interface(game, robotGUI, isLowRes) {
 
 	fm.set_label("imageView");
 	fm.add(interface.imageView);
@@ -267,6 +244,9 @@ CamCap::CamCap(bool isLowRes) : robots{&attacker, &defender, &goalkeeper}, data(
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
 
 	interface.__event_bt_start_clicked();
+
+//	Remove focus from last created GUI item
+	interface.visionGUI.bt_record_video.grab_focus();
 }
 
 CamCap::~CamCap() {

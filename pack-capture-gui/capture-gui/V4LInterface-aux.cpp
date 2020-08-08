@@ -697,11 +697,11 @@ void V4LInterface::__update_control_widgets(std::list<ControlHolder> &ctrl_list)
 }
 
 void V4LInterface::updateRobotLabels() {
-	for (int i = 0; i < 3; i++) {
-		Robot2 *robot = robots[i];
-		auto pose = robot->get_pose();
+	for (unsigned i = 0; i < game.robot_count; i++) {
+		auto& robot = game.team->robots[i];
+		auto pose = robot.pose;
 		std::stringstream ss;
-		ss << '(' << robot->tag + 1 << ", " << robot->ID << ") ("
+		ss << '(' << role_to_str(robot.role) << ", " << robot.TAG + 1 << ", " << robot.ID << ") ("
 		   << std::fixed << std::setprecision(2)
 		   << pose.position.x << ", " << pose.position.y << ", "
 		   << std::fixed << std::setprecision(1)
@@ -725,14 +725,15 @@ void V4LInterface::updateFPS(int fps) {
 void V4LInterface::createPositionsAndButtonsFrame() {
 	Gtk::Label *label;
 	info_hbox.pack_start(robots_pos_buttons_vbox, false, true, 5);
+	info_hbox.pack_start(gameGUI, false, true, 5);
 
 	robots_pos_fm.set_label("Positions");
 	robots_pos_buttons_vbox.pack_start(robots_pos_fm, false, true, 0);
 	robots_pos_fm.add(robots_pos_vbox);
-	robots_pos_vbox.set_size_request(250, -1);
+	robots_pos_vbox.set_size_request(300, -1);
 
-	for (unsigned long i = 0; i < 3; i++) {
-		label = new Gtk::Label(robots[i]->get_role_name() + ':');
+	for (unsigned long i = 0; i < game.robot_count; i++) {
+		label = new Gtk::Label("Robot "+std::to_string(i)+":");
 		robot_pos_lb_list[i].set_text("-");
 		robots_pos_hbox[i].pack_start(*label, false, true, 5);
 		robots_pos_hbox[i].pack_start(robot_pos_lb_list[i], false, true, 0);
@@ -741,9 +742,9 @@ void V4LInterface::createPositionsAndButtonsFrame() {
 
 	label = new Gtk::Label("Ball:");
 	ball_pos_lb.set_text("-");
-	robots_pos_hbox[3].pack_start(*label, false, true, 5);
-	robots_pos_hbox[3].pack_start(ball_pos_lb, false, true, 0);
-	robots_pos_vbox.pack_start(robots_pos_hbox[3], false, true, 5);
+	robots_pos_hbox[game.robot_count].pack_start(*label, false, true, 5);
+	robots_pos_hbox[game.robot_count].pack_start(ball_pos_lb, false, true, 0);
+	robots_pos_vbox.pack_start(robots_pos_hbox[game.robot_count], false, true, 5);
 
 	robots_pos_buttons_vbox.pack_start(robots_buttons_fm, false, true, 5);
 	robots_buttons_fm.add(fps_hbox);
@@ -965,15 +966,17 @@ void V4LInterface::__create_frm_cam_calib() {
 }
 
 // Constructor
-V4LInterface::V4LInterface(const std::array<Robot2 *, 3> &robots_ref, const Geometry::Point &ball,
-						   RobotGUI &robot_gui, bool isLow)
+V4LInterface::V4LInterface(Game &game, RobotGUI &robot_gui, bool isLow)
 		:
 		Gtk::VBox(false, 0),
 		isLowRes(isLow),
-		robots(robots_ref),
+		game(game),
 		robotGUI(robot_gui),
-		controlGUI(robots_ref, ball),
-		imageView(controlGUI.test_controller) {
+		controlGUI(game),
+		gameGUI(game),
+		imageView(controlGUI.test_controller),
+		robot_pos_lb_list(game.robot_count),
+		robots_pos_hbox(game.robot_count+1) {
 
 	initInterface();
 }

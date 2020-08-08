@@ -41,6 +41,10 @@ class AttackerStrategy : public RoleStrategy {
 	void charged_shot(const Geometry::Point& ball);
 	void exit_goal(const Geometry::Point &ball);
 
+	Role get_role() {
+		return Role::Attacker;
+	}
+
 	private:
 	void decide_spin_shot(const Geometry::Point &ball);
 };

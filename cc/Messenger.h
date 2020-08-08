@@ -1,12 +1,12 @@
 #ifndef VSSS_MESSENGER_H
 #define VSSS_MESSENGER_H
 
-#include "Robot2.h"
 #include "Xbee.h"
 #include <string>
 #include <vector>
 #include <cmath>
 #include <chrono>
+#include <Strategy3/Robot3.hpp>
 
 #define DEFAULT_FRAMESKIP 0
 
@@ -30,9 +30,9 @@ class Messenger {
 	public:
 //		std::ofstream ekf_data_file;
 		Messenger();
-		void send_commands(const std::array<Robot2 *, 3> &robots);
-		void send_command(char id, Robot2::Pose target, Robot2::Command command, Geometry::Point uvf_ref);
-		void send_ekf_data(const Robot2 &robot);
+		void send_commands(const std::vector<Robot3> &robots);
+		void send_command(char id, Target target);
+		void send_ekf_data(const Robot3 &robot);
 
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);

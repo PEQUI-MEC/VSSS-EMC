@@ -4,19 +4,23 @@
 using namespace field;
 using namespace Geometry;
 
-Robot3& find_robot_by_role(Robots robots, Role role) {
-	auto robot_it = std::find_if(robots.robots.begin(), robots.robots.end(), [&role](const Robot3& robot){
+Robot3 * find_robot_by_role(std::vector<Robot3> &robots, Role role) {
+	auto robot_it = std::find_if(robots.begin(), robots.end(), [&role](const Robot3& robot){
 		return robot.role == role;
 	});
-	return *robot_it;
+	if (robot_it == robots.end()) {
+		return nullptr;
+	} else {
+		return &*robot_it;
+	}
 }
 
 void Strategy3::run_strategy(Robots team, Robots adversaries, Ball ball) {
-	Robot3& attacker_robot = find_robot_by_role(team, Role::Attacker);
+	Robot3* attacker_robot = find_robot_by_role(team, Role::Attacker);
 	attacker.set_robot(attacker_robot);
-	Robot3& defender_robot = find_robot_by_role(team, Role::Defender);
+	Robot3* defender_robot = find_robot_by_role(team, Role::Defender);
 	defender.set_robot(defender_robot);
-	Robot3& goalkeeper_robot = find_robot_by_role(team, Role::Goalkeeper);
+	Robot3* goalkeeper_robot = find_robot_by_role(team, Role::Goalkeeper);
 	goalkeeper.set_robot(goalkeeper_robot);
 	this->ball = ball;
 

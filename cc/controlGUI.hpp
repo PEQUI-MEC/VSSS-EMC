@@ -11,6 +11,7 @@
 #include <iostream>
 #include <ctime>
 #include <chrono>
+#include <Strategy3/Game.hpp>
 
 class ControlGUI : public Gtk::VBox {
 	private:
@@ -85,7 +86,7 @@ class ControlGUI : public Gtk::VBox {
 
 		void _test_start_bt_event();
 
-		explicit ControlGUI(const std::array<Robot2 *, 3> &robots, const Geometry::Point &ball);
+		explicit ControlGUI(Game &game);
 
 		void stop_test_on_click();
 

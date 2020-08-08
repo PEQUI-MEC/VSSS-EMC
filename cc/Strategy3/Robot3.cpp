@@ -36,7 +36,7 @@ void Robot3::go_in_direction(Geometry::Vector vector, std::optional<double> velo
 void Robot3::set_target_orientation(Geometry::Vector orientation) {
 	target.command = Command::Orientation;
 	target.pose.orientation = orientation.theta;
-	target.pose.velocity.linear = default_target_velocity;
+	target.pose.velocity.linear = default_target_velocity; // mudar p/ angular em vez de linear em Robot3 e messenger
 }
 
 void Robot3::spin(double angular_velocity) {

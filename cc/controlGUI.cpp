@@ -1,7 +1,7 @@
 #include "controlGUI.hpp"
 
-ControlGUI::ControlGUI(const std::array<Robot2 *, 3> &robots, const Geometry::Point &ball)
-	: test_controller(robots, ball) {
+ControlGUI::ControlGUI(Game &game)
+	: test_controller(game) {
 
 	_create_radio_frame();
 	_create_commands_frame();
@@ -291,10 +291,10 @@ void ControlGUI::_test_start_bt_event() {
 	test_controller.set_active(is_active);
 
 	if (is_active) {
-		Robot2::Command command = test_controller.get_command();
+		Command command = test_controller.get_command();
 
-		if (command == Robot2::Command::Vector || command == Robot2::Command::Orientation
-			|| command == Robot2::Command::UVF) {
+		if (command == Command::Vector || command == Command::Orientation
+			|| command == Command::UVF) {
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
 			test_set_bt.set_state(Gtk::STATE_NORMAL);
 		}
@@ -317,27 +317,27 @@ void ControlGUI::_test_command_changed_event() {
 	// 4: Position
 	switch (test_command_cb.get_active_row_number()) {
 		case 0:
-			test_controller.set_command(Robot2::Command::None);
+			test_controller.set_command(Command::None);
 			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
 			test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 			break;
 		case 1:
-			test_controller.set_command(Robot2::Command::Vector);
+			test_controller.set_command(Command::Vector);
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
 			test_set_bt.set_state(Gtk::STATE_NORMAL);
 			break;
 		case 2:
-			test_controller.set_command(Robot2::Command::Orientation);
+			test_controller.set_command(Command::Orientation);
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
 			test_set_bt.set_state(Gtk::STATE_NORMAL);
 			break;
 		case 3:
-			test_controller.set_command(Robot2::Command::UVF);
+			test_controller.set_command(Command::UVF);
 			test_angle_scale.set_state(Gtk::STATE_NORMAL);
 			test_set_bt.set_state(Gtk::STATE_NORMAL);
 			break;
 		default:
-			test_controller.set_command(Robot2::Command::Position);
+			test_controller.set_command(Command::Position);
 			test_angle_scale.set_state(Gtk::STATE_INSENSITIVE);
 			test_set_bt.set_state(Gtk::STATE_INSENSITIVE);
 

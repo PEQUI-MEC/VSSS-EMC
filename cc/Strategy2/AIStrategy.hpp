@@ -4,13 +4,17 @@
 #include <Python.h>
 #include <Geometry/Geometry.h>
 #include <Robot2.h>
+#include <Strategy3/Strategy.hpp>
 
-class AIStrategy {
+class AIStrategy : public Strategy {
 	public:
 		AIStrategy();
 		~AIStrategy();
-		void run_strategy(std::array<Robot2 *, 3> &robots, Geometry::Point ball,
-				std::array<Geometry::Point, 3> advs);
+		void run_strategy(Robots team, Robots adversaries, Ball ball);
+
+	AIStrategy * clone() {
+		return new AIStrategy(*this);
+	}
 
 	private:
 		PyObject * module;

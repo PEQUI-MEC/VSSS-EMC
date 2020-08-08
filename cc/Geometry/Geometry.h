@@ -33,7 +33,7 @@ namespace Geometry {
 		constexpr Point() noexcept : x(0), y(0) {};
 		Vector operator-(const Point &p2) const;
 		Point operator+(const Vector &v) const;
-		cv::Point to_cv_point();
+		cv::Point to_cv_point() const;
 		PyObject * to_python() const;
 	};
 

@@ -9,9 +9,13 @@ class RoleStrategy {
 	Robot3* operator->() {
 		return robot;
 	}
-	void set_robot(Robot3& robot) {
-		this->robot = &robot;
-		robot.role = Role::Goalkeeper;
+	virtual Role get_role() = 0;
+
+	void set_robot(Robot3* robot) {
+		this->robot = robot;
+		if (this->robot != nullptr) {
+			robot->role = get_role();
+		}
 	}
 };
 

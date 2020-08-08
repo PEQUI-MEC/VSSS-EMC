@@ -71,7 +71,7 @@ set(SOURCE_FILES cc/main.cpp
     cc/Strategy3/Types.hpp
     cc/Strategy3/DefenderStrategy.cpp cc/Strategy3/DefenderStrategy.hpp
     cc/Strategy3/AttackerStrategy.cpp cc/Strategy3/AttackerStrategy.hpp
-    cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp cc/Strategy3/Robots.hpp cc/Strategy3/RoleStrategy.hpp cc/MainLoop.cpp cc/MainLoop.hpp cc/GUI.cpp cc/GUI.hpp)
+    cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp cc/Strategy3/RoleStrategy.hpp cc/MainLoop.hpp cc/Strategy3/Game.cpp cc/Strategy3/Game.hpp cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

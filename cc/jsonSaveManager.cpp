@@ -6,29 +6,36 @@ using std::endl;
 using vision::Vision;
 
 void jsonSaveManager::save_robots() {
-	for (Robot2* robot : interface->robots) {
-		json &robot_config = configs["Robots"][robot->get_role_name()];
+	configs["Robots"]["Count"] = (int) interface->game.team->robots.size();
+	for (unsigned i = 0; i < interface->game.team->robots.size(); i++) {
+		Robot3& robot = interface->game.team->robots[i];
+		json &robot_config = configs["Robots"][std::to_string(i)];
 
-		robot_config["ID"] = string(1, robot->ID);
-		robot_config["tag"] = robot->tag;
-		robot_config["speed"] = round(robot->default_target_velocity * 1000) / 1000;
+		robot_config["ID"] = string(1, robot.ID);
+		robot_config["tag"] = robot.TAG;
+		robot_config["role"] = (int) robot.role;
+		robot_config["speed"] = round(robot.default_target_velocity * 1000) / 1000;
 	}
 }
 
 void jsonSaveManager::load_robots() {
 	if (!exists(configs, "Robots")) return;
 
-	for (Robot2* robot : interface->robots) {
-		json &robot_config = configs["Robots"][robot->get_role_name()];
+	long robot_count = configs["Robots"]["Count"];
+
+	for (long i = 0; i < robot_count; i++) {
+		Robot3 &robot = interface->game.team->robots[i];
+		json &robot_config = configs["Robots"][std::to_string(i)];
 
 		if (exists(robot_config, "ID")) {
 			string id = robot_config["ID"];
-			robot->ID = id[0];
+			robot.ID = id[0];
 		}
 
-		if (exists(robot_config, "tag")) robot->tag = robot_config["tag"];
+		if (exists(robot_config, "role")) robot.role = static_cast<Role>((int) robot_config["role"]);
+		if (exists(robot_config, "tag")) robot.TAG = robot_config["tag"];
 		if (exists(robot_config, "speed"))
-			robot->default_target_velocity = robot_config["speed"];
+			robot.default_target_velocity = robot_config["speed"];
 	}
 }
 

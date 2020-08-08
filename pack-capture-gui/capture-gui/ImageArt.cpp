@@ -10,8 +10,7 @@ using namespace onClick;
 
 void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 					const std::map<unsigned int, Vision::RecognizedTag> &our_tags,
-					const std::vector<cv::Point> &adv_tags,
-					const std::array<Robot2 *, 3> &our_robots, bool is_game_on) {
+					const std::vector<cv::Point> &adv_tags, const std::vector<Robot3> &our_robots, bool is_game_on) {
 
 	// Adversary Robots
 	for (const auto &robot : adv_tags) {
@@ -41,8 +40,8 @@ void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 
 	// Test On Click
 	if (test_on_click.is_active()) {
-		Robot2* robot = test_on_click.get_selected_robot();
-		draw_targets(robot, frame);
+		Robot3* robot = test_on_click.get_selected_robot();
+		draw_targets(*robot, frame);
 
 		if (robot != nullptr)
 			cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
@@ -124,14 +123,11 @@ void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 	}
 }
 
-void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
-	if (robot == nullptr)
-		return;
-
+void ImageArt::draw_targets(const Robot3 &robot, cv::Mat &frame) {
 	cv::Scalar color;
 	double angle;
 	cv::Point target;
-	cv::Point position = robot->get_position().to_cv_point();
+	cv::Point position = robot.pose.position.to_cv_point();
 	bool is_test_on_click = test_on_click.is_active();
 
 	if (is_test_on_click) {
@@ -140,38 +136,38 @@ void ImageArt::draw_targets(const Robot2 *robot, cv::Mat &frame) {
 		target = test_on_click.get_target().to_cv_point();
 	} else {
 		color = strategy_color;
-		angle = robot->get_target().orientation;
-		robot->get_target().position.to_cv_point();
+		angle = robot.target.pose.orientation;
+		robot.target.pose.position.to_cv_point();
 	}
 
-	switch (is_test_on_click? test_on_click.get_command() : robot->get_command()) {
-		case Robot2::Command::Vector:
+	switch (is_test_on_click? test_on_click.get_command() : robot.target.command) {
+		case Command::Vector:
 			[[fallthrough]];
-		case Robot2::Command::Orientation: {
+		case Command::Orientation: {
 			auto x2 = static_cast<int>(position.x + 16 * cos(angle));
 			auto y2 = static_cast<int>(position.y - 16 * sin(angle));
 			line(frame, position, cv::Point(x2, y2),
 				 color, 3, cv::LINE_AA);
 			break;
 		}
-		case Robot2::Command::None:
+		case Command::None:
 			putText(frame, "x", position, cv::FONT_HERSHEY_PLAIN, 1,
 					color, 2, cv::LINE_AA);
 			break;
-		case Robot2::Command::UVF: {
+		case Command::UVF: {
 			auto x2 = static_cast<int>(target.x + 16 * cos(angle));
 			auto y2 = static_cast<int>(target.y - 16 * sin(angle));
 			circle(frame, target, 7, color, 2);
 			line(frame, target, cv::Point(x2, y2),
 				 color, 3, cv::LINE_AA);
-			putText(frame, std::to_string(robot->tag + 1),
+			putText(frame, std::to_string(robot.TAG + 1),
 					cv::Point(target.x - 5, target.y - 17),
 					cv::FONT_HERSHEY_PLAIN, 1, color, 2, cv::LINE_AA);
 			break;
 		}
 		default:
 			circle(frame, target, 7, color, 2, cv::LINE_AA);
-			putText(frame, std::to_string(robot->tag + 1),
+			putText(frame, std::to_string(robot.TAG + 1),
 					cv::Point(target.x - 5, target.y - 17),
 					cv::FONT_HERSHEY_PLAIN, 1, color, 2, cv::LINE_AA);
 	} // switch
