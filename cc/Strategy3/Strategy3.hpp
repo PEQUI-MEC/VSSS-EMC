@@ -14,7 +14,7 @@ class Strategy3 : public Strategy {
 	Ball ball;
 
 	void run_strategy(Robots team,
-					  Robots adversaries,
+					  std::vector<Geometry::Point> &adversaries,
 					  Ball ball);
 
 	Strategy3 * clone() {

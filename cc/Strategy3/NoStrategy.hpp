@@ -5,8 +5,8 @@
 
 class NoStrategy : public Strategy {
 	void run_strategy(Robots team,
-							  Robots adversaries,
-							  Ball ball) {
+					  std::vector<Geometry::Point> &adversaries,
+					  Ball ball) {
 			}
 
 	virtual NoStrategy * clone() {

@@ -10,8 +10,10 @@
 namespace field {
 
 	// Estas são as contantes definidas pelas regras da competição
-	const double field_height = 1.26;
-	const double field_width = 1.62;
+	const double field_height = 1.3;
+	const double field_width = 1.7;
+	const double field_height_2019 = 1.26;
+	const double field_width_2019 = 1.62;
 	const double goal_width = 0.08;
 	const double goal_height = 0.35;
 	const double area_width = 0.15;

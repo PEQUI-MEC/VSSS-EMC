@@ -35,6 +35,8 @@ namespace Geometry {
 		Point operator+(const Vector &v) const;
 		cv::Point to_cv_point() const;
 		PyObject * to_python() const;
+		Point inverted_coordinates() const;
+		static Point from_simulator(double x, double y);
 	};
 
 	struct Line {

@@ -15,6 +15,8 @@ class Game {
 	std::map<std::string, std::unique_ptr<Strategy>> strategies;
 
 	bool is_simulated = false;
+	bool playing_game = false;
+
 	unsigned robot_count = 0;
 
 	Game();

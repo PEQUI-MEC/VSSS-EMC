@@ -48,10 +48,12 @@ class CamCap : public Gtk::HBox {
 
 		unsigned char *data;
 
+		bool has_camera = false;
+
 		int width;
 		int height;
 
-		int frameCounter;
+		int frameCounter = 0;
 
 		boost::thread msg_thread;
 		boost::condition_variable data_ready_cond;
@@ -63,7 +65,7 @@ class CamCap : public Gtk::HBox {
 		RobotGUI robotGUI;
 		capture::V4LInterface interface;
 
-		int fps_average = 0;
+		double fps_average = 0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
 
 		cv::Point2f Ball_Est;
@@ -74,13 +76,17 @@ class CamCap : public Gtk::HBox {
 		Gtk::Notebook notebook;
 
 		sigc::connection con;
+	sigc::connection on_idle;
 
+	bool run_game_loop();
+		void simulated_game_loop();
 		void update_positions(const std::map<unsigned int, vision::Vision::RecognizedTag>& tags);
 		bool start_signal(bool b);
 		bool capture_and_show();
 		void send_cmd_thread();
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
+		void fps_update();
 		explicit CamCap(bool isLowRes);
 		~CamCap() override;
 };

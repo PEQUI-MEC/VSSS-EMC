@@ -1,4 +1,5 @@
 #include "Geometry.h"
+#include "Field.h"
 
 using namespace Geometry;
 
@@ -55,6 +56,14 @@ cv::Point Point::to_cv_point() const {
 PyObject * Point::to_python() const {
 	auto pyposition = Py_BuildValue("(dd)", x, y);
 	return pyposition;
+}
+
+Point Point::from_simulator(double x, double y) {
+	return {x + field::field_width/2, y + field::field_height/2};
+}
+
+Point Point::inverted_coordinates() const {
+	return Point(field::field_width - x, field::field_height - y);
 }
 
 Vector::Vector(const Point &p) {

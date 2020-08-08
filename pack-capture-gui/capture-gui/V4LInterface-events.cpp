@@ -478,12 +478,12 @@ void V4LInterface::__set_control(std::list<ControlHolder> *list, Gtk::Widget *wc
 }
 
 void V4LInterface::event_start_game_bt_signal_clicked() {
-	if (!start_game_flag) {
+	if (!game.playing_game) {
 
 		controlGUI.stop_test_on_click();
 
 		record_video_checkbox.set_sensitive(false);
-		start_game_flag = true;
+		game.playing_game = true;
 		start_game_bt.set_image(red_button_pressed);
 		btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
 		btn_camCalib.set_active(false);
@@ -519,7 +519,7 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		visionGUI.bt_record_video.set_active(false);
 		visionGUI.en_video_name.set_state(Gtk::STATE_NORMAL);
 		visionGUI.en_video_name.set_text("");
-		start_game_flag = false;
+		game.playing_game = false;
 		start_game_bt.set_image(red_button_released);
 
 		// Para os robôs. Importante para não atrapalhar o Test On Click.
@@ -569,7 +569,7 @@ void V4LInterface::__event_camCalib_mode_clicked() {
 
 void V4LInterface::__event_camCalib_online_collect_clicked() {
 
-	if (!get_start_game_flag() && visionGUI.vision->foundChessBoardCorners()) {
+	if (!game.playing_game && visionGUI.vision->foundChessBoardCorners()) {
 		visionGUI.vision->saveCamCalibFrame();
 		btn_camCalib_pop.set_state(Gtk::STATE_NORMAL);
 		btn_camCalib_reset.set_state(Gtk::STATE_NORMAL);

@@ -7,9 +7,9 @@ Game::Game() {
 	strategies.emplace("Manual Strategy", new Strategy3());
 	strategies.emplace("AI Strategy", new AIStrategy());
 	strategies.emplace("No Strategy", new NoStrategy());
-	team = std::make_unique<Team>(robot_count, 0, true, true);
+	team = std::make_unique<Team>(robot_count, 0, true, false, RobotColor::Blue);
 	set_strategy(*team, "Manual Strategy");
-	adversary = std::make_unique<Team>(robot_count, robot_count, false, false);
+	adversary = std::make_unique<Team>(robot_count, robot_count, true, true, RobotColor::Yellow);
 	set_strategy(*adversary, "No Strategy");
 }
 

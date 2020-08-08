@@ -93,24 +93,17 @@ void RobotGUI::update_speed_progressBars() {
 	for(unsigned i = 0; i < game.robot_count; i++) {
 		auto& robot = game.team->robots[i];
 		robots_speed_hscale[i].set_value(robot.default_target_velocity);
-		robots_speed_progressBar[i].set_fraction(robot.default_target_velocity / 1.4);
-		const std::string velocity = std::to_string(robot.default_target_velocity);
-		robots_speed_progressBar[i].set_text(velocity.substr(0, 4));
+		robots_speed_progressBar[i].set_fraction(robot.target.pose.velocity.linear / 1.4);
+		const std::string velocity = std::to_string(robot.target.pose.velocity.linear);
+		const std::string vel_text = velocity.substr(0, velocity.find('.') + 2);
+		robots_speed_progressBar[i].set_text(vel_text);
 	}
 }
 
 void RobotGUI::update_robots() {
-	for (unsigned i = 0; i < game.robot_count; i++) {
-		auto& robot = game.team->robots[i];
-
-		cb_robot_role[i].set_active((int) robot.role);
-		robots_id_box[i].set_active(robot.ID - 'A');
-
-		robots_speed_hscale[i].set_value(robot.default_target_velocity);
-		robots_speed_progressBar[i].set_fraction(robot.target.pose.velocity.linear / 1.4);
-		const std::string velocity = std::to_string(round(robot.target.pose.velocity.linear * 100) / 100);
-		robots_speed_progressBar[i].set_text(velocity);
-	}
+	update_robot_ids();
+	update_robot_functions();
+	update_speed_progressBars();
 }
 
 void RobotGUI::initRobotGUI() {

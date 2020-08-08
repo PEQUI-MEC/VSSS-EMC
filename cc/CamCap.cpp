@@ -44,12 +44,16 @@ bool CamCap::start_signal(bool b) {
 		data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
 		interface.imageView.set_frame_size(width, height);
-		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
+//		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
 
 		interface.__event_bt_quick_load_clicked();
+
+		has_camera = true;
 	} else {
+		has_camera = false;
+
 		cout << "Stop Button Clicked!" << endl;
-		con.disconnect();
+//		con.disconnect();
 
 		// Travar os botões de edit
 		robotGUI.enable_main_buttons(false);
@@ -58,17 +62,51 @@ bool CamCap::start_signal(bool b) {
 	return true;
 } // start_signal
 
-bool CamCap::capture_and_show() {
+bool CamCap::run_game_loop() {
+	if(!game.is_simulated && has_camera) {
+		capture_and_show();
+	} else {
+		simulated_game_loop();
+	}
+	return true;
+}
 
+void CamCap::simulated_game_loop() {
+	if(!simulator.new_data) return;
+	std::lock_guard<std::mutex> guard(simulator.data_mutex);
+
+	simulator.update_robots(game);
+	robotGUI.update_robots();
+	interface.updateRobotLabels();
+	interface.update_ball_position(game.ball.position);
+	fps_update();
+
+	if (game.playing_game) {
+		auto inverted_team = game.team->get_inverted_robot_positions();
+		auto inverted_adv = game.adversary->get_inverted_robot_positions();
+		if (game.team->inverted_field) {
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted_ball());
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball);
+		} else {
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball);
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
+												   game.ball.get_inverted_ball());
+		}
+
+		if (game.team->controlled) {
+			simulator.send_commands(*game.team.get());
+		}
+		if (game.adversary->controlled) {
+			simulator.send_commands(*game.adversary.get());
+		}
+	}
+}
+
+bool CamCap::capture_and_show() {
 	bool chessBoardFound = false;
 	std::vector<cv::Vec2f> foundPoints;
 
 	if (!data) return false;
-
-	if (frameCounter == 0) {
-		timer_start = std::chrono::high_resolution_clock::now();
-	}
-	frameCounter++;
 
 	interface.vcap.grab_rgb(data);
 	interface.imageView.set_data(data);
@@ -100,10 +138,9 @@ bool CamCap::capture_and_show() {
 		adv[i] = Geometry::from_cv_point(cv_adv[i])	;
 	}
 
-	bool is_game_on = interface.get_start_game_flag();
 	bool is_test_on_click_on = interface.controlGUI.test_controller.is_active();
 
-	if (interface.CamCalib_flag_event && !is_game_on && !is_test_on_click_on &&
+	if (interface.CamCalib_flag_event && !game.playing_game && !is_test_on_click_on &&
 		!interface.visionGUI.vision->flag_cam_calibrated) {
 
 		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
@@ -119,7 +156,7 @@ bool CamCap::capture_and_show() {
 
 	interface.updateFPS(fps_average);
 
-	if (interface.controlGUI.ekf_always_send || is_game_on || is_test_on_click_on) {
+	if (interface.controlGUI.ekf_always_send || game.playing_game || is_test_on_click_on) {
 		notify_data_ready(true);
 	}
 
@@ -134,12 +171,19 @@ bool CamCap::capture_and_show() {
 	interface.controlGUI.update_dropped_frames();
 
 	// ----------- ESTRATEGIA -----------------//
-	if (is_game_on) {
+	if (game.playing_game) {
 		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
-		game.team->strategy->run_strategy(game.team->robots, game.adversary->robots, game.ball);
-		game.adversary->strategy->run_strategy(game.adversary->robots, game.team->robots, game.ball);
+		auto inverted_team = game.team->get_inverted_robot_positions();
+		auto inverted_adv = game.adversary->get_inverted_robot_positions();
+		if (game.team->inverted_field) {
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted_ball());
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball);
+		} else {
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball);
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted_ball());
+		}
 
 		interface.controlGUI.update_msg_time();
 		notify_data_ready(false);
@@ -171,20 +215,29 @@ bool CamCap::capture_and_show() {
 											  interface.visionGUI.vision->getBall(),
 											  tags,
 											  interface.visionGUI.vision->get_adv_robots(), game.team->robots,
-											  is_game_on);
+											  game.playing_game);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
 
-
-	if (frameCounter == 10) {
-		auto timer_finish = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double> elapsed = timer_finish - timer_start;
-		fps_average = static_cast<int>(10 / elapsed.count());
-		frameCounter = 0;
-	}
+	fps_update();
 
 	return true;
 } // capture_and_show
+
+void CamCap::fps_update() {
+	if (frameCounter == 0) {
+		timer_start = std::chrono::high_resolution_clock::now();
+	}
+	if (frameCounter == 20) {
+		auto timer_finish = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = timer_finish - timer_start;
+		fps_average = 20 / elapsed.count();
+		interface.updateFPS((int) std::round(fps_average));
+		frameCounter = 0;
+	} else {
+		frameCounter++;
+	}
+}
 
 void CamCap::send_cmd_thread() {
 	boost::unique_lock<boost::mutex> lock(data_ready_mutex);
@@ -243,10 +296,13 @@ CamCap::CamCap(bool isLowRes) : data(nullptr), width(0), height(0), frameCounter
 
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
 
+
 	interface.__event_bt_start_clicked();
 
 //	Remove focus from last created GUI item
 	interface.visionGUI.bt_record_video.grab_focus();
+
+	on_idle = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::run_game_loop));
 }
 
 CamCap::~CamCap() {
@@ -259,3 +315,4 @@ CamCap::~CamCap() {
 	msg_thread.interrupt();
 	if (msg_thread.joinable()) msg_thread.join();
 }
+

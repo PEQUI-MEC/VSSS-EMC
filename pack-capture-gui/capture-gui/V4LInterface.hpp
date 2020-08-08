@@ -153,7 +153,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		void updateRobotLabels();
 		void update_ball_position(Geometry::Point ball);
 		void updateFPS(int fps);
-		bool get_start_game_flag();
 		void update_interface_camera();
 
 		/* Signals */
@@ -169,8 +168,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool on_button_press_event(GdkEventButton *event) override;
 
 	private:
-
-		bool start_game_flag = false;
 
 		void __init_combo_boxes();
 		void __create_frm_device_info();

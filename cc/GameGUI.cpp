@@ -1,5 +1,4 @@
 #include "GameGUI.hpp"
-#include <typeinfo>
 
 GameGUI::GameGUI(Game &game) : game(game) {
 	add(vbox);
@@ -20,11 +19,23 @@ GameGUI::GameGUI(Game &game) : game(game) {
 	swap_team_label.set_label("Swap Teams");
 	swap_team_hbox.pack_start(swap_team_button, false, true, 5);
 	swap_team_hbox.pack_start(swap_team_label, false, true, 5);
+	vbox.pack_start(swap_team_hbox, false, true, 5);
 	swap_team_button.signal_clicked().connect([&](){
 		game.swap_teams();
 		update_selected_strategy();
 	});
-	vbox.pack_start(swap_team_hbox);
+
+	use_simulator_label.set_label("Use Simulator");
+	use_simulator_hbox.pack_start(use_simulator_button, false, true, 5);
+	use_simulator_hbox.pack_start(use_simulator_label, false, true, 5);
+	vbox.pack_start(use_simulator_hbox, false, true, 5);
+	use_simulator_button.signal_clicked().connect([&](){
+		if (use_simulator_button.get_active()) {
+			game.is_simulated = true;
+		} else {
+			game.is_simulated = false;
+		}
+	});
 
 	update_strategy_combobox();
 }

@@ -12,10 +12,6 @@
 
 using capture::V4LInterface;
 
-bool V4LInterface::get_start_game_flag() {
-	return start_game_flag;
-}
-
 void V4LInterface::__init_combo_boxes() {
 
 	ls_input = Gtk::ListStore::create(model_input);
