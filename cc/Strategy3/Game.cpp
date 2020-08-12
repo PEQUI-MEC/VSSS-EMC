@@ -22,3 +22,13 @@ void Game::set_strategy(Team &team, std::string strategy_name) {
 		team.strategy.reset(strategies[strategy_name]->clone());
 	}
 }
+
+std::optional<std::string> Game::get_strategy_name(Team &team) {
+	if (team.strategy == nullptr) return std::nullopt;
+
+	for(auto& [name, strategy] : strategies) {
+		if (typeid(*team.strategy) == typeid(*strategy))
+			return name;
+	}
+	return std::nullopt;
+}

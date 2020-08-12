@@ -17,6 +17,10 @@ class RoleStrategy {
 			robot->role = get_role();
 		}
 	}
+
+	bool has_robot() const {
+		return robot != nullptr;
+	}
 };
 
 #endif //VSSS_ROLESTRATEGY_HPP

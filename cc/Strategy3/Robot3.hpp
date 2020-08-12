@@ -64,6 +64,10 @@ class Robot3 {
 	/** Retorna a direção do movimento do robô **/
 	Geometry::Vector get_direction();
 
+	void send_no_command() {
+		target.command = Command::None;
+	}
+
 	void set_pose(cv::Point position, double orientation) {
 		pose.position = Geometry::from_cv_point(position);
 		pose.orientation = -orientation;

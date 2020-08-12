@@ -5,11 +5,21 @@ using std::cout;
 using std::endl;
 using vision::Vision;
 
-void jsonSaveManager::save_robots() {
-	configs["Robots"]["Count"] = (int) interface->game.team->robots.size();
-	for (unsigned i = 0; i < interface->game.team->robots.size(); i++) {
-		Robot3& robot = interface->game.team->robots[i];
-		json &robot_config = configs["Robots"][std::to_string(i)];
+void jsonSaveManager::save_team(Team &team, std::string name) {
+	json& team_config = configs[name];
+
+	auto strategy_name = interface->game.get_strategy_name(team);
+	if (strategy_name.has_value()) {
+		team_config["Strategy"] = strategy_name.value();
+	} else {
+		team_config.erase("Strategy");
+	}
+
+	json &robots_config = team_config["Robots"];
+	robots_config["Count"] = (int) team.robots.size();
+	for (unsigned i = 0; i < team.robots.size(); i++) {
+		Robot3& robot = team.robots[i];
+		json &robot_config = robots_config[std::to_string(i)];
 
 		robot_config["ID"] = string(1, robot.ID);
 		robot_config["tag"] = robot.TAG;
@@ -18,14 +28,20 @@ void jsonSaveManager::save_robots() {
 	}
 }
 
-void jsonSaveManager::load_robots() {
-	if (!exists(configs, "Robots")) return;
+void jsonSaveManager::load_team(Team &team, std::string name) {
+	if (!exists(configs, name)) return;
+	json &team_config = configs[name];
+	if (!exists(team_config, "Robots")) return;
+	json &robots_config = team_config["Robots"];
 
-	long robot_count = configs["Robots"]["Count"];
+	if (exists(team_config, "Strategy"))
+		interface->game.set_strategy(team, team_config["Strategy"]);
+
+	long robot_count = robots_config["Count"];
 
 	for (long i = 0; i < robot_count; i++) {
-		Robot3 &robot = interface->game.team->robots[i];
-		json &robot_config = configs["Robots"][std::to_string(i)];
+		Robot3 &robot = team.robots[i];
+		json &robot_config = robots_config[std::to_string(i)];
 
 		if (exists(robot_config, "ID")) {
 			string id = robot_config["ID"];
@@ -229,7 +245,8 @@ void jsonSaveManager::load(const string file_path) {
 
 	if (!error) {
 		load_camera();
-		load_robots();
+		load_team(*interface->game.team, "Team");
+		load_team(*interface->game.adversary, "Adversary");
 	}
 }
 
@@ -241,7 +258,8 @@ void jsonSaveManager::save(const string file_path) {
 	if (interface->vcap.isCameraON) save_camera();
 	else std::cout << "Can't save camera's information" << std::endl;
 
-	save_robots();
+	save_team(*interface->game.team, "Team");
+	save_team(*interface->game.adversary, "Adversary");
 	write_configs_to_file(file_path);
 }
 

@@ -32,39 +32,45 @@ void Strategy3::run_strategy(Robots team, std::vector<Geometry::Point> &adversar
 			last_transition = sc::now();
 	}
 
-	if ((ball.position.x < 0.3 * field_width) && attacker->get_position().x > 0.3 * field_width) {
-		if (at_location(defender->get_position(), Location::UpperField)) {
-			auto pos = defender->get_position().y - 0.5;
-			auto ynew = std::min(0.1, pos);
-			attacker->go_to_and_stop({0.31 * field_width, ynew});
+	if (attacker.has_robot()) {
+		if (defender.has_robot() &&
+				(ball.position.x < 0.3 * field_width) &&
+				attacker->get_position().x > 0.3 * field_width) {
+
+			if (at_location(defender->get_position(), Location::UpperField)) {
+				auto pos = defender->get_position().y - 0.5;
+				auto ynew = std::min(0.1, pos);
+				attacker->go_to_and_stop({0.31 * field_width, ynew});
+			} else {
+				auto pos = defender->get_position().y + 0.15;
+				auto ynew = std::min(field_height - 0.5, pos);
+				attacker->go_to_and_stop({0.31 * field_width, ynew});
+			}
 		} else {
-			auto pos = defender->get_position().y + 0.15;
-			auto ynew = std::min(field_height - 0.5, pos);
-			attacker->go_to_and_stop({0.31 * field_width, ynew});
+			attacker.run_strategy(ball);
 		}
-	} else {
-		attacker.run_strategy(ball);
+
+		if (goalkeeper.has_robot() && at_location(*goalkeeper.robot, Location::TheirField)) {
+//			cobrança de penalti
+			attacker->go_to(ball.position);
+		} else {
+			auto new_limit = defender::back::upper_limit.x + 0.09;
+
+			if (at_location(attacker->get_position(), Location::OurBox)) {
+				attacker->go_in_direction({0, 0.8});
+			} else if (at_location(attacker->target.pose.position, Location::OurBox)) {
+				attacker->stop();
+			} else if (attacker->target.pose.position.x < new_limit && attacker->get_position().x > new_limit) {
+				attacker->stop();
+			}
+		}
 	}
-	if(attacker->get_position().x < 0.3 * field_width) {
-		defender->stop();
-	} else {
-		defender.run_strategy(ball);
-	}
 
-	goalkeeper.run_strategy(ball);
-
-	if (at_location(*goalkeeper.robot, Location::TheirField)) {
-//		cobrança de penalti
-		attacker->go_to(ball.position);
-	} else {
-		auto new_limit = defender::back::upper_limit.x + 0.09;
-
-		if (at_location(attacker->get_position(), Location::OurBox)) {
-			attacker->go_in_direction({0, 0.8});
-		} else if (at_location(attacker->target.pose.position, Location::OurBox)) {
-			attacker->stop();
-		} else if (attacker->target.pose.position.x < new_limit && attacker->get_position().x > new_limit) {
-			attacker->stop();
+	if (defender.has_robot()) {
+		if (attacker.has_robot() && attacker->get_position().x < 0.3 * field_width) {
+			defender->stop();
+		} else {
+			defender.run_strategy(ball);
 		}
 
 		if (at_location(defender->get_position(), Location::OurBox)) {
@@ -74,10 +80,16 @@ void Strategy3::run_strategy(Robots team, std::vector<Geometry::Point> &adversar
 			defender->stop();
 		}
 	}
+
+	if (goalkeeper.has_robot()) goalkeeper.run_strategy(ball);
 }
 
 bool Strategy3::transitions() {
 	bool collided = trainstion_by_collision();
+
+
+//	Todas as transições a seguir são entre atacantes e defensores
+	if (!attacker.has_robot() || !defender.has_robot()) return false;
 
 	Point goal = their::goal::back::center;
 
@@ -152,6 +164,8 @@ bool Strategy3::trainstion_by_collision() {
 }
 
 void Strategy3::swap_robots(RoleStrategy& role1, RoleStrategy& role2) {
+	if (!role1.has_robot() || !role2.has_robot()) return;
+
 	Robot3 * aux_robot1 = role1.robot;
 	Role aux_role1 = role1->role;
 
@@ -176,11 +190,14 @@ bool in_range(Robot3 &this_robot, Robot3 &other_robot) {
 }
 
 bool Strategy3::is_collision(Robot3 *robot1, Robot3* robot2) {
+	if (robot1 == nullptr || robot2 == nullptr) return false;
 	return distance(robot1->get_position(), robot2->get_position()) < 0.12f;
 	return is_collision_axis_y(robot1, robot2) && is_collision_axis_x(robot1, robot2);
 }
 
 bool Strategy3::is_collision_axis_x(Robot3 *robot1, Robot3 *robot2) {
+	if (robot1 == nullptr || robot2 == nullptr) return false;
+
 	double robot1_y = robot1->get_position().y;
 	double robot2_y = robot2->get_position().y;
 
@@ -195,6 +212,8 @@ bool Strategy3::is_collision_axis_x(Robot3 *robot1, Robot3 *robot2) {
 }
 
 bool Strategy3::is_collision_axis_y(Robot3 *robot1, Robot3 *robot2) {
+	if (robot1 == nullptr || robot2 == nullptr) return false;
+
 	double robot1_x = robot1->get_position().x;
 	double robot2_x = robot2->get_position().x;
 
@@ -209,6 +228,8 @@ bool Strategy3::is_collision_axis_y(Robot3 *robot1, Robot3 *robot2) {
 }
 
 bool Strategy3::is_opposite_direction(Robot3 *robot1, Robot3 *robot2) {
+	if (robot1 == nullptr || robot2 == nullptr) return false;
+
 	auto robot1_dir = robot1->get_direction();
 	if(robot1_dir.size > 0) {
 		auto robot1_to_robot2 = robot2->get_position() - robot1->get_position();
