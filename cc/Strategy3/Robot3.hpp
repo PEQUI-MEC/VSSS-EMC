@@ -2,21 +2,25 @@
 #define VSSS_ROBOT3_HPP
 
 #include "Types.hpp"
+#include <RobotControl/Control.h>
 
 class Robot3 {
 	public:
 	Pose pose;
 	Target target;
+
 	unsigned int TAG = 0;
 	char ID = 'A';
 	Role role = Role::None;
 
-	const double SIZE = 0.08;
+	double SIZE = 0.08;
 	double default_target_velocity = 0.8;
 	const double TARGET_OFFSET = 0.03; // tolerância para saber se o robô chegou no ponto
 	const double BALL_OFFSET = 0.08; // tolerância para saber se a bola está próxima ao robô
 
-	Robot3(int TAG, char ID) : TAG(TAG), ID(ID){}
+	Control control;
+
+	Robot3(unsigned int TAG, char ID) : TAG(TAG), ID(ID), control(pose, target, SIZE){}
 
 	/**	Robô vai para um ponto e continua se movendo com mesma velocidade"
 	 *	@param point Ponto em que o robô deve passar

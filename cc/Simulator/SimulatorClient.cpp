@@ -39,8 +39,8 @@ void SimulatorClient::update_team(Team &team, const Repeated<fira_message::Robot
 			robot.pose.orientation = robot_msg.orientation();
 		}
 		double vel = std::sqrt(std::pow(robot_msg.vx(), 2) + std::pow(robot_msg.vy(), 2));
-		robot.pose.velocity.linear = vel;
-		robot.pose.velocity.angular = robot_msg.vorientation();
+		robot.pose.velocity = Velocity{vel, robot_msg.vorientation()};
+		robot.pose.wheel_velocity = robot.pose.velocity.to_wheel_velocity(simulated_robot_length);
 	}
 }
 
@@ -48,13 +48,14 @@ void SimulatorClient::send_commands(Team &team) {
 	fira_message::sim_to_ref::Packet cmds_packet;
 	for (uint i = 0; i < team.robots.size(); i++) {
 		auto& robot = team.robots[i];
-		if (robot.target.command == Command::WheelVelocity) {
+
+		if (robot.target.command != Command::None) {
 			fira_message::sim_to_ref::Command* command = cmds_packet.mutable_cmd()->add_robot_commands();
 			command->set_yellowteam(team.robot_color == RobotColor::Yellow);
 			command->set_id(i);
 
-			auto wheel_vel = robot.target.pose.wheel_velocity;
-			auto angular_wheel_vel = wheel_vel.to_angular(simulated_wheel_radius);
+			WheelVelocity target_wheel_vel = robot.control.control_step(robot.pose, robot.target, 1.0 / 60.0);
+			auto angular_wheel_vel = target_wheel_vel.to_angular(simulated_wheel_radius);
 			command->set_wheel_left(angular_wheel_vel.left);
 			command->set_wheel_right(angular_wheel_vel.right);
 		}

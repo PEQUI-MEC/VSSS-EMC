@@ -9,20 +9,21 @@ struct WheelAngularVelocity {
 	double right = 0;
 };
 
+// Forward declaration of Velocity
+struct Velocity;
+
 struct WheelVelocity {
 	double left = 0;
 	double right = 0;
-	WheelAngularVelocity to_angular(double wheel_radius) const {
-		return WheelAngularVelocity{left / wheel_radius, right / wheel_radius};
-	}
+	WheelAngularVelocity to_angular(double wheel_radius) const;
+
+	Velocity to_velocity(double robot_length) const;
 };
 
 struct Velocity {
 	double linear = 0;
 	double angular = 0;
-	WheelVelocity to_wheel_velocity(double robot_length) const {
-		return WheelVelocity{linear - (angular * robot_length)/2, linear + (angular * robot_length)/2};
-	}
+	WheelVelocity to_wheel_velocity(double robot_length) const;
 };
 
 struct Pose {
@@ -33,14 +34,16 @@ struct Pose {
 };
 
 enum class Command {
-	Position, Vector, Pose, Velocity, WheelVelocity, Orientation, UVF, None
+	Position, Vector, Velocity, WheelVelocity, Orientation, UVF, None
 };
+
+std::string command_to_str(Command command);
 
 struct Target {
 	Command command = Command::None;
 	Pose pose;
 	Geometry::Point reference; // for UVF
-	double n; // for UVthis->robotsF
+	double n; // for UVF
 };
 
 constexpr unsigned int ROLE_COUNT = 4;

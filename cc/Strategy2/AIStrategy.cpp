@@ -5,6 +5,7 @@
 AIStrategy::AIStrategy() {
 	Py_Initialize();
 
+	return;
 	char path[PATH_MAX];
 	readlink("/proc/self/exe", path, PATH_MAX);
 //	auto current_path = std::filesystem::current_path();

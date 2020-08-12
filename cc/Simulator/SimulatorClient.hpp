@@ -23,6 +23,7 @@ class SimulatorClient {
 	std::mutex data_mutex;
 
 	double simulated_wheel_radius = 0.02;
+	double simulated_robot_length = 0.08;
 
 	SimulatorClient();
 	~SimulatorClient() {

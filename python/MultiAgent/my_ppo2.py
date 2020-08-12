@@ -12,7 +12,7 @@ import tensorflow as tf
 from stable_baselines import logger
 from stable_baselines.common import explained_variance, ActorCriticRLModel, tf_util, SetVerbosity, TensorboardWriter
 from stable_baselines.common.policies import ActorCriticPolicy, RecurrentActorCriticPolicy
-from stable_baselines.a2c.utils import total_episode_reward_logger
+#from stable_baselines.a2c.utils import total_episode_reward_logger
 
 from MultiAgent.my_runner import AbstractEnvRunner
 
