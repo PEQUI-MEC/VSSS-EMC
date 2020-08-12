@@ -5,10 +5,12 @@
 #include "Geometry/Geometry.h"
 #include "Robot3.hpp"
 #include "RoleStrategy.hpp"
+#include "Ball.hpp"
 
 class GoalkeeperStrategy : public RoleStrategy {
 	public:
 	// Beahviors
+	void run_strategy(const Ball& ball);
 	void protect_goal(const Geometry::Point& ball, const Geometry::Point& ball_est);
 	void spin_shot(const Geometry::Point& ball);
 	void exit_goal();

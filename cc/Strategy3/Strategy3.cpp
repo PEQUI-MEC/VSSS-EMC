@@ -1,5 +1,6 @@
 #include "Strategy3.hpp"
 #include "Field.h"
+#include "helper.hpp"
 
 using namespace field;
 using namespace Geometry;
@@ -31,11 +32,29 @@ void Strategy3::run_strategy(Robots team, std::vector<Geometry::Point> &adversar
 			last_transition = sc::now();
 	}
 
-	execute_goalkeeper();
-	execute_defender();
-	execute_attacker();
+	if ((ball.position.x < 0.3 * field_width) && attacker->get_position().x > 0.3 * field_width) {
+		if (at_location(defender->get_position(), Location::UpperField)) {
+			auto pos = defender->get_position().y - 0.5;
+			auto ynew = std::min(0.1, pos);
+			attacker->go_to_and_stop({0.31 * field_width, ynew});
+		} else {
+			auto pos = defender->get_position().y + 0.15;
+			auto ynew = std::min(field_height - 0.5, pos);
+			attacker->go_to_and_stop({0.31 * field_width, ynew});
+		}
+	} else {
+		attacker.run_strategy(ball);
+	}
+	if(attacker->get_position().x < 0.3 * field_width) {
+		defender->stop();
+	} else {
+		defender.run_strategy(ball);
+	}
+
+	goalkeeper.run_strategy(ball);
 
 	if (at_location(*goalkeeper.robot, Location::TheirField)) {
+//		cobrança de penalti
 		attacker->go_to(ball.position);
 	} else {
 		auto new_limit = defender::back::upper_limit.x + 0.09;
@@ -50,7 +69,8 @@ void Strategy3::run_strategy(Robots team, std::vector<Geometry::Point> &adversar
 
 		if (at_location(defender->get_position(), Location::OurBox)) {
 			defender->go_in_direction({0, 0.8});
-		} if (at_location(defender->target.pose.position, Location::OurBox)) {
+		}
+		if (at_location(defender->target.pose.position, Location::OurBox)) {
 			defender->stop();
 		}
 	}
@@ -87,7 +107,7 @@ bool Strategy3::transitions() {
 
 
 		//Se a bola está bem atrás do atacante mas está na frente do defensor
-	else if (distance_x(attacker->get_position(), ball.position) > 0.30 && is_ball_behind(attacker->get_position()) &&
+	else if (distance_x(attacker->get_position(), ball.position) > 0.30 && is_ball_behind(attacker->get_position(), ball) &&
 			 !at_location(attacker->get_position(), Location::TheirCornerAny))
 		swap_robots(attacker, defender);
 
@@ -131,62 +151,6 @@ bool Strategy3::trainstion_by_collision() {
 	return true;
 }
 
-void Strategy3::execute_goalkeeper() {
-	if (distance(goalkeeper->get_position(), ball.position) < goalkeeper->BALL_OFFSET && !at_location(goalkeeper->get_position(), Location::AnyGoal))
-		goalkeeper.spin_shot(ball.position);
-	else if (at_location(goalkeeper->get_position(), Location::AnyGoal))
-		goalkeeper.exit_goal();
-	else
-		goalkeeper.protect_goal(ball.position, ball.estimative);
-}
-
-void Strategy3::execute_defender() {
-	if(attacker->get_position().x < 0.3 * field_width) {
-		defender->stop();
-	} else if (is_ball_est_ahead(their::area::front::center, -0.08) && !at_location(defender->get_position(), Location::AnyGoal)) {
-		// Bola na na área adversária
-		if (at_location(ball.position, Location::UpperField))
-			defender.wait_at_target(defender::front::lower::wait_point, ball.position);
-		else
-			defender.wait_at_target(defender::front::upper::wait_point, ball.position);
-
-	} else if (at_location(defender->get_position(), Location::AnyGoal)) {
-		defender.exit_goal();
-	} else {
-		defender.protect_goal(ball.position);
-	}
-}
-
-void Strategy3::execute_attacker() {
-	if ((ball.position.x < 0.3 * field_width) && attacker->get_position().x > 0.3 * field_width) {
-		if (at_location(defender->get_position(), Location::UpperField)) {
-			auto pos = defender->get_position().y - 0.5;
-			auto ynew = std::min(0.1, pos);
-			attacker->go_to_and_stop({0.31 * field_width, ynew});
-		} else {
-			auto pos = defender->get_position().y + 0.15;
-			auto ynew = std::min(field_height - 0.5, pos);
-			attacker->go_to_and_stop({0.31 * field_width, ynew});
-		}
-	} else
-	if (at_location(attacker->get_position(), Location::TheirCornerAny)) {
-		attacker.crossing(ball.position);
-	} else if (has_ball(attacker.robot) && at_location(attacker->get_position(), Location::TheirAreaSideAny)) {
-		attacker.spin_shot(ball.position);
-	} else if (at_location(attacker->get_position(), Location::OurBox)) {
-		// Cobrar penalti
-		attacker.charged_shot(ball.position);
-	} else if (is_ball_behind(our::area::front::center) && !at_location(attacker->get_position(), Location::AnyGoal)) {
-		attacker.protect_goal(ball.position);
-	} else if (at_location(ball.position, Location::AnySide)){
-		attacker.side_spin_shot(ball.position);
-	} else if (at_location(attacker->get_position(), Location::AnyGoal)) {
-		attacker.exit_goal(ball.position);
-	} else {
-		attacker.uvf_to_goal(ball.position, ball.estimative);
-	}
-}
-
 void Strategy3::swap_robots(RoleStrategy& role1, RoleStrategy& role2) {
 	Robot3 * aux_robot1 = role1.robot;
 	Role aux_role1 = role1->role;
@@ -202,22 +166,6 @@ void Strategy3::swap_all_robots() {
 	// antigo goalkeeper -> atacker / antigo defender -> goalkeeper / antigo attacker -> defender
 //	swap_robots(defender, attacker);
 //	swap_robots(attacker, goalkeeper);
-}
-
-bool Strategy3::is_ball_behind(const Point& point) {
-	return ball.position.x < point.x;
-}
-
-bool Strategy3::is_ball_behind(const Robot2& robot) {
-	return is_ball_behind(robot.get_position());
-}
-
-bool Strategy3::is_ball_est_ahead(const Point& point, double offset) {
-	return ball.estimative.x > point.x + offset;
-}
-
-bool Strategy3::has_ball(const Robot3* robot) {
-	return distance(robot->get_position(), ball.position) < robot->BALL_OFFSET;
 }
 
 bool in_range(Robot3 &this_robot, Robot3 &other_robot) {

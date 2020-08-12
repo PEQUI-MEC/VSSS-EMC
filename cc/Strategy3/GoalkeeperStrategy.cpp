@@ -4,6 +4,15 @@
 using namespace field;
 using namespace Geometry;
 
+void GoalkeeperStrategy::run_strategy(const Ball &ball) {
+	if (distance(robot->get_position(), ball.position) < robot->BALL_OFFSET && !at_location(robot->get_position(), Location::AnyGoal))
+		spin_shot(ball.position);
+	else if (at_location(robot->get_position(), Location::AnyGoal))
+		exit_goal();
+	else
+		protect_goal(ball.position, ball.estimative);
+}
+
 void GoalkeeperStrategy::protect_goal(const Point& ball, const Point& ball_est) {
 	if (at_location(ball, Location::OurUpperCorner)) {
 		robot->go_to_and_stop(our::area::upper::center);

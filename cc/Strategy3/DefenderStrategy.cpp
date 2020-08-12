@@ -1,7 +1,23 @@
 #include "DefenderStrategy.hpp"
+#include "helper.hpp"
 
 using namespace Geometry;
 using namespace field;
+
+void DefenderStrategy::run_strategy(const Ball &ball) {
+	if (is_ball_est_ahead(their::area::front::center, ball, -0.08) && !at_location(robot->get_position(), Location::AnyGoal)) {
+		// Bola na na área adversária
+		if (at_location(ball.position, Location::UpperField))
+			wait_at_target(defender::front::lower::wait_point, ball.position);
+		else
+			wait_at_target(defender::front::upper::wait_point, ball.position);
+
+	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
+		exit_goal();
+	} else {
+		protect_goal(ball.position);
+	}
+}
 
 void DefenderStrategy::decide_spin_shot(const Point &ball) {
 	double upper_y = robot->get_position().y + robot->SIZE/2;
@@ -32,7 +48,7 @@ void DefenderStrategy::decide_spin_shot(const Point &ball) {
 //	}
 }
 
-void DefenderStrategy::wait_at_target(Geometry::Point target, Geometry::Point &ball) {
+void DefenderStrategy::wait_at_target(const Point target, const Point &ball) {
 	if (distance(robot->get_position(), target) > robot->TARGET_OFFSET)
 		robot->go_to_and_stop(target);
 	else

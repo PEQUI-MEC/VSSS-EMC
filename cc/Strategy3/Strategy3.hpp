@@ -29,13 +29,6 @@ class Strategy3 : public Strategy {
 	bool trainstion_by_collision();
 	void swap_robots(RoleStrategy &role1, RoleStrategy &role2);
 	void swap_all_robots();
-	bool has_ball(const Robot3 *robot);
-	bool is_ball_behind(const Geometry::Point &point);
-	bool is_ball_behind(const Robot2 &robot);
-	bool is_ball_est_ahead(const Geometry::Point &point, double offset = 0);
-	void execute_goalkeeper();
-	void execute_attacker();
-	void execute_defender();
 
 	bool is_collision(Robot3 *robot1, Robot3 *robot2);
 	bool is_collision_axis_y(Robot3 *robot1, Robot3 *robot2);

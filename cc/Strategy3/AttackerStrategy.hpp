@@ -7,15 +7,19 @@
 #include "Field.h"
 #include "Robot3.hpp"
 #include "RoleStrategy.hpp"
+#include "Ball.hpp"
 
 class AttackerStrategy : public RoleStrategy {
 	public:
-	enum UvfState {
+	enum class UvfState {
 		seek_ball,
 		close_to_ball,
 		has_ball,
 	};
-	UvfState uvf_state = seek_ball;
+	UvfState uvf_state = UvfState::seek_ball;
+
+	void run_strategy(Ball& ball);
+
 	/**	Robô vai para a bola usando o UVF
 	 *	@param ball posição da bola
 	 *	robô se move com velocidade "default_target_velocity" */

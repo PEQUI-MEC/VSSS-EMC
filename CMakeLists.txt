@@ -88,7 +88,7 @@ set(SOURCE_FILES cc/main.cpp
     cc/MainLoop.hpp cc/Strategy3/Game.cpp cc/Strategy3/Game.hpp cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp
     cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp
     cc/Simulator/SimulatorClient.cpp cc/Simulator/SimulatorClient.hpp
-    cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp)
+    cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp cc/Strategy3/helper.hpp cc/Strategy3/helper.cpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

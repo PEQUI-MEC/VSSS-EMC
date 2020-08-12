@@ -6,12 +6,14 @@
 #include "Field.h"
 #include "Robot3.hpp"
 #include "RoleStrategy.hpp"
+#include "Ball.hpp"
 
 class DefenderStrategy : public RoleStrategy {
 	public:
 	// Behaviors
+	void run_strategy(const Ball& ball);
 	void protect_goal(const Geometry::Point &ball);
-	void wait_at_target(Geometry::Point target, Geometry::Point &ball);
+	void wait_at_target(const Geometry::Point target, const Geometry::Point &ball);
 	void decide_spin_shot(const Geometry::Point &ball);
 	void exit_goal();
 

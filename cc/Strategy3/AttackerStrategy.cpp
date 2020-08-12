@@ -1,7 +1,27 @@
 #include "AttackerStrategy.hpp"
+#include "helper.hpp"
 
 using namespace Geometry;
 using namespace field;
+
+void AttackerStrategy::run_strategy(Ball& ball) {
+	if (at_location(robot->get_position(), Location::TheirCornerAny)) {
+		crossing(ball.position);
+	} else if (has_ball(robot, ball) && at_location(robot->get_position(), Location::TheirAreaSideAny)) {
+		spin_shot(ball.position);
+	} else if (at_location(robot->get_position(), Location::OurBox)) {
+		// Cobrar penalti
+		charged_shot(ball.position);
+	} else if (is_ball_behind(our::area::front::center, ball) && !at_location(robot->get_position(), Location::AnyGoal)) {
+		protect_goal(ball.position);
+	} else if (at_location(ball.position, Location::AnySide)){
+		side_spin_shot(ball.position);
+	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
+		exit_goal(ball.position);
+	} else {
+		uvf_to_goal(ball.position, ball.estimative);
+	}
+}
 
 void AttackerStrategy::decide_spin_shot(const Geometry::Point &ball) {
 	double upper_y = robot->get_position().y + robot->SIZE/2;
@@ -50,30 +70,30 @@ void AttackerStrategy::uvf_to_goal(const Geometry::Point &ball, const Geometry::
 	};
 
 	switch (uvf_state) {
-		case seek_ball:
+		case UvfState::seek_ball:
 			if (error_smaller_than(25) && robot->get_position().x < target.x && robot_to_ball.size < 0.15)
-				uvf_state = close_to_ball;
+				uvf_state = UvfState::close_to_ball;
 			break;
-		case close_to_ball:
+		case UvfState::close_to_ball:
 			if (error_bigger_than(70))
-				uvf_state = seek_ball;
+				uvf_state = UvfState::seek_ball;
 			else if (robot_to_ball.size < 0.7)
-				uvf_state = has_ball;
+				uvf_state = UvfState::has_ball;
 			break;
-		case has_ball:
+		case UvfState::has_ball:
 			if (error_bigger_than(70) || robot_to_ball.size > 0.15)
-				uvf_state = seek_ball;
+				uvf_state = UvfState::seek_ball;
 			break;
 	}
 
 	switch (uvf_state) {
-		case seek_ball:
+		case UvfState::seek_ball:
 			robot->go_to_pose(target, ball_to_goal);
 			break;
-		case close_to_ball:
+		case UvfState::close_to_ball:
 			robot->go_to(ball);
 			break;
-		case has_ball:
+		case UvfState::has_ball:
 			robot->go_to(goal, 1.4);
 			break;
 	}
