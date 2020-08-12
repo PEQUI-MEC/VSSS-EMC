@@ -693,6 +693,7 @@ void V4LInterface::__update_control_widgets(std::list<ControlHolder> &ctrl_list)
 }
 
 void V4LInterface::updateRobotLabels() {
+	team_color.set_label(to_string(game.team->robot_color) + " team");
 	for (unsigned i = 0; i < game.robot_count; i++) {
 		auto& robot = game.team->robots[i];
 		auto pose = robot.pose;
@@ -727,6 +728,9 @@ void V4LInterface::createPositionsAndButtonsFrame() {
 	robots_pos_buttons_vbox.pack_start(robots_pos_fm, false, true, 0);
 	robots_pos_fm.add(robots_pos_vbox);
 	robots_pos_vbox.set_size_request(300, -1);
+
+	team_color.set_label("");
+	robots_pos_vbox.pack_start(team_color);
 
 	for (unsigned long i = 0; i < game.robot_count; i++) {
 		label = new Gtk::Label("Robot "+std::to_string(i)+":");

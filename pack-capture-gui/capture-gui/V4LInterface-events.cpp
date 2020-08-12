@@ -51,6 +51,7 @@ void V4LInterface::__event_bt_quick_load_clicked() {
 	config.load();
 	robotGUI.update_robots();
 	update_interface_camera();
+	gameGUI.update_selected_strategy();
 }
 
 void V4LInterface::__event_bt_load_clicked() {
@@ -62,6 +63,7 @@ void V4LInterface::__event_bt_load_clicked() {
 		config.load(loadWindow.fileName);
 		robotGUI.update_robots();
 		update_interface_camera();
+		gameGUI.update_selected_strategy();
 	}
 }
 

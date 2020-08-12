@@ -67,6 +67,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		Gtk::Image red_button_released;
 		Gtk::Image red_button_pressed;
 
+		Gtk::Label team_color;
 		std::vector<Gtk::Label> robot_pos_lb_list;
 		Gtk::Label ball_pos_lb;
 

@@ -9,6 +9,8 @@ enum class RobotColor {
 	Blue, Yellow
 };
 
+std::string to_string(RobotColor color);
+
 class Team {
 	public:
 	std::vector<Robot3> robots;

@@ -7,3 +7,11 @@ std::vector<Geometry::Point> Team::get_inverted_robot_positions() {
 	}
 	return positions;
 }
+
+std::string to_string(RobotColor color) {
+	if (color == RobotColor::Yellow) {
+		return "Yellow";
+	} else {
+		return "Blue";
+	}
+}
