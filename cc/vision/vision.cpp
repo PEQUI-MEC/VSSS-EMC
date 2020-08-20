@@ -4,13 +4,13 @@
 
 using namespace vision;
 
-std::map<unsigned int, Vision::RecognizedTag> Vision::run(cv::Mat raw_frame) {
+Tags Vision::run(cv::Mat raw_frame, bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 	in_frame = raw_frame.clone();
 
 	preProcessing();
 	findTags();
 	//findElements();
-	return pick_a_tag();
+	return find_all_tags(yellow_pick_at_tag, blue_pick_at_tag);
 }
 
 void Vision::preProcessing() {
@@ -73,7 +73,7 @@ void Vision::searchTags(const unsigned long color) {
 			auto moment_x = static_cast<int>(moment.m10 / area);
 			auto moment_y = static_cast<int>(moment.m01 / area);
 			// seta as linhas para as tags principais do pick-a-tag
-			if (color == Color::Main) {
+			if (color == Color::Yellow || color == Color::Blue) {
 				tags.at(color).emplace_back(cv::Point(moment_x, moment_y), area);
 
 				// tem que ter jogado a tag no vetor antes de mexer nos valores dela
@@ -81,19 +81,6 @@ void Vision::searchTags(const unsigned long color) {
 				cv::fitLine(cv::Mat(contour), line, 2, 0, 0.01, 0.01);
 				unsigned long tagsInVec = tags.at(color).size() - 1;
 				tags.at(color).at(tagsInVec).setLine(line);
-			} else if (color == Color::Adv) {
-				if (tags.at(color).size() >= 3) {
-					// pega o menor índice
-					unsigned long smaller = 0;
-					for (unsigned long j = 1; j < 3; j++) {
-						if (tags.at(color).at(j).area < tags.at(color).at(smaller).area)
-							smaller = j;
-					}
-					if (smaller < tags.at(color).size() && area > tags.at(color).at(smaller).area)
-						tags.at(color).at(smaller) = Tag(cv::Point(moment_x, moment_y), area);
-				} else {
-					tags.at(color).emplace_back(cv::Point(moment_x, moment_y), area);
-				}
 			} else {
 				tags.at(color).emplace_back(cv::Point(moment_x, moment_y), area);
 			}
@@ -101,22 +88,98 @@ void Vision::searchTags(const unsigned long color) {
 	}
 }
 
+std::vector<RecognizedTag> Vision::pick_a_tag2(Color color) {
+	std::vector<RecognizedTag> found_tags(3); // 3 robôs, por enquanto
+	for (auto& main_tag : tags.at(color)) {
+		cv::Point position = main_tag.position;
+//		Tags secundarias do mesmo robô
+		std::vector<Tag> secondary_tags;
+
+		// Cálculo da orientação de acordo com os pontos rear e front
+		double orientation = atan2((main_tag.frontPoint.y - position.y) * field::field_height / height,
+								   (main_tag.frontPoint.x - position.x) * field::field_width / width);
+
+		// Para cada tag principal, verifica quais são as secundárias correspondentes
+		for (Tag &secondary_tag : tags.at(Color::Green)) {
+			// Altera a orientação caso esteja invertida
+			int tag_side = in_sphere(secondary_tag.position, main_tag, orientation);
+			if (tag_side != 0) {
+				secondary_tag.left = tag_side > 0;
+				secondary_tags.push_back(secondary_tag);
+			}
+		}
+
+		RecognizedTag tag = {position, orientation,
+							 main_tag.frontPoint, main_tag.rearPoint};
+		if (secondary_tags.size() > 1) {
+			// tag 3 tem duas tags secundárias
+			found_tags[2] = tag;
+		} else if (!secondary_tags.empty()) {
+			if (secondary_tags[0].left) {
+				found_tags[0] = tag;
+			} else {
+				found_tags[1] = tag;
+			}
+		}
+	}
+	return found_tags;
+}
+
+std::vector<RecognizedTag> Vision::get_only_position(Color color) {
+	std::vector<RecognizedTag> found_tags(tags.at(color).size());
+	std::transform(tags.at(color).begin(), tags.at(color).end(), found_tags.begin(),[](Tag& tag) {
+		return RecognizedTag{tag.position, 0, tag.position, tag.position};
+	});
+	return found_tags;
+}
+
+Tags Vision::find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag) {
+	Tags found_tags;
+
+	if (yellow_pick_at_tag) {
+		found_tags.yellow = pick_a_tag2(Color::Yellow);
+	} else {
+		found_tags.yellow = get_only_position(Color::Yellow);
+	}
+
+	if (blue_pick_at_tag) {
+		found_tags.blue = pick_a_tag2(Color::Blue);
+	} else {
+		found_tags.blue = get_only_position(Color::Blue);
+	}
+
+	// BALL POSITION
+	if (!tags[Color::Ball].empty()) {
+		Tag ball_tag = tags.at(Color::Ball).at(0);
+		found_tags.ball = ball_tag;
+		ball.position = ball_tag.position;
+		ball.isFound = true;
+	} else {
+		// É importante que a posição da bola permaneça sendo a última encontrada
+		// para que os robôs funcionem corretamente em caso de oclusão da bola na imagem
+		// portanto, a posição da bola não deve ser alterada aqui
+		ball.isFound = false;
+	}
+
+	return found_tags;
+};
+
 /// <summary>
 /// Seleciona um conjunto de tags para representar cada robô
 /// </summary>
 /// <description>
 /// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
 /// </description>
-std::map<unsigned int, Vision::RecognizedTag> Vision::pick_a_tag() {
+std::map<unsigned int, RecognizedTag> Vision::pick_a_tag() {
 	std::map<unsigned int, RecognizedTag> found_tags;
 
 	advRobots.clear();
 
 	// OUR ROBOTS
-	for (unsigned int i = 0; i < tags.at(Color::Main).size() && i < 3; i++) {
+	for (unsigned int i = 0; i < tags.at(Color::Yellow).size() && i < 3; i++) {
 		std::vector<Tag> secondary_tags;
 
-		Tag main_tag = tags.at(Color::Main).at(i);
+		Tag main_tag = tags.at(Color::Yellow).at(i);
 
 		// Posição do robô
 		cv::Point position = main_tag.position;
@@ -155,8 +218,8 @@ std::map<unsigned int, Vision::RecognizedTag> Vision::pick_a_tag() {
 
 	// ADV ROBOTS
 	for (unsigned long i = 0; i < MAX_ADV; i++) {
-		if (i < tags.at(Color::Adv).size())
-			advRobots.push_back(tags.at(Color::Adv).at(i).position);
+		if (i < tags.at(Color::Blue).size())
+			advRobots.push_back(tags.at(Color::Blue).at(i).position);
 	}
 
 	// BALL POSITION
@@ -198,7 +261,7 @@ int Vision::in_sphere(cv::Point secondary, Tag &main_tag, double &orientation) {
 							  (secondary.x - main_tag.position.x) * field::field_width / width);
 
 		// Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
-		return (atan2(sin(secSide - orientation + 3.1415), cos(secSide - orientation + 3.1415))) > 0 ? 1 : -1;
+		return (atan2(sin(secSide - orientation + M_PI*2), cos(secSide - orientation + M_PI*2))) > 0 ? 1 : -1;
 	}
 	return 0;
 }
@@ -211,34 +274,34 @@ void Vision::switchMainWithAdv() {
 	int tmp;
 
 	for (int i = Limit::Min; i <= Limit::Max; i++) {
-		tmp = cieL[Color::Main][i];
-		cieL[Color::Main][i] = cieL[Color::Adv][i];
-		cieL[Color::Adv][i] = tmp;
+		tmp = cieL[Color::Yellow][i];
+		cieL[Color::Yellow][i] = cieL[Color::Blue][i];
+		cieL[Color::Blue][i] = tmp;
 
-		tmp = cieA[Color::Main][i];
-		cieA[Color::Main][i] = cieA[Color::Adv][i];
-		cieA[Color::Adv][i] = tmp;
+		tmp = cieA[Color::Yellow][i];
+		cieA[Color::Yellow][i] = cieA[Color::Blue][i];
+		cieA[Color::Blue][i] = tmp;
 
-		tmp = cieB[Color::Main][i];
-		cieB[Color::Main][i] = cieB[Color::Adv][i];
-		cieB[Color::Adv][i] = tmp;
+		tmp = cieB[Color::Yellow][i];
+		cieB[Color::Yellow][i] = cieB[Color::Blue][i];
+		cieB[Color::Blue][i] = tmp;
 	}
 
-	tmp = areaMin[Color::Main];
-	areaMin[Color::Main] = areaMin[Color::Adv];
-	areaMin[Color::Adv] = tmp;
+	tmp = areaMin[Color::Yellow];
+	areaMin[Color::Yellow] = areaMin[Color::Blue];
+	areaMin[Color::Blue] = tmp;
 
-	tmp = erode[Color::Main];
-	erode[Color::Main] = erode[Color::Adv];
-	erode[Color::Adv] = tmp;
+	tmp = erode[Color::Yellow];
+	erode[Color::Yellow] = erode[Color::Blue];
+	erode[Color::Blue] = tmp;
 
-	tmp = dilate[Color::Main];
-	dilate[Color::Main] = dilate[Color::Adv];
-	dilate[Color::Adv] = tmp;
+	tmp = dilate[Color::Yellow];
+	dilate[Color::Yellow] = dilate[Color::Blue];
+	dilate[Color::Blue] = tmp;
 
-	tmp = blur[Color::Main];
-	blur[Color::Main] = blur[Color::Adv];
-	blur[Color::Adv] = tmp;
+	tmp = blur[Color::Yellow];
+	blur[Color::Yellow] = blur[Color::Blue];
+	blur[Color::Blue] = tmp;
 }
 
 cv::Mat Vision::getSplitFrame() {

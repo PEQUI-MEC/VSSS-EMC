@@ -38,7 +38,7 @@ namespace art {
 		public:
 			ImageArt(warp::PointArray &warp, warp::PointArray &adjust, onClick::TestOnClick &test, int &width, int &height);
 			void draw(cv::Mat &frame, const vision::Vision::Ball &ball,
-					  const std::map<unsigned int, vision::Vision::RecognizedTag> &our_tags,
+					  const std::vector<RecognizedTag> &our_tags,
 					  const std::vector<cv::Point> &adv_tags, const std::vector<Robot3> &our_robots, bool is_game_on);
 
 			void set_is_warping(bool warping = true) { is_warping = warping; };

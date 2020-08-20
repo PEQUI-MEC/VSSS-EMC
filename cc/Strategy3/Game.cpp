@@ -9,7 +9,7 @@ Game::Game() {
 	strategies.emplace("No Strategy", new NoStrategy());
 	team = std::make_unique<Team>(robot_count, 0, true, false, RobotColor::Blue);
 	set_strategy(*team, "Manual Strategy");
-	adversary = std::make_unique<Team>(robot_count, robot_count, true, true, RobotColor::Yellow);
+	adversary = std::make_unique<Team>(robot_count, 0, true, true, RobotColor::Yellow);
 	set_strategy(*adversary, "No Strategy");
 }
 
@@ -31,4 +31,14 @@ std::optional<std::string> Game::get_strategy_name(Team &team) {
 			return name;
 	}
 	return std::nullopt;
+}
+
+Team &Game::yellow_team() {
+	if (team->robot_color == RobotColor::Yellow) return *team;
+	else return *adversary;
+}
+
+Team &Game::blue_team() {
+	if (team->robot_color == RobotColor::Blue) return *team;
+	else return *adversary;
 }

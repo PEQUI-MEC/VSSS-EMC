@@ -80,7 +80,7 @@ class CamCap : public Gtk::HBox {
 
 	bool run_game_loop();
 		void simulated_game_loop();
-		void update_positions(const std::map<unsigned int, vision::Vision::RecognizedTag>& tags);
+		void update_positions(Tags &tags);
 		bool start_signal(bool b);
 		bool capture_and_show();
 		void send_cmd_thread();

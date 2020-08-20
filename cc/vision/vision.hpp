@@ -17,16 +17,17 @@
 #include <boost/bind.hpp>
 #include <iostream>
 #include "tag.hpp"
+#include "Tags.hpp"
 
 namespace vision
 {
 	// Todas as cores que serão encontradas pela visão:
 	enum Color
 	{
-		Main,
+		Yellow,
 		Green,
 		Ball,
-		Adv
+		Blue
 	};
 
 	// Limites Min e Max dos tresholds:
@@ -41,14 +42,8 @@ namespace vision
 	class Vision {
 	public:
 
-		static const unsigned int MAX_COLORS = Color::Adv - Color::Main + 1;
+		static const unsigned int MAX_COLORS = Color::Blue - Color::Yellow + 1;
 //		Numero da tag é definido pela sua posicao no std::array retornado
-		struct RecognizedTag {
-			cv::Point position = {ROBOT_RADIUS/2, 0};
-			double orientation = 0;
-			cv::Point front_point = {ROBOT_RADIUS, 0};
-			cv::Point rear_point = {0, 0};
-		};
 
 		struct Ball {
 			cv::Point position = {0, 0};
@@ -94,6 +89,10 @@ namespace vision
 		void segmentAndSearch(unsigned long color);
 		void searchTags(unsigned long color);
 		void findTags();
+		std::vector<RecognizedTag> get_only_position(Color color);
+		std::vector<RecognizedTag> pick_a_tag2(Color color);
+		Tags
+		find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag);
 		std::map<unsigned int, RecognizedTag> pick_a_tag();
 		int in_sphere(cv::Point secondary, Tag &main_tag, double &orientation);
 
@@ -102,7 +101,7 @@ namespace vision
 		Vision(int w, int h);
 		~Vision();
 
-		std::map<unsigned int, RecognizedTag> run(cv::Mat raw_frame);
+		Tags run(cv::Mat raw_frame, bool yellow_pick_at_tag, bool blue_pick_at_tag);
 		double calcDistance(cv::Point p1, cv::Point p2) const;
 		void saveCameraCalibPicture(std::string in_name, std::string directory);
 

@@ -23,6 +23,8 @@ class Game {
 	void swap_teams();
 	void set_strategy(Team& team, std::string strategy_name);
 	std::optional<std::string> get_strategy_name(Team& team);
+	Team& yellow_team();
+	Team& blue_team();
 };
 
 #endif //VSSS_GAME_HPP

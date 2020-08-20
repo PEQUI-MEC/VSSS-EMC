@@ -80,16 +80,23 @@ set(SOURCE_FILES cc/main.cpp
     pack-capture-gui/capture-gui/ImageArt.cpp
     pack-capture-gui/capture-gui/ImageWarp.cpp
     cc/TestOnClick.cpp
-    cc/VideoRecorder.cpp cc/Strategy2/AIStrategy.cpp cc/Strategy2/AIStrategy.hpp cc/Strategy3/Team.cpp cc/Strategy3/Team.hpp
-    cc/Strategy3/Robot3.cpp cc/Strategy3/Robot3.hpp cc/Strategy3/Strategy3.cpp cc/Strategy3/Strategy3.hpp
+    cc/VideoRecorder.cpp cc/Strategy2/AIStrategy.cpp cc/Strategy2/AIStrategy.hpp
+    cc/Strategy3/Team.cpp cc/Strategy3/Team.hpp
+    cc/Strategy3/Robot3.cpp cc/Strategy3/Robot3.hpp
+    cc/Strategy3/Strategy3.cpp cc/Strategy3/Strategy3.hpp
     cc/Strategy3/Types.hpp
     cc/Strategy3/DefenderStrategy.cpp cc/Strategy3/DefenderStrategy.hpp
     cc/Strategy3/AttackerStrategy.cpp cc/Strategy3/AttackerStrategy.hpp
-    cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp cc/Strategy3/RoleStrategy.hpp
-    cc/MainLoop.hpp cc/Strategy3/Game.cpp cc/Strategy3/Game.hpp cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp
+    cc/Strategy3/GoalkeeperStrategy.cpp cc/Strategy3/GoalkeeperStrategy.hpp
+    cc/Strategy3/RoleStrategy.hpp
+    cc/MainLoop.hpp cc/Strategy3/Game.cpp cc/Strategy3/Game.hpp
+    cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp
     cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp
     cc/Simulator/SimulatorClient.cpp cc/Simulator/SimulatorClient.hpp
-    cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp cc/Strategy3/helper.hpp cc/Strategy3/helper.cpp)
+    cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp
+    cc/Strategy3/helper.hpp cc/Strategy3/helper.cpp
+    cc/vision/Tags.hpp cc/vision/RecognizedTag.hpp
+    )
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

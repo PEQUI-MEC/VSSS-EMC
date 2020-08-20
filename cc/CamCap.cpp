@@ -9,17 +9,20 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-void CamCap::update_positions(const std::map<unsigned int, Vision::RecognizedTag> &tags) {
-	for (auto &robot : game.team->robots) {
-		auto search = tags.find(robot.TAG);
-		if (search != tags.end())
-			robot.set_pose(search->second.position, search->second.orientation);
+void CamCap::update_positions(Tags &tags) {
+	for (auto &robot : game.yellow_team().robots) {
+		auto tag = tags.yellow[robot.TAG];
+		robot.set_pose(tag.position, tag.orientation);
+	}
+
+	for (auto &robot : game.blue_team().robots) {
+		auto tag = tags.blue[robot.TAG];
+		robot.set_pose(tag.position, tag.orientation);
 	}
 
 	interface.updateRobotLabels();
 
-	const Vision::Ball cv_ball = interface.visionGUI.vision->getBall();
-	game.ball.position = Geometry::from_cv_point(cv_ball.position);
+	game.ball.position = Geometry::from_cv_point(tags.ball.position);
 	interface.update_ball_position(game.ball.position);
 }
 
@@ -147,7 +150,8 @@ bool CamCap::capture_and_show() {
 													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
 
-	std::map<unsigned int, Vision::RecognizedTag> tags = interface.visionGUI.vision->run(imageView);
+	auto tags = interface.visionGUI.vision->run(imageView, game.yellow_team().controlled,
+												game.blue_team().controlled);
 
 	interface.visionGUI.recorder.run(imageView);
 
@@ -213,7 +217,7 @@ bool CamCap::capture_and_show() {
 
 			interface.imageView.imageArt.draw(imageView,
 											  interface.visionGUI.vision->getBall(),
-											  tags,
+											  tags.get_tags(game.team->robot_color),
 											  interface.visionGUI.vision->get_adv_robots(), game.team->robots,
 											  game.playing_game);
 		} // if !interface.draw_info_flag

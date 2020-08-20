@@ -9,7 +9,7 @@ using namespace art;
 using namespace onClick;
 
 void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
-					const std::map<unsigned int, Vision::RecognizedTag> &our_tags,
+					const std::vector<RecognizedTag> &our_tags,
 					const std::vector<cv::Point> &adv_tags, const std::vector<Robot3> &our_robots, bool is_game_on) {
 
 	// Adversary Robots
@@ -22,13 +22,14 @@ void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
 		circle(frame, ball.position, 7, ball_color, 2, cv::LINE_AA);
 
 	// Our Robots
-	for (const auto &tag : our_tags) {
-		circle(frame, tag.second.position, 15, our_robots_color[0], 2, cv::LINE_AA);
-		putText(frame, std::to_string(tag.first + 1),
-				cv::Point(tag.second.position.x + 13, tag.second.position.y - 15),
+	for (unsigned i = 0; i < our_tags.size(); i++) {
+		auto& tag = our_tags[i];
+		circle(frame, tag.position, 15, our_robots_color[0], 2, cv::LINE_AA);
+		putText(frame, std::to_string(i + 1),
+				cv::Point(tag.position.x + 13, tag.position.y - 15),
 				cv::FONT_HERSHEY_PLAIN, 1, our_robots_color[0], 2, cv::LINE_AA);
 		// linha da orientação do robô
-		line(frame, tag.second.rear_point, tag.second.front_point, our_robots_color[1], 2, cv::LINE_AA);
+		line(frame, tag.rear_point, tag.front_point, our_robots_color[1], 2, cv::LINE_AA);
 	}
 
 	// Strategy targets
