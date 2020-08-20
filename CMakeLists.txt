@@ -36,6 +36,7 @@ find_library(LIBXBEE libxbee.so libxbeep.so)
 
 # Protobuf
 find_package(Protobuf REQUIRED)
+find_library(Protobuf_static libprotobuf.a)
 
 find_library(EVPP libevpp.so)
 
@@ -104,7 +105,6 @@ include_directories(cc/
     ${Boost_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
     ${V4L2_INCLUDE_DIRS}
-    ${Protobuf_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR})
 
 set(CMAKE_CXX_FLAGS "-std=c++17 -isystem /usr/include/sigc++-2.0 -isystem /usr/include/gtk-3.0/ \
@@ -113,6 +113,7 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -isystem /usr/include/sigc++-2.0 -isystem /usr/i
     -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml \
     -lopencv_imgproc -lopencv_flann -lopencv_core -lboost_thread -lboost_system -lboost_filesystem")
 
+set(CUDA_FOUND OFF)
 if (CUDA_FOUND)
     add_definitions(-DCUDA_FOUND)
 endif ()
@@ -126,7 +127,7 @@ target_link_libraries(VSSS ${OpenCV_LIBS})
 target_link_libraries(VSSS ${V4L2_LIBRARIES})
 target_link_libraries(VSSS ${LIBXBEE})
 target_link_libraries(VSSS ${EVPP})
-target_link_libraries(VSSS ${Protobuf_LIBRARIES})
+target_link_libraries(VSSS ${Protobuf_static})
 if (CUDA_FOUND)
     target_link_libraries(VSSS ${CUDA_LIBRARIES})
 endif ()

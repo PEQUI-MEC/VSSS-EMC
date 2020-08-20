@@ -5,9 +5,9 @@
 AIStrategy::AIStrategy() {
 	Py_Initialize();
 
-	return;
 	char path[PATH_MAX];
 	readlink("/proc/self/exe", path, PATH_MAX);
+
 //	auto current_path = std::filesystem::current_path();
 //	auto dir = current_path.string() + "/python";
 	auto dir = "/home/thiago/Workspace/VSSS-EMC/python";
@@ -15,7 +15,13 @@ AIStrategy::AIStrategy() {
 	auto sys_path = PySys_GetObject("path");
 	PyList_Append(sys_path, py_dir);
 
+	std::cout << "importing module" << std::endl;
 	module = PyImport_ImportModule("ai");
+	if (module == nullptr) {
+		std::cout << "got null" << std::endl;
+	} else {
+		std::cout << "didn't get null" << std::endl;
+	}
 	module_dict = PyModule_GetDict(module);
 	ai_class = PyDict_GetItemString(module_dict, "AI");
 	auto our_goal = field::our::goal::front::center.to_python();
@@ -24,8 +30,10 @@ AIStrategy::AIStrategy() {
 	ai_object = PyObject_CallObject(ai_class, constructor_args);
 	strategy_method_name = PyUnicode_FromString("run_strategy");
 
-	Py_DecRef(sys_path);
-	Py_DecRef(py_dir);
+	std::cout << "Constructed AI Strategy" << std::endl;
+
+//	Py_DecRef(sys_path);
+//	Py_DecRef(py_dir);
 }
 
 void AIStrategy::run_strategy(Robots team, std::vector<Geometry::Point> &adversaries, Ball ball) {
@@ -56,11 +64,11 @@ void AIStrategy::run_strategy(Robots team, std::vector<Geometry::Point> &adversa
 	}
 
 //	Delete python objects
-	Py_DecRef(velocities);
-	Py_DecRef(ball_pos);
-	Py_DecRef(robot3);
-	Py_DecRef(robot2);
-	Py_DecRef(robot1);
+//	Py_DecRef(velocities);
+//	Py_DecRef(ball_pos);
+//	Py_DecRef(robot3);
+//	Py_DecRef(robot2);
+//	Py_DecRef(robot1);
 }
 
 AIStrategy::~AIStrategy() {

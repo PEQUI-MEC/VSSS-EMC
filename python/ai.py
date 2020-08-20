@@ -12,7 +12,7 @@ MAX = 7.42723067783*360*3.14159265359/180 # radiandos por segundo, para que o ro
 
 
 class AI:
-    def __init__(self, our_goal=[-0.8,0], their_goal=[0.8,0], game_time=600, path="models/main/agent", num_frames=8):
+    def __init__(self, our_goal=[-0.8,0], their_goal=[0.8,0], game_time=600, path="/home/thiago/Workspace/VSSS-EMC/python/models/model.zip", num_frames=8):
 
         # game_time: game time in seconds (suggestion: use half the match as you can reset after halftime)
 
@@ -68,10 +68,13 @@ class AI:
         # No orientation data is acquired for the adversary players
 
         robot0, robot1, robot2, ball, adv0, adv1, adv2 = self.cartesian_translate([robot0, robot1, robot2, ball, adv0, adv1, adv2])
+        print("translated")
 
         self.mount_inputs(robot0, robot1, robot2, ball, adv0, adv1, adv2, is_start) # Gera inputs [1,2,3] na variável self.state
+        print("mount_inputs")
 
         actions, _states = self.model.predict(np.asarray(self.state), deterministic=True)
+        print("predicted")
 
         actions = ( 2 * actions.reshape( (3,2) ) -1.0 ) * MAX # rescaling
         actions = np.clip(actions, -MAX, MAX)
@@ -81,11 +84,12 @@ class AI:
 
         # Velocidades em m/s dos robos 1, 2 e 3
         # return ((0.2, 0.3), (0.5, 0.1), (0.8, 1.2))
+        print("ai strategy iter")
         return tuple(tuple(sub) for sub in actions)
 
     def cartesian_translate(self, elements):
         # Change the origin of a cartesian system for all points in the list
-        new_origin = [0.75, 0.65]
+        new_origin = [0.85, 0.65]
         for obj in elements:
             obj[0] = obj[0] - new_origin[0]
             obj[1] = obj[1] - new_origin[1]
@@ -271,3 +275,6 @@ class AI:
         print(actions)
 
         return actions
+
+#ai1 = AI();
+#ai1.run_strategy([1.0, 1.0, 1.0], [1.2, 1.2, 1.0], [0.8, 0.8, 1.0], [0.5, 0.5], [1.0, 0.5], [0.3, 0.9], [0.2, 0.4])
