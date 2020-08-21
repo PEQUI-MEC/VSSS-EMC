@@ -62,8 +62,9 @@ Point Point::from_simulator(double x, double y) {
 	return {x + field::field_width/2, y + field::field_height/2};
 }
 
-Point Point::inverted_coordinates() const {
-	return Point(field::field_width - x, field::field_height - y);
+Point Point::inverted_coordinates(bool invert) const {
+	if (invert) return Point(field::field_width - x, field::field_height - y);
+	else return *this;
 }
 
 Vector::Vector(const Point &p) {

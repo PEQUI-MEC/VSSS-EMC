@@ -44,3 +44,20 @@ Team &Game::blue_team() {
 	if (team->robot_color == RobotColor::Blue) return *team;
 	else return *adversary;
 }
+
+Tags Game::to_tags() {
+	Tags tags;
+	auto& yellow = yellow_team();
+	tags.yellow.resize(yellow.robots.size());
+	std::transform(yellow.robots.begin(), yellow.robots.end(), tags.yellow.begin(),
+				   [&](Robot3& robot) {return robot.to_tag(yellow.inverted_field);});
+	tags.yellow_has_orientation = yellow.controlled;
+	auto& blue = blue_team();
+	tags.blue.resize(blue.robots.size());
+	std::transform(blue.robots.begin(), blue.robots.end(), tags.blue.begin(),
+				   [&](Robot3& robot) {return robot.to_tag(blue.inverted_field);});
+	tags.blue_has_orientation = blue.controlled;
+	tags.ball.position = ball.position.to_cv_point();
+	tags.found_ball = true;
+	return tags;
+}

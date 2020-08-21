@@ -31,6 +31,8 @@ struct Pose {
 	double orientation = 0;
 	Velocity velocity;
 	WheelVelocity wheel_velocity;
+
+	Pose inverted(bool invert = true) const;
 };
 
 enum class Command {
@@ -44,6 +46,8 @@ struct Target {
 	Pose pose;
 	Geometry::Point reference; // for UVF
 	double n; // for UVF
+
+	Target inverted(bool invert = true) const;
 };
 
 constexpr unsigned int ROLE_COUNT = 4;

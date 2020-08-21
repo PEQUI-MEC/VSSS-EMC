@@ -65,3 +65,20 @@ Geometry::Vector Robot3::get_direction() {
 			return Geometry::Vector{0, 0};
 	}
 }
+
+Tag Robot3::to_tag(bool invert) const {
+	Tag tag;
+	auto front = pose.position + Geometry::Vector(SIZE/2, pose.orientation);
+	auto back = pose.position + Geometry::Vector(-SIZE/2, pose.orientation);
+	if (!invert) {
+		tag.position = pose.position.to_cv_point();
+		tag.front_point = front.to_cv_point();
+		tag.rear_point = back.to_cv_point();
+	} else {
+		tag.position = pose.position.inverted_coordinates().to_cv_point();
+		tag.front_point = front.inverted_coordinates().to_cv_point();
+		tag.rear_point = back.inverted_coordinates().to_cv_point();
+	}
+	tag.orientation = pose.orientation;
+	return tag;
+}

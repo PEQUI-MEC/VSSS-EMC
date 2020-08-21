@@ -21,7 +21,7 @@ void ImageArt::draw_with_orientation(cv::Mat &frame, const std::vector<Tag> &tea
 	}
 }
 
-void ImageArt::draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_on) {
+void ImageArt::draw_robots_and_ball(cv::Mat &frame, const Tags &tags) {
 	if (tags.yellow_has_orientation) {
 		draw_with_orientation(frame, tags.yellow, RobotColor::Yellow);
 	} else {
@@ -41,18 +41,22 @@ void ImageArt::draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_o
 	// Ball
 	if (tags.found_ball)
 		circle(frame, tags.ball.position, 7, ball_color, 2, cv::LINE_AA);
+}
+
+void ImageArt::draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_on) {
+	draw_robots_and_ball(frame, tags);
 
 	// Strategy targets
 	if (is_game_on) {
 		for (auto robot : team.robots) {
-			draw_targets(robot, frame);
+			draw_targets(robot, frame, false, team.robot_color);
 		}
 	}
 
 	// Test On Click
 	if (test_on_click.is_active()) {
 		Robot3* robot = test_on_click.get_selected_robot();
-		draw_targets(*robot, frame);
+		draw_targets(*robot, frame, false, team.robot_color);
 
 		if (robot != nullptr)
 			cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
@@ -134,11 +138,11 @@ void ImageArt::draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_o
 	}
 }
 
-void ImageArt::draw_targets(const Robot3 &robot, cv::Mat &frame) {
+void ImageArt::draw_targets(const Robot3 &robot, cv::Mat &frame, bool inverted, RobotColor robot_color) {
 	cv::Scalar color;
 	double angle;
 	cv::Point target;
-	cv::Point position = robot.pose.position.to_cv_point();
+	cv::Point position = robot.pose.position.inverted_coordinates(inverted).to_cv_point();
 	bool is_test_on_click = test_on_click.is_active();
 
 	if (is_test_on_click) {
@@ -146,9 +150,11 @@ void ImageArt::draw_targets(const Robot3 &robot, cv::Mat &frame) {
 		angle = test_on_click.get_orientation_value();
 		target = test_on_click.get_target().to_cv_point();
 	} else {
-		color = strategy_color;
-		angle = robot.target.pose.orientation;
-		robot.target.pose.position.to_cv_point();
+		if (robot_color == RobotColor::Yellow) color = yellow_color;
+		else color = blue_color;
+		Target robot_target = robot.target.inverted(inverted);
+		angle = robot_target.pose.orientation;
+		target = robot_target.pose.position.to_cv_point();
 	}
 
 	switch (is_test_on_click? test_on_click.get_command() : robot.target.command) {

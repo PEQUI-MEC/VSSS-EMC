@@ -99,10 +99,6 @@ void CamCap::simulated_game_loop() {
 	std::lock_guard<std::mutex> guard(simulator.data_mutex);
 
 	simulator.update_robots(game);
-	robotGUI.update_robots();
-	interface.updateRobotLabels();
-	interface.update_ball_position(game.ball.position);
-	fps_update();
 
 	if (game.playing_game) {
 		auto inverted_team = game.team->get_inverted_robot_positions();
@@ -121,6 +117,32 @@ void CamCap::simulated_game_loop() {
 		}
 		if (game.adversary->controlled) {
 			simulator.send_commands(*game.adversary.get());
+		}
+	}
+
+//	Atualiza GUI
+	robotGUI.update_robots();
+	interface.updateRobotLabels();
+	interface.update_ball_position(game.ball.position);
+	fps_update();
+
+//	Atualiza a imagem do campo
+	if (data) {
+		cv::Mat imageView(height, width, CV_8UC3, data);
+		imageView = cv::Scalar(0, 0, 0);
+		interface.imageView.set_data(data);
+		interface.imageView.refresh();
+		auto tags = game.to_tags();
+		interface.imageView.imageArt.draw_robots_and_ball(imageView, tags);
+		if (game.team->controlled) {
+			for (auto& robot : game.team->robots)
+				interface.imageView.imageArt.draw_targets(robot, imageView, game.team->inverted_field,
+														  game.team->robot_color);
+		}
+		if (game.adversary->controlled) {
+			for (auto& robot : game.adversary->robots)
+				interface.imageView.imageArt.draw_targets(robot, imageView, game.adversary->inverted_field,
+														  game.adversary->robot_color);
 		}
 	}
 }

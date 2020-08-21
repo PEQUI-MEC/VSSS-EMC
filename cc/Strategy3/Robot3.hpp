@@ -3,6 +3,7 @@
 
 #include "Types.hpp"
 #include <RobotControl/Control.h>
+#include <vision/Tag.hpp>
 
 class Robot3 {
 	public:
@@ -86,6 +87,8 @@ class Robot3 {
 	std::string tag_name() {
 		return "Robot " + std::to_string(TAG);
 	}
+
+	Tag to_tag(bool invert) const;
 };
 
 #endif //VSSS_ROBOT3_HPP

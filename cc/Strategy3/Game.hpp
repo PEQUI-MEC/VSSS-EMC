@@ -2,6 +2,7 @@
 #define VSSS_GAME_HPP
 
 #include <memory>
+#include <vision/Tags.hpp>
 #include "Types.hpp"
 #include "Team.hpp"
 #include "Ball.hpp"
@@ -25,6 +26,7 @@ class Game {
 	std::optional<std::string> get_strategy_name(Team& team);
 	Team& yellow_team();
 	Team& blue_team();
+	Tags to_tags();
 };
 
 #endif //VSSS_GAME_HPP

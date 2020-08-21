@@ -43,3 +43,23 @@ WheelAngularVelocity WheelVelocity::to_angular(double wheel_radius) const {
 WheelVelocity Velocity::to_wheel_velocity(double robot_length) const {
 	return WheelVelocity{linear - (angular * robot_length)/2, linear + (angular * robot_length)/2};
 }
+
+Pose Pose::inverted(bool invert) const {
+	if (!invert) return *this;
+	else return Pose {
+		position.inverted_coordinates(),
+		Geometry::wrap(orientation + M_PI),
+		velocity,
+		wheel_velocity
+	};
+}
+
+Target Target::inverted(bool invert) const {
+	if (!invert) return *this;
+	else return Target {
+		command,
+		pose.inverted(),
+		reference.inverted_coordinates(),
+		n
+	};
+}
