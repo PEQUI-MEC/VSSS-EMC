@@ -767,11 +767,11 @@ void V4LInterface::initInterface() {
 	cb_frame_interval.set_state(Gtk::STATE_NORMAL);
 	bt_warp_start.set_state(Gtk::STATE_INSENSITIVE);
 	bt_reset_warp.set_state(Gtk::STATE_INSENSITIVE);
-	bt_quick_save.set_state(Gtk::STATE_INSENSITIVE);
-	bt_quick_load.set_state(Gtk::STATE_INSENSITIVE);
+	bt_quick_save.set_state(Gtk::STATE_NORMAL);
+	bt_quick_load.set_state(Gtk::STATE_NORMAL);
 
-	bt_save.set_state(Gtk::STATE_INSENSITIVE);
-	bt_load.set_state(Gtk::STATE_INSENSITIVE);
+	bt_save.set_state(Gtk::STATE_NORMAL);
+	bt_load.set_state(Gtk::STATE_NORMAL);
 
 	bt_adjust_start.set_state(Gtk::STATE_INSENSITIVE);
 

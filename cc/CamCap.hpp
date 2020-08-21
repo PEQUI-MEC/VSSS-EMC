@@ -68,8 +68,6 @@ class CamCap : public Gtk::HBox {
 		double fps_average = 0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
 
-		cv::Point2f Ball_Est;
-
 		Gtk::Frame fm;
 		Gtk::Frame info_fm;
 		Gtk::VBox camera_vbox;

@@ -55,6 +55,8 @@ bool CamCap::start_signal(bool b) {
 
 		interface.__event_bt_quick_load_clicked();
 
+		interface.gameGUI.use_simulator_button.set_active(false);
+
 		has_camera = true;
 	} else {
 		has_camera = false;
@@ -63,17 +65,31 @@ bool CamCap::start_signal(bool b) {
 //		con.disconnect();
 
 		// Travar os botões de edit
-		robotGUI.enable_main_buttons(false);
+//		robotGUI.enable_main_buttons(false);
+
+//		Apaga imagem antiga da GUI
+		if (data) {
+			cv::Mat imageView(height, width, CV_8UC3, data);
+			imageView = cv::Scalar(0, 0, 0);
+			interface.imageView.set_data(data);
+			interface.imageView.refresh();
+		}
 	}
 
 	return true;
 } // start_signal
 
 bool CamCap::run_game_loop() {
-	if(!game.is_simulated && has_camera) {
+	if (!game.is_simulated && has_camera) {
 		capture_and_show();
-	} else {
+	} else if (game.is_simulated){
+		if (has_camera) interface.bt_start.activate();
 		simulated_game_loop();
+	} else {
+//		Sem camera e nem simulator, apenas atualiza a GUI
+		robotGUI.update_robots();
+		interface.updateRobotLabels();
+		interface.update_ball_position(game.ball.position);
 	}
 	return true;
 }
@@ -171,7 +187,7 @@ bool CamCap::capture_and_show() {
 
 	// ----------- ESTRATEGIA -----------------//
 	if (game.playing_game) {
-		circle(imageView, Ball_Est, 7, cv::Scalar(255, 140, 0), 2);
+		circle(imageView, game.ball.estimative.to_cv_point(), 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
 		auto inverted_team = game.team->get_inverted_robot_positions();

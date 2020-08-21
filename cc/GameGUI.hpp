@@ -20,9 +20,10 @@ class GameGUI : public Gtk::Frame {
 
 	Gtk::HBox use_simulator_hbox;
 	Gtk::Label use_simulator_label;
-	Gtk::CheckButton use_simulator_button;
 
 	public:
+	Gtk::CheckButton use_simulator_button;
+
 	GameGUI(Game& game);
 	void update_strategy_combobox();
 	void update_selected_strategy();

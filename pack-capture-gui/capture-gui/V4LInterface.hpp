@@ -163,6 +163,8 @@ class capture::V4LInterface : public Gtk::VBox {
 			return m_signal_start;
 		}
 
+	Gtk::Button bt_start;
+
 	protected:
 		SignalStart m_signal_start;
 
@@ -188,7 +190,6 @@ class capture::V4LInterface : public Gtk::VBox {
 
 		Gtk::Frame frm_device_info;
 		Gtk::ComboBoxText cb_device;
-		Gtk::Button bt_start;
 		Gtk::Button bt_refresh;
 		Gtk::Button bt_reset_warp;
 
