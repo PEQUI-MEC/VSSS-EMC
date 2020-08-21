@@ -59,7 +59,7 @@ set(SOURCE_FILES cc/main.cpp
     cc/jsonSaveManager.cpp
     cc/TestFrame.cpp
     cc/LS.cpp
-    cc/vision/tag.cpp
+    cc/vision/Tag.cpp
     cc/vision/vision.cpp
     cc/vision/visionGUI.cpp
     cc/Geometry/Geometry.cpp
@@ -95,7 +95,7 @@ set(SOURCE_FILES cc/main.cpp
     cc/Simulator/SimulatorClient.cpp cc/Simulator/SimulatorClient.hpp
     cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp
     cc/Strategy3/helper.hpp cc/Strategy3/helper.cpp
-    cc/vision/Tags.hpp cc/vision/RecognizedTag.hpp
+    cc/vision/Tags.hpp
     )
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui

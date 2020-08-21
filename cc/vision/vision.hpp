@@ -16,14 +16,12 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
-#include "tag.hpp"
+#include "Tag.hpp"
 #include "Tags.hpp"
 
-namespace vision
-{
+namespace vision {
 	// Todas as cores que serão encontradas pela visão:
-	enum Color
-	{
+	enum Color {
 		Yellow,
 		Green,
 		Ball,
@@ -31,8 +29,7 @@ namespace vision
 	};
 
 	// Limites Min e Max dos tresholds:
-	enum Limit
-	{
+	enum Limit {
 		Min,
 		Max
 	};
@@ -45,11 +42,6 @@ namespace vision
 		static const unsigned int MAX_COLORS = Color::Blue - Color::Yellow + 1;
 //		Numero da tag é definido pela sua posicao no std::array retornado
 
-		struct Ball {
-			cv::Point position = {0, 0};
-			bool isFound = false;
-		};
-
 	private:
 
 		// image size
@@ -60,12 +52,6 @@ namespace vision
 		cv::Mat in_frame, lab_frame;
 		std::vector<cv::Mat> threshold_frame;
 		cv::Mat splitFrame;
-
-		// Robots
-		std::vector<cv::Point> advRobots;
-
-		// Ball
-		Ball ball;
 
 		// TAGS
 		std::vector<std::vector<Tag>> tags;
@@ -89,12 +75,11 @@ namespace vision
 		void segmentAndSearch(unsigned long color);
 		void searchTags(unsigned long color);
 		void findTags();
-		std::vector<RecognizedTag> get_only_position(Color color);
-		std::vector<RecognizedTag> pick_a_tag2(Color color);
-		Tags
-		find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag);
-		std::map<unsigned int, RecognizedTag> pick_a_tag();
-		int in_sphere(cv::Point secondary, Tag &main_tag, double &orientation);
+		std::vector<Tag> tags_without_orientation(Color color);
+		std::vector<Tag> pick_a_tag(Color color);
+		Tags find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag);
+//		std::map<unsigned int, RecognizedTag> pick_a_tag();
+		int in_sphere(cv::Point secondary, Tag &main_tag);
 
 	public:
 
@@ -123,8 +108,6 @@ namespace vision
 		bool foundChessBoardCorners() const;
 		void switchMainWithAdv();
 
-		Ball& getBall() { return ball; };
-		std::vector<cv::Point>& get_adv_robots() { return advRobots; };
 		cv::Mat getSplitFrame();
 		cv::Mat getThreshold(unsigned long index);
 

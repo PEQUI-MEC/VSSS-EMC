@@ -7,9 +7,9 @@ Game::Game() {
 	strategies.emplace("Manual Strategy", new Strategy3());
 	strategies.emplace("AI Strategy", new AIStrategy());
 	strategies.emplace("No Strategy", new NoStrategy());
-	team = std::make_unique<Team>(robot_count, 0, true, false, RobotColor::Blue);
+	team = std::make_unique<Team>(robot_count, 0, false, RobotColor::Blue);
 	set_strategy(*team, "Manual Strategy");
-	adversary = std::make_unique<Team>(robot_count, 0, true, true, RobotColor::Yellow);
+	adversary = std::make_unique<Team>(robot_count, 0, true, RobotColor::Yellow);
 	set_strategy(*adversary, "No Strategy");
 }
 
@@ -21,6 +21,8 @@ void Game::set_strategy(Team &team, std::string strategy_name) {
 	if (team.strategy == nullptr || typeid(*team.strategy) != typeid(*strategies[strategy_name])) {
 		team.strategy.reset(strategies[strategy_name]->clone());
 	}
+//	Times sem estratégia não são controlados, não usam a pick-a-tag
+	team.controlled = typeid(*team.strategy) != typeid(*strategies["No Strategy"]);
 }
 
 std::optional<std::string> Game::get_strategy_name(Team &team) {

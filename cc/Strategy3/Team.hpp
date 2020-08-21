@@ -19,8 +19,8 @@ class Team {
 	bool inverted_field = false;
 	RobotColor robot_color;
 
-	Team(int robot_number, int starting_tag, bool controlled, bool inverted_field, RobotColor color) :
-							controlled(controlled), inverted_field(inverted_field), robot_color(color) {
+	Team(int robot_number, int starting_tag, bool inverted_field, RobotColor color) :
+							inverted_field(inverted_field), robot_color(color) {
 		for(int i = starting_tag; i < starting_tag + robot_number; i++) {
 			robots.push_back(Robot3(i, 'A' + i));
 		}

@@ -1,5 +1,5 @@
 #include "TestOnClick.hpp"
-#include <tag.hpp>
+#include <Tag.hpp>
 #include <Strategy2/Robot2.h>
 #include <Strategy3/Game.hpp>
 

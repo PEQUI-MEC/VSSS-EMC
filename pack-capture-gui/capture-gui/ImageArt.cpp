@@ -8,33 +8,43 @@ using namespace vision;
 using namespace art;
 using namespace onClick;
 
-void ImageArt::draw(cv::Mat &frame, const vision::Vision::Ball &ball,
-					const std::vector<RecognizedTag> &our_tags,
-					const std::vector<cv::Point> &adv_tags, const std::vector<Robot3> &our_robots, bool is_game_on) {
+void ImageArt::draw_with_orientation(cv::Mat &frame, const std::vector<Tag> &team_tags, RobotColor color) {
+	for (unsigned i = 0; i < team_tags.size(); i++) {
+		auto& tag = team_tags[i];
+		auto draw_color = color == RobotColor::Yellow ? yellow_color : blue_color;
+		circle(frame, tag.position, 15, draw_color, 2, cv::LINE_AA);
+		putText(frame, std::to_string(i + 1),
+				cv::Point(tag.position.x + 13, tag.position.y - 15),
+				cv::FONT_HERSHEY_PLAIN, 1, draw_color, 2, cv::LINE_AA);
+		// linha da orientação do robô
+		line(frame, tag.rear_point, tag.front_point, orientation_line_color, 2, cv::LINE_AA);
+	}
+}
 
-	// Adversary Robots
-	for (const auto &robot : adv_tags) {
-		circle(frame, robot, 15, adv_robots_color, 2, cv::LINE_AA);
+void ImageArt::draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_on) {
+	if (tags.yellow_has_orientation) {
+		draw_with_orientation(frame, tags.yellow, RobotColor::Yellow);
+	} else {
+		for (auto &robot : tags.yellow) {
+			circle(frame, robot.position, 15, yellow_color, 2, cv::LINE_AA);
+		}
+	}
+
+	if (tags.blue_has_orientation) {
+		draw_with_orientation(frame, tags.blue, RobotColor::Blue);
+	} else {
+		for (auto &robot : tags.blue) {
+			circle(frame, robot.position, 15, blue_color, 2, cv::LINE_AA);
+		}
 	}
 
 	// Ball
-	if (ball.isFound)
-		circle(frame, ball.position, 7, ball_color, 2, cv::LINE_AA);
-
-	// Our Robots
-	for (unsigned i = 0; i < our_tags.size(); i++) {
-		auto& tag = our_tags[i];
-		circle(frame, tag.position, 15, our_robots_color[0], 2, cv::LINE_AA);
-		putText(frame, std::to_string(i + 1),
-				cv::Point(tag.position.x + 13, tag.position.y - 15),
-				cv::FONT_HERSHEY_PLAIN, 1, our_robots_color[0], 2, cv::LINE_AA);
-		// linha da orientação do robô
-		line(frame, tag.rear_point, tag.front_point, our_robots_color[1], 2, cv::LINE_AA);
-	}
+	if (tags.found_ball)
+		circle(frame, tags.ball.position, 7, ball_color, 2, cv::LINE_AA);
 
 	// Strategy targets
 	if (is_game_on) {
-		for (auto robot : our_robots) {
+		for (auto robot : team.robots) {
 			draw_targets(robot, frame);
 		}
 	}

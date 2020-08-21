@@ -2,15 +2,18 @@
 #define VSSS_TAGS_HPP
 
 #include <Strategy3/Team.hpp>
-#include "RecognizedTag.hpp"
 
 class Tags {
 	public:
-	std::vector<RecognizedTag> yellow = {};
-	std::vector<RecognizedTag> blue = {};
+	std::vector<Tag> yellow = {};
+	std::vector<Tag> blue = {};
 	Tag ball = {cv::Point(0, 0), 0};
 
-	std::vector<RecognizedTag>& get_tags(RobotColor color) {
+	bool yellow_has_orientation = true;
+	bool blue_has_orientation = true;
+	bool found_ball = false;
+
+	std::vector<Tag>& get_tags(RobotColor color) {
 		if (color == RobotColor::Yellow) return yellow;
 		else return blue;
 	}

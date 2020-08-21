@@ -19,6 +19,11 @@ class Ball {
 	Ball(const Geometry::Point &position, const Geometry::Point &estimative) : position(position),
 																			   estimative(estimative) {}
 
+	void set_position(Geometry::Point new_position) {
+		position = new_position;
+		update_ls();
+	}
+
 	void update_ls() {
 		ls_x.addValue(position.x);
 		ls_y.addValue(position.y);
@@ -26,7 +31,7 @@ class Ball {
 		estimative.y = ls_y.estimate(10);
 	}
 
-	Ball get_inverted_ball() {
+	Ball get_inverted() const {
 		return Ball{position.inverted_coordinates(), estimative.inverted_coordinates()};
 	}
 };

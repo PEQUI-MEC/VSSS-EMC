@@ -2,7 +2,7 @@
 
 SimulatorClient::SimulatorClient() {
 	client.Connect("127.0.0.1", 20011);
-	server.SetMessageHandler([&](evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
+	server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
 		std::lock_guard<std::mutex> guard(data_mutex);
 		packet.ParseFromArray(msg->data(), (int) msg->size());
 		if (packet.has_frame()) new_data = true;
@@ -21,8 +21,8 @@ void SimulatorClient::update_robots(Game &game) {
 		update_team(*game.adversary.get(), frame.robots_blue());
 		update_team(*game.team.get(), frame.robots_yellow());
 	}
-	game.ball.position = Geometry::Point::from_simulator(frame.ball().x(), frame.ball().y());
-	game.ball.update_ls();
+
+	game.ball.set_position(Geometry::Point::from_simulator(frame.ball().x(), frame.ball().y()));
 }
 
 void SimulatorClient::update_team(Team &team, const Repeated<fira_message::Robot>& robots_msg) {
@@ -60,10 +60,10 @@ void SimulatorClient::send_commands(Team &team) {
 			command->set_wheel_right(angular_wheel_vel.right);
 		}
 	}
-	if (buffer.size() < (ulong) cmds_packet.ByteSize()) {
-		buffer.resize((ulong) cmds_packet.ByteSize());
+	if (buffer.size() < cmds_packet.ByteSizeLong()) {
+		buffer.resize(cmds_packet.ByteSizeLong());
 	}
-	cmds_packet.SerializeToArray(buffer.data(), cmds_packet.ByteSize());
+	cmds_packet.SerializeToArray(buffer.data(), (int) cmds_packet.ByteSizeLong());
 
-	client.Send(buffer.data(), (ulong) cmds_packet.ByteSize());
+	client.Send(buffer.data(), (ulong) cmds_packet.ByteSizeLong());
 }

@@ -28,18 +28,19 @@ namespace art {
 			const cv::Scalar test_color = {250, 28, 250}; // pink
 			const cv::Scalar adjust_color = {191, 5, 30};
 			const cv::Scalar warp_color = {52, 168, 3};
-			const cv::Scalar our_robots_color[2] = {{255, 255, 0}, {255, 0, 0}};
+			const cv::Scalar yellow_color = {255, 255, 0};
+			const cv::Scalar orientation_line_color = {255, 0, 0};
 			const cv::Scalar ball_color = {255, 255, 255}; // white
-			const cv::Scalar adv_robots_color = {0, 0, 255}; // blue
+			const cv::Scalar blue_color = {0, 0, 255}; // blue
 
 
 			void draw_targets(const Robot3 &robot, cv::Mat &frame);
 
 		public:
 			ImageArt(warp::PointArray &warp, warp::PointArray &adjust, onClick::TestOnClick &test, int &width, int &height);
-			void draw(cv::Mat &frame, const vision::Vision::Ball &ball,
-					  const std::vector<RecognizedTag> &our_tags,
-					  const std::vector<cv::Point> &adv_tags, const std::vector<Robot3> &our_robots, bool is_game_on);
+
+			void draw_with_orientation(cv::Mat &frame, const std::vector<Tag> &team_tags, RobotColor color);
+			void draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_on);
 
 			void set_is_warping(bool warping = true) { is_warping = warping; };
 

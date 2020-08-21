@@ -88,77 +88,80 @@ void Vision::searchTags(const unsigned long color) {
 	}
 }
 
-std::vector<RecognizedTag> Vision::pick_a_tag2(Color color) {
-	std::vector<RecognizedTag> found_tags(3); // 3 robôs, por enquanto
+std::vector<Tag> Vision::tags_without_orientation(Color color) {
+	auto tags_sorted_by_area = tags.at(color);
+	std::sort(tags_sorted_by_area.begin(), tags_sorted_by_area.end(), [](Tag& tag1, Tag& tag2) {
+		return tag1.area > tag2.area;
+	});
+//	Limita a 3 tags
+	if (tags_sorted_by_area.size() <= 3)  {
+		return tags_sorted_by_area;
+	} else {
+		return {tags_sorted_by_area.begin(), tags_sorted_by_area.begin() + 3};
+	}
+}
+
+std::vector<Tag> Vision::pick_a_tag(Color color) {
+	std::vector<Tag> found_tags(3); // 3 robôs, por enquanto
 	for (auto& main_tag : tags.at(color)) {
 		cv::Point position = main_tag.position;
 //		Tags secundarias do mesmo robô
 		std::vector<Tag> secondary_tags;
 
 		// Cálculo da orientação de acordo com os pontos rear e front
-		double orientation = atan2((main_tag.frontPoint.y - position.y) * field::field_height / height,
-								   (main_tag.frontPoint.x - position.x) * field::field_width / width);
+		main_tag.orientation = atan2((main_tag.front_point.y - position.y) * field::field_height / height,
+									 (main_tag.front_point.x - position.x) * field::field_width / width);
 
 		// Para cada tag principal, verifica quais são as secundárias correspondentes
 		for (Tag &secondary_tag : tags.at(Color::Green)) {
 			// Altera a orientação caso esteja invertida
-			int tag_side = in_sphere(secondary_tag.position, main_tag, orientation);
+			int tag_side = in_sphere(secondary_tag.position, main_tag);
 			if (tag_side != 0) {
 				secondary_tag.left = tag_side > 0;
 				secondary_tags.push_back(secondary_tag);
 			}
 		}
 
-		RecognizedTag tag = {position, orientation,
-							 main_tag.frontPoint, main_tag.rearPoint};
 		if (secondary_tags.size() > 1) {
 			// tag 3 tem duas tags secundárias
-			found_tags[2] = tag;
+			found_tags[2] = main_tag;
 		} else if (!secondary_tags.empty()) {
 			if (secondary_tags[0].left) {
-				found_tags[0] = tag;
+				found_tags[0] = main_tag;
 			} else {
-				found_tags[1] = tag;
+				found_tags[1] = main_tag;
 			}
 		}
 	}
 	return found_tags;
 }
 
-std::vector<RecognizedTag> Vision::get_only_position(Color color) {
-	std::vector<RecognizedTag> found_tags(tags.at(color).size());
-	std::transform(tags.at(color).begin(), tags.at(color).end(), found_tags.begin(),[](Tag& tag) {
-		return RecognizedTag{tag.position, 0, tag.position, tag.position};
-	});
-	return found_tags;
-}
-
 Tags Vision::find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 	Tags found_tags;
 
+	found_tags.yellow_has_orientation = yellow_pick_at_tag;
 	if (yellow_pick_at_tag) {
-		found_tags.yellow = pick_a_tag2(Color::Yellow);
+		found_tags.yellow = pick_a_tag(Color::Yellow);
 	} else {
-		found_tags.yellow = get_only_position(Color::Yellow);
+		found_tags.yellow = tags_without_orientation(Color::Yellow);
 	}
 
+	found_tags.blue_has_orientation = blue_pick_at_tag;
 	if (blue_pick_at_tag) {
-		found_tags.blue = pick_a_tag2(Color::Blue);
+		found_tags.blue = pick_a_tag(Color::Blue);
 	} else {
-		found_tags.blue = get_only_position(Color::Blue);
+		found_tags.blue = tags_without_orientation(Color::Blue);
 	}
 
 	// BALL POSITION
 	if (!tags[Color::Ball].empty()) {
-		Tag ball_tag = tags.at(Color::Ball).at(0);
-		found_tags.ball = ball_tag;
-		ball.position = ball_tag.position;
-		ball.isFound = true;
+		found_tags.ball = tags.at(Color::Ball).at(0);
+		found_tags.found_ball = true;
 	} else {
 		// É importante que a posição da bola permaneça sendo a última encontrada
 		// para que os robôs funcionem corretamente em caso de oclusão da bola na imagem
 		// portanto, a posição da bola não deve ser alterada aqui
-		ball.isFound = false;
+		found_tags.found_ball = false;
 	}
 
 	return found_tags;
@@ -170,6 +173,7 @@ Tags Vision::find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 /// <description>
 /// P.S.: Aqui eu uso a flag 'isOdd' para representar quando um robô tem as duas bolas laterais.
 /// </description>
+/**
 std::map<unsigned int, RecognizedTag> Vision::pick_a_tag() {
 	std::map<unsigned int, RecognizedTag> found_tags;
 
@@ -235,6 +239,7 @@ std::map<unsigned int, RecognizedTag> Vision::pick_a_tag() {
 
 	return found_tags;
 }
+ **/
 
 /// <summary>
 /// Verifica se uma tag secundária pertence a esta pick-a e calcula seu delta.
@@ -247,21 +252,21 @@ std::map<unsigned int, RecognizedTag> Vision::pick_a_tag() {
 /// -1, caso a secundária esteja à esquerda;
 /// 1, caso a secundária esteja à direita
 /// </returns>
-int Vision::in_sphere(cv::Point secondary, Tag &main_tag, double &orientation) {
+int Vision::in_sphere(cv::Point secondary, Tag &main_tag) {
 	// se esta secundária faz parte do robô
 	if (calcDistance(main_tag.position, secondary) <= ROBOT_RADIUS) {
-		if (calcDistance(main_tag.frontPoint, secondary) < calcDistance(main_tag.rearPoint, secondary)) {
+		if (calcDistance(main_tag.front_point, secondary) < calcDistance(main_tag.rear_point, secondary)) {
 			main_tag.switchPoints();
 			// calcula a orientação do robô
-			orientation = atan2((main_tag.frontPoint.y - main_tag.position.y) * field::field_height / height,
-								 (main_tag.frontPoint.x - main_tag.position.x) * field::field_width / width);
+			main_tag.orientation = atan2((main_tag.front_point.y - main_tag.position.y) * field::field_height / height,
+										 (main_tag.front_point.x - main_tag.position.x) * field::field_width / width);
 		}
 
 		double secSide = atan2((secondary.y - main_tag.position.y) * field::field_height / height,
 							  (secondary.x - main_tag.position.x) * field::field_width / width);
 
 		// Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
-		return (atan2(sin(secSide - orientation + M_PI*2), cos(secSide - orientation + M_PI*2))) > 0 ? 1 : -1;
+		return (atan2(sin(secSide - main_tag.orientation + M_PI*2), cos(secSide - main_tag.orientation + M_PI*2))) > 0 ? 1 : -1;
 	}
 	return 0;
 }

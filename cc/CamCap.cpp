@@ -11,18 +11,22 @@ using std::vector;
 
 void CamCap::update_positions(Tags &tags) {
 	for (auto &robot : game.yellow_team().robots) {
-		auto tag = tags.yellow[robot.TAG];
-		robot.set_pose(tag.position, tag.orientation);
+		if (robot.TAG < tags.yellow.size()) {
+			auto tag = tags.yellow[robot.TAG];
+			robot.set_pose(tag.position, tag.orientation);
+		}
 	}
 
 	for (auto &robot : game.blue_team().robots) {
-		auto tag = tags.blue[robot.TAG];
-		robot.set_pose(tag.position, tag.orientation);
+		if (robot.TAG < tags.blue.size()) {
+			auto tag = tags.blue[robot.TAG];
+			robot.set_pose(tag.position, tag.orientation);
+		}
 	}
 
 	interface.updateRobotLabels();
 
-	game.ball.position = Geometry::from_cv_point(tags.ball.position);
+	if (tags.found_ball) game.ball.set_position(Geometry::from_cv_point(tags.ball.position));
 	interface.update_ball_position(game.ball.position);
 }
 
@@ -88,12 +92,12 @@ void CamCap::simulated_game_loop() {
 		auto inverted_team = game.team->get_inverted_robot_positions();
 		auto inverted_adv = game.adversary->get_inverted_robot_positions();
 		if (game.team->inverted_field) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted_ball());
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted());
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball);
 		} else {
 			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball);
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball.get_inverted_ball());
+												   game.ball.get_inverted());
 		}
 
 		if (game.team->controlled) {
@@ -133,14 +137,6 @@ bool CamCap::capture_and_show() {
 
 	interface.imageView.imageWarp.run(imageView);
 
-//	Obter posicao dos adversarios
-	auto cv_adv = interface.visionGUI.vision->get_adv_robots();
-	std::array<Geometry::Point, 3> adv;
-	auto adv_count = std::min(adv.size(), cv_adv.size());
-	for(unsigned i = 0; i < adv_count; i++) {
-		adv[i] = Geometry::from_cv_point(cv_adv[i])	;
-	}
-
 	bool is_test_on_click_on = interface.controlGUI.test_controller.is_active();
 
 	if (interface.CamCalib_flag_event && !game.playing_game && !is_test_on_click_on &&
@@ -155,7 +151,6 @@ bool CamCap::capture_and_show() {
 
 	interface.visionGUI.recorder.run(imageView);
 
-	game.ball.update_ls();
 	update_positions(tags);
 
 	interface.updateFPS(fps_average);
@@ -182,11 +177,11 @@ bool CamCap::capture_and_show() {
 		auto inverted_team = game.team->get_inverted_robot_positions();
 		auto inverted_adv = game.adversary->get_inverted_robot_positions();
 		if (game.team->inverted_field) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted_ball());
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted());
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball);
 		} else {
 			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball);
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted_ball());
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted());
 		}
 
 		interface.controlGUI.update_msg_time();
@@ -215,11 +210,7 @@ bool CamCap::capture_and_show() {
 		if (interface.visionGUI.getIsDrawing()) {
 			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 
-			interface.imageView.imageArt.draw(imageView,
-											  interface.visionGUI.vision->getBall(),
-											  tags.get_tags(game.team->robot_color),
-											  interface.visionGUI.vision->get_adv_robots(), game.team->robots,
-											  game.playing_game);
+			interface.imageView.imageArt.draw(imageView, tags, *game.team, game.playing_game);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
 
