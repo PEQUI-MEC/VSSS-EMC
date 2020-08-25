@@ -18,9 +18,10 @@ AIStrategy::AIStrategy() {
 	std::cout << "importing module" << std::endl;
 	module = PyImport_ImportModule("ai");
 	if (module == nullptr) {
-		std::cout << "got null" << std::endl;
+		std::cout << "Could not import AI module" << std::endl;
+		return;
 	} else {
-		std::cout << "didn't get null" << std::endl;
+		std::cout << "AI module imported" << std::endl;
 	}
 	module_dict = PyModule_GetDict(module);
 	ai_class = PyDict_GetItemString(module_dict, "AI");
@@ -37,6 +38,7 @@ AIStrategy::AIStrategy() {
 }
 
 void AIStrategy::run_strategy(Robots team, std::vector<Geometry::Point> &adversaries, Ball ball) {
+	if (module == nullptr) return;
 //	Robot positions
 	auto robot1 = team[0].python_pose();
 	auto robot2 = team[1].python_pose();
