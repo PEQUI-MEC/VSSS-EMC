@@ -10,8 +10,14 @@ WheelVelocity Control::control_step(const Pose &pose, const Target &target, doub
 //	Sets target wheel velocity and runs wheel control
 	left.target_vel = target_wheel_vel.left;
 	right.target_vel = target_wheel_vel.right;
-	return {left.pid_step(pose.wheel_velocity.left, time),
-			right.pid_step(pose.wheel_velocity.right, time)};
+	if (target.command == Command::WheelVelocity) {
+		left.pid_step(pose.wheel_velocity.left, time);
+		right.pid_step(pose.wheel_velocity.right, time);
+		return target.pose.wheel_velocity;
+	} else {
+		return {left.pid_step(pose.wheel_velocity.left, time),
+				right.pid_step(pose.wheel_velocity.right, time)};
+	}
 }
 
 Velocity Control::run_control() {

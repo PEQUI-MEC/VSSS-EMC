@@ -52,13 +52,16 @@ class AI:
         return ((a[0] - b[0])**2 + (a[1] - b[1])**2)**(1/2)
 
     def run_strategy(self, robot0, robot1, robot2, ball, adv0, adv1, adv2, is_start=False):
-        print("Robot 0 (x, y, theta) is " + str(robot0[0]) + ", " + str(robot0[1]) + ", " + str(robot0[2]))
-        print("Robot 1 (x, y, theta) is " + str(robot1[0]) + ", " + str(robot1[1]) + ", " + str(robot1[2]))
-        print("Robot 2 (x, y, theta) is " + str(robot2[0]) + ", " + str(robot2[1]) + ", " + str(robot2[2]))
-        print("Adv 0 (x, y) is " + str(adv0[0]) + ", " + str(adv0[1]))
-        print("Adv 1 (x, y) is " + str(adv1[0]) + ", " + str(adv1[1]))
-        print("Adv 2 (x, y) is " + str(adv2[0]) + ", " + str(adv2[1]))
-        print("Ball is (x, y) " + str(ball[0]) + ", " + str(ball[1]))
+        #print("Robot 0 (x, y, theta) is " + str(robot0[0]) + ", " + str(robot0[1]) + ", " + str(robot0[2]))
+        #print("Robot 1 (x, y, theta) is " + str(robot1[0]) + ", " + str(robot1[1]) + ", " + str(robot1[2]))
+        #print("Robot 2 (x, y, theta) is " + str(robot2[0]) + ", " + str(robot2[1]) + ", " + str(robot2[2]))
+        #print("Adv 0 (x, y) is " + str(adv0[0]) + ", " + str(adv0[1]))
+        #print("Adv 1 (x, y) is " + str(adv1[0]) + ", " + str(adv1[1]))
+        #print("Adv 2 (x, y) is " + str(adv2[0]) + ", " + str(adv2[1]))
+        #print("Ball is (x, y) " + str(ball[0]) + ", " + str(ball[1]))
+        #print("Is start: " + str(is_start))
+        if (is_start):
+            print("Play pressed!!!");
 
         # The Following assumptions are made about the data
         # The vision system acquires positions in meters and in relation to the lower left corner of the field
@@ -68,13 +71,10 @@ class AI:
         # No orientation data is acquired for the adversary players
 
         robot0, robot1, robot2, ball, adv0, adv1, adv2 = self.cartesian_translate([robot0, robot1, robot2, ball, adv0, adv1, adv2])
-        print("translated")
 
         self.mount_inputs(robot0, robot1, robot2, ball, adv0, adv1, adv2, is_start) # Gera inputs [1,2,3] na variável self.state
-        print("mount_inputs")
 
         actions, _states = self.model.predict(np.asarray(self.state), deterministic=True)
-        print("predicted")
 
         actions = ( 2 * actions.reshape( (3,2) ) -1.0 ) * MAX # rescaling
         actions = np.clip(actions, -MAX, MAX)
@@ -84,7 +84,6 @@ class AI:
 
         # Velocidades em m/s dos robos 1, 2 e 3
         # return ((0.2, 0.3), (0.5, 0.1), (0.8, 1.2))
-        print("ai strategy iter")
         return tuple(tuple(sub) for sub in actions)
 
     def cartesian_translate(self, elements):
@@ -275,6 +274,3 @@ class AI:
         print(actions)
 
         return actions
-
-#ai1 = AI();
-#ai1.run_strategy([1.0, 1.0, 1.0], [1.2, 1.2, 1.0], [0.8, 0.8, 1.0], [0.5, 0.5], [1.0, 0.5], [0.3, 0.9], [0.2, 0.4])

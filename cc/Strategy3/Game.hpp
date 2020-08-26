@@ -17,6 +17,7 @@ class Game {
 
 	bool is_simulated = false;
 	bool playing_game = false;
+	bool first_iteration = true;
 
 	unsigned robot_count = 0;
 

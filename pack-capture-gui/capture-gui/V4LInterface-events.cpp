@@ -486,6 +486,7 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 
 		record_video_checkbox.set_sensitive(false);
 		game.playing_game = true;
+		game.first_iteration = true;
 		start_game_bt.set_image(red_button_pressed);
 		btn_camCalib.set_state(Gtk::STATE_INSENSITIVE);
 		btn_camCalib.set_active(false);

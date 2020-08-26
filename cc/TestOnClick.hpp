@@ -11,7 +11,7 @@ namespace onClick {
 
 			Game& game;
 //			Ponteiro será invalido ao trocar de time principal/modificar vector
-			Robot3* m_selected_robot;
+			Robot3 * m_selected_robot = nullptr;
 
 			const double m_ball_radius = 0.02135; // metros
 

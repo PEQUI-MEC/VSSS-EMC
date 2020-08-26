@@ -3,14 +3,15 @@
 
 #include <Geometry/Geometry.h>
 
+// Forward declarations
+struct Velocity;
+struct WheelVelocity;
 
 struct WheelAngularVelocity {
 	double left = 0;
 	double right = 0;
+	WheelVelocity to_linear(double wheel_radius) const;
 };
-
-// Forward declaration of Velocity
-struct Velocity;
 
 struct WheelVelocity {
 	double left = 0;

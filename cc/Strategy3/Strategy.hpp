@@ -9,10 +9,10 @@
 
 class Strategy {
 	public:
-	using Robots = std::vector<Robot3>&;
-	virtual void run_strategy(Robots team,
+	virtual void run_strategy(std::vector<Robot3> &team,
 							  std::vector<Geometry::Point> &adversaries,
-							  Ball ball) = 0;
+							  Ball ball,
+							  bool first_iteration) = 0;
 	virtual Strategy * clone() = 0;
 };
 

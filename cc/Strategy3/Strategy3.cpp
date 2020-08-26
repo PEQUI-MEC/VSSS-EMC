@@ -16,7 +16,8 @@ Robot3 * find_robot_by_role(std::vector<Robot3> &robots, Role role) {
 	}
 }
 
-void Strategy3::run_strategy(Robots team, std::vector<Geometry::Point> &adversaries, Ball ball) {
+void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
+							 bool first_iteration) {
 	Robot3* attacker_robot = find_robot_by_role(team, Role::Attacker);
 	attacker.set_robot(attacker_robot);
 	Robot3* defender_robot = find_robot_by_role(team, Role::Defender);

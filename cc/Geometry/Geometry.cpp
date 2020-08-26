@@ -54,7 +54,7 @@ cv::Point Point::to_cv_point() const {
 }
 
 PyObject * Point::to_python() const {
-	auto pyposition = Py_BuildValue("(dd)", x, y);
+	auto pyposition = Py_BuildValue("[dd]", x, y);
 	return pyposition;
 }
 

@@ -104,13 +104,16 @@ void CamCap::simulated_game_loop() {
 		auto inverted_team = game.team->get_inverted_robot_positions();
 		auto inverted_adv = game.adversary->get_inverted_robot_positions();
 		if (game.team->inverted_field) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted());
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball);
-		} else {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv,
+											  game.ball.get_inverted(), game.first_iteration);
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball.get_inverted());
+												   game.ball, game.first_iteration);
+		} else {
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration);
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
+												   game.ball.get_inverted(), game.first_iteration);
 		}
+		game.first_iteration = false;
 
 		if (game.team->controlled) {
 			simulator.send_commands(*game.team.get());
@@ -215,12 +218,14 @@ bool CamCap::capture_and_show() {
 		auto inverted_team = game.team->get_inverted_robot_positions();
 		auto inverted_adv = game.adversary->get_inverted_robot_positions();
 		if (game.team->inverted_field) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted());
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted(), game.first_iteration);
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball, game.first_iteration);
 		} else {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball);
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted());
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration);
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted(),
+												   game.first_iteration);
 		}
+		game.first_iteration = false;
 
 		interface.controlGUI.update_msg_time();
 		notify_data_ready(false);

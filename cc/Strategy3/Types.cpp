@@ -40,6 +40,10 @@ WheelAngularVelocity WheelVelocity::to_angular(double wheel_radius) const {
 	return WheelAngularVelocity{left / wheel_radius, right / wheel_radius};
 }
 
+WheelVelocity WheelAngularVelocity::to_linear(double wheel_radius) const {
+	return {left * wheel_radius, right * wheel_radius};
+}
+
 WheelVelocity Velocity::to_wheel_velocity(double robot_length) const {
 	return WheelVelocity{linear - (angular * robot_length)/2, linear + (angular * robot_length)/2};
 }

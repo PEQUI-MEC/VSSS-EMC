@@ -37,7 +37,10 @@ AIStrategy::AIStrategy() {
 //	Py_DecRef(py_dir);
 }
 
-void AIStrategy::run_strategy(Robots team, std::vector<Geometry::Point> &adversaries, Ball ball) {
+void AIStrategy::run_strategy(std::vector<Robot3> &team,
+							  std::vector<Geometry::Point> &adversaries,
+							  Ball ball,
+							  bool first_iteration) {
 	if (module == nullptr) return;
 //	Robot positions
 	auto robot1 = team[0].python_pose();
@@ -49,10 +52,21 @@ void AIStrategy::run_strategy(Robots team, std::vector<Geometry::Point> &adversa
 	auto adv2 = adversaries[2].to_python();
 //	Ball position
 	auto ball_pos = ball.position.to_python();
+//	First iteration
+	PyObject * first_iter;
+	if (first_iteration) {
+		Py_IncRef(Py_True);
+		first_iter = Py_True;
+	}
+	else {
+		Py_IncRef(Py_False);
+		first_iter = Py_False;
+	}
 //	Call ai strategy
 	auto velocities = PyObject_CallMethodObjArgs(ai_object, strategy_method_name,
 												 robot1, robot2, robot3,
 												 ball_pos, adv0, adv1, adv2,
+												 first_iter,
 												 nullptr);
 
 	for (int i = 0; i < 3; i++) {
@@ -62,8 +76,11 @@ void AIStrategy::run_strategy(Robots team, std::vector<Geometry::Point> &adversa
 		auto py_vel_right = PyTuple_GetItem(wheel_vel, 1);
 		double left = PyFloat_AsDouble(py_vel_left);
 		double right = PyFloat_AsDouble(py_vel_right);
-		team[i].set_target_wheel_velocity(left, right);
+		auto linear_vel = WheelAngularVelocity{left, right}.to_linear(Robot3::WHEEL_RADIUS);
+		team[i].set_target_wheel_velocity(linear_vel.left, linear_vel.right);
+//		printf("%f, %f\n", linear_vel.left, linear_vel.right);
 	}
+//	std::cout << std::endl;
 
 //	Delete python objects
 //	Py_DecRef(velocities);

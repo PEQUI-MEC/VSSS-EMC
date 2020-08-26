@@ -54,12 +54,10 @@ void ImageArt::draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_o
 	}
 
 	// Test On Click
-	if (test_on_click.is_active()) {
+	if (test_on_click.is_active() && test_on_click.has_robot()) {
 		Robot3* robot = test_on_click.get_selected_robot();
 		draw_targets(*robot, frame, false, team.robot_color);
-
-		if (robot != nullptr)
-			cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
+		cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
 	}
 
 	// Warp
@@ -158,6 +156,10 @@ void ImageArt::draw_targets(const Robot3 &robot, cv::Mat &frame, bool inverted, 
 	}
 
 	switch (is_test_on_click? test_on_click.get_command() : robot.target.command) {
+		case Command::WheelVelocity:
+			break;
+		case Command::Velocity:
+			break;
 		case Command::Vector:
 			[[fallthrough]];
 		case Command::Orientation: {

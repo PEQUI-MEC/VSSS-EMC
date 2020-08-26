@@ -10,7 +10,8 @@ class AIStrategy : public Strategy {
 	public:
 		AIStrategy();
 		~AIStrategy();
-		void run_strategy(Robots team, std::vector<Geometry::Point> &adversaries, Ball ball);
+		void run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
+						  bool first_iteration);
 
 	AIStrategy * clone() {
 		return new AIStrategy(*this);
