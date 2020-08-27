@@ -70,9 +70,13 @@ class Robot3 {
 		target.command = Command::None;
 	}
 
-	void set_pose(cv::Point position, double orientation) {
-		pose.position = Geometry::from_cv_point(position);
-		pose.orientation = -orientation;
+	void set_pose(cv::Point position, double orientation, bool invert) {
+		pose.position = Geometry::from_cv_point(position).inverted_coordinates(invert);
+		if (invert) {
+			pose.orientation = Geometry::wrap(-orientation + M_PI);
+		} else {
+			pose.orientation = -orientation;
+		}
 	}
 
 	Geometry::Point get_position() const {
