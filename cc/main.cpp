@@ -1,6 +1,22 @@
 #include <gtkmm.h>
 #include "CamCap.hpp"
 
+void init_python() {
+	Py_Initialize();
+
+	char path[PATH_MAX];
+	ssize_t size = readlink("/proc/self/exe", path, PATH_MAX);
+
+	auto exec_path = std::string(path, (ulong) size);
+	auto dir_end = exec_path.find_last_of('/');
+	auto dir = exec_path.substr(0, dir_end) + "/python";
+	std::cout << "Python dir: " << dir << std::endl;
+
+	auto py_dir = PyUnicode_FromString(dir.c_str());
+	auto sys_path = PySys_GetObject("path");
+	PyList_Append(sys_path, py_dir);
+}
+
 int main(int argc, char **argv) {
 
 	#ifdef CUDA_FOUND
@@ -8,6 +24,8 @@ int main(int argc, char **argv) {
 	#else
 		std::cout << "CUDA not found." << std::endl;
 	#endif
+
+	init_python();
 
 	Gtk::Main kit(argc, argv);
 	Gtk::Window window;
@@ -29,6 +47,8 @@ int main(int argc, char **argv) {
 	window.maximize();
 
 	Gtk::Main::run(window);
+
+	Py_Finalize();
 
 	return EXIT_SUCCESS;
 }

@@ -1,21 +1,7 @@
-#include <filesystem>
 #include "AIStrategy.hpp"
 #include "Field.h"
 
 AIStrategy::AIStrategy() {
-	Py_Initialize();
-
-	char path[PATH_MAX];
-	readlink("/proc/self/exe", path, PATH_MAX);
-
-//	auto current_path = std::filesystem::current_path();
-//	auto dir = current_path.string() + "/python";
-	auto dir = "/home/thiago/Workspace/VSSS-EMC/python";
-	auto py_dir = PyUnicode_FromString(dir);
-	auto sys_path = PySys_GetObject("path");
-	PyList_Append(sys_path, py_dir);
-
-	std::cout << "importing module" << std::endl;
 	module = PyImport_ImportModule("ai");
 	if (module == nullptr) {
 		std::cout << "Could not import AI module" << std::endl;
@@ -30,8 +16,6 @@ AIStrategy::AIStrategy() {
 	auto constructor_args = PyTuple_Pack(2, our_goal, adv_goal);
 	ai_object = PyObject_CallObject(ai_class, constructor_args);
 	strategy_method_name = PyUnicode_FromString("run_strategy");
-
-	std::cout << "Constructed AI Strategy" << std::endl;
 
 //	Py_DecRef(sys_path);
 //	Py_DecRef(py_dir);
@@ -91,8 +75,6 @@ void AIStrategy::run_strategy(std::vector<Robot3> &team,
 }
 
 AIStrategy::~AIStrategy() {
-	Py_Finalize();
-
 	Py_DecRef(strategy_method_name);
 	Py_DecRef(ai_object);
 	Py_DecRef(ai_class);
