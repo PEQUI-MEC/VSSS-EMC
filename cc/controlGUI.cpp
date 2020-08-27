@@ -103,7 +103,7 @@ char ControlGUI::get_robot_id(int pos) {
 }
 
 void ControlGUI::_update_cb_serial() {
-	messenger.stop_xbee();
+	messenger.stop_xbee(0);
 
 	radio_xbee_cb.remove_all();
 	xbee_connections = 0;

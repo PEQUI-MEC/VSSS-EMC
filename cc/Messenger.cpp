@@ -4,40 +4,40 @@ using std::string;
 using std::vector;
 
 void Messenger::start_xbee(const string &port, int baud) {
-	xbee = new Xbee(port, baud);
-	add_robots();
+	xbees.emplace_back(port, baud);
+	add_robots(xbees.back());
+	xbee_index = 0;
 }
 
-void Messenger::stop_xbee() {
-	if (!xbee) return;
-	delete xbee;
-	xbee = nullptr;
+void Messenger::stop_xbee(int index) {
+	if (!has_xbee()) return;
+	xbees.erase(xbees.begin() + index);
+	xbee_index = 0;
 }
 
-void Messenger::add_robots() {
-	if (!xbee) return;
-	xbee->add_robot('A', 0x88a0);
-	xbee->add_robot('B', 0xb24a);
-	xbee->add_robot('C', 0x215c);
-	xbee->add_robot('D', 0x35f6);
-	xbee->add_robot('E', 0x97e7);
-	xbee->add_robot('F', 0x6b0d);
+void Messenger::add_robots(Xbee &xbee) {
+	xbee.add_robot('A', 0x88a0);
+	xbee.add_robot('B', 0xb24a);
+	xbee.add_robot('C', 0x215c);
+	xbee.add_robot('D', 0x35f6);
+	xbee.add_robot('E', 0x97e7);
+	xbee.add_robot('F', 0x6b0d);
 }
 
 void Messenger::send_msg(char id, string msg) {
-	if (!xbee) return;
-	xbee->send(id, msg);
+	if (!has_xbee()) return;
+	next_xbee().send(id, msg);
 }
 
 void Messenger::send_old_format(string cmd) {
-	if (!xbee) return;
+	if (!has_xbee()) return;
 	char id = cmd[0];
 	string msg = cmd.substr(2, cmd.find('#') - 2);
-	xbee->send(id, msg);
+	next_xbee().send(id, msg);
 }
 
 void Messenger::send_commands(const std::vector<Robot3> &robots) {
-	if (!xbee || ++send_cmd_count <= frameskip) return;
+	if (!has_xbee() || ++send_cmd_count <= frameskip) return;
 	for (const Robot3& robot : robots) {
 		send_command(robot.ID, robot.target);
 	}
@@ -47,7 +47,7 @@ void Messenger::send_commands(const std::vector<Robot3> &robots) {
 
 constexpr float robot_size = 0.0675f;
 void Messenger::send_command(char id, Target target) {
-	if(!xbee) return;
+	if(!has_xbee()) return;
 	const string msg = [&] {
 		switch (target.command) {
 			case Command::Position:
@@ -75,23 +75,23 @@ void Messenger::send_command(char id, Target target) {
 		}
 	}();
 	if (!msg.empty()) {
-		xbee->send(id, msg);
+		next_xbee().send(id, msg);
 //		if(id == 'A') std::cout << msg << std::endl;
 	}
 }
 
 void Messenger::send_ekf_data(const Robot3 &robot) {
-	if(!xbee) return;
+	if(!has_xbee()) return;
 	string msg = "E" + rounded_str(robot.pose.position.x * 100) + ";"
 				 + rounded_str(robot.pose.position.y * 100)
 				 + ";" + rounded_str(robot.pose.orientation * 180/M_PI);
-	xbee->send(robot.ID, msg);
+	next_xbee().send(robot.ID, msg);
 //	if(robot.get_ID() == 'A') std::cout << msg << std::endl;
 }
 
 double Messenger::get_battery(char id) {
-	if (!xbee) return -1;
-	string msg = xbee->send_get_answer(id, "B");
+	if (!has_xbee()) return -1;
+	string msg = next_xbee().send_get_answer(id, "B");
 	if (msg.empty() || msg[0] != 'B') return -1;
 	else return stod(msg.substr(1));
 }
@@ -104,18 +104,29 @@ string Messenger::rounded_str(double num) {
 }
 
 void Messenger::set_ack_enabled(bool enable) {
-	if (!xbee) return;
-	xbee->set_ack_enabled(enable);
+	for (auto& xbee : xbees) {
+		xbee.set_ack_enabled(enable);
+	}
 }
 
 ack_count Messenger::get_ack_count(char id) {
-	if (!xbee) return {-1, -1, -1};
-	else return xbee->get_ack_count(id);
+	if (!has_xbee()) return {-1, -1, -1};
+	else {
+		ack_count total{0, 0, 0};
+		for (auto& xbee : xbees) {
+			ack_count count = xbee.get_ack_count(id);
+			total.lost += count.lost;
+			total.total += count.total;
+
+		}
+		total.lost_rate = double(total.lost) / double(total.total) * 100;
+		return total;
+	}
 }
 
 void Messenger::reset_lost_acks() {
-	if (!xbee) return;
-	xbee->reset_lost_acks();
+	if (!has_xbee()) return;
+	next_xbee().reset_lost_acks();
 }
 
 void Messenger::update_msg_time() {
@@ -133,4 +144,10 @@ Messenger::Messenger()
 	frameskip = DEFAULT_FRAMESKIP;
 	previous_msg_time = std::chrono::system_clock::now();
 	time_between_msgs = 0;
+}
+
+Xbee &Messenger::next_xbee() {
+	Xbee& next_xbee = xbees[xbee_index];
+	xbee_index = (xbees.size() - 1) > xbee_index ? xbee_index + 1 : 0;
+	return next_xbee;
 }

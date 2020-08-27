@@ -18,13 +18,14 @@ class Messenger {
 			double theta;
 		};
 
-		Xbee *xbee = nullptr;
+		std::vector<Xbee> xbees;
+		unsigned xbee_index = 0;
 
 		double time_between_msgs;
 		int frameskip, send_cmd_count;
 		std::chrono::system_clock::time_point previous_msg_time;
 
-		void add_robots();
+		void add_robots(Xbee &xbee);
 		std::string rounded_str(double num);
 
 	public:
@@ -41,12 +42,13 @@ class Messenger {
 		ack_count get_ack_count(char id);
 		void reset_lost_acks();
 		void start_xbee(const std::string &port, int baud = 115200);
-		void stop_xbee();
+		void stop_xbee(int index);
 		void update_msg_time();
 		void set_frameskipper(int frames) { frameskip = frames; }
 		int get_frameskipper() { return frameskip; }
 		double get_time() { return time_between_msgs; }
-		bool has_xbee() const { return xbee != nullptr; };
+		Xbee& next_xbee();
+		bool has_xbee() const { return !xbees.empty(); };
 };
 
 #endif //VSSS_MESSENGER_H
