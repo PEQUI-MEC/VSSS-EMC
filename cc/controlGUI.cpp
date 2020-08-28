@@ -1,17 +1,26 @@
 #include "controlGUI.hpp"
 
 ControlGUI::ControlGUI(Game &game)
-	: test_controller(game) {
+	: test_controller(game),
+	  xbee_select(messenger, true) {
 
 	_create_radio_frame();
 	_create_commands_frame();
 	_create_test_on_click_frame();
 	_create_status_frame();
 
-	_update_cb_serial();
-	update_ack_interface();
+	xbee_select.radio_refresh_bt.signal_clicked().connect([&](){
+		xbee_select.refresh_xbee_cb();
+		adjust_widgets_state(messenger.has_xbee());
+	});
+	xbee_select.radio_connect_bt.signal_clicked().connect([&](){
+		xbee_select.start_xbee();
+		adjust_widgets_state(messenger.has_xbee());
+	});
+	xbee_select.auto_start_xbee();
+	adjust_widgets_state(messenger.has_xbee());
 
-	auto_start_serial();
+	update_ack_interface();
 }
 
 void ControlGUI::_send_command() {
@@ -67,18 +76,9 @@ void ControlGUI::_robot_status() {
 }
 
 void ControlGUI::auto_start_serial() {
-	if (xbee_connections == 1) {
-		_start_serial();
-	}
-}
-
-void ControlGUI::_start_serial() {
-	Glib::ustring serial = radio_xbee_cb.get_active_text();
-	if (serial.empty()) return;
-
-	messenger.start_xbee(serial);
-
-	adjust_widgets_state();
+//	if (xbee_connections == 1) {
+//		_start_serial();
+//	}
 }
 
 void ControlGUI::_send_test() {
@@ -100,32 +100,6 @@ void ControlGUI::_send_test() {
 
 char ControlGUI::get_robot_id(int pos) {
 	return char(65 + pos);
-}
-
-void ControlGUI::_update_cb_serial() {
-	messenger.stop_xbee(0);
-
-	radio_xbee_cb.remove_all();
-	xbee_connections = 0;
-
-	for (int i = 0; i < 256; ++i) {
-		std::string port = "/dev/ttyUSB";
-		port.append(std::to_string(i));
-
-		int fd = open(port.c_str(), O_RDWR);
-		if (fd != -1) {
-			std::cout << port << std::endl;
-			radio_xbee_cb.append(port);
-			close(fd);
-			xbee_connections++;
-		}
-	}
-
-	// Caso tenha apenas algum dispositivo, atualizar a combo box
-	if (xbee_connections > 0)
-		radio_xbee_cb.set_active(0);
-
-	adjust_widgets_state(false);
 }
 
 void ControlGUI::_create_status_frame() {
@@ -362,10 +336,11 @@ void ControlGUI::_create_radio_frame() {
 
 	radio_fm.add(radio_options_grid);
 
-	radio_options_grid.attach(radio_xbee_lbl, 0, 0, 1, 1);
-	radio_options_grid.attach(radio_xbee_cb, 1, 0, 1, 1);
-	radio_options_grid.attach(radio_connect_bt, 2, 0, 1, 1);
-	radio_options_grid.attach(radio_refresh_bt, 3, 0, 1, 1);
+	radio_options_grid.attach(xbee_select, 0, 0, 5, 1);
+//	radio_options_grid.attach(radio_xbee_lbl, 0, 0, 1, 1);
+//	radio_options_grid.attach(radio_xbee_cb, 1, 0, 1, 1);
+//	radio_options_grid.attach(radio_connect_bt, 2, 0, 1, 1);
+//	radio_options_grid.attach(radio_refresh_bt, 3, 0, 1, 1);
 	radio_options_grid.attach(radio_skip_lbl, 0, 1, 1, 1);
 	radio_options_grid.attach(radio_skip_sbt, 1, 1, 1, 1);
 	radio_options_grid.attach(radio_time_lbl, 2, 1, 3, 1);
@@ -383,10 +358,6 @@ void ControlGUI::_create_radio_frame() {
 
 	// Labels
 	radio_fm.set_label("Radio Connection");
-	radio_xbee_lbl.set_text("XBee Port:");
-	radio_xbee_lbl.set_halign(Gtk::ALIGN_END);
-	radio_connect_bt.set_label("Connect");
-	radio_refresh_bt.set_label("Refresh");
 	radio_skip_lbl.set_label("Skip Frames:");
 	radio_skip_lbl.set_halign(Gtk::ALIGN_END);
 	radio_time_lbl.set_label("Time Between CMDs: " + std::to_string((messenger.get_frameskipper() + 1) * 33) + " ms");
@@ -402,8 +373,6 @@ void ControlGUI::_create_radio_frame() {
 	radio_skip_sbt.signal_value_changed().connect(sigc::mem_fun(*this, &ControlGUI::set_frameskipper));
 	radio_acks_chbt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
 	radio_ekf_chbt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::ekf_always_send_enable));
-	radio_refresh_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_update_cb_serial));
-	radio_connect_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::_start_serial));
 }
 
 void ControlGUI::_create_commands_frame() {
@@ -482,8 +451,8 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 		commands_robots_cb.set_state(Gtk::STATE_NORMAL);
 
 		//Radio Frame
-		radio_connect_bt.set_state(Gtk::STATE_INSENSITIVE);
-		radio_xbee_cb.set_state(Gtk::STATE_INSENSITIVE);
+		xbee_select.radio_connect_bt.set_state(Gtk::STATE_INSENSITIVE);
+		xbee_select.radio_xbee_cb.set_state(Gtk::STATE_INSENSITIVE);
 		radio_skip_sbt.set_state(Gtk::STATE_NORMAL);
 		radio_ekf_chbt.set_state(Gtk::STATE_NORMAL);
 		radio_acks_chbt.set_state(Gtk::STATE_NORMAL);
@@ -506,8 +475,8 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 		commands_robots_cb.set_state(Gtk::STATE_INSENSITIVE);
 
 		//Radio Frame
-		radio_connect_bt.set_state(Gtk::STATE_NORMAL);
-		radio_xbee_cb.set_state(Gtk::STATE_NORMAL);
+		xbee_select.radio_connect_bt.set_state(Gtk::STATE_NORMAL);
+		xbee_select.radio_xbee_cb.set_state(Gtk::STATE_NORMAL);
 		radio_skip_sbt.set_state(Gtk::STATE_INSENSITIVE);
 		radio_ekf_chbt.set_state(Gtk::STATE_INSENSITIVE);
 		radio_acks_chbt.set_state(Gtk::STATE_INSENSITIVE);

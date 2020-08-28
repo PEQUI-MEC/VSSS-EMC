@@ -41,7 +41,7 @@ class Messenger {
 		void set_ack_enabled(bool enable);
 		ack_count get_ack_count(char id);
 		void reset_lost_acks();
-		void start_xbee(const std::string &port, int baud = 115200);
+		unsigned int start_xbee(const std::string &port, int baud = 115200);
 		void stop_xbee(int index);
 		void update_msg_time();
 		void set_frameskipper(int frames) { frameskip = frames; }

@@ -3,14 +3,15 @@
 using std::string;
 using std::vector;
 
-void Messenger::start_xbee(const string &port, int baud) {
+unsigned int Messenger::start_xbee(const string &port, int baud) {
 	xbees.emplace_back(port, baud);
 	add_robots(xbees.back());
 	xbee_index = 0;
+	return (unsigned) xbees.size() - 1;
 }
 
 void Messenger::stop_xbee(int index) {
-	if (!has_xbee()) return;
+	if (xbees.size() <= index) return;
 	xbees.erase(xbees.begin() + index);
 	xbee_index = 0;
 }
@@ -30,7 +31,7 @@ void Messenger::send_msg(char id, string msg) {
 }
 
 void Messenger::send_old_format(string cmd) {
-	if (!has_xbee()) return;
+	if (!has_xbee() || cmd.empty()) return;
 	char id = cmd[0];
 	string msg = cmd.substr(2, cmd.find('#') - 2);
 	next_xbee().send(id, msg);
@@ -119,14 +120,16 @@ ack_count Messenger::get_ack_count(char id) {
 			total.total += count.total;
 
 		}
+		if (total.total == 0) return {0, 0, 0};
 		total.lost_rate = double(total.lost) / double(total.total) * 100;
 		return total;
 	}
 }
 
 void Messenger::reset_lost_acks() {
-	if (!has_xbee()) return;
-	next_xbee().reset_lost_acks();
+	for (auto& xbee : xbees) {
+		xbee.reset_lost_acks();
+	}
 }
 
 void Messenger::update_msg_time() {

@@ -12,11 +12,9 @@
 #include <ctime>
 #include <chrono>
 #include <Strategy3/Game.hpp>
+#include <GUI/XbeeSelectGUI.hpp>
 
 class ControlGUI : public Gtk::VBox {
-	private:
-		int xbee_connections = 0;
-
 	public:
 		Messenger messenger;
 		onClick::TestOnClick test_controller;
@@ -36,10 +34,6 @@ class ControlGUI : public Gtk::VBox {
 
 		// Radio Frame
 		Gtk::Frame radio_fm;
-		Gtk::Label radio_xbee_lbl;
-		Gtk::ComboBoxText radio_xbee_cb;
-		Gtk::Button radio_refresh_bt;
-		Gtk::Button radio_connect_bt;
 		Gtk::Label radio_rawcmd_lbl;
 		Gtk::Grid radio_options_grid;
 		Gtk::Label radio_skip_lbl;
@@ -47,6 +41,8 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::SpinButton radio_skip_sbt;
 		Gtk::CheckButton radio_ekf_chbt;
 		Gtk::CheckButton radio_acks_chbt;
+
+		XbeeSelectGUI xbee_select;
 
 		// Commands Frame
 		Gtk::Frame commands_fm;
@@ -102,11 +98,7 @@ class ControlGUI : public Gtk::VBox {
 		// update the battery status of all robots
 		void _robot_status();
 
-		void _start_serial();
-
 		void _send_test();
-
-		void _update_cb_serial();
 
 		void _create_radio_frame();
 
@@ -126,9 +118,6 @@ class ControlGUI : public Gtk::VBox {
 
 		void adjust_widgets_state(bool is_connected = true);
 
-		// essa função não deve ser chamada imediatamente após desconectar o xbee
-		// o xbee demora alguns segundos para realmente desconectar
-		// conecta o xbee automaticamente caso tenha apenas um conectado
 		void auto_start_serial();
 };
 

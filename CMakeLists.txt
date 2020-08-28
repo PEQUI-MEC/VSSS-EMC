@@ -96,7 +96,7 @@ set(SOURCE_FILES cc/main.cpp
     cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp
     cc/Strategy3/helper.hpp cc/Strategy3/helper.cpp
     cc/vision/Tags.hpp
-    )
+    cc/GUI/XbeeSelectGUI.cpp cc/GUI/XbeeSelectGUI.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
