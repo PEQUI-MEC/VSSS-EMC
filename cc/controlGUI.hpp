@@ -42,7 +42,12 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::CheckButton radio_ekf_chbt;
 		Gtk::CheckButton radio_acks_chbt;
 
-		XbeeSelectGUI xbee_select;
+
+//		Select multiple xbees
+		std::list<XbeeSelectGUI> xbee_select_list;
+		Gtk::VBox xbee_select_vbox;
+		Gtk::Button add_select_xbee_bt;
+		Gtk::Button remove_select_xbee_bt;
 
 		// Commands Frame
 		Gtk::Frame commands_fm;
@@ -83,6 +88,8 @@ class ControlGUI : public Gtk::VBox {
 		void _test_start_bt_event();
 
 		explicit ControlGUI(Game &game);
+		ControlGUI(const ControlGUI &) = delete;
+		ControlGUI& operator=(const ControlGUI&) = delete;
 
 		void stop_test_on_click();
 
@@ -116,9 +123,11 @@ class ControlGUI : public Gtk::VBox {
 		void update_msg_time();
 		void ekf_always_send_enable();
 
-		void adjust_widgets_state(bool is_connected = true);
+		void adjust_widgets_state();
 
-		void auto_start_serial();
+		void add_xbee_select_gui();
+		void remove_xbee_select_gui();
+
 };
 
 #endif /* CONTROLGUI_HPP_ */

@@ -56,7 +56,10 @@ class Xbee {
 //		}
 
 	public:
+		std::string port;
 		Xbee(const std::string &port, int baud);
+		Xbee(const Xbee&) = delete; // Não permite fazer cópias do objeto Xbee
+		Xbee& operator=(const Xbee&) = delete;
 		~Xbee();
 		void add_robot(char id, uint16_t addr);
 		int send(char id, const std::string &message);

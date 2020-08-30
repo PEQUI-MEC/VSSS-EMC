@@ -529,7 +529,11 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		for (auto robot : game.team->robots) {
 			robot.stop();
 		}
-		messenger.send_commands(game.team->robots);
+		controlGUI.messenger.send_commands(game.team->robots);
+		for (auto robot : game.adversary->robots) {
+			robot.stop();
+		}
+		controlGUI.messenger.send_commands(game.adversary->robots);
 	}
 }
 

@@ -13,6 +13,7 @@ Xbee::Xbee(const string &port, int baud) {
 	} else {
 		std::cout << "Xbee connected on " << port << std::endl;
 	}
+	this->port = port;
 }
 
 Xbee::~Xbee() {
@@ -21,6 +22,7 @@ Xbee::~Xbee() {
 	}
 	robots.clear();
 	xbee_shutdown(xbee);
+	std::cout << "stopping xbee on " << port << std::endl;
 }
 
 void Xbee::add_robot(char id, uint16_t addr) {

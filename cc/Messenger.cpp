@@ -3,17 +3,22 @@
 using std::string;
 using std::vector;
 
-unsigned int Messenger::start_xbee(const string &port, int baud) {
+void Messenger::start_xbee(const string &port, int baud) {
 	xbees.emplace_back(port, baud);
 	add_robots(xbees.back());
-	xbee_index = 0;
-	return (unsigned) xbees.size() - 1;
+	used_ports.insert(port);
+	next_xbee_it = xbees.begin();
+	xbees.back().set_ack_enabled(measuring_acks);
 }
 
-void Messenger::stop_xbee(int index) {
-	if (xbees.size() <= index) return;
-	xbees.erase(xbees.begin() + index);
-	xbee_index = 0;
+void Messenger::stop_xbee(const string &port) {
+	if (!using_port(port)) return;
+	used_ports.erase(port);
+	auto xbee_it = std::find_if(xbees.begin(), xbees.end(), [&](Xbee& xbee) {
+		return xbee.port == port;
+	});
+	xbees.erase(xbee_it);
+	next_xbee_it = xbees.begin();
 }
 
 void Messenger::add_robots(Xbee &xbee) {
@@ -108,6 +113,7 @@ void Messenger::set_ack_enabled(bool enable) {
 	for (auto& xbee : xbees) {
 		xbee.set_ack_enabled(enable);
 	}
+	measuring_acks = enable;
 }
 
 ack_count Messenger::get_ack_count(char id) {
@@ -118,7 +124,6 @@ ack_count Messenger::get_ack_count(char id) {
 			ack_count count = xbee.get_ack_count(id);
 			total.lost += count.lost;
 			total.total += count.total;
-
 		}
 		if (total.total == 0) return {0, 0, 0};
 		total.lost_rate = double(total.lost) / double(total.total) * 100;
@@ -150,7 +155,7 @@ Messenger::Messenger()
 }
 
 Xbee &Messenger::next_xbee() {
-	Xbee& next_xbee = xbees[xbee_index];
-	xbee_index = (xbees.size() - 1) > xbee_index ? xbee_index + 1 : 0;
-	return next_xbee;
+	auto& current_xbee = *next_xbee_it++;
+	if (next_xbee_it == xbees.end()) next_xbee_it = xbees.begin();
+	return current_xbee;
 }

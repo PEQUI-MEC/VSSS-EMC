@@ -58,7 +58,6 @@ class capture::V4LInterface : public Gtk::VBox {
 		bool init_frame = true;
 
 		ImageView imageView;
-		Messenger messenger;
 
 		std::list<ControlHolder> ctrl_list_default;
 

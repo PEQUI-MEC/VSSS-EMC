@@ -1,24 +1,16 @@
 #include "controlGUI.hpp"
 
 ControlGUI::ControlGUI(Game &game)
-	: test_controller(game),
-	  xbee_select(messenger, true) {
+	: test_controller(game) {
+	adjust_widgets_state();
+
+//	Sempre deve haver pelo menos um XbeeSelectGUI
+	add_xbee_select_gui();
 
 	_create_radio_frame();
 	_create_commands_frame();
 	_create_test_on_click_frame();
 	_create_status_frame();
-
-	xbee_select.radio_refresh_bt.signal_clicked().connect([&](){
-		xbee_select.refresh_xbee_cb();
-		adjust_widgets_state(messenger.has_xbee());
-	});
-	xbee_select.radio_connect_bt.signal_clicked().connect([&](){
-		xbee_select.start_xbee();
-		adjust_widgets_state(messenger.has_xbee());
-	});
-	xbee_select.auto_start_xbee();
-	adjust_widgets_state(messenger.has_xbee());
 
 	update_ack_interface();
 }
@@ -73,12 +65,6 @@ void ControlGUI::_robot_status() {
 			status_lb[i].set_text("Offline");
 		}
 	}
-}
-
-void ControlGUI::auto_start_serial() {
-//	if (xbee_connections == 1) {
-//		_start_serial();
-//	}
 }
 
 void ControlGUI::_send_test() {
@@ -336,16 +322,14 @@ void ControlGUI::_create_radio_frame() {
 
 	radio_fm.add(radio_options_grid);
 
-	radio_options_grid.attach(xbee_select, 0, 0, 5, 1);
-//	radio_options_grid.attach(radio_xbee_lbl, 0, 0, 1, 1);
-//	radio_options_grid.attach(radio_xbee_cb, 1, 0, 1, 1);
-//	radio_options_grid.attach(radio_connect_bt, 2, 0, 1, 1);
-//	radio_options_grid.attach(radio_refresh_bt, 3, 0, 1, 1);
-	radio_options_grid.attach(radio_skip_lbl, 0, 1, 1, 1);
-	radio_options_grid.attach(radio_skip_sbt, 1, 1, 1, 1);
-	radio_options_grid.attach(radio_time_lbl, 2, 1, 3, 1);
-	radio_options_grid.attach(radio_ekf_chbt, 0, 2, 2, 1);
-	radio_options_grid.attach(radio_acks_chbt, 2, 2, 2, 1);
+	radio_options_grid.attach(xbee_select_vbox, 0, 0, 5, 1);
+	radio_options_grid.attach(add_select_xbee_bt, 1, 1, 1, 1);
+	radio_options_grid.attach(remove_select_xbee_bt, 2, 1, 1, 1);
+	radio_options_grid.attach(radio_skip_lbl, 0, 2, 1, 1);
+	radio_options_grid.attach(radio_skip_sbt, 1, 2, 1, 1);
+	radio_options_grid.attach(radio_time_lbl, 2, 2, 3, 1);
+	radio_options_grid.attach(radio_ekf_chbt, 0, 3, 2, 1);
+	radio_options_grid.attach(radio_acks_chbt, 2, 3, 2, 1);
 
 	//Frame
 	radio_fm.set_border_width(10);
@@ -358,11 +342,14 @@ void ControlGUI::_create_radio_frame() {
 
 	// Labels
 	radio_fm.set_label("Radio Connection");
-	radio_skip_lbl.set_label("Skip Frames:");
+	radio_skip_lbl.set_label("Skip frames:");
 	radio_skip_lbl.set_halign(Gtk::ALIGN_END);
-	radio_time_lbl.set_label("Time Between CMDs: " + std::to_string((messenger.get_frameskipper() + 1) * 33) + " ms");
-	radio_ekf_chbt.set_label("Always Send EKF Data");
-	radio_acks_chbt.set_label("Receive Acks");
+	radio_time_lbl.set_label("Time between CMDs: " + std::to_string((messenger.get_frameskipper() + 1) * 33) + " ms");
+	radio_ekf_chbt.set_label("Always send EKF data");
+	radio_acks_chbt.set_label("Receive acks");
+	add_select_xbee_bt.set_label("Add XBee");
+	remove_select_xbee_bt.set_label("Remove XBee");
+
 
 	// Spin button
 	radio_skip_sbt.set_range(0, 10);
@@ -370,6 +357,8 @@ void ControlGUI::_create_radio_frame() {
 	radio_skip_sbt.set_value(0);
 
 	// Event handlers
+	add_select_xbee_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::add_xbee_select_gui));
+	remove_select_xbee_bt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::remove_xbee_select_gui));
 	radio_skip_sbt.signal_value_changed().connect(sigc::mem_fun(*this, &ControlGUI::set_frameskipper));
 	radio_acks_chbt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::update_ack_interface));
 	radio_ekf_chbt.signal_clicked().connect(sigc::mem_fun(*this, &ControlGUI::ekf_always_send_enable));
@@ -440,8 +429,8 @@ void ControlGUI::_create_commands_frame() {
 
 }
 
-void ControlGUI::adjust_widgets_state(bool is_connected) {
-	if (is_connected) {
+void ControlGUI::adjust_widgets_state() {
+	if (messenger.has_xbee()) {
 		//Commands Frame
 		commands_L_hsc.set_state(Gtk::STATE_NORMAL);
 		commands_R_hsc.set_state(Gtk::STATE_NORMAL);
@@ -451,8 +440,6 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 		commands_robots_cb.set_state(Gtk::STATE_NORMAL);
 
 		//Radio Frame
-		xbee_select.radio_connect_bt.set_state(Gtk::STATE_INSENSITIVE);
-		xbee_select.radio_xbee_cb.set_state(Gtk::STATE_INSENSITIVE);
 		radio_skip_sbt.set_state(Gtk::STATE_NORMAL);
 		radio_ekf_chbt.set_state(Gtk::STATE_NORMAL);
 		radio_acks_chbt.set_state(Gtk::STATE_NORMAL);
@@ -474,9 +461,7 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 		commands_cmd_entry.set_state(Gtk::STATE_INSENSITIVE);
 		commands_robots_cb.set_state(Gtk::STATE_INSENSITIVE);
 
-		//Radio Frame
-		xbee_select.radio_connect_bt.set_state(Gtk::STATE_NORMAL);
-		xbee_select.radio_xbee_cb.set_state(Gtk::STATE_NORMAL);
+//		Radio frame
 		radio_skip_sbt.set_state(Gtk::STATE_INSENSITIVE);
 		radio_ekf_chbt.set_state(Gtk::STATE_INSENSITIVE);
 		radio_acks_chbt.set_state(Gtk::STATE_INSENSITIVE);
@@ -490,4 +475,38 @@ void ControlGUI::adjust_widgets_state(bool is_connected) {
 		//Status Frame
 		bt_Robot_Status.set_state(Gtk::STATE_INSENSITIVE);
 	}
+
+//	Xbee select list
+	for (auto& xbee_select : xbee_select_list) {
+		if (xbee_select.has_xbee()) {
+			xbee_select.connect_bt.set_state(Gtk::STATE_INSENSITIVE);
+			xbee_select.xbee_cb.set_state(Gtk::STATE_INSENSITIVE);
+			xbee_select.refresh_bt.set_label("Stop");
+		} else {
+			xbee_select.connect_bt.set_state(Gtk::STATE_NORMAL);
+			xbee_select.xbee_cb.set_state(Gtk::STATE_NORMAL);
+			xbee_select.refresh_bt.set_label("Refresh");
+			xbee_select.update_combobox();
+		}
+	}
+
+//	Não permite remover GUI de seleção de xbees caso haja apenas uma
+	if (xbee_select_list.size() > 1) {
+		remove_select_xbee_bt.set_state(Gtk::STATE_NORMAL);
+	} else {
+		remove_select_xbee_bt.set_state(Gtk::STATE_INSENSITIVE);
+	}
+}
+
+void ControlGUI::add_xbee_select_gui() {
+	auto& xbee_select = xbee_select_list.emplace_back(messenger);
+	xbee_select_vbox.pack_start(xbee_select, false, false, 5);
+	xbee_select.update_widgets_state_signal.connect(sigc::mem_fun(this, &ControlGUI::adjust_widgets_state));
+	xbee_select.refresh_xbee_cb();
+	xbee_select.auto_start_xbee();
+}
+
+void ControlGUI::remove_xbee_select_gui() {
+	xbee_select_vbox.remove(xbee_select_list.back());
+	xbee_select_list.pop_back();
 }
