@@ -22,6 +22,8 @@ class Wheel {
 			return 0;
 		}
 		double error = target_vel - vel;
+//		if (error > 0.4) error = 0.4;
+//		else if (error < -0.4) error = -0.4;
 		double deriv_error = (error - prev_error) / time;
 		error_acc += error * time;
 		if (error_acc > 0.5) error_acc = 0.5f;

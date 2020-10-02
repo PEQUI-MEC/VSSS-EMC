@@ -5,7 +5,12 @@ SimulatorClient::SimulatorClient() {
 	server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
 		std::lock_guard<std::mutex> guard(data_mutex);
 		packet.ParseFromArray(msg->data(), (int) msg->size());
-		if (packet.has_frame()) new_data = true;
+		if (packet.has_frame()) {
+			new_data = true;
+			auto now = std::chrono::high_resolution_clock::now();
+			elapsed_time = now - last_msg_time;
+			last_msg_time = now;
+		}
 	});
 	server.Init(10020);
 	server.Start();
@@ -49,12 +54,12 @@ void SimulatorClient::send_commands(Team &team) {
 	for (uint i = 0; i < team.robots.size(); i++) {
 		auto& robot = team.robots[i];
 
-		if (robot.target.command != Command::None) {
+		if (team.controlled) {
 			fira_message::sim_to_ref::Command* command = cmds_packet.mutable_cmd()->add_robot_commands();
 			command->set_yellowteam(team.robot_color == RobotColor::Yellow);
 			command->set_id(i);
 
-			WheelVelocity target_wheel_vel = robot.control.control_step(robot.pose, robot.target, 1.0 / 60.0);
+			WheelVelocity target_wheel_vel = robot.control.control_step(robot.pose, robot.target, elapsed_time.count());
 			auto angular_wheel_vel = target_wheel_vel.to_angular(simulated_wheel_radius);
 			command->set_wheel_left(angular_wheel_vel.left);
 			command->set_wheel_right(angular_wheel_vel.right);
