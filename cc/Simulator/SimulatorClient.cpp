@@ -12,7 +12,7 @@ SimulatorClient::SimulatorClient() {
 			last_msg_time = now;
 		}
 	});
-	server.Init(10020);
+	server.Init(10002);
 	server.Start();
 }
 

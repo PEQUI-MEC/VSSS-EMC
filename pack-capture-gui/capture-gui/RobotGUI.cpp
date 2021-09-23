@@ -375,7 +375,7 @@ void RobotGUI::setup_buttons() {
 	robots_id_done_bt.set_label("Done");
 
 	robots_id_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-	robots_id_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_id_edit_bt.set_state(Gtk::STATE_NORMAL);
 	robots_auto_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 	robots_id_edit_bt.signal_pressed().connect(
@@ -389,7 +389,7 @@ void RobotGUI::setup_buttons() {
 	robots_speed_edit_bt.set_label("Edit");
 	robots_speed_done_bt.set_label("Done");
 
-	robots_speed_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_speed_edit_bt.set_state(Gtk::STATE_NORMAL);
 	robots_speed_done_bt.set_state(Gtk::STATE_INSENSITIVE);
 
 	robots_speed_edit_bt.signal_pressed().connect(
@@ -402,7 +402,7 @@ void RobotGUI::setup_buttons() {
 	robots_role_done_bt.set_label("Done");
 
 	robots_role_done_bt.set_state(Gtk::STATE_INSENSITIVE);
-	robots_role_edit_bt.set_state(Gtk::STATE_INSENSITIVE);
+	robots_role_edit_bt.set_state(Gtk::STATE_NORMAL);
 
 	robots_role_edit_bt.signal_clicked().connect(
 			sigc::mem_fun(*this, &RobotGUI::event_robots_role_edit_bt_signal_clicked));

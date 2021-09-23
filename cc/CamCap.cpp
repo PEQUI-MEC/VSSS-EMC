@@ -46,7 +46,7 @@ bool CamCap::start_signal(bool b) {
 		interface.visionGUI.setFrameSize(width, height);
 
 		// Liberar os botões de edit
-		robotGUI.enable_main_buttons();
+		//robotGUI.enable_main_buttons();
 
 		data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
 
