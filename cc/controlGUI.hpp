@@ -43,13 +43,7 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::CheckButton radio_acks_chbt;
 
 
-//		Select multiple xbees
-		std::list<XbeeSelectGUI> xbee_select_list;
-		Gtk::VBox xbee_select_vbox;
-		Gtk::Button add_select_xbee_bt;
-		Gtk::Button remove_select_xbee_bt;
-
-		// Commands Frame
+// Commands Frame
 		Gtk::Frame commands_fm;
 		Gtk::Grid commands_grid;
 		Gtk::Label commands_speed_lb;
@@ -62,7 +56,6 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Button commands_send_cmd_bt;
 		Gtk::Entry commands_cmd_entry;
 		Gtk::ComboBoxText commands_robots_cb;
-
 
 		Gtk::Grid status_grid;
 		Gtk::Frame status_fm;
@@ -84,6 +77,12 @@ class ControlGUI : public Gtk::VBox {
 		Gtk::Label test_default_lb[2], test_tip_lb;
 		const std::string test_start_txt = "Start";
 		const std::string test_stop_txt = "Stop";
+
+//		Select multiple xbees
+		Gtk::VBox xbee_select_vbox;
+		Gtk::Button add_select_xbee_bt;
+		Gtk::Button remove_select_xbee_bt;
+		std::list<XbeeSelectGUI> xbee_select_list;
 
 		void _test_start_bt_event();
 

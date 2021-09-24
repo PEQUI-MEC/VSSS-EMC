@@ -30,30 +30,30 @@ void CamCap::update_positions(Tags &tags) {
 	interface.update_ball_position(game.ball.position);
 }
 
+void CamCap::set_image_resolution(int width, int height) {
+	this->width = width;
+	this->height = height;
+	visionImage = cv::Mat(height, width, CV_8UC3);
+	visionImage = cv::Scalar(0, 0, 0);
+	interface.visionGUI.setFrameSize(width, height);
+	interface.imageView.set_frame_size(width, height);
+	interface.imageView.set_data(visionImage.data);
+	interface.imageView.refresh();
+}
+
 bool CamCap::start_signal(bool b) {
 	if (b) {
 		cout << "Start Clicked!" << endl;
 
-		if (data) {
-			interface.imageView.disable_image_show();
-			free(data);
-			data = nullptr;
-		}
+		interface.imageView.disable_image_show();
 
-		width = interface.vcap.format_dest.fmt.pix.width;
-		height = interface.vcap.format_dest.fmt.pix.height;
-
-		interface.visionGUI.setFrameSize(width, height);
+		set_image_resolution(interface.vcap.format_dest.fmt.pix.width,
+							 interface.vcap.format_dest.fmt.pix.height);
 
 		// Liberar os botões de edit
 		//robotGUI.enable_main_buttons();
 
-		data = (unsigned char *) calloc(interface.vcap.format_dest.fmt.pix.sizeimage, sizeof(unsigned char));
-
-		interface.imageView.set_frame_size(width, height);
 //		con = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::capture_and_show));
-
-		interface.__event_bt_quick_load_clicked();
 
 		interface.gameGUI.use_simulator_button.set_active(false);
 
@@ -68,12 +68,9 @@ bool CamCap::start_signal(bool b) {
 //		robotGUI.enable_main_buttons(false);
 
 //		Apaga imagem antiga da GUI
-		if (data) {
-			cv::Mat imageView(height, width, CV_8UC3, data);
-			imageView = cv::Scalar(0, 0, 0);
-			interface.imageView.set_data(data);
-			interface.imageView.refresh();
-		}
+		visionImage = cv::Scalar(0, 0, 0);
+		interface.imageView.set_data(visionImage.data);
+		interface.imageView.refresh();
 	}
 
 	return true;
@@ -84,6 +81,9 @@ bool CamCap::run_game_loop() {
 		capture_and_show();
 	} else if (game.is_simulated){
 		if (has_camera) interface.bt_start.activate();
+		if (width != 640 || height != 480) {
+			set_image_resolution(640, 480);
+		}
 		simulated_game_loop();
 	} else {
 //		Sem camera e nem simulator, apenas atualiza a GUI
@@ -130,23 +130,20 @@ void CamCap::simulated_game_loop() {
 	fps_update();
 
 //	Atualiza a imagem do campo
-	if (data) {
-		cv::Mat imageView(height, width, CV_8UC3, data);
-		imageView = cv::Scalar(0, 0, 0);
-		interface.imageView.set_data(data);
-		interface.imageView.refresh();
-		auto tags = game.to_tags();
-		interface.imageView.imageArt.draw_robots_and_ball(imageView, tags);
-		if (game.team->controlled) {
-			for (auto& robot : game.team->robots)
-				interface.imageView.imageArt.draw_targets(robot, imageView, game.team->inverted_field,
-														  game.team->robot_color);
-		}
-		if (game.adversary->controlled) {
-			for (auto& robot : game.adversary->robots)
-				interface.imageView.imageArt.draw_targets(robot, imageView, game.adversary->inverted_field,
-														  game.adversary->robot_color);
-		}
+	visionImage = cv::Scalar(0, 0, 0);
+	interface.imageView.set_data(visionImage.data);
+	interface.imageView.refresh();
+	auto tags = game.to_tags();
+	interface.imageView.imageArt.draw_robots_and_ball(visionImage, tags);
+	if (game.team->controlled) {
+		for (auto& robot : game.team->robots)
+			interface.imageView.imageArt.draw_targets(robot, visionImage, game.team->inverted_field,
+													  game.team->robot_color);
+	}
+	if (game.adversary->controlled) {
+		for (auto& robot : game.adversary->robots)
+			interface.imageView.imageArt.draw_targets(robot, visionImage, game.adversary->inverted_field,
+													  game.adversary->robot_color);
 	}
 }
 
@@ -154,13 +151,9 @@ bool CamCap::capture_and_show() {
 	bool chessBoardFound = false;
 	std::vector<cv::Vec2f> foundPoints;
 
-	if (!data) return false;
-
-	interface.vcap.grab_rgb(data);
-	interface.imageView.set_data(data);
+	interface.vcap.grab_rgb(visionImage.data);
+	interface.imageView.set_data(visionImage.data);
 	interface.imageView.refresh();
-
-	cv::Mat imageView(height, width, CV_8UC3, data);
 
 	interface.imageView.split_flag = interface.visionGUI.getIsSplitView();
 
@@ -171,26 +164,26 @@ bool CamCap::capture_and_show() {
 
 	if (interface.visionGUI.vision->flag_cam_calibrated) {
 		cv::Mat temp;
-		imageView.copyTo(temp);
-		cv::undistort(temp, imageView, interface.visionGUI.vision->getcameraMatrix(),
+		visionImage.copyTo(temp);
+		cv::undistort(temp, visionImage, interface.visionGUI.vision->getcameraMatrix(),
 					  interface.visionGUI.vision->getdistanceCoeficents());
 	}
 
-	interface.imageView.imageWarp.run(imageView);
+	interface.imageView.imageWarp.run(visionImage);
 
 	bool is_test_on_click_on = interface.controlGUI.test_controller.is_active();
 
 	if (interface.CamCalib_flag_event && !game.playing_game && !is_test_on_click_on &&
 		!interface.visionGUI.vision->flag_cam_calibrated) {
 
-		chessBoardFound = cv::findChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints,
+		chessBoardFound = cv::findChessboardCorners(visionImage, CHESSBOARD_DIMENSION, foundPoints,
 													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
 
-	auto tags = interface.visionGUI.vision->run(imageView, game.yellow_team().controlled,
+	auto tags = interface.visionGUI.vision->run(visionImage, game.yellow_team().controlled,
 												game.blue_team().controlled);
 
-	interface.visionGUI.recorder.run(imageView);
+	interface.visionGUI.recorder.run(visionImage);
 
 	update_positions(tags);
 
@@ -213,7 +206,7 @@ bool CamCap::capture_and_show() {
 
 	// ----------- ESTRATEGIA -----------------//
 	if (game.playing_game) {
-		circle(imageView, game.ball.estimative.to_cv_point(), 7, cv::Scalar(255, 140, 0), 2);
+		circle(visionImage, game.ball.estimative.to_cv_point(), 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
 		auto inverted_team = game.team->get_inverted_robot_positions();
@@ -247,14 +240,14 @@ bool CamCap::capture_and_show() {
 		if (chessBoardFound) {
 			cv::TermCriteria termCriteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
 			cv::Mat grayFrame;
-			cv::cvtColor(imageView, grayFrame, cv::COLOR_RGB2GRAY);
+			cv::cvtColor(visionImage, grayFrame, cv::COLOR_RGB2GRAY);
 			cv::cornerSubPix(grayFrame, foundPoints, cv::Size(11, 11), cv::Size(-1, -1), termCriteria);
 		}
 
 		if (interface.visionGUI.getIsDrawing()) {
-			cv::drawChessboardCorners(imageView, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
+			cv::drawChessboardCorners(visionImage, CHESSBOARD_DIMENSION, foundPoints, chessBoardFound);
 
-			interface.imageView.imageArt.draw(imageView, tags, *game.team, game.playing_game);
+			interface.imageView.imageArt.draw(visionImage, tags, *game.team, game.playing_game);
 		} // if !interface.draw_info_flag
 	} // if !draw_info_flag
 
@@ -308,13 +301,15 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-CamCap::CamCap(bool isLowRes) : data(nullptr), width(0), height(0), frameCounter(0),
+CamCap::CamCap(bool isLowRes) : visionImage(height, width, CV_8UC3),
+								frameCounter(0),
 								msg_thread(&CamCap::send_cmd_thread, this),
 								robotGUI(game, isLowRes),
 								interface(game, robotGUI, isLowRes) {
-
 	fm.set_label("imageView");
 	fm.add(interface.imageView);
+
+	set_image_resolution(640, 480);
 
 	notebook.append_page(interface, "Capture");
 	notebook.append_page(interface.visionGUI, "Vision");
@@ -335,21 +330,19 @@ CamCap::CamCap(bool isLowRes) : data(nullptr), width(0), height(0), frameCounter
 
 	interface.signal_start().connect(sigc::mem_fun(*this, &CamCap::start_signal));
 
-
-	interface.__event_bt_start_clicked();
+	//interface.__event_bt_start_clicked();
 
 //	Remove focus from last created GUI item
 	interface.visionGUI.bt_record_video.grab_focus();
 
 	on_idle = Glib::signal_idle().connect(sigc::mem_fun(*this, &CamCap::run_game_loop));
+
+	interface.__event_bt_quick_load_clicked();
 }
 
 CamCap::~CamCap() {
 	con.disconnect();
 	interface.imageView.disable_image_show();
-	free(data);
-
-	data = nullptr;
 
 	msg_thread.interrupt();
 	if (msg_thread.joinable()) msg_thread.join();

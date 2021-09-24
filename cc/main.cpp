@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 	window.set_title("Pequi Mecânico - VSSS EMC");
 
 	auto screen_width = Gdk::screen_width();
-	bool isLowRes = screen_width <= 1600;
+	bool isLowRes = screen_width <= 1920;
 //	bool isLowRes = true;
 
 	CamCap camcap(isLowRes);
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 
 	Gtk::Main::run(window);
 
-	Py_Finalize();
+	//Py_Finalize();
 
 	return EXIT_SUCCESS;
 }

@@ -17,13 +17,8 @@ void RobotGUI::createIDsFrame() {
 	int grid_index = 0;
 	for (auto& robot : game.team->robots) {
 		Label * label = new Label(robot.tag_name()+":");
-		if (isLowRes) {
-			id_grid.attach(*label, grid_index+2*grid_index, 0, 1, 1);
-			id_grid.attach(robots_id_box[grid_index], grid_index+2+2*grid_index, 0, 1, 1);
-		} else {
-			id_grid.attach(*label, 0, grid_index, 2, 1);
-			id_grid.attach(robots_id_box[grid_index], 2, grid_index, 1, 1);
-		}
+		id_grid.attach(*label, 0, grid_index, 2, 1);
+		id_grid.attach(robots_id_box[grid_index], 2, grid_index, 1, 1);
 		grid_index++;
 	}
 }
@@ -41,13 +36,8 @@ void RobotGUI::createFunctionsFrame() {
 	int grid_index = 0;
 	for(auto& robot : game.team->robots) {
 		Label * label = new Label(robot.tag_name()+":");
-		if (isLowRes) {
-			role_grid.attach(*label, grid_index + 2 * grid_index, 0, 1, 1);
-			role_grid.attach(cb_robot_role[grid_index], grid_index + 2 + 2 * grid_index, 0, 1, 1);
-		} else {
-			role_grid.attach(*label, 0, grid_index, 2, 1);
-			role_grid.attach(cb_robot_role[grid_index], 2, grid_index, 1, 1);
-		}
+		role_grid.attach(*label, 0, grid_index, 2, 1);
+		role_grid.attach(cb_robot_role[grid_index], 2, grid_index, 1, 1);
 		grid_index++;
 	}
 }

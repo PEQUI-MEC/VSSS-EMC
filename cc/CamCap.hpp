@@ -46,12 +46,11 @@ class CamCap : public Gtk::HBox {
 
 		SimulatorClient simulator;
 
-		unsigned char *data;
-
 		bool has_camera = false;
 
-		int width;
-		int height;
+		int width = 640;
+		int height = 480;
+		cv::Mat visionImage;
 
 		int frameCounter = 0;
 
@@ -76,6 +75,7 @@ class CamCap : public Gtk::HBox {
 		sigc::connection con;
 	sigc::connection on_idle;
 
+	void set_image_resolution(int width, int height);
 	bool run_game_loop();
 		void simulated_game_loop();
 		void update_positions(Tags &tags);

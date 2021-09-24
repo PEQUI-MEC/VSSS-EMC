@@ -40,11 +40,7 @@ void V4LInterface::createQuickActionsFrame() {
 	auto *quick_sl_box = new Gtk::VBox;
 	auto *sl_box = new Gtk::VBox;
 
-	if (isLowRes)
-		box->set_orientation(Gtk::ORIENTATION_HORIZONTAL);
-	else
-		box->set_orientation(Gtk::ORIENTATION_VERTICAL);
-
+	box->set_orientation(Gtk::ORIENTATION_VERTICAL);
 
 	info_hbox.pack_start(frm_quick_actions, false, true, 5);
 
