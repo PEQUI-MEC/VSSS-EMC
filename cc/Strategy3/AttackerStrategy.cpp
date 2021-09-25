@@ -55,7 +55,7 @@ void AttackerStrategy::decide_spin_shot(const Geometry::Point &ball) {
 void AttackerStrategy::uvf_to_goal(const Geometry::Point &ball, const Geometry::Point &ball_est) {
 	Point goal = their::goal::back::center;
 	Vector ball_to_pred = ball_est - ball;
-	Point target = ball + (ball_to_pred * 0.2);
+	Point target = ball + (ball_to_pred * 0.4);
 
 	Vector ball_to_goal = goal - ball;
 	Vector pred_to_goal = goal - target;
@@ -71,17 +71,17 @@ void AttackerStrategy::uvf_to_goal(const Geometry::Point &ball, const Geometry::
 
 	switch (uvf_state) {
 		case UvfState::seek_ball:
-			if (error_smaller_than(25) && robot->get_position().x < target.x && robot_to_ball.size < 0.15)
+			if (error_smaller_than(15) && robot->get_position().x < target.x && robot_to_ball.size < 0.15)
 				uvf_state = UvfState::close_to_ball;
 			break;
 		case UvfState::close_to_ball:
 			if (error_bigger_than(70))
 				uvf_state = UvfState::seek_ball;
-			else if (robot_to_ball.size < 0.7)
+			else if (robot_to_ball.size < 0.1)
 				uvf_state = UvfState::has_ball;
 			break;
 		case UvfState::has_ball:
-			if (error_bigger_than(70) || robot_to_ball.size > 0.15)
+			if (error_bigger_than(90) || robot_to_ball.size > 0.3)
 				uvf_state = UvfState::seek_ball;
 			break;
 	}

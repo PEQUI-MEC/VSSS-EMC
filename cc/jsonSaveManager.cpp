@@ -15,6 +15,9 @@ void jsonSaveManager::save_team(Team &team, std::string name) {
 		team_config.erase("Strategy");
 	}
 
+	team_config["Color"] = (int) team.robot_color;
+	team_config["Inverted"] = team.inverted_field;
+
 	json &robots_config = team_config["Robots"];
 	robots_config["Count"] = (int) team.robots.size();
 	for (unsigned i = 0; i < team.robots.size(); i++) {
@@ -31,6 +34,13 @@ void jsonSaveManager::save_team(Team &team, std::string name) {
 void jsonSaveManager::load_team(Team &team, std::string name) {
 	if (!exists(configs, name)) return;
 	json &team_config = configs[name];
+
+	if (exists(team_config, "Color"))
+		team.robot_color = static_cast<RobotColor>((int) team_config["Color"]);
+	
+	if (exists(team_config, "Inverted"))
+		team.inverted_field = team_config["Inverted"];
+
 	if (!exists(team_config, "Robots")) return;
 	json &robots_config = team_config["Robots"];
 
@@ -244,6 +254,8 @@ void jsonSaveManager::load(const string file_path) {
 	else if (error == 2) cout << file_path << " is not a valid JSON file" << endl;
 
 	if (!error) {
+		if (exists(configs, "use_simulator"))
+			interface->game.is_simulated = configs["use_simulator"];
 		load_camera();
 		load_team(*interface->game.team, "Team");
 		load_team(*interface->game.adversary, "Adversary");
@@ -254,6 +266,8 @@ void jsonSaveManager::save(const string file_path) {
 	int error = read_configs_from_file(file_path);
 	if (error == 1) cout << "Creating " << file_path << endl;
 	else if (error == 2) cout << file_path << " is not a valid JSON file, will be overwritten" << endl;
+
+	configs["use_simulator"] = interface->game.is_simulated;
 
 	if (interface->vcap.isCameraON) save_camera();
 	else std::cout << "Can't save camera's information" << std::endl;

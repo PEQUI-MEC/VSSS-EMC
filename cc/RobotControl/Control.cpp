@@ -10,6 +10,10 @@ WheelVelocity Control::control_step(const Pose &pose, const Target &target, doub
 //	Sets target wheel velocity and runs wheel control
 	left.target_vel = target_wheel_vel.left;
 	right.target_vel = target_wheel_vel.right;
+
+	// Usando velocidade diretamente em vez de PID
+	return {left.target_vel, right.target_vel};
+	
 //	if (target.command == Command::WheelVelocity) {
 //		left.pid_step(pose.wheel_velocity.left, time);
 //		right.pid_step(pose.wheel_velocity.right, time);

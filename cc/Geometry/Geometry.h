@@ -66,6 +66,10 @@ namespace Geometry {
 		return degree * M_PI / 180.0;
 	}
 
+	constexpr double rad_to_degree(double degree) {
+		return degree * 180.0 / M_PI;
+	}
+
 //	Define operator* de forma associativa (value * v == v * value)
 //	Vector operator*(double value, Vector v) {return v * value;}
 

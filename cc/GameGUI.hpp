@@ -14,6 +14,9 @@ class GameGUI : public Gtk::Frame {
 	Gtk::Label adv_strategy_label;
 	Gtk::ComboBoxText adv_strategy;
 
+	Gtk::HBox inverted_hbox;
+	Gtk::Label inverted_label;
+
 	Gtk::HBox swap_team_hbox;
 	Gtk::Label swap_team_label;
 	Gtk::CheckButton swap_team_button;
@@ -23,6 +26,7 @@ class GameGUI : public Gtk::Frame {
 
 	public:
 	Gtk::CheckButton use_simulator_button;
+	Gtk::CheckButton inverted_button;
 
 	GameGUI(Game& game);
 	void update_strategy_combobox();

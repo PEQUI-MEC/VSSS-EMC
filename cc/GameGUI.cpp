@@ -16,6 +16,15 @@ GameGUI::GameGUI(Game &game) : game(game) {
 		game.set_strategy(*game.adversary, adv_strategy.get_active_text());
 	});
 
+	inverted_label.set_label("Inverted Field");
+	inverted_hbox.pack_start(inverted_button, false, true, 5);
+	inverted_hbox.pack_start(inverted_label, false, true, 5);
+	vbox.pack_start(inverted_hbox, false, true, 5);
+	inverted_button.signal_clicked().connect([&](){
+		game.team->inverted_field = inverted_button.get_active();
+		game.adversary->inverted_field = !inverted_button.get_active();
+	});
+
 	swap_team_label.set_label("Swap Teams");
 	swap_team_hbox.pack_start(swap_team_button, false, true, 5);
 	swap_team_hbox.pack_start(swap_team_label, false, true, 5);

@@ -39,10 +39,10 @@ void Strategy3::set_foul(VSSRef::Foul foul) {
 
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
 							 bool first_iteration) {
-	if (new_foul) {
+	// if (new_foul) {
 		set_default_formation(team, ball);
-		new_foul = false;
-	}
+		// new_foul = false;
+	// }
 
 	Robot3* attacker_robot = find_robot_by_role(team, Role::Attacker);
 	attacker.set_robot(attacker_robot);

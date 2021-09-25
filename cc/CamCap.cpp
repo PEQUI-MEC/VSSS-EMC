@@ -89,6 +89,11 @@ bool CamCap::run_game_loop() {
 			set_image_resolution(640, 480);
 		}
 		simulated_game_loop();
+	} else {
+//		Apaga imagem antiga da GUI
+		visionImage = cv::Scalar(0, 0, 0);
+		interface.imageView.set_data(visionImage.data);
+		interface.imageView.refresh();
 	}
 
 //	Atualiza a GUI
@@ -97,6 +102,11 @@ bool CamCap::run_game_loop() {
 	interface.update_ball_position(game.ball.position);
 	if (interface.start_game_bt.get_active() != game.playing_game)
 		interface.start_game_bt.set_active(game.playing_game);
+	if (interface.gameGUI.use_simulator_button.get_active() != game.is_simulated)
+		interface.gameGUI.use_simulator_button.set_active(game.is_simulated);
+	if (interface.gameGUI.inverted_button.get_active() != game.team->inverted_field) {
+		interface.gameGUI.inverted_button.set_active(game.team->inverted_field);
+	}
 	
 	return true;
 }
