@@ -5,6 +5,7 @@
 #include "packet.pb.h"
 #include "replacement.pb.h"
 #include "command.pb.h"
+#include "vssref_command.pb.h"
 
 #include <evpp/udp/udp_server.h>
 #include <evpp/udp/udp_message.h>
@@ -15,11 +16,15 @@
 class SimulatorClient {
 	public:
 	fira_message::sim_to_ref::Environment packet;
-	evpp::udp::Server server;
+	VSSRef::ref_to_team::VSSRef_Command ref_command;
+
+	evpp::udp::Server vision_server;
+	evpp::udp::Server referee_server;
 	evpp::udp::sync::Client client;
 	std::vector<char> buffer;
 
 	bool new_data = false;
+	bool new_ref_cmd = false;
 	std::mutex data_mutex;
 
 	double simulated_wheel_radius = 0.027;
@@ -30,7 +35,8 @@ class SimulatorClient {
 
 	SimulatorClient();
 	~SimulatorClient() {
-		server.Stop(true);
+		vision_server.Stop(true);
+		referee_server.Stop(true);
 	}
 
 	template<typename T>

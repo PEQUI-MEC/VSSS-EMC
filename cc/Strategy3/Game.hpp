@@ -18,6 +18,7 @@ class Game {
 	bool is_simulated = false;
 	bool playing_game = false;
 	bool first_iteration = true;
+	bool send_one_command = false;
 
 	unsigned robot_count = 0;
 
@@ -28,6 +29,7 @@ class Game {
 	Team& yellow_team();
 	Team& blue_team();
 	Tags to_tags();
+	void stop_game();
 };
 
 #endif //VSSS_GAME_HPP

@@ -75,7 +75,7 @@ class capture::V4LInterface : public Gtk::VBox {
 		std::vector<Gtk::HBox> robots_pos_hbox;
 		Gtk::HBox start_game_hbox;
 		Gtk::VBox buttons_vbox;
-		Gtk::Button start_game_bt;
+		Gtk::ToggleButton start_game_bt;
 
 		Gtk::Frame robots_pos_fm;
 		Gtk::Frame robots_buttons_fm;

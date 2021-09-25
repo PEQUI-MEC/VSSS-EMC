@@ -2,7 +2,7 @@
 
 SimulatorClient::SimulatorClient() {
 	client.Connect("127.0.0.1", 20011);
-	server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
+	vision_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
 		std::lock_guard<std::mutex> guard(data_mutex);
 		packet.ParseFromArray(msg->data(), (int) msg->size());
 		if (packet.has_frame()) {
@@ -12,8 +12,16 @@ SimulatorClient::SimulatorClient() {
 			last_msg_time = now;
 		}
 	});
-	server.Init(10002);
-	server.Start();
+	vision_server.Init(10002);
+	vision_server.Start();
+
+	referee_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
+		std::lock_guard<std::mutex> guard(data_mutex);
+		ref_command.ParseFromArray(msg->data(), (int) msg->size());
+		new_ref_cmd = true;
+	});
+	referee_server.Init(10003);
+	referee_server.Start();
 }
 
 void SimulatorClient::update_robots(Game &game) {

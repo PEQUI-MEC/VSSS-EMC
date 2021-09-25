@@ -44,7 +44,11 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
     protobuf_msg/common.proto
     protobuf_msg/command.proto
     protobuf_msg/replacement.proto
-    protobuf_msg/packet.proto)
+    protobuf_msg/packet.proto
+    protobuf_msg/vssref_placement.proto
+    protobuf_msg/vssref_common.proto
+    protobuf_msg/vssref_command.proto
+)
 
 #Define arquivos a serem compilados. Novos arquivos devem ser inclusos aqui
 set(SOURCE_FILES cc/main.cpp

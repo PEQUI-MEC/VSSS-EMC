@@ -480,7 +480,7 @@ void V4LInterface::__set_control(std::list<ControlHolder> *list, Gtk::Widget *wc
 }
 
 void V4LInterface::event_start_game_bt_signal_clicked() {
-	if (!game.playing_game) {
+	if (start_game_bt.get_active()) {
 
 		controlGUI.stop_test_on_click();
 
@@ -526,14 +526,7 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		start_game_bt.set_image(red_button_released);
 
 		// Para os robôs. Importante para não atrapalhar o Test On Click.
-		for (auto robot : game.team->robots) {
-			robot.stop();
-		}
-		controlGUI.messenger.send_commands(game.team->robots);
-		for (auto robot : game.adversary->robots) {
-			robot.stop();
-		}
-		controlGUI.messenger.send_commands(game.adversary->robots);
+		game.stop_game();
 	}
 }
 

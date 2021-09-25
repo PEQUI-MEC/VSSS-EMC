@@ -61,3 +61,14 @@ Tags Game::to_tags() {
 	tags.found_ball = true;
 	return tags;
 }
+
+void Game::stop_game() {
+	for (auto& robot : team->robots) {
+			robot.stop();
+		}
+	for (auto& robot : adversary->robots) {
+		robot.stop();
+	}
+	send_one_command = true;
+	playing_game = false;
+}

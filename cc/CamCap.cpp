@@ -78,25 +78,65 @@ bool CamCap::start_signal(bool b) {
 
 bool CamCap::run_game_loop() {
 	if (!game.is_simulated && has_camera) {
+		if (game.send_one_command) {
+			notify_data_ready(false);
+			game.send_one_command = false;
+		}
 		capture_and_show();
-	} else if (game.is_simulated){
+	} else if (game.is_simulated) {
 		if (has_camera) interface.bt_start.activate();
 		if (width != 640 || height != 480) {
 			set_image_resolution(640, 480);
 		}
 		simulated_game_loop();
-	} else {
-//		Sem camera e nem simulator, apenas atualiza a GUI
-		robotGUI.update_robots();
-		interface.updateRobotLabels();
-		interface.update_ball_position(game.ball.position);
 	}
+
+//	Atualiza a GUI
+	robotGUI.update_robots();
+	interface.updateRobotLabels();
+	interface.update_ball_position(game.ball.position);
+	if (interface.start_game_bt.get_active() != game.playing_game)
+		interface.start_game_bt.set_active(game.playing_game);
+	
 	return true;
 }
 
 void CamCap::simulated_game_loop() {
-	if(!simulator.new_data) return;
+	if(!simulator.new_data && !simulator.new_ref_cmd) return;
+
 	std::lock_guard<std::mutex> guard(simulator.data_mutex);
+
+	if (simulator.new_ref_cmd) {
+		simulator.new_ref_cmd = false;
+		switch (simulator.ref_command.foul()) {
+			case VSSRef::Foul::GAME_ON:
+				game.playing_game = true;
+				break;
+			case VSSRef::Foul::FREE_KICK:
+			case VSSRef::Foul::PENALTY_KICK:
+			case VSSRef::Foul::GOAL_KICK:
+			case VSSRef::Foul::FREE_BALL:
+			case VSSRef::Foul::KICKOFF:
+			case VSSRef::Foul::STOP:
+			case VSSRef::Foul::HALT:
+				game.stop_game();
+				break;
+		}
+		game.team->strategy->set_foul(simulator.ref_command.foul());
+		game.adversary->strategy->set_foul(simulator.ref_command.foul());
+	}
+
+	if (game.send_one_command) {
+		if (game.team->controlled) {
+			simulator.send_commands(*game.team.get());
+		}
+		if (game.adversary->controlled) {
+			simulator.send_commands(*game.adversary.get());
+		}
+		game.send_one_command = false;
+	}
+
+	if(!simulator.new_data) return;
 
 	simulator.update_robots(game);
 
@@ -123,10 +163,6 @@ void CamCap::simulated_game_loop() {
 		}
 	}
 
-//	Atualiza GUI
-	robotGUI.update_robots();
-	interface.updateRobotLabels();
-	interface.update_ball_position(game.ball.position);
 	fps_update();
 
 //	Atualiza a imagem do campo
@@ -282,11 +318,22 @@ void CamCap::send_cmd_thread() {
 		}
 		data_ready_flag = false;
 		if (ekf_data_ready) {
-			for (auto &robot : game.team->robots)
-				interface.controlGUI.messenger.send_ekf_data(robot);
+			if (game.team->controlled) {
+				for (auto &robot : game.team->robots)
+					interface.controlGUI.messenger.send_ekf_data(robot);
+			}
+			if (game.adversary->controlled) {
+				for (auto &robot : game.adversary->robots)
+					interface.controlGUI.messenger.send_ekf_data(robot);
+			}
 			ekf_data_ready = false;
 		} else {
-			interface.controlGUI.messenger.send_commands(game.team->robots);
+			if (game.team->controlled) {
+				interface.controlGUI.messenger.send_commands(game.team->robots);
+			}
+			if (game.adversary->controlled) {
+				interface.controlGUI.messenger.send_commands(game.adversary->robots);
+			}
 		}
 	}
 }
