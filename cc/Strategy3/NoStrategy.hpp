@@ -14,6 +14,8 @@ class NoStrategy : public Strategy {
 	virtual NoStrategy * clone() {
 		return new NoStrategy(*this);
 	};
+
+	void set_foul(VSSRef::Foul foul) {};
 };
 
 #endif //VSSS_NOSTRATEGY_HPP

@@ -6,6 +6,7 @@
 #include "Robot3.hpp"
 #include "Types.hpp"
 #include "Ball.hpp"
+#include "vssref_command.pb.h"
 
 class Strategy {
 	public:
@@ -14,6 +15,7 @@ class Strategy {
 							  Ball ball,
 							  bool first_iteration) = 0;
 	virtual Strategy * clone() = 0;
+	virtual void set_foul(VSSRef::Foul foul) = 0;
 };
 
 #endif //VSSS_STRATEGY_HPP

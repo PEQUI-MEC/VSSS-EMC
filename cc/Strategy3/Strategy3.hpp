@@ -13,12 +13,16 @@ class Strategy3 : public Strategy {
 	GoalkeeperStrategy goalkeeper;
 	Ball ball;
 
+	bool new_foul = false;
+
 	void
 	run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball, bool first_iteration);
 
 	Strategy3 * clone() {
 		return new Strategy3(*this);
 	}
+
+	void set_foul(VSSRef::Foul foul);
 
 	using sc = std::chrono::system_clock;
 	using duration_ms = std::chrono::duration<double, std::milli>;
@@ -33,6 +37,7 @@ class Strategy3 : public Strategy {
 	bool is_collision_axis_y(Robot3 *robot1, Robot3 *robot2);
 	bool is_collision_axis_x(Robot3 *robot1, Robot3 *robot2);
 	bool is_opposite_direction(Robot3 *robot1, Robot3 *robot2);
+	void set_default_formation(std::vector<Robot3> &team, Ball ball);
 };
 
 #endif //VSSS_STRATEGY3_HPP

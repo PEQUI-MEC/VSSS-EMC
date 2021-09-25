@@ -1,6 +1,7 @@
 #include "Strategy3.hpp"
 #include "Field.h"
 #include "helper.hpp"
+#include <algorithm>
 
 using namespace field;
 using namespace Geometry;
@@ -16,8 +17,33 @@ Robot3 * find_robot_by_role(std::vector<Robot3> &robots, Role role) {
 	}
 }
 
+void Strategy3::set_default_formation(std::vector<Robot3> &team, Ball ball) {
+	for (auto& robot : team) {
+		robot.role = Role::Defender;
+	}
+	auto& closest_to_ball = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
+		return (r1.pose.position - ball.position).size < (r2.pose.position - ball.position).size;
+	});
+	closest_to_ball.role = Role::Attacker;
+	auto& closest_to_goal = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
+		if (r1.role == Role::Attacker) return false;
+		else if (r2.role == Role::Attacker) return true; 
+		else return (r1.pose.position - field::our::goal::front::center).size < (r2.pose.position - field::our::goal::front::center).size;
+	});
+	closest_to_goal.role = Role::Goalkeeper;
+}
+
+void Strategy3::set_foul(VSSRef::Foul foul) {
+	new_foul = true;
+}
+
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
 							 bool first_iteration) {
+	if (new_foul) {
+		set_default_formation(team, ball);
+		new_foul = false;
+	}
+
 	Robot3* attacker_robot = find_robot_by_role(team, Role::Attacker);
 	attacker.set_robot(attacker_robot);
 	Robot3* defender_robot = find_robot_by_role(team, Role::Defender);
