@@ -1,5 +1,9 @@
 FROM ubuntu:18.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /dependecies
+
 # LIBRARIES
 RUN apt-get update && \
     apt-get install -y \
@@ -11,7 +15,8 @@ RUN apt-get update && \
         libavcodec-dev \
         libavformat-dev \
         libswscale-dev \
-        software-properties-common
+        software-properties-common \
+        gdb
 
 # GCC-10
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
@@ -21,7 +26,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 800 --slave /usr/bin/g++ g++ /usr/bin/g++-10
 
 # OPENCV
-WORKDIR /opencv_workspace
+WORKDIR /dependecies
 RUN git clone \
         --branch 4.0.1 \
         --depth 1 \
@@ -32,10 +37,11 @@ RUN cmake \
         -D CMAKE_INSTALL_PREFIX=/usr/local ..
 RUN make -j$(nproc) 2> /dev/null #not printing warnings or errors
 RUN make install
-RUN rm -r /opencv_workspace
+WORKDIR /dependecies
+RUN rm -rf *
 
 # Xbee
-WORKDIR /Xbee_workspace
+WORKDIR /dependecies
 RUN git clone https://github.com/lopelope/libxbee3.git
 WORKDIR ./libxbee3
 RUN git remote update
@@ -44,9 +50,10 @@ RUN git checkout waitforack-needsfree-issues-fix
 RUN make configure
 RUN make -j$(nproc)
 RUN make install
-RUN rm -r /Xbee_workspace
+WORKDIR /dependecies
+RUN rm -r *
 
-# VSSS
+# VSSS Dependencies
 RUN apt-get install -y \
         libboost-all-dev \
         libv4l-dev \
@@ -56,46 +63,80 @@ RUN apt-get install -y \
 RUN apt-get install -y wget autoconf automake libtool \
     curl make unzip libgoogle-glog-dev libevent-dev \
     python3-pip qt5-default libqt5opengl5-dev libgl1-mesa-dev \
-    libglu1-mesa-dev libode-dev -y
+    libglu1-mesa-dev libode-dev mesa-utils libgl1-mesa-glx libnvidia-gl-440
 
-WORKDIR /protobuf_workspace
+# Protobuf
+WORKDIR /dependecies
 RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protobuf-cpp-3.13.0.zip && \
     unzip protobuf-cpp-3.13.0.zip
 WORKDIR ./protobuf-3.13.0
 RUN ./autogen.sh && \
     ./configure
 RUN make -j$(nproc) && \
-    make install &&\
+    make install && \
     ldconfig
-RUN rm -r /protobuf_workspace
+WORKDIR /dependecies
+RUN rm -r *
 
-WORKDIR /evpp_workspace
+# EVPP (TCP/UDP library)
+WORKDIR /dependecies
 RUN git clone --recurse-submodules https://github.com/Qihoo360/evpp.git
-WORKDIR ./evpp
-WORKDIR ./build
+WORKDIR ./evpp/build
 RUN cmake .. && \
     make -j$(nproc) && \
     make install
-RUN rm -r /evpp_workspace
+WORKDIR /dependecies
+RUN rm -r *
 
+# AI
 RUN pip3 install --upgrade setuptools pip
 RUN pip3 install scikit-build
 RUN pip3 install gym tensorflow==1.14.0 opencv-python
 
-WORKDIR /stable_baselines_workspace
+WORKDIR /dependecies
 RUN git clone https://github.com/BrunoBSM/stable-baselines
 WORKDIR ./stable-baselines/
 RUN pip3 install -e .
-RUN rm -r /stable_baselines_workspace
+WORKDIR /
+WORKDIR /dependecies
+RUN rm -r *
 
-COPY cc /cc
-COPY img /img
-COPY protobuf_msg /protobuf_msg
-COPY python /python
-COPY pack-capture-gui /pack-capture-gui
-COPY pack-capture /pack-capture
-COPY CMakeLists.txt /
-WORKDIR /build
+# FIRASim
+WORKDIR /dependecies
+RUN git clone https://github.com/jpfeltracco/vartypes.git
+WORKDIR ./vartypes/build
 RUN cmake ..
 RUN make -j$(nproc)
-WORKDIR /
+RUN make install
+WORKDIR /dependecies
+RUN rm -r *
+
+WORKDIR /root/
+RUN git clone https://github.com/VSSSLeague/FIRASim.git
+WORKDIR ./FIRASim/build
+RUN cmake ..
+RUN make -j$(nproc)
+
+# Referee
+WORKDIR /root/
+RUN git clone https://github.com/VSSSLeague/VSSReferee.git
+WORKDIR ./VSSReferee/build
+RUN qmake ..
+RUN make -j$(nproc)
+
+# VSSS
+WORKDIR /root/VSSS
+COPY cc /root/VSSS/cc
+COPY img /root/VSSS/img
+COPY protobuf_msg /root/VSSS/protobuf_msg
+COPY python /root/VSSS/python
+COPY pack-capture-gui /root/VSSS/pack-capture-gui
+COPY pack-capture /root/VSSS/pack-capture
+COPY CMakeLists.txt /root/VSSS/
+COPY quicksave.json /root/VSSS/
+WORKDIR ./build
+RUN cmake ..
+RUN make -j$(nproc)
+
+RUN rm -rf /dependecies
+WORKDIR /root/src
