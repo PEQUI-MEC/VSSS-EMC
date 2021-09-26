@@ -31,7 +31,7 @@ void V4LInterface::HScale_offsetL_value_changed() {
 void V4LInterface::__event_bt_quick_save_clicked() {
 
 		std::cout << "QUICK SAVE" << std::endl;
-		jsonSaveManager config(this);
+		jsonSaveManager config(game, this);
 		config.save();
 }
 
@@ -40,14 +40,14 @@ void V4LInterface::__event_bt_save_clicked() {
 	FileChooser loadWindow;
 
 	if (loadWindow.result == Gtk::RESPONSE_OK) {
-		jsonSaveManager config(this);
+		jsonSaveManager config(game, this);
 		config.save(loadWindow.fileName);
 	}
 }
 
 void V4LInterface::__event_bt_quick_load_clicked() {
 	std::cout << "QUICK LOAD" << std::endl;
-	jsonSaveManager config(this);
+	jsonSaveManager config(game, this);
 	config.load();
 	robotGUI.update_robots();
 	update_interface_camera();
@@ -59,7 +59,7 @@ void V4LInterface::__event_bt_load_clicked() {
 	FileChooser loadWindow;
 
 	if (loadWindow.result == Gtk::RESPONSE_OK) {
-		jsonSaveManager config(this);
+		jsonSaveManager config(game, this);
 		config.load(loadWindow.fileName);
 		robotGUI.update_robots();
 		update_interface_camera();

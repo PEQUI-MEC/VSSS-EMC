@@ -24,10 +24,40 @@ services:
         build:
             context: .
             dockerfile: dockerfile
+        volumes:
+            - ./:/root/src/
+        environment:
+            - "DISPLAY=:0"
+        working_dir: /root/src
+        command: bash -c "cd ./build && cmake .. && make -j$$(nproc) && cd .. && /root/src/VSSS"
+    yellow_headless:
+        image: pequi-vsss
+        container_name: pequi-vsss-yellow-headless
+        stdin_open: true
+        ipc: 'host'
+        network_mode: "host"
+        privileged: true
+        build:
+            context: .
+            dockerfile: dockerfile
         environment:
             - "DISPLAY=:0"
         working_dir: /root/VSSS
-        command: /root/VSSS/VSSS
+        command: /root/VSSS/VSSS yellow_headless.json
+    blue_headless:
+        image: pequi-vsss
+        container_name: pequi-vsss-blue-headless
+        stdin_open: true
+        ipc: 'host'
+        network_mode: "host"
+        privileged: true
+        build:
+            context: .
+            dockerfile: dockerfile
+        environment:
+            - "DISPLAY=:0"
+        working_dir: /root/VSSS
+        command: /root/VSSS/VSSS blue_headless.json
     firasim_gui:
         image: pequi-vsss
         container_name: pequi-firasim

@@ -1,5 +1,7 @@
 #include <gtkmm.h>
 #include "CamCap.hpp"
+#include "jsonSaveManager.h"
+#include <signal.h>
 
 void init_python() {
 	Py_Initialize();
@@ -10,7 +12,6 @@ void init_python() {
 	auto exec_path = std::string(path, (ulong) size);
 	auto dir_end = exec_path.find_last_of('/');
 	auto dir = exec_path.substr(0, dir_end) + "/python";
-	std::cout << "Python dir: " << dir << std::endl;
 
 	auto py_dir = PyUnicode_FromString(dir.c_str());
 	auto sys_path = PySys_GetObject("path");
@@ -27,28 +28,51 @@ int main(int argc, char **argv) {
 
 	init_python();
 
-	Gtk::Main kit(argc, argv);
-	Gtk::Window window;
+// 	Ativa headless se receber nome do arquivo json pelo terminal
+	bool headless = argc >= 2;
+	
+	if (headless) {
+		Game game;
+		SimulatedGame simulator(game);
 
-	window.set_title("Pequi Mecânico - VSSS EMC");
+		jsonSaveManager config(game, nullptr);
+		config.load(argv[1]);
+		game.is_simulated = true;
 
-	auto screen_width = Gdk::screen_width();
-	bool isLowRes = screen_width <= 1920;
-//	bool isLowRes = true;
+// 		Permite parar a simulacão manualmente
+		signal(SIGINT,[](int s) {
+			exit(1); 
+		});
 
-	CamCap camcap(isLowRes);
-	window.add(camcap);
+		std::cout << "ready to play" << std::endl;
 
-	window.show_all();
+		while (true) {
+			simulator.game_loop();
+		}
+	} else {
+		Gtk::Main kit(argc, argv);
+		Gtk::Window window;
 
-	camcap.interface.fr_camCalib_offline.hide();
-	camcap.interface.controlGUI.update_ack_interface();
+		window.set_title("Pequi Mecânico - VSSS EMC");
 
-	window.maximize();
+		auto screen_width = Gdk::screen_width();
+		// bool isLowRes = screen_width <= 1920;
+		bool isLowRes = true;
 
-	Gtk::Main::run(window);
+		CamCap camcap(isLowRes);
+		window.add(camcap);
 
-	//Py_Finalize();
+		window.show_all();
 
-	return EXIT_SUCCESS;
+		camcap.interface.fr_camCalib_offline.hide();
+		camcap.interface.controlGUI.update_ack_interface();
+
+		window.maximize();
+
+		Gtk::Main::run(window);
+
+		//Py_Finalize();
+
+		return EXIT_SUCCESS;
+	}
 }

@@ -8,7 +8,7 @@ using vision::Vision;
 void jsonSaveManager::save_team(Team &team, std::string name) {
 	json& team_config = configs[name];
 
-	auto strategy_name = interface->game.get_strategy_name(team);
+	auto strategy_name = game.get_strategy_name(team);
 	if (strategy_name.has_value()) {
 		team_config["Strategy"] = strategy_name.value();
 	} else {
@@ -45,7 +45,7 @@ void jsonSaveManager::load_team(Team &team, std::string name) {
 	json &robots_config = team_config["Robots"];
 
 	if (exists(team_config, "Strategy"))
-		interface->game.set_strategy(team, team_config["Strategy"]);
+		game.set_strategy(team, team_config["Strategy"]);
 
 	long robot_count = robots_config["Count"];
 
@@ -255,10 +255,13 @@ void jsonSaveManager::load(const string file_path) {
 
 	if (!error) {
 		if (exists(configs, "use_simulator"))
-			interface->game.is_simulated = configs["use_simulator"];
-		load_camera();
-		load_team(*interface->game.team, "Team");
-		load_team(*interface->game.adversary, "Adversary");
+			game.is_simulated = configs["use_simulator"];
+		if (interface)
+			load_camera();
+		load_team(*game.team, "Team");
+		load_team(*game.adversary, "Adversary");
+
+		std::cout << "loaded " << file_path << std::endl;
 	}
 }
 
@@ -267,13 +270,13 @@ void jsonSaveManager::save(const string file_path) {
 	if (error == 1) cout << "Creating " << file_path << endl;
 	else if (error == 2) cout << file_path << " is not a valid JSON file, will be overwritten" << endl;
 
-	configs["use_simulator"] = interface->game.is_simulated;
+	configs["use_simulator"] = game.is_simulated;
 
-	if (interface->vcap.isCameraON) save_camera();
-	else std::cout << "Can't save camera's information" << std::endl;
+	if (interface && interface->vcap.isCameraON) save_camera();
+	else if (!interface->vcap.isCameraON) std::cout << "Can't save camera's information" << std::endl;
 
-	save_team(*interface->game.team, "Team");
-	save_team(*interface->game.adversary, "Adversary");
+	save_team(*game.team, "Team");
+	save_team(*game.adversary, "Adversary");
 	write_configs_to_file(file_path);
 }
 

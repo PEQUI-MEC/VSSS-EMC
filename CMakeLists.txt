@@ -97,6 +97,7 @@ set(SOURCE_FILES cc/main.cpp
     cc/Strategy3/Ball.hpp cc/Strategy3/Types.cpp
     cc/GameGUI.cpp cc/GameGUI.hpp cc/Strategy3/NoStrategy.hpp
     cc/Simulator/SimulatorClient.cpp cc/Simulator/SimulatorClient.hpp
+    cc/Simulator/SimulatedGame.cpp cc/Simulator/SimulatedGame.hpp
     cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp
     cc/Strategy3/helper.hpp cc/Strategy3/helper.cpp
     cc/vision/Tags.hpp

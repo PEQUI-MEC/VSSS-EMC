@@ -6,6 +6,8 @@ VSSS
 *.json
 *.txt
 !CMakeLists.txt
+!blue_headless.json
+!yellow_headless.json
 
 build/
 
@@ -19,3 +21,5 @@ python/__pycache__/
 __pycache__/
 
 python/models/
+
+

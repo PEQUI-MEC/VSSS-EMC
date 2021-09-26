@@ -124,7 +124,7 @@ WORKDIR ./VSSReferee/build
 RUN qmake ..
 RUN make -j$(nproc)
 
-# VSSS
+# VSSS for headless
 WORKDIR /root/VSSS
 COPY cc /root/VSSS/cc
 COPY img /root/VSSS/img
@@ -133,7 +133,8 @@ COPY python /root/VSSS/python
 COPY pack-capture-gui /root/VSSS/pack-capture-gui
 COPY pack-capture /root/VSSS/pack-capture
 COPY CMakeLists.txt /root/VSSS/
-COPY quicksave.json /root/VSSS/
+COPY yellow_headless.json /root/VSSS/
+COPY blue_headless.json /root/VSSS/
 WORKDIR ./build
 RUN cmake ..
 RUN make -j$(nproc)

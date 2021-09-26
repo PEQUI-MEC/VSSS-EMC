@@ -34,6 +34,7 @@
 #include <Strategy2/AIStrategy.hpp>
 #include <Strategy3/Game.hpp>
 #include <Simulator/SimulatorClient.hpp>
+#include <Simulator/SimulatedGame.hpp>
 #include "LS.h"
 
 #define MAX_THETA_TOLERATION 3
@@ -44,7 +45,7 @@ class CamCap : public Gtk::HBox {
 	public:
 		Game game;
 
-		SimulatorClient simulator;
+		SimulatedGame simulator;
 
 		bool has_camera = false;
 
@@ -77,6 +78,7 @@ class CamCap : public Gtk::HBox {
 
 	void set_image_resolution(int width, int height);
 	bool run_game_loop();
+	void update_simulated_image();
 		void simulated_game_loop();
 		void update_positions(Tags &tags);
 		bool start_signal(bool b);

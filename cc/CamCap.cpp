@@ -88,7 +88,11 @@ bool CamCap::run_game_loop() {
 		if (width != 640 || height != 480) {
 			set_image_resolution(640, 480);
 		}
-		simulated_game_loop();
+		bool ran_iteration = simulator.game_loop();
+		if (ran_iteration) {
+			fps_update();
+			update_simulated_image();
+		}
 	} else {
 //		Apaga imagem antiga da GUI
 		visionImage = cv::Scalar(0, 0, 0);
@@ -111,71 +115,7 @@ bool CamCap::run_game_loop() {
 	return true;
 }
 
-void CamCap::simulated_game_loop() {
-	if(!simulator.new_data && !simulator.new_ref_cmd) return;
-
-	std::lock_guard<std::mutex> guard(simulator.data_mutex);
-
-	if (simulator.new_ref_cmd) {
-		simulator.new_ref_cmd = false;
-		switch (simulator.ref_command.foul()) {
-			case VSSRef::Foul::GAME_ON:
-				game.playing_game = true;
-				break;
-			case VSSRef::Foul::FREE_KICK:
-			case VSSRef::Foul::PENALTY_KICK:
-			case VSSRef::Foul::GOAL_KICK:
-			case VSSRef::Foul::FREE_BALL:
-			case VSSRef::Foul::KICKOFF:
-			case VSSRef::Foul::STOP:
-			case VSSRef::Foul::HALT:
-				game.stop_game();
-				break;
-		}
-		game.team->strategy->set_foul(simulator.ref_command.foul());
-		game.adversary->strategy->set_foul(simulator.ref_command.foul());
-	}
-
-	if (game.send_one_command) {
-		if (game.team->controlled) {
-			simulator.send_commands(*game.team.get());
-		}
-		if (game.adversary->controlled) {
-			simulator.send_commands(*game.adversary.get());
-		}
-		game.send_one_command = false;
-	}
-
-	if(!simulator.new_data) return;
-
-	simulator.update_robots(game);
-
-	if (game.playing_game) {
-		auto inverted_team = game.team->get_inverted_robot_positions();
-		auto inverted_adv = game.adversary->get_inverted_robot_positions();
-		if (game.team->inverted_field) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv,
-											  game.ball.get_inverted(), game.first_iteration);
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball, game.first_iteration);
-		} else {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration);
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball.get_inverted(), game.first_iteration);
-		}
-		game.first_iteration = false;
-
-		if (game.team->controlled) {
-			simulator.send_commands(*game.team.get());
-		}
-		if (game.adversary->controlled) {
-			simulator.send_commands(*game.adversary.get());
-		}
-	}
-
-	fps_update();
-
-//	Atualiza a imagem do campo
+void CamCap::update_simulated_image() {
 	visionImage = cv::Scalar(0, 0, 0);
 	interface.imageView.set_data(visionImage.data);
 	interface.imageView.refresh();
@@ -358,7 +298,8 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-CamCap::CamCap(bool isLowRes) : visionImage(height, width, CV_8UC3),
+CamCap::CamCap(bool isLowRes) : simulator(game),
+								visionImage(height, width, CV_8UC3),
 								frameCounter(0),
 								msg_thread(&CamCap::send_cmd_thread, this),
 								robotGUI(game, isLowRes),
