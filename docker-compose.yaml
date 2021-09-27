@@ -12,12 +12,13 @@ services:
             dockerfile: dockerfile
         volumes:
             - ./:/root/src/
+            - $HOME/.Xauthority:/root/.Xauthority:rw
+            - /tmp/.X11-unix:/tmp/.X11-unix
         environment:
-            - "DISPLAY=:0"
+            - DISPLAY=unix$DISPLAY
     pequi:
         image: pequi-vsss
         container_name: pequi-vsss-run
-        stdin_open: true
         ipc: 'host'
         network_mode: "host"
         privileged: true
@@ -26,8 +27,10 @@ services:
             dockerfile: dockerfile
         volumes:
             - ./:/root/src/
+            - $HOME/.Xauthority:/root/.Xauthority:rw
+            - /tmp/.X11-unix:/tmp/.X11-unix
         environment:
-            - "DISPLAY=:0"
+            - DISPLAY=unix$DISPLAY
         working_dir: /root/src
         command: bash -c "cd ./build && cmake .. && make -j$$(nproc) && cd .. && /root/src/VSSS"
     yellow_headless:
@@ -36,12 +39,9 @@ services:
         stdin_open: true
         ipc: 'host'
         network_mode: "host"
-        privileged: true
         build:
             context: .
             dockerfile: dockerfile
-        environment:
-            - "DISPLAY=:0"
         working_dir: /root/VSSS
         command: /root/VSSS/VSSS yellow_headless.json
     blue_headless:
@@ -50,12 +50,9 @@ services:
         stdin_open: true
         ipc: 'host'
         network_mode: "host"
-        privileged: true
         build:
             context: .
             dockerfile: dockerfile
-        environment:
-            - "DISPLAY=:0"
         working_dir: /root/VSSS
         command: /root/VSSS/VSSS blue_headless.json
     firasim_gui:
@@ -68,8 +65,11 @@ services:
         build:
             context: .
             dockerfile: dockerfile
+        volumes:
+            - $HOME/.Xauthority:/root/.Xauthority:rw
+            - /tmp/.X11-unix:/tmp/.X11-unix
         environment:
-            - "DISPLAY=:0"
+            - DISPLAY=unix$DISPLAY
         working_dir: /root/FIRASim/bin
         command: /root/FIRASim/bin/FIRASim
     firasim_headless:
@@ -82,8 +82,11 @@ services:
         build:
             context: .
             dockerfile: dockerfile
+        volumes:
+            - $HOME/.Xauthority:/root/.Xauthority:rw
+            - /tmp/.X11-unix:/tmp/.X11-unix
         environment:
-            - "DISPLAY=:0"
+            - DISPLAY=unix$DISPLAY
         working_dir: /root/FIRASim/bin
         command: /root/FIRASim/bin/FIRASim --headless
     referee:
@@ -96,7 +99,10 @@ services:
         build:
             context: .
             dockerfile: dockerfile
+        volumes:
+            - $HOME/.Xauthority:/root/.Xauthority:rw
+            - /tmp/.X11-unix:/tmp/.X11-unix
         environment:
-            - "DISPLAY=:0"
+            - DISPLAY=unix$DISPLAY
         working_dir: /root/VSSReferee/bin
         command: /root/VSSReferee/bin/VSSReferee
