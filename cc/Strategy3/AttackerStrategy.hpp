@@ -17,13 +17,14 @@ class AttackerStrategy : public RoleStrategy {
 		has_ball,
 	};
 	UvfState uvf_state = UvfState::seek_ball;
+	Geometry::Vector robot_to_ball_for_uvf;
 
 	void run_strategy(Ball& ball);
 
 	/**	Robô vai para a bola usando o UVF
 	 *	@param ball posição da bola
 	 *	robô se move com velocidade "default_target_velocity" */
-	void uvf_to_goal(const Geometry::Point &ball, const Geometry::Point &ball_est);
+	void uvf_to_goal(Ball& ball);
 
 	/** Robô gira com sentido horário ou anti-horário dependendo da posição da bola
 	 *	@param ball posição da bola

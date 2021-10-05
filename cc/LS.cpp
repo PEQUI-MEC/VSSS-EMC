@@ -16,6 +16,13 @@ void LS::init(int sampNum, int polyOrder) {
 		P[i][0] = i;
 }
 
+void LS::reset() {
+	zeroVector(R, polyOrder + 1);
+	zeroMatrix(P, sampNum, 2);
+	for (int i = 0; i < sampNum; i++)
+		P[i][0] = i;
+}
+
 // This will give you the position estimate for a certain future sample
 double LS::estimate(int futureSample) {
 	interpolate();

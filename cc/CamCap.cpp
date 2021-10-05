@@ -26,7 +26,10 @@ void CamCap::update_positions(Tags &tags) {
 
 	interface.updateRobotLabels();
 
-	if (tags.found_ball) game.ball.set_position(Geometry::from_cv_point(tags.ball.position));
+	if (tags.found_ball) {
+		game.ball.set_position(Geometry::from_cv_point(tags.ball.position));
+		game.ball.update_ls();
+	}
 	interface.update_ball_position(game.ball.position);
 }
 
@@ -131,6 +134,8 @@ void CamCap::update_simulated_image() {
 			interface.imageView.imageArt.draw_targets(robot, visionImage, game.adversary->inverted_field,
 													  game.adversary->robot_color);
 	}
+	Geometry::Point ball_later = game.ball.position + (game.ball.velocity * 0.05);
+	circle(visionImage, ball_later.to_cv_point(), 7, cv::Scalar(255, 140, 0), 2);
 }
 
 bool CamCap::capture_and_show() {
@@ -192,7 +197,6 @@ bool CamCap::capture_and_show() {
 
 	// ----------- ESTRATEGIA -----------------//
 	if (game.playing_game) {
-		circle(visionImage, game.ball.estimative.to_cv_point(), 7, cv::Scalar(255, 140, 0), 2);
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
 		auto inverted_team = game.team->get_inverted_robot_positions();

@@ -83,7 +83,7 @@ void RobotGUI::update_speed_progressBars() {
 	for(unsigned i = 0; i < game.robot_count; i++) {
 		auto& robot = game.team->robots[i];
 		robots_speed_hscale[i].set_value(robot.default_target_velocity);
-		robots_speed_progressBar[i].set_fraction(robot.target.pose.velocity.linear / 1.4);
+		robots_speed_progressBar[i].set_fraction(robot.target.pose.velocity.linear / 1.5);
 		const std::string velocity = std::to_string(robot.target.pose.velocity.linear);
 		const std::string vel_text = velocity.substr(0, velocity.find('.') + 2);
 		robots_speed_progressBar[i].set_text(vel_text);
@@ -404,7 +404,7 @@ void RobotGUI::setup_bars() {
 	for (unsigned i = 0; i < game.robot_count; i++) {
 		robots_speed_hscale[i].set_digits(1);
 		robots_speed_hscale[i].set_increments(0.1, 1);
-		robots_speed_hscale[i].set_range(0, 1.4);
+		robots_speed_hscale[i].set_range(0, 1.5);
 		robots_speed_hscale[i].set_size_request(100, -1);
 		robots_speed_hscale[i].set_value(0.8);
 		robots_speed_hscale[i].set_state(Gtk::STATE_INSENSITIVE);
@@ -415,7 +415,7 @@ void RobotGUI::setup_bars() {
 		robots_speed_progressBar[i].set_text(to_string(robot.default_target_velocity));
 		robots_speed_progressBar[i].set_show_text(true);
 		robots_speed_progressBar[i].set_size_request(100, -1);
-		robots_speed_progressBar[i].set_fraction(robot.target.pose.velocity.linear / 1.4);
+		robots_speed_progressBar[i].set_fraction(robot.target.pose.velocity.linear / 1.5);
 	}
 }
 

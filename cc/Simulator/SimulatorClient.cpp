@@ -36,6 +36,7 @@ void SimulatorClient::update_robots(Game &game) {
 	}
 
 	game.ball.set_position(Geometry::Point::from_simulator(frame.ball().x(), frame.ball().y()));
+	game.ball.velocity = Geometry::Vector(Geometry::Point(frame.ball().vx(), frame.ball().vy()));
 }
 
 void SimulatorClient::update_team(Team &team, const Repeated<fira_message::Robot>& robots_msg) {
@@ -73,10 +74,10 @@ void SimulatorClient::send_commands(Team &team) {
 			command->set_wheel_right(angular_wheel_vel.right);
 		}
 	}
-	if (buffer.size() < cmds_packet.ByteSizeLong()) {
-		buffer.resize(cmds_packet.ByteSizeLong());
+	if (buffer.size() < cmds_packet.ByteSize()) {
+		buffer.resize(cmds_packet.ByteSize());
 	}
-	cmds_packet.SerializeToArray(buffer.data(), (int) cmds_packet.ByteSizeLong());
+	cmds_packet.SerializeToArray(buffer.data(), (int) cmds_packet.ByteSize());
 
-	client.Send(buffer.data(), (ulong) cmds_packet.ByteSizeLong());
+	client.Send(buffer.data(), (ulong) cmds_packet.ByteSize());
 }

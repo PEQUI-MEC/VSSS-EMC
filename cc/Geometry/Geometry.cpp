@@ -67,6 +67,11 @@ Point Point::inverted_coordinates(bool invert) const {
 	else return *this;
 }
 
+Vector Vector::inverted_coordinates(bool invert) const {
+	if (invert) return Vector(size, wrap(theta + M_PI));
+	else return *this;
+}
+
 Vector::Vector(const Point &p) {
 	size = distance(p, {0,0});
 	theta = std::atan2(p.y, p.x);
@@ -82,4 +87,8 @@ Vector Vector::with_size(double new_size) {
 
 Vector Vector::operator*(double value) {
 	return {size * value, theta};
+}
+
+double Vector::angle_to(const Vector &v) const {
+	return wrap(v.theta - this->theta);
 }

@@ -19,6 +19,7 @@ bool SimulatedGame::game_loop() {
 			case VSSRef::Foul::STOP:
 			case VSSRef::Foul::HALT:
 				game.stop_game();
+				game.ball.reset_ls();
 				break;
 		}
 		game.team->strategy->set_foul(client.ref_command.foul());

@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 		camcap.interface.fr_camCalib_offline.hide();
 		camcap.interface.controlGUI.update_ack_interface();
 
-		window.maximize();
+		// window.maximize();
 
 		Gtk::Main::run(window);
 

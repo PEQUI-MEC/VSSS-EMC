@@ -54,6 +54,7 @@ class LS {
 		LS();
 
 		void init(int sampNum, int polyOrder);
+		void reset();
 
 		// This will add a new value to the voltages array
 		void addValue(double newValue);

@@ -21,16 +21,16 @@ void Strategy3::set_default_formation(std::vector<Robot3> &team, Ball ball) {
 	for (auto& robot : team) {
 		robot.role = Role::Defender;
 	}
-	auto& closest_to_ball = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
-		return (r1.pose.position - ball.position).size < (r2.pose.position - ball.position).size;
-	});
-	closest_to_ball.role = Role::Attacker;
 	auto& closest_to_goal = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
-		if (r1.role == Role::Attacker) return false;
-		else if (r2.role == Role::Attacker) return true; 
-		else return (r1.pose.position - field::our::goal::front::center).size < (r2.pose.position - field::our::goal::front::center).size;
+		return (r1.pose.position - field::our::goal::front::center).size < (r2.pose.position - field::our::goal::front::center).size;
 	});
 	closest_to_goal.role = Role::Goalkeeper;
+	auto& closest_to_ball = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
+		if (r1.role == Role::Goalkeeper) return false;
+		else if (r2.role == Role::Goalkeeper) return true; 
+		else  return (r1.pose.position - ball.position).size < (r2.pose.position - ball.position).size;
+	});
+	closest_to_ball.role = Role::Attacker;
 }
 
 void Strategy3::set_foul(VSSRef::Foul foul) {

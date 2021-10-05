@@ -59,19 +59,7 @@ RUN apt-get install -y \
 RUN apt-get install -y wget autoconf automake libtool \
         curl make unzip libgoogle-glog-dev libevent-dev \
         python3-pip qt5-default libqt5opengl5-dev libgl1-mesa-dev \
-        libglu1-mesa-dev libode-dev mesa-utils libgl1-mesa-glx libnvidia-gl-440
-
-# Protobuf
-RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protobuf-cpp-3.13.0.zip &&\
-    unzip protobuf-cpp-3.13.0.zip &&\
-    cd ./protobuf-3.13.0 &&\
-    ./autogen.sh &&\
-    ./configure &&\
-    make -j$(nproc) &&\
-    make install &&\
-    ldconfig &&\
-    cd /dependecies &&\
-    rm -rf *
+        libglu1-mesa-dev libode-dev mesa-utils libgl1-mesa-glx libnvidia-gl-440 protobuf-compiler libprotoc-dev
 
 # EVPP (TCP/UDP library)
 RUN git clone --recurse-submodules https://github.com/Qihoo360/evpp.git &&\

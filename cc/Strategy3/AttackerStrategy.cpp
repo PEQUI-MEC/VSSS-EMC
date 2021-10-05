@@ -19,7 +19,7 @@ void AttackerStrategy::run_strategy(Ball& ball) {
 	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
 		exit_goal(ball.position);
 	} else {
-		uvf_to_goal(ball.position, ball.estimative);
+		uvf_to_goal(ball);
 	}
 }
 
@@ -52,14 +52,23 @@ void AttackerStrategy::decide_spin_shot(const Geometry::Point &ball) {
 //	}
 }
 
-void AttackerStrategy::uvf_to_goal(const Geometry::Point &ball, const Geometry::Point &ball_est) {
+void AttackerStrategy::uvf_to_goal(Ball& ball) {
 	Point goal = their::goal::back::center;
-	Vector ball_to_pred = ball_est - ball;
-	Point target = ball + (ball_to_pred * 0.4);
+	Point target = ball.position + (ball.velocity * 0.01);
 
-	Vector ball_to_goal = goal - ball;
+	auto upper_goal = field::their::goal::front::upper_limit;
+	auto lower_goal = field::their::goal::front::lower_limit;
+	Vector ball_to_upper = upper_goal - ball.position;
+	Vector ball_to_lower = lower_goal - ball.position;
+
+	Vector ball_to_goal = goal - ball.position;
 	Vector pred_to_goal = goal - target;
-	Vector robot_to_ball = ball - robot->get_position();
+	Vector robot_to_ball = ball.position - robot->get_position();
+
+	auto can_run_to_goal = robot_to_ball.angle_to(ball_to_upper) > 0 &&
+							robot_to_ball.angle_to(ball_to_lower) < 0;
+
+
 	double orientation_error = std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 //	double orientation_error_backwards = std::abs(wrap(robot_to_ball.theta - (ball_to_goal.theta + M_PI)));
 	auto error_smaller_than = [&](double theta) {
@@ -71,8 +80,10 @@ void AttackerStrategy::uvf_to_goal(const Geometry::Point &ball, const Geometry::
 
 	switch (uvf_state) {
 		case UvfState::seek_ball:
-			if (error_smaller_than(15) && robot->get_position().x < target.x && robot_to_ball.size < 0.15)
-				uvf_state = UvfState::close_to_ball;
+			if (can_run_to_goal && (robot_to_ball.size < (robot->SIZE/2 + 0.02))) {
+				uvf_state = UvfState::has_ball;
+				robot_to_ball_for_uvf = robot_to_ball;
+			}
 			break;
 		case UvfState::close_to_ball:
 			if (error_bigger_than(70))
@@ -81,7 +92,7 @@ void AttackerStrategy::uvf_to_goal(const Geometry::Point &ball, const Geometry::
 				uvf_state = UvfState::has_ball;
 			break;
 		case UvfState::has_ball:
-			if (error_bigger_than(90) || robot_to_ball.size > 0.3)
+			if (error_bigger_than(90) || robot_to_ball.size > 0.2)
 				uvf_state = UvfState::seek_ball;
 			break;
 	}
@@ -91,7 +102,7 @@ void AttackerStrategy::uvf_to_goal(const Geometry::Point &ball, const Geometry::
 			robot->go_to_pose(target, ball_to_goal);
 			break;
 		case UvfState::close_to_ball:
-			robot->go_to(ball);
+			robot->go_to(ball.position);
 			break;
 		case UvfState::has_ball:
 			robot->go_to(goal, 1.4);
@@ -135,11 +146,11 @@ void AttackerStrategy::charged_shot(const Geometry::Point &ball) {
 void AttackerStrategy::side_spin_shot(Point ball){
 	double distance_to_ball = distance(robot->get_position(), ball);
 
-	if(robot->get_position().x < ball.x-0.01 && (distance_to_ball > 0.065) ){
+	if(robot->get_position().x < ball.x-0.01 && (distance_to_ball > 0.07) ){
 		//para evitar o robo ficar dançando quando estiver na lateral correndo atrás da bola
 		robot->go_to(ball);
 	}else
-	if (distance_to_ball <= 0.065 && robot->get_position().x < ball.x){
+	if (distance_to_ball <= 0.07 && robot->get_position().x < ball.x){
 		if(ball.y > their::goal::front::center.y){
 			robot->spin(-35);//Robô gira no sentido anti-horárioo
 		}else{
