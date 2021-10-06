@@ -6,6 +6,7 @@
 #include "replacement.pb.h"
 #include "command.pb.h"
 #include "vssref_command.pb.h"
+#include "vssref_placement.pb.h"
 
 #include <evpp/udp/udp_server.h>
 #include <evpp/udp/udp_message.h>
@@ -21,7 +22,9 @@ class SimulatorClient {
 	evpp::udp::Server vision_server;
 	evpp::udp::Server referee_server;
 	evpp::udp::sync::Client client;
+	evpp::udp::sync::Client referee_client;
 	std::vector<char> buffer;
+	std::vector<char> placement_buffer;
 
 	bool new_data = false;
 	bool new_ref_cmd = false;
@@ -45,6 +48,7 @@ class SimulatorClient {
 	void update_team(Team &team, const Repeated<fira_message::Robot>& robots_msg);
 	void update_robots(Game& game);
 	void send_commands(Team &team);
+	void send_placement();
 };
 
 #endif //VSSS_SIMULATORCLIENT_HPP

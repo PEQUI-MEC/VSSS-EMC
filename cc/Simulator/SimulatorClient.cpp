@@ -1,7 +1,10 @@
 #include "SimulatorClient.hpp"
 
 SimulatorClient::SimulatorClient() {
+
+	referee_client.Connect("224.5.23.2", 10004);	
 	client.Connect("127.0.0.1", 20011);
+
 	vision_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
 		std::lock_guard<std::mutex> guard(data_mutex);
 		packet.ParseFromArray(msg->data(), (int) msg->size());
@@ -80,4 +83,40 @@ void SimulatorClient::send_commands(Team &team) {
 	cmds_packet.SerializeToArray(buffer.data(), (int) cmds_packet.ByteSize());
 
 	client.Send(buffer.data(), (ulong) cmds_packet.ByteSize());
+}
+
+void SimulatorClient::send_placement(){
+	VSSRef::team_to_ref::VSSRef_Placement placement;
+	VSSRef::Frame *frame = new VSSRef::Frame();
+	// VSSRef::Color *color = new VSSRef::Color();
+	//VSSRef::Color::Yellow;
+	frame->set_teamcolor(VSSRef::Color::YELLOW);
+
+	VSSRef::Robot *robot0 = frame->add_robots();
+	robot0->set_robot_id(0);
+	robot0->set_x(0.675);
+	robot0->set_y(0);
+	robot0->set_orientation(0);
+
+	VSSRef::Robot *robot1 = frame->add_robots();
+	robot1->set_robot_id(1);
+	robot1->set_x(-0.225);
+	robot1->set_y(0.04);
+	robot1->set_orientation(20);
+
+	VSSRef::Robot *robot2 = frame->add_robots();
+	robot2->set_robot_id(2);
+	robot2->set_x(0.1125);
+	robot2->set_y(0.4);
+	robot2->set_orientation(0);
+
+	placement.set_allocated_world(frame);
+
+	if (placement_buffer.size() < placement.ByteSize()) {
+		placement_buffer.resize(placement.ByteSize());
+	}
+	placement.SerializeToArray(placement_buffer.data(), (int) placement.ByteSize());
+
+	referee_client.Send(placement_buffer.data(), (ulong) placement.ByteSize());
+
 }

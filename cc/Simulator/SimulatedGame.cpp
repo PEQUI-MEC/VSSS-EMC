@@ -12,7 +12,16 @@ bool SimulatedGame::game_loop() {
 				game.playing_game = true;
 				break;
 			case VSSRef::Foul::FREE_KICK:
+				game.stop_game();
+				game.ball.reset_ls();
+				break;
 			case VSSRef::Foul::PENALTY_KICK:
+				game.stop_game();
+				game.ball.reset_ls();
+				if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW){
+					client.send_placement();
+				}
+				break;
 			case VSSRef::Foul::GOAL_KICK:
 			case VSSRef::Foul::FREE_BALL:
 			case VSSRef::Foul::KICKOFF:
