@@ -7,7 +7,6 @@
 class Ball {
 	public:
 	Geometry::Point position;
-	Geometry::Point estimative;
 	Geometry::Vector velocity;
 
 	LS ls_x, ls_y;
@@ -19,7 +18,7 @@ class Ball {
 
 	Ball(const Geometry::Point &position, const Geometry::Point &estimative,
 		const Geometry::Vector &velocity) :
-			position(position), estimative(estimative), velocity(velocity) {}
+			position(position), velocity(velocity), estimative(estimative) {}
 
 	void set_position(Geometry::Point new_position) {
 		position = new_position;
@@ -43,6 +42,9 @@ class Ball {
 		return Ball{position.inverted_coordinates(),
 			estimative.inverted_coordinates(), velocity.inverted_coordinates()};
 	}
+	
+private:
+	Geometry::Point estimative;
 };
 
 #endif //VSSS_BALL_HPP

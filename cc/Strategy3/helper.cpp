@@ -13,5 +13,5 @@ bool is_ball_behind(const Robot3 *robot, const Ball &ball) {
 }
 
 bool is_ball_est_ahead(const Geometry::Point &point, const Ball &ball, double offset) {
-	return ball.estimative.x > point.x + offset;
+	return (ball.position + ball.velocity * 0.35).x > point.x + offset;
 }

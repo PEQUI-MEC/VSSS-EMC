@@ -77,7 +77,7 @@ Vector::Vector(const Point &p) {
 	theta = std::atan2(p.y, p.x);
 }
 
-Vector Vector::unitary() {
+Vector Vector::unitary() const {
 	return {1, theta};
 }
 
@@ -85,7 +85,7 @@ Vector Vector::with_size(double new_size) const {
 	return {new_size, theta};
 }
 
-Vector Vector::operator*(double value) {
+Vector Vector::operator*(double value) const {
 	return {size * value, theta};
 }
 

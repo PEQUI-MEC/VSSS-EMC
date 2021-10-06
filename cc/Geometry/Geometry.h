@@ -16,8 +16,8 @@ namespace Geometry {
 		Vector(const double size, const double theta) : size(size), theta(theta) {}
 		constexpr Vector() noexcept : size(0), theta(0) {};
 		explicit Vector(const Point &p);
-		Vector operator*(double value);
-		Vector unitary();
+		Vector operator*(double value) const;
+		Vector unitary() const;
 		Vector with_size(double new_size) const;
 		Vector inverted_coordinates(bool invert = true) const;
 		double angle_to(const Vector &v) const;
