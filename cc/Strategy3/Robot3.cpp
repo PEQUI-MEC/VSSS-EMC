@@ -66,6 +66,17 @@ Geometry::Vector Robot3::get_direction() {
 	}
 }
 
+void Robot3::spin_kick_to_target(Geometry::Point ball, Geometry::Point target) {
+    auto robot_to_ball = pose.position - ball;
+    auto ball_to_target = target - ball;
+    auto angle = robot_to_ball.angle_to(ball_to_target);
+    if (angle > 0) {
+        spin(-35);
+    } else {
+        spin(35);
+    }
+}
+
 Tag Robot3::to_tag(bool invert) const {
 	Tag tag;
 	auto front = pose.position + Geometry::Vector(SIZE/2, pose.orientation);

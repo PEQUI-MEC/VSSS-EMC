@@ -3,9 +3,9 @@
 
 class Wheel {
 	struct PID {
-		double kp = 2.5;
-		double ki = 1;
-		double kd = 0.001;
+		double kp = 2.0;
+		double ki = 1.0;
+		double kd = 0.0;
 	};
 
 	PID pid{};

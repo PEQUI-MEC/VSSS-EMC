@@ -17,7 +17,6 @@ class AttackerStrategy : public RoleStrategy {
 		has_ball,
 	};
 	UvfState uvf_state = UvfState::seek_ball;
-	Geometry::Vector robot_to_ball_for_uvf;
 
 	void run_strategy(Ball& ball);
 
@@ -25,11 +24,6 @@ class AttackerStrategy : public RoleStrategy {
 	 *	@param ball posição da bola
 	 *	robô se move com velocidade "default_target_velocity" */
 	void uvf_to_goal(Ball& ball);
-
-	/** Robô gira com sentido horário ou anti-horário dependendo da posição da bola
-	 *	@param ball posição da bola
-	 */
-	void spin_shot(const Geometry::Point &ball);
 
 	/**	Robô trava a bola no canto e faz um cruzamento
 	 * @param ball posição da bola
@@ -49,9 +43,6 @@ class AttackerStrategy : public RoleStrategy {
 	Role get_role() {
 		return Role::Attacker;
 	}
-
-	private:
-	void decide_spin_shot(const Geometry::Point &ball);
 };
 
 #endif //VSSS_ATTACKER_H

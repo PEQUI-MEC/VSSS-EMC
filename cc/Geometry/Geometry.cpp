@@ -81,7 +81,7 @@ Vector Vector::unitary() {
 	return {1, theta};
 }
 
-Vector Vector::with_size(double new_size) {
+Vector Vector::with_size(double new_size) const {
 	return {new_size, theta};
 }
 

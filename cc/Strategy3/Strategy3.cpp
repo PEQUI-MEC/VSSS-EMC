@@ -40,6 +40,7 @@ void Strategy3::set_foul(VSSRef::Foul foul) {
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
 							 bool first_iteration) {
 	// if (new_foul) {
+    if (attacker.has_robot() && defender.has_robot() && goalkeeper.has_robot())
 		set_default_formation(team, ball);
 		// new_foul = false;
 	// }

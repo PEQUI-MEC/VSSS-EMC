@@ -17,8 +17,8 @@ class Robot3 {
 	double SIZE = 0.08;
 	static constexpr double WHEEL_RADIUS = 0.03;
 	double default_target_velocity = 0.8;
-	const double TARGET_OFFSET = 0.03; // tolerância para saber se o robô chegou no ponto
-	const double BALL_OFFSET = 0.08; // tolerância para saber se a bola está próxima ao robô
+	const double TARGET_OFFSET = 0.02; // tolerância para saber se o robô chegou no ponto
+	const double BALL_OFFSET = 0.078; // tolerância para saber se a bola está próxima ao robô
 
 	Control control;
 
@@ -65,6 +65,8 @@ class Robot3 {
 	void stop() { spin(0); };
 	/** Retorna a direção do movimento do robô **/
 	Geometry::Vector get_direction();
+
+    void spin_kick_to_target(Geometry::Point ball, Geometry::Point target);
 
 	void send_no_command() {
 		target.command = Command::None;

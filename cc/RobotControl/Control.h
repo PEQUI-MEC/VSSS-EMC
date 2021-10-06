@@ -28,7 +28,7 @@ class Control {
 	Velocity position_control();
 	Velocity uvf_control();
 	Velocity orientation_control();
-	Velocity vector_control(double target_theta, double velocity, bool enable_backwards);
+	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 14);
 	bool backwards_select(double theta_error);
 };
 

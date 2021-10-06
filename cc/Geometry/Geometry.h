@@ -18,7 +18,7 @@ namespace Geometry {
 		explicit Vector(const Point &p);
 		Vector operator*(double value);
 		Vector unitary();
-		Vector with_size(double new_size);
+		Vector with_size(double new_size) const;
 		Vector inverted_coordinates(bool invert = true) const;
 		double angle_to(const Vector &v) const;
 	};

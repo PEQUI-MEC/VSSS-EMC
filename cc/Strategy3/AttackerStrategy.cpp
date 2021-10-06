@@ -8,7 +8,7 @@ void AttackerStrategy::run_strategy(Ball& ball) {
 	if (at_location(robot->get_position(), Location::TheirCornerAny)) {
 		crossing(ball.position);
 	} else if (has_ball(robot, ball) && at_location(robot->get_position(), Location::TheirAreaSideAny)) {
-		spin_shot(ball.position);
+		robot->spin_kick_to_target(ball.position, their::goal::front::center);
 	} else if (at_location(robot->get_position(), Location::OurBox)) {
 		// Cobrar penalti
 		charged_shot(ball.position);
@@ -23,38 +23,9 @@ void AttackerStrategy::run_strategy(Ball& ball) {
 	}
 }
 
-void AttackerStrategy::decide_spin_shot(const Geometry::Point &ball) {
-	double upper_y = robot->get_position().y + robot->SIZE/2;
-	double upper_x = robot->get_position().x + robot->SIZE/2;
-	double lower_x = robot->get_position().x - robot->SIZE/2;
-
-	auto robot_to_ball = ball - robot->get_position();
-
-	if (at_location(robot->get_position(), Location::UpperField)) {
-		if (robot_to_ball.theta < -M_PI/2) {
-			robot->spin(35);
-		} else {
-			robot->spin(-35);
-		}
-	} else {
-		if (robot_to_ball.theta > M_PI/2) {
-			robot->spin(-35);
-		} else {
-			robot->spin(35);
-		}
-	}
-
-//	if ((at_location(get_position(), Location::UpperField) && (ball.y > upper_y || ball.x > upper_x))
-//		|| (at_location(get_position(), Location::LowerField) && (ball.y > upper_y || ball.x < lower_x))) {
-//		spin(-35.0); // Robô gira no sentido horário
-//	} else {
-//		spin(35);//Robô gira no sentido anti-horário
-//	}
-}
-
 void AttackerStrategy::uvf_to_goal(Ball& ball) {
 	Point goal = their::goal::back::center;
-	Point target = ball.position + (ball.velocity * 0.01);
+	Point target = ball.position + (ball.velocity * 0.05);
 
 	auto upper_goal = field::their::goal::front::upper_limit;
 	auto lower_goal = field::their::goal::front::lower_limit;
@@ -82,7 +53,6 @@ void AttackerStrategy::uvf_to_goal(Ball& ball) {
 		case UvfState::seek_ball:
 			if (can_run_to_goal && (robot_to_ball.size < (robot->SIZE/2 + 0.02))) {
 				uvf_state = UvfState::has_ball;
-				robot_to_ball_for_uvf = robot_to_ball;
 			}
 			break;
 		case UvfState::close_to_ball:
@@ -105,13 +75,9 @@ void AttackerStrategy::uvf_to_goal(Ball& ball) {
 			robot->go_to(ball.position);
 			break;
 		case UvfState::has_ball:
-			robot->go_to(goal, 1.4);
+			robot->go_to(goal, 1.5);
 			break;
 	}
-}
-
-void AttackerStrategy::spin_shot(const Geometry::Point &ball) {
-	decide_spin_shot(ball);
 }
 
 void AttackerStrategy::crossing(const Geometry::Point &ball){
@@ -119,17 +85,14 @@ void AttackerStrategy::crossing(const Geometry::Point &ball){
 		// longe da bola: vai até a bola
 		robot->go_to(ball);
 	} else {
-		decide_spin_shot(ball);
+		robot->spin_kick_to_target(ball, their::goal::front::center);
 	}
 }
 
 void AttackerStrategy::protect_goal(const Geometry::Point &ball) {
 	if (distance(robot->get_position(), ball) < robot->BALL_OFFSET) {
 		 // Se a bola chegar perto, gira para jogar a bola longe
-		if (at_location(ball, Location::UpperField))
-			robot->spin(-35); // horário
-		else
-			robot->spin(35); // anti-horário
+		robot->spin_kick_to_target(ball, their::goal::front::center);
 	} else if (at_location(ball, Location::UpperField)) {
 		// bloquear area (cima)
 		robot->go_to_and_stop(our::corner::upper::attacker::point);
@@ -151,11 +114,7 @@ void AttackerStrategy::side_spin_shot(Point ball){
 		robot->go_to(ball);
 	}else
 	if (distance_to_ball <= 0.07 && robot->get_position().x < ball.x){
-		if(ball.y > their::goal::front::center.y){
-			robot->spin(-35);//Robô gira no sentido anti-horárioo
-		}else{
-			robot->spin(+35);// Robô gira no sentido horário
-		}
+		robot->spin_kick_to_target(ball, their::goal::front::center);
 	}else{
 		if(ball.y > their::goal::front::center.y){
 			Vector ball_to_side = {1,  degree_to_rad(45)};

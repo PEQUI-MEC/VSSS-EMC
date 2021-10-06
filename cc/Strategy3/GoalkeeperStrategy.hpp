@@ -11,7 +11,7 @@ class GoalkeeperStrategy : public RoleStrategy {
 	public:
 	// Beahviors
 	void run_strategy(const Ball& ball);
-	void protect_goal(const Geometry::Point& ball, const Geometry::Point& ball_est);
+	void protect_goal(const Ball& ball);
 	void spin_shot(const Geometry::Point& ball);
 	void exit_goal();
 
