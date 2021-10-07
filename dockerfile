@@ -106,8 +106,10 @@ RUN git clone https://github.com/VSSSLeague/FIRASim.git &&\
 # Referee
 WORKDIR /root/
 RUN git clone https://github.com/VSSSLeague/VSSReferee.git &&\
-    mkdir ./VSSReferee/build &&\
-    cd ./VSSReferee/build &&\
+    cd ./VSSReferee &&\
+    git checkout 5v5-replacer &&\
+    mkdir ./build &&\
+    cd ./build &&\
     qmake .. &&\
     make -j$(nproc)
 
