@@ -101,8 +101,8 @@ void SimulatorClient::send_placement(){
 	VSSRef::Robot *robot1 = frame->add_robots();
 	robot1->set_robot_id(1);
 	robot1->set_x(-0.225);
-	robot1->set_y(0.04);
-	robot1->set_orientation(20);
+	robot1->set_y(0.06);
+	robot1->set_orientation(23);
 
 	VSSRef::Robot *robot2 = frame->add_robots();
 	robot2->set_robot_id(2);
