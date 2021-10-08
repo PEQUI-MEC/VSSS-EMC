@@ -105,4 +105,4 @@ services:
         environment:
             - DISPLAY=unix$DISPLAY
         working_dir: /root/VSSReferee/bin
-        command: /root/VSSReferee/bin/VSSReferee
+        command: /root/VSSReferee/bin/VSSReferee --3v3

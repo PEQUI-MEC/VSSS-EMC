@@ -17,6 +17,7 @@ class AttackerStrategy : public RoleStrategy {
 		has_ball,
 	};
 	UvfState uvf_state = UvfState::seek_ball;
+    Geometry::Vector uvf_run_direction;
 
 	void run_strategy(Ball& ball);
 

@@ -91,12 +91,15 @@ namespace field {
 
 		namespace goal {
 			namespace front {
+                const Geometry::Point upper_limit({goal_width, field_height/2+goal_height/2});
+				const Geometry::Point lower_limit({goal_width, field_height/2-goal_height/2});
 				const Geometry::Line line( {goal_width, 0.0}, {goal_width, field_height});
 				const Geometry::Point center( {goal_width, field_height/2} );
 			}
 
 			namespace back {
 				// Adicione aqui as geometrias de interesse do fundo do nosso gol
+                const Geometry::Point center( {0.0, field_height/2} );
 			}
 		}
 	}

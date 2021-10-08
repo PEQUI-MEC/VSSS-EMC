@@ -49,7 +49,7 @@ Velocity Control::position_control() {
 	double error = std::sqrt(std::pow(target.pose.position.x - pose.position.x, 2.0f)
 							 + std::pow(target.pose.position.y - pose.position.y, 2.0f));
 	if (error < 0.02) return {0, 0};
-	else return vector_control(target_theta, target.pose.velocity.linear * std::tanh(20 * error), true, 20);
+	else return vector_control(target_theta, target.pose.velocity.linear * std::tanh(20 * error), true, 25);
 }
 
 Velocity Control::uvf_control() {

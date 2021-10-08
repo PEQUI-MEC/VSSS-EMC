@@ -13,7 +13,7 @@ void ImageArt::draw_with_orientation(cv::Mat &frame, const std::vector<Tag> &tea
 		auto& tag = team_tags[i];
 		auto draw_color = color == RobotColor::Yellow ? yellow_color : blue_color;
 		circle(frame, tag.position, 15, draw_color, 2, cv::LINE_AA);
-		putText(frame, std::to_string(i + 1),
+		putText(frame, std::to_string(i),
 				cv::Point(tag.position.x + 13, tag.position.y - 15),
 				cv::FONT_HERSHEY_PLAIN, 1, draw_color, 2, cv::LINE_AA);
 		// linha da orientação do robô
@@ -179,14 +179,14 @@ void ImageArt::draw_targets(const Robot3 &robot, cv::Mat &frame, bool inverted, 
 			circle(frame, target, 7, color, 2);
 			line(frame, target, cv::Point(x2, y2),
 				 color, 3, cv::LINE_AA);
-			putText(frame, std::to_string(robot.TAG + 1),
+			putText(frame, std::to_string(robot.TAG),
 					cv::Point(target.x - 5, target.y - 17),
 					cv::FONT_HERSHEY_PLAIN, 1, color, 2, cv::LINE_AA);
 			break;
 		}
 		default:
 			circle(frame, target, 7, color, 2, cv::LINE_AA);
-			putText(frame, std::to_string(robot.TAG + 1),
+			putText(frame, std::to_string(robot.TAG),
 					cv::Point(target.x - 5, target.y - 17),
 					cv::FONT_HERSHEY_PLAIN, 1, color, 2, cv::LINE_AA);
 	} // switch

@@ -23,6 +23,7 @@ void Robot3::go_to_and_stop(Geometry::Point point, std::optional<double> velocit
 		target.pose.velocity.linear = velocity.value_or(default_target_velocity);
 	} else {
 		target.command = Command::None;
+        target.pose.position = point;
 		spin(0);
 	}
 }
