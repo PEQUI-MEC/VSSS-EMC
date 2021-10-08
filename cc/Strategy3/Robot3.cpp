@@ -49,6 +49,7 @@ void Robot3::spin(double angular_velocity) {
 void Robot3::set_target_wheel_velocity(double left, double right) {
 	target.command = Command::WheelVelocity;
 	target.pose.wheel_velocity = {left, right};
+	target.pose.velocity = target.pose.wheel_velocity.to_velocity(SIZE);
 }
 
 Geometry::Vector Robot3::get_direction() {

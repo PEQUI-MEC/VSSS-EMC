@@ -12,7 +12,7 @@ class Wheel {
 	double prev_error = 0;
 	double error_acc = 0;
 	
-	const double MAX_ACC_ERROR = 0.2f;
+	const double MAX_ACC_ERROR = 1.0f;
 
 	public:
 	double target_vel = 0;
@@ -28,8 +28,8 @@ class Wheel {
 //		else if (error < -0.4) error = -0.4;
 		double deriv_error = (error - prev_error) / time;
 		error_acc += error * time;
-		if (error_acc > MAX_ACC_ERROR) error_acc = MAX_ACC_ERROR;
-		if (error_acc < -MAX_ACC_ERROR) error_acc = -MAX_ACC_ERROR;
+		// if (error_acc > MAX_ACC_ERROR) error_acc = MAX_ACC_ERROR;
+		// if (error_acc < -MAX_ACC_ERROR) error_acc = -MAX_ACC_ERROR;
 		prev_error = error;
 		auto output = pid.kd * deriv_error + pid.ki * error_acc + pid.kp * error;
 		if (output > 2) { return 2; }

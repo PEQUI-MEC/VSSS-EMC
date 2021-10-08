@@ -3,14 +3,27 @@
 
 #include "SimulatorClient.hpp"
 
+
+#include <iostream>
+#include <fstream>
+#include <chrono>
+
 class SimulatedGame {
 
     SimulatorClient client;
     Game& game;
 
+    std::ofstream log_data;
+
+    std::chrono::system_clock::time_point start;
+
     public:
-    SimulatedGame(Game& game) : game(game){};
+    SimulatedGame(Game& game) : game(game),
+                log_data("velocity_logs.csv") {
+        start = std::chrono::system_clock::now();
+    };
     bool game_loop();
+    void test_pid();
 };
 
 #endif //VSSS_SIMULATEDGAME_HPP

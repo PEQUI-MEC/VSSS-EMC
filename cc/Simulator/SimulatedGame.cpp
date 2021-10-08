@@ -1,5 +1,23 @@
 #include "SimulatedGame.hpp"
 
+void SimulatedGame::test_pid() {
+    game.team->robots[0].set_target_wheel_velocity(0.8, 0.5);
+    
+    Pose current_pose = game.team->robots[0].pose;
+	Pose target_pose = game.team->robots[0].target.pose;
+
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	auto time_since_start = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+
+    log_data << time_since_start.count() << ", " <<
+		current_pose.wheel_velocity.left << ", " << current_pose.wheel_velocity.right << ", "  <<
+		target_pose.wheel_velocity.left << ", " << target_pose.wheel_velocity.right << ", "  <<
+		current_pose.velocity.linear << ", " << current_pose.velocity.angular << ", "  <<
+		target_pose.velocity.linear << ", " << target_pose.velocity.angular << std::endl;
+    
+    client.send_commands(*game.team.get());
+}
+
 bool SimulatedGame::game_loop() {
 	if(!client.new_data && !client.new_ref_cmd) return false;
 
@@ -39,6 +57,12 @@ bool SimulatedGame::game_loop() {
 	if(!client.new_data) return false;
 
 	client.update_robots(game);
+    
+    // Para testes
+    if (game.playing_game) {
+        test_pid();
+    }
+    return true;
 
 	if (game.playing_game) {
 		auto inverted_team = game.team->get_inverted_robot_positions();
