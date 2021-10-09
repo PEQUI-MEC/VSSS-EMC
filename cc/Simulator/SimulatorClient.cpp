@@ -52,8 +52,11 @@ void SimulatorClient::update_team(Team &team, const Repeated<fira_message::Robot
 			robot.pose.position = Geometry::Point::from_simulator(robot_msg.x(), robot_msg.y());
 			robot.pose.orientation = robot_msg.orientation();
 		}
-		double vel = std::sqrt(std::pow(robot_msg.vx(), 2) + std::pow(robot_msg.vy(), 2));
-		robot.pose.velocity = Velocity{vel, robot_msg.vorientation()};
+		Geometry::Vector velocity(Geometry::Point(robot_msg.vx(), robot_msg.vy()));
+		velocity = velocity.inverted_coordinates(team.inverted_field);
+		Geometry::Vector orientation(1, robot.pose.orientation);
+		auto vel_sign = std::abs(orientation.angle_to(velocity)) < M_PI/2 ? 1 : -1;
+		robot.pose.velocity = Velocity{velocity.size * vel_sign, robot_msg.vorientation()};
 		robot.pose.wheel_velocity = robot.pose.velocity.to_wheel_velocity(simulated_robot_length);
 	}
 }

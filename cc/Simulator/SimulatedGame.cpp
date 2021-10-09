@@ -1,13 +1,17 @@
 #include "SimulatedGame.hpp"
 
 void SimulatedGame::test_pid() {
-    game.team->robots[0].set_target_wheel_velocity(0.8, 0.5);
-    
     Pose current_pose = game.team->robots[0].pose;
 	Pose target_pose = game.team->robots[0].target.pose;
 
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	auto time_since_start = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+
+	if (time_since_start.count() < 1600) {
+		game.team->robots[0].set_target_wheel_velocity(0.8, 0.8);
+	} else {
+		game.team->robots[0].set_target_wheel_velocity(0.6, 0.6);
+	}
 
     log_data << time_since_start.count() << ", " <<
 		current_pose.wheel_velocity.left << ", " << current_pose.wheel_velocity.right << ", "  <<
@@ -60,6 +64,10 @@ bool SimulatedGame::game_loop() {
     
     // Para testes
     if (game.playing_game) {
+		if (!start_set) {
+			start = std::chrono::system_clock::now();
+			start_set = true;
+		}
         test_pid();
     }
     return true;

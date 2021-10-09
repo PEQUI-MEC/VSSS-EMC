@@ -16,6 +16,7 @@ class SimulatedGame {
     std::ofstream log_data;
 
     std::chrono::system_clock::time_point start;
+    bool start_set = false;
 
     public:
     SimulatedGame(Game& game) : game(game),

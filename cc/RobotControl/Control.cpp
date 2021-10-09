@@ -1,5 +1,18 @@
 #include "Control.h"
 
+// WheelVelocity prev{0, 0};
+double max_error = 0.14;
+
+double limit_vel(double target, double current) {
+	double error = target - current;
+	double sign = error > 0 ? 1 : -1;
+	if (std::abs(error) > max_error) {
+		return current + sign * max_error;
+	} else {
+		return target;
+	}
+}
+
 WheelVelocity Control::control_step(const Pose &pose, const Target &target, double time) {
 //	Sets current pose and runs robot control
 	this->pose = pose;
@@ -11,6 +24,31 @@ WheelVelocity Control::control_step(const Pose &pose, const Target &target, doub
 	left.target_vel = target_wheel_vel.left;
 	right.target_vel = target_wheel_vel.right;
 
+	// WheelVelocity t_vel{left.target_vel, right.target_vel};
+
+	double left_target = limit_vel(left.pid_step(pose.wheel_velocity.left, time), pose.wheel_velocity.left);
+	double right_target = limit_vel(right.pid_step(pose.wheel_velocity.right, time), pose.wheel_velocity.right);
+
+	WheelVelocity vel{left_target, right_target};
+
+	// WheelVelocity vel{limit_vel(left.target_vel, pose.wheel_velocity.left),
+					// limit_vel(right.target_vel, pose.wheel_velocity.right)};
+	return vel;
+
+
+	// prev = t_vel;
+	
+
+	// double max_vel_left = prev.left + 10 * time;
+	// double max_vel_right = prev.right + 10 * time;
+	// prev = vel;
+	// if (vel.left > max_vel_left) {
+	// 	vel.left = max_vel_left;
+	// }
+	// if (vel.right > max_vel_right) {
+	// 	vel.right = max_vel_right;
+	// }
+
 	// Usando velocidade diretamente em vez de PID
 	// return {left.target_vel, right.target_vel};
 	
@@ -19,8 +57,19 @@ WheelVelocity Control::control_step(const Pose &pose, const Target &target, doub
 //		right.pid_step(pose.wheel_velocity.right, time);
 //		return target.pose.wheel_velocity;
 //	} else {
-		return {left.pid_step(pose.wheel_velocity.left, time),
-				right.pid_step(pose.wheel_velocity.right, time)};
+	// WheelVelocity vel{left.target_vel, right.target_vel};
+	// WheelVelocity vel{left.pid_step(pose.wheel_velocity.left, time),
+	// 			right.pid_step(pose.wheel_velocity.right, time)};
+	// double max_vel_left = prev.left + 10 * time;
+	// double max_vel_right = prev.right + 10 * time;
+	// prev = vel;
+	// if (vel.left > max_vel_left) {
+	// 	vel.left = max_vel_left;
+	// }
+	// if (vel.right > max_vel_right) {
+	// 	vel.right = max_vel_right;
+	// }
+	// return vel;
 //	}
 }
 

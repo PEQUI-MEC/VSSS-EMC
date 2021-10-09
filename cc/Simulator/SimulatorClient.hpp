@@ -27,7 +27,7 @@ class SimulatorClient {
 	bool new_ref_cmd = false;
 	std::mutex data_mutex;
 
-	double simulated_wheel_radius = 0.027;
+	double simulated_wheel_radius = 0.02;
 	double simulated_robot_length = 0.08;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_msg_time;
