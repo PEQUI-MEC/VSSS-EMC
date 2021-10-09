@@ -18,6 +18,8 @@ class Control {
 	double uvf_n = 1.8;
 	double robot_size;
 
+    std::vector<Geometry::Point> obstacles;
+
 	Control(const Pose &pose, const Target &target, double robot_size) :
 			pose(pose), target(target), robot_size(robot_size) {}
 
@@ -30,6 +32,7 @@ class Control {
 	Velocity orientation_control();
 	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 14);
 	bool backwards_select(double theta_error);
+    double avoidance_field(Geometry::Point point, double target_theta);
 };
 
 #endif //VSSS_SIMU_ROBOT_H

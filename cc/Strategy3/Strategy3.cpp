@@ -111,6 +111,30 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 		if(transitioned)
 // 			last_transition = sc::now();
 // 	}
+    if ((attacker->pose.position - ball.position).size > 0.3) {
+        attacker->control.obstacles = adversaries;
+    } else {
+        attacker->control.obstacles.clear();
+    }
+    attacker->control.obstacles.push_back(Point(attacker->pose.position.x, 0));
+    attacker->control.obstacles.push_back(Point(attacker->pose.position.x, field_height));
+    if (attacker->target.command == Command::UVF) {
+        attacker->control.obstacles.push_back(attacker->target.reference);
+    }
+
+//     auto atk_obs = adversaries;
+    attacker->control.obstacles.push_back(defender->pose.position);
+    attacker->control.obstacles.push_back(goalkeeper->pose.position);
+//     attacker->control.obstacles = atk_obs;
+
+    defender->control.obstacles = adversaries;
+//     defender->control.obstacles.clear();
+//     auto df_obs = adversaries;
+    defender->control.obstacles.push_back(attacker->pose.position);
+    defender->control.obstacles.push_back(goalkeeper->pose.position);
+//     defender->control.obstacles = df_obs;
+
+    goalkeeper->control.obstacles.clear();
 
  	if (attacker.has_robot()) {
 // 		if (defender.has_robot() &&

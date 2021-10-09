@@ -65,10 +65,26 @@ Velocity Control::orientation_control() {
 	return vector_control(target.pose.orientation, 0, true);
 }
 
+double Control::avoidance_field(Geometry::Point point, double target_theta) {
+    auto robot_to_point = point - pose.position;
+//     double max_shift = 0.06;
+//     if (robot_to_point > max_shift) {
+//         point = point + robot_to_point.with_size(-max_shift);
+//     } else {
+//
+//     }
+    auto theta_diff = Geometry::wrap(target_theta - robot_to_point.theta);
+    return std::copysign(0.01, theta_diff) / robot_to_point.size;
+}
+
 Velocity Control::vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight) {
-	auto error = Geometry::wrap(target_theta - pose.orientation);
+    double avoidance_field_theta = 0;
+    for (auto& obs : obstacles) {
+        avoidance_field_theta += avoidance_field(obs, target_theta);
+    }
+	auto error = Geometry::wrap(target_theta + avoidance_field_theta - pose.orientation);
 	if (enable_backwards && backwards_select(error)) {
-		auto backwards_error = Geometry::wrap(target_theta - (pose.orientation + M_PI));
+		auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
 		return {-velocity * std::cos(backwards_error), orientation_weight * backwards_error};
 	} else {
 		return {velocity * std::cos(error), orientation_weight * error};
