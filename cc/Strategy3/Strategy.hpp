@@ -15,7 +15,7 @@ class Strategy {
 							  Ball ball,
 							  bool first_iteration) = 0;
 	virtual Strategy * clone() = 0;
-	virtual void set_foul(VSSRef::Foul foul) = 0;
+	virtual void set_foul(VSSRef::ref_to_team::VSSRef_Command foul) = 0;
 };
 
 #endif //VSSS_STRATEGY_HPP

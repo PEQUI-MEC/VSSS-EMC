@@ -56,8 +56,8 @@ bool SimulatedGame::game_loop() {
 				game.ball.reset_ls();
 				break;
 		}
-		game.team->strategy->set_foul(client.ref_command.foul());
-		game.adversary->strategy->set_foul(client.ref_command.foul());
+		game.team->strategy->set_foul(client.ref_command);
+		game.adversary->strategy->set_foul(client.ref_command);
 	}
 
 	if (game.send_one_command) {

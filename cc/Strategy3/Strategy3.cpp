@@ -47,31 +47,22 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
     return (robot.pose.position - field::our::goal::front::center).size;
 }
 
-double score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
-    return score_atacker(team[formation[0]], ball)
+double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
+	duration_ms since_last_foul = sc::now() - last_foul;
+	double add_score = 1;
+	if (since_last_foul.count() < 2000) {
+		add_score = 5;
+	}
+    return score_atacker(team[formation[0]], ball) * add_score
         - 1.2 * score_goalkeeper(team[formation[0]], ball)
         + 1.2 * score_goalkeeper(team[formation[1]], ball);
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
-void Strategy3::set_default_formation(std::vector<Robot3> &team, Ball ball) {
-	for (auto& robot : team) {
-		robot.role = Role::Defender;
-	}
-	auto& closest_to_goal = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
-		return (r1.pose.position - field::our::goal::front::center).size < (r2.pose.position - field::our::goal::front::center).size;
-	});
-	closest_to_goal.role = Role::Goalkeeper;
-	auto& closest_to_ball = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
-		if (r1.role == Role::Goalkeeper) return false;
-		else if (r2.role == Role::Goalkeeper) return true; 
-		else  return score_atacker(r1, ball) < score_atacker(r2, ball);
-	});
-	closest_to_ball.role = Role::Attacker;
-}
-
-void Strategy3::set_foul(VSSRef::Foul foul) {
+void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul) {
 	new_foul = true;
+	ref_command = foul;
+	last_foul = sc::now();
 }
 
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,

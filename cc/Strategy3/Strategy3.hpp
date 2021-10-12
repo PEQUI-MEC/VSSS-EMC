@@ -14,6 +14,7 @@ class Strategy3 : public Strategy {
 	Ball ball;
 
 	bool new_foul = false;
+	VSSRef::ref_to_team::VSSRef_Command ref_command;
 
 	void
 	run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball, bool first_iteration);
@@ -22,11 +23,11 @@ class Strategy3 : public Strategy {
 		return new Strategy3(*this);
 	}
 
-	void set_foul(VSSRef::Foul foul);
+	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul);
 
 	using sc = std::chrono::system_clock;
 	using duration_ms = std::chrono::duration<double, std::milli>;
-	sc::time_point last_transition = sc::now();
+	sc::time_point last_foul = sc::now();
 
 	bool transitions();
 	bool trainstion_by_collision();
@@ -38,6 +39,7 @@ class Strategy3 : public Strategy {
 	bool is_collision_axis_x(Robot3 *robot1, Robot3 *robot2);
 	bool is_opposite_direction(Robot3 *robot1, Robot3 *robot2);
 	void set_default_formation(std::vector<Robot3> &team, Ball ball);
+	double score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball);
 };
 
 #endif //VSSS_STRATEGY3_HPP

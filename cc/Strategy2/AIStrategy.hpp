@@ -17,7 +17,7 @@ class AIStrategy : public Strategy {
 		return new AIStrategy(*this);
 	}
 
-	void set_foul(VSSRef::Foul foul) {};
+	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul) {};
 
 	private:
 		PyObject * module;
