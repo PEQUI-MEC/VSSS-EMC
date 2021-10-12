@@ -13,6 +13,7 @@
 #include <evpp/udp/sync_udp_client.h>
 #include <mutex>
 #include <Strategy3/Game.hpp>
+#include <jsonSaveManager.h>
 
 class SimulatorClient {
 	public:
@@ -30,7 +31,7 @@ class SimulatorClient {
 	bool new_ref_cmd = false;
 	std::mutex data_mutex;
 
-	double simulated_wheel_radius = 0.027;
+	double simulated_wheel_radius = 0.022;
 	double simulated_robot_length = 0.08;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_msg_time;
@@ -48,7 +49,7 @@ class SimulatorClient {
 	void update_team(Team &team, const Repeated<fira_message::Robot>& robots_msg);
 	void update_robots(Game& game);
 	void send_commands(Team &team);
-	void send_placement();
+	void send_placement(VSSRef::Frame* frame);
 };
 
 #endif //VSSS_SIMULATORCLIENT_HPP

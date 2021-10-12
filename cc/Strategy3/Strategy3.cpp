@@ -47,15 +47,22 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
     return (robot.pose.position - field::our::goal::front::center).size;
 }
 
-double score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
-    return score_atacker(team[formation[0]], ball)
+double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
+	duration_ms since_last_foul = sc::now() - last_foul;
+	double add_score = 1;
+	if (since_last_foul.count() < 2000) {
+		add_score = 5;
+	}
+    return score_atacker(team[formation[0]], ball) * add_score
         - 1.2 * score_goalkeeper(team[formation[0]], ball)
         + 1.2 * score_goalkeeper(team[formation[1]], ball);
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
-void Strategy3::set_foul(VSSRef::Foul foul) {
+void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul) {
 	new_foul = true;
+	ref_command = foul;
+	last_foul = sc::now();
 }
 
 void Strategy3::add_adv_obstacles(Robot3* robot, Ball& ball, std::vector<Geometry::Point> &adversaries) {
@@ -87,8 +94,8 @@ void Strategy3::set_obstacles(std::vector<Geometry::Point> &adversaries, Ball ba
 		add_field_obstacles(attacker.robot);
 		// Evita nossos próprios robôs
 		if (distance(attacker->pose.position, ball.position) > 0.15) {
-			attacker->control.obstacles.push_back(Obstacle{defender->pose.position, 0.05, 0.08});
-    		attacker->control.obstacles.push_back(Obstacle{goalkeeper->pose.position, 0.05, 0.08});
+			attacker->control.obstacles.push_back(Obstacle{defender->pose.position, 0.05, 0.03});
+    		attacker->control.obstacles.push_back(Obstacle{goalkeeper->pose.position, 0.05, 0.03});
 		}
 	}
 	if (defender.has_robot()) {
@@ -96,8 +103,8 @@ void Strategy3::set_obstacles(std::vector<Geometry::Point> &adversaries, Ball ba
 		add_adv_obstacles(defender.robot, ball, adversaries);
 		add_field_obstacles(defender.robot);
 		// Evita nossos próprios robôs
-		defender->control.obstacles.push_back(Obstacle{attacker->pose.position, 0.05, 0.08});
-    	defender->control.obstacles.push_back(Obstacle{goalkeeper->pose.position, 0.05, 0.08});
+		defender->control.obstacles.push_back(Obstacle{attacker->pose.position, 0.05, 0.03});
+    	defender->control.obstacles.push_back(Obstacle{goalkeeper->pose.position, 0.05, 0.03});
 	}
 	if (goalkeeper.has_robot()) {
 		goalkeeper->control.obstacles.clear();

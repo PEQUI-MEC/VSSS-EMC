@@ -49,7 +49,7 @@ Velocity Control::position_control() {
 	double error = std::sqrt(std::pow(target.pose.position.x - pose.position.x, 2.0f)
 							 + std::pow(target.pose.position.y - pose.position.y, 2.0f));
 	if (error < 0.02) return {0, 0};
-	else return vector_control(target_theta, target.pose.velocity.linear * std::tanh(15 * error), true, 25);
+	else return vector_control(target_theta, target.pose.velocity.linear * std::tanh(40 * error), true, 25);
 }
 
 Velocity Control::uvf_control() {
@@ -67,12 +67,20 @@ Velocity Control::orientation_control() {
 
 double Control::avoidance_field(Obstacle obs, double target_theta) {
 	auto robot_to_obs = obs.position - pose.position;
+
+	if (robot_to_obs.size < 0.1 && std::abs(obs.shift_closer_distance) < 0.015) return 0;
+
 	auto obstacle_pos = obs.position + robot_to_obs.with_size(-obs.shift_closer_distance);
 
     auto robot_to_point = obstacle_pos - pose.position;
     auto theta_diff = Geometry::wrap(target_theta - robot_to_point.theta);
 	int sign = theta_diff > 0 ? 1 : -1;
     return (sign * obs.weight) / robot_to_point.size;
+}
+
+double err(double error) {
+	return std::cos(error);
+	return 1 - std::pow(error/(M_PI/2), 1.0/2.0);
 }
 
 Velocity Control::vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight) {
@@ -83,18 +91,18 @@ Velocity Control::vector_control(double target_theta, double velocity, bool enab
 	auto error = Geometry::wrap(target_theta + avoidance_field_theta - pose.orientation);
 	if (enable_backwards && backwards_select(error)) {
 		auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
-		return {-velocity * std::cos(backwards_error), orientation_weight * backwards_error};
+		return {-velocity * err(std::abs(backwards_error)), orientation_weight * backwards_error};
 	} else {
-		return {velocity * std::cos(error), orientation_weight * error};
+		return {velocity * err(std::abs(error)), orientation_weight * error};
 	}
 }
 
 bool Control::backwards_select(double theta_error) {
 	bool should_be_backwards = std::abs(theta_error) > M_PI / 2;
-	return should_be_backwards;
+	// return should_be_backwards;
 
 	duration_ms since_last_change = sc::now() - last_change_orientation;
-	if (is_backwards != should_be_backwards && since_last_change.count() > 1000) {
+	if (is_backwards != should_be_backwards && since_last_change.count() > 200) {
 		is_backwards = should_be_backwards;
 		last_change_orientation = sc::now();
 		return should_be_backwards;

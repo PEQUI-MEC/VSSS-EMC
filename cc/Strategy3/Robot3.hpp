@@ -15,7 +15,7 @@ class Robot3 {
 	Role role = Role::None;
 
 	double SIZE = 0.08;
-	static constexpr double WHEEL_RADIUS = 0.03;
+	static constexpr double WHEEL_RADIUS = 0.02;
 	double default_target_velocity = 0.8;
 	const double TARGET_OFFSET = 0.02; // tolerância para saber se o robô chegou no ponto
 	const double BALL_OFFSET = 0.078; // tolerância para saber se a bola está próxima ao robô

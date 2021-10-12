@@ -8,6 +8,7 @@ VSSS
 !CMakeLists.txt
 !blue_headless.json
 !yellow_headless.json
+!replacement.json
 
 build/
 

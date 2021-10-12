@@ -280,6 +280,35 @@ void jsonSaveManager::save(const string file_path) {
 	write_configs_to_file(file_path);
 }
 
+VSSRef::Frame* jsonSaveManager::load_replacement(std::string team, std::string fault, std::string file_path) {
+	int error = read_configs_from_file(file_path);
+
+	if (error == 1) cout << "File " << file_path << " not found" << endl;
+	else if (error == 2) cout << file_path << " is not a valid JSON file" << endl;
+
+	VSSRef::Frame* frame = new VSSRef::Frame();
+
+	if (team == "yellow") {
+		frame->set_teamcolor(VSSRef::Color::YELLOW);
+	} else {
+		frame->set_teamcolor(VSSRef::Color::BLUE);
+	}
+
+	json& fault_config = configs[team][fault];
+
+	for (int i = 0; i < 3; i++) {
+		json& robot_config = fault_config[std::to_string(i)];
+
+		VSSRef::Robot* robot = frame->add_robots();
+		robot->set_robot_id(i);
+		robot->set_x(robot_config["x"]);
+		robot->set_y(robot_config["y"]);
+		robot->set_orientation(robot_config["orientation"]);
+	}
+
+	return frame;
+}
+
 bool jsonSaveManager::exists(json &config, string name) {
 	return (config.find(name) != config.end());
 }

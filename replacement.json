@@ -1,0 +1,108 @@
+{
+    "yellow": {
+        "penalty1": {
+            "0": {
+                "x": 0.675,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": -0.225,
+                "y": 0.06,
+                "orientation": 23
+            },
+            "2": {
+                "x": 0.1125,
+                "y": 0.4,
+                "orientation": 0
+            }
+        },
+        "penalty2": {
+            "0": {
+                "x": 0.675,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": -0.225,
+                "y": -0.06,
+                "orientation": -23
+            },
+            "2": {
+                "x": 0.1125,
+                "y": 0.4,
+                "orientation": 0
+            }
+        },
+        "penalty_defense": {
+            "0": {
+                "x": 0.7125,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": -0.1125,
+                "y": -0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": -0.1125,
+                "y": 0.25,
+                "orientation": 0
+            }
+        }
+    },
+    "blue": {
+        "penalty1": {
+            "0": {
+                "x": -0.675,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": 0.225,
+                "y": 0.06,
+                "orientation": -23
+            },
+            "2": {
+                "x": -0.1125,
+                "y": 0.4,
+                "orientation": 0
+            }
+        },
+        "penalty2": {
+            "0": {
+                "x": -0.675,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": 0.225,
+                "y": -0.06,
+                "orientation": 23
+            },
+            "2": {
+                "x": -0.1125,
+                "y": 0.4,
+                "orientation": 0
+            }
+        },
+        "penalty_defense": {
+            "0": {
+                "x": -0.7125,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": 0.1125,
+                "y": -0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": 0.1125,
+                "y": 0.25,
+                "orientation": 0
+            }
+        }
+    }
+}
