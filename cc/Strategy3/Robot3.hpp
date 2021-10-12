@@ -42,6 +42,7 @@ class Robot3 {
 	 *	@param velocity Velocidade do movimento. Caso não seja definida,
 	 *	robô se move com velocidade "default_target_velocity" */
 	void go_to_and_stop(Geometry::Point point, std::optional<double> velocity = std::nullopt);
+	void go_to_and_stop_orientation(Geometry::Point point, double orientation, std::optional<double> velocity = std::nullopt);
 	/**	Robô se move na direcao do vetor
 	 *	@param vector Vetor que define a orientacao
 	 *	em que o robô deve se mover

@@ -35,6 +35,7 @@ class Control {
 	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 12.5);
 	bool backwards_select(double theta_error);
     double avoidance_field(Geometry::Point point, double target_theta);
+	Velocity vector_control_old(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 12);
 	Velocity nonlinear_controller(float theta_error, float velocity, bool backwards);
 };
 

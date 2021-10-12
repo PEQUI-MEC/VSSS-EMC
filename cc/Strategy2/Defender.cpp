@@ -40,7 +40,7 @@ void Defender::wait_at_target(Geometry::Point target, Geometry::Point &ball) {
 }
 
 void Defender::protect_goal(const Geometry::Point &ball) {
-	if (distance(get_position(), ball) < 0.08) {
+	if (distance(get_position(), ball) < 0.08 && ball.x > get_position().x) {
 		decide_spin_shot(ball);
 	} else if (ball.x >= get_position().x) {
 		go_to_and_stop({defender::back::upper_limit.x, ball.y});
