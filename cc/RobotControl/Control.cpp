@@ -91,9 +91,9 @@ Velocity Control::vector_control(double target_theta, double velocity, bool enab
 	auto error = Geometry::wrap(target_theta + avoidance_field_theta - pose.orientation);
 	if (enable_backwards && backwards_select(error)) {
 		auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
-		return {-velocity * err(std::abs(backwards_error)), orientation_weight * backwards_error};
+		return {-velocity * std::cos(backwards_error), orientation_weight * backwards_error};
 	} else {
-		return {velocity * err(std::abs(error)), orientation_weight * error};
+		return {velocity * std::cos(error), orientation_weight * error};
 	}
 }
 
