@@ -5,7 +5,8 @@ using namespace Geometry;
 using namespace field;
 
 void DefenderStrategy::run_strategy(const Ball &ball) {
-	if (is_ball_est_ahead(their::area::front::center, ball, -0.08) && !at_location(robot->get_position(), Location::AnyGoal)) {
+	auto df_limit = Point{1.0, field_height/2};
+	if (is_ball_est_ahead(df_limit, ball, -0.08) && !at_location(robot->get_position(), Location::AnyGoal)) {
 		// Bola na na área adversária
 		if (at_location(ball.position, Location::UpperField))
 			wait_at_target(defender::front::lower::wait_point, ball.position);

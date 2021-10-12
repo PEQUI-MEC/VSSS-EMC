@@ -77,6 +77,32 @@ double Control::avoidance_field(Geometry::Point point, double target_theta) {
     return std::copysign(0.01, theta_diff) / robot_to_point.size;
 }
 
+double err(double theta) {
+	return (-2 * std::abs(theta))/M_PI + 1;
+	return 1 - std::pow(std::abs(theta)/(M_PI/2), 1/1.3);
+}
+
+float saturate(float value, float limit) {
+	if(value > limit) value = limit;
+	if(value < -limit) value = -limit;
+	return value;
+}
+
+Velocity Control::nonlinear_controller(float theta_error, float velocity, bool backwards) {
+	float m = 1;
+	if(backwards) m = -1;
+
+	float right_wheel_velocity = m + std::sin(theta_error) + m*kgz*std::tan(m*theta_error/2);
+	right_wheel_velocity = saturate(right_wheel_velocity, 1);
+
+	float left_wheel_velocity = m - std::sin(theta_error) + m*kgz*std::tan(-m*theta_error/2);
+	left_wheel_velocity = saturate(left_wheel_velocity, 1);
+
+	return WheelVelocity{left_wheel_velocity * velocity, right_wheel_velocity * velocity}
+				.to_velocity(robot_size);
+}
+
+
 Velocity Control::vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight) {
     double avoidance_field_theta = 0;
     for (auto& obs : obstacles) {
@@ -85,9 +111,9 @@ Velocity Control::vector_control(double target_theta, double velocity, bool enab
 	auto error = Geometry::wrap(target_theta + avoidance_field_theta - pose.orientation);
 	if (enable_backwards && backwards_select(error)) {
 		auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
-		return {-velocity * std::cos(backwards_error), orientation_weight * backwards_error};
+		return nonlinear_controller(backwards_error, velocity, true);
 	} else {
-		return {velocity * std::cos(error), orientation_weight * error};
+		return nonlinear_controller(error, velocity, false);
 	}
 }
 

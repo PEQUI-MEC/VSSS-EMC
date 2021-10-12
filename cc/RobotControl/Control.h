@@ -18,6 +18,8 @@ class Control {
 	double uvf_n = 1.8;
 	double robot_size;
 
+	float kgz = 0.2;
+
     std::vector<Geometry::Point> obstacles;
 
 	Control(const Pose &pose, const Target &target, double robot_size) :
@@ -30,9 +32,10 @@ class Control {
 	Velocity position_control();
 	Velocity uvf_control();
 	Velocity orientation_control();
-	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 14);
+	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 12.5);
 	bool backwards_select(double theta_error);
     double avoidance_field(Geometry::Point point, double target_theta);
+	Velocity nonlinear_controller(float theta_error, float velocity, bool backwards);
 };
 
 #endif //VSSS_SIMU_ROBOT_H
