@@ -28,7 +28,7 @@ void DefenderStrategy::wait_at_target(const Point target, const Point &ball) {
 }
 
 void DefenderStrategy::protect_goal(const Geometry::Point &ball) {
-	if (distance(robot->get_position(), ball) < 0.08) {
+	if (distance(robot->get_position(), ball) < 0.08 && ball.x > robot->get_position().x) {
 		robot->spin_kick_to_target(ball, their::goal::front::center);
 	} else if (ball.x >= robot->get_position().x) {
 		robot->go_to_and_stop({defender::back::upper_limit.x, ball.y});
