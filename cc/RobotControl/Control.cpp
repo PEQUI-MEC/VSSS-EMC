@@ -68,7 +68,7 @@ Velocity Control::orientation_control() {
 double Control::avoidance_field(Obstacle obs, double target_theta) {
 	auto robot_to_obs = obs.position - pose.position;
 
-	if (robot_to_obs.size < 0.1 && std::abs(obs.shift_closer_distance) < 0.015) return 0;
+	if (robot_to_obs.size < 0.1 && std::abs(obs.shift_closer_distance) > 0.015) return 0;
 
 	auto obstacle_pos = obs.position + robot_to_obs.with_size(-obs.shift_closer_distance);
 
