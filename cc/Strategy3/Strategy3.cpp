@@ -54,7 +54,7 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
 		add_score = 5;
 	}
     return score_atacker(team[formation[0]], ball) * add_score
-        - 1.2 * score_goalkeeper(team[formation[0]], ball)
+        // - 1.2 * score_goalkeeper(team[formation[0]], ball)
         + 1.2 * score_goalkeeper(team[formation[1]], ball);
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
