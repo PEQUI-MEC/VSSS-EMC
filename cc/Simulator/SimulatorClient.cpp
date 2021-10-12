@@ -85,30 +85,8 @@ void SimulatorClient::send_commands(Team &team) {
 	client.Send(buffer.data(), (ulong) cmds_packet.ByteSize());
 }
 
-void SimulatorClient::send_placement(){
+void SimulatorClient::send_placement(VSSRef::Frame* frame){
 	VSSRef::team_to_ref::VSSRef_Placement placement;
-	VSSRef::Frame *frame = new VSSRef::Frame();
-	// VSSRef::Color *color = new VSSRef::Color();
-	//VSSRef::Color::Yellow;
-	frame->set_teamcolor(VSSRef::Color::YELLOW);
-
-	VSSRef::Robot *robot0 = frame->add_robots();
-	robot0->set_robot_id(0);
-	robot0->set_x(0.675);
-	robot0->set_y(0);
-	robot0->set_orientation(0);
-
-	VSSRef::Robot *robot1 = frame->add_robots();
-	robot1->set_robot_id(1);
-	robot1->set_x(-0.225);
-	robot1->set_y(0.06);
-	robot1->set_orientation(23);
-
-	VSSRef::Robot *robot2 = frame->add_robots();
-	robot2->set_robot_id(2);
-	robot2->set_x(0.1125);
-	robot2->set_y(0.4);
-	robot2->set_orientation(0);
 
 	placement.set_allocated_world(frame);
 

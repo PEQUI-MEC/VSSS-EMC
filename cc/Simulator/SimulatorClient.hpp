@@ -13,6 +13,7 @@
 #include <evpp/udp/sync_udp_client.h>
 #include <mutex>
 #include <Strategy3/Game.hpp>
+#include <jsonSaveManager.h>
 
 class SimulatorClient {
 	public:
@@ -48,7 +49,7 @@ class SimulatorClient {
 	void update_team(Team &team, const Repeated<fira_message::Robot>& robots_msg);
 	void update_robots(Game& game);
 	void send_commands(Team &team);
-	void send_placement();
+	void send_placement(VSSRef::Frame* frame);
 };
 
 #endif //VSSS_SIMULATORCLIENT_HPP

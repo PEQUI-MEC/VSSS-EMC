@@ -8,8 +8,10 @@ class SimulatedGame {
     SimulatorClient client;
     Game& game;
 
+    jsonSaveManager placement_config;
+
     public:
-    SimulatedGame(Game& game) : game(game){};
+    SimulatedGame(Game& game) : game(game), placement_config(game, nullptr) {};
     bool game_loop();
 };
 
