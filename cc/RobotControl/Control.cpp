@@ -49,7 +49,7 @@ Velocity Control::position_control() {
 	double error = std::sqrt(std::pow(target.pose.position.x - pose.position.x, 2.0f)
 							 + std::pow(target.pose.position.y - pose.position.y, 2.0f));
 	if (error < 0.02) return {0, 0};
-	else return vector_control(target_theta, target.pose.velocity.linear * std::tanh(20 * error), true, 25);
+	else return vector_control(target_theta, target.pose.velocity.linear * std::tanh(15 * error), true, 25);
 }
 
 Velocity Control::uvf_control() {
@@ -65,16 +65,14 @@ Velocity Control::orientation_control() {
 	return vector_control(target.pose.orientation, 0, true);
 }
 
-double Control::avoidance_field(Geometry::Point point, double target_theta) {
-    auto robot_to_point = point - pose.position;
-//     double max_shift = 0.06;
-//     if (robot_to_point > max_shift) {
-//         point = point + robot_to_point.with_size(-max_shift);
-//     } else {
-//
-//     }
+double Control::avoidance_field(Obstacle obs, double target_theta) {
+	auto robot_to_obs = obs.position - pose.position;
+	auto obstacle_pos = obs.position + robot_to_obs.with_size(-obs.shift_closer_distance);
+
+    auto robot_to_point = obstacle_pos - pose.position;
     auto theta_diff = Geometry::wrap(target_theta - robot_to_point.theta);
-    return std::copysign(0.01, theta_diff) / robot_to_point.size;
+	int sign = theta_diff > 0 ? 1 : -1;
+    return (sign * obs.weight) / robot_to_point.size;
 }
 
 Velocity Control::vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight) {
@@ -92,5 +90,15 @@ Velocity Control::vector_control(double target_theta, double velocity, bool enab
 }
 
 bool Control::backwards_select(double theta_error) {
-	return std::abs(theta_error) > M_PI / 2;
+	bool should_be_backwards = std::abs(theta_error) > M_PI / 2;
+	return should_be_backwards;
+
+	duration_ms since_last_change = sc::now() - last_change_orientation;
+	if (is_backwards != should_be_backwards && since_last_change.count() > 1000) {
+		is_backwards = should_be_backwards;
+		last_change_orientation = sc::now();
+		return should_be_backwards;
+	} else {
+		return is_backwards;
+	}
 }

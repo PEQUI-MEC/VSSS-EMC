@@ -38,6 +38,9 @@ class Strategy3 : public Strategy {
 	bool is_collision_axis_x(Robot3 *robot1, Robot3 *robot2);
 	bool is_opposite_direction(Robot3 *robot1, Robot3 *robot2);
 	void set_default_formation(std::vector<Robot3> &team, Ball ball);
+	void add_adv_obstacles(Robot3* robot, Ball& ball, std::vector<Geometry::Point> &adversaries);
+	void add_field_obstacles(Robot3* robot);
+	void set_obstacles(std::vector<Geometry::Point> &adversaries, Ball ball);
 };
 
 #endif //VSSS_STRATEGY3_HPP

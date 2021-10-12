@@ -54,34 +54,60 @@ double score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, 
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
-void Strategy3::set_default_formation(std::vector<Robot3> &team, Ball ball) {
-	for (auto& robot : team) {
-		robot.role = Role::Defender;
-	}
-	auto& closest_to_goal = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
-		return (r1.pose.position - field::our::goal::front::center).size < (r2.pose.position - field::our::goal::front::center).size;
-	});
-	closest_to_goal.role = Role::Goalkeeper;
-	auto& closest_to_ball = *std::min_element(team.begin(), team.end(), [&](Robot3& r1, Robot3& r2) {
-		if (r1.role == Role::Goalkeeper) return false;
-		else if (r2.role == Role::Goalkeeper) return true; 
-		else  return score_atacker(r1, ball) < score_atacker(r2, ball);
-	});
-	closest_to_ball.role = Role::Attacker;
-}
-
 void Strategy3::set_foul(VSSRef::Foul foul) {
 	new_foul = true;
+}
+
+void Strategy3::add_adv_obstacles(Robot3* robot, Ball& ball, std::vector<Geometry::Point> &adversaries) {
+	if (distance(robot->pose.position, ball.position) < 0.15) return;
+
+	for (auto& adv : adversaries) {
+		if (distance(adv, ball.position) > 0.25) {
+			robot->control.obstacles.push_back(Obstacle{adv, 0.05, 0.08});
+		}
+	}
+}
+
+void Strategy3::add_field_obstacles(Robot3* robot) {
+	// Evita ficar travado na parede
+	Point parede_de_cima = Point(robot->pose.position.x, 0);
+	Point parede_de_baixo = Point(Point(robot->pose.position.x, field_height));
+	robot->control.obstacles.push_back(Obstacle{parede_de_cima, 0.02, 0});
+    robot->control.obstacles.push_back(Obstacle{parede_de_baixo, 0.02, 0});
+}
+
+void Strategy3::set_obstacles(std::vector<Geometry::Point> &adversaries, Ball ball) {
+	if (attacker.has_robot()) {
+		attacker->control.obstacles.clear();
+		add_adv_obstacles(attacker.robot, ball, adversaries);
+		// Evita ficar travado na referencia do UVF
+		if (attacker->target.command == Command::UVF) {
+        	attacker->control.obstacles.push_back(Obstacle{attacker->target.reference, 0.005, 0});
+    	}
+		add_field_obstacles(attacker.robot);
+		// Evita nossos próprios robôs
+		if (distance(attacker->pose.position, ball.position) > 0.15) {
+			attacker->control.obstacles.push_back(Obstacle{defender->pose.position, 0.05, 0.08});
+    		attacker->control.obstacles.push_back(Obstacle{goalkeeper->pose.position, 0.05, 0.08});
+		}
+	}
+	if (defender.has_robot()) {
+		defender->control.obstacles.clear();
+		add_adv_obstacles(defender.robot, ball, adversaries);
+		add_field_obstacles(defender.robot);
+		// Evita nossos próprios robôs
+		defender->control.obstacles.push_back(Obstacle{attacker->pose.position, 0.05, 0.08});
+    	defender->control.obstacles.push_back(Obstacle{goalkeeper->pose.position, 0.05, 0.08});
+	}
+	if (goalkeeper.has_robot()) {
+		goalkeeper->control.obstacles.clear();
+	}
 }
 
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
 							 bool first_iteration) {
 
     auto vec = all_possible_permutations();
-//     for (auto v : vec) {
-//         std::cout << v[0] << ", " << v[1] <<  ", " << v[2] << std::endl;
-//     }
-//     std::cout << "end" << std::endl;
 
     auto best_formation = *std::min_element(vec.begin(), vec.end(), [&](std::array<int, 3> f1, std::array<int, 3> f2) {
         return score_formation(f1, team, ball) < score_formation(f2, team, ball);
@@ -105,36 +131,14 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 	goalkeeper.set_robot(goalkeeper_robot);
 	this->ball = ball;
 
+	set_obstacles(adversaries, ball);
+
 // 	duration_ms since_last_transition = sc::now() - last_transition;
 // 	if(since_last_transition.count() > 2000) {
 // 		bool transitioned = transitions();
 // 		if(transitioned)
 // 			last_transition = sc::now();
 // 	}
-    if ((attacker->pose.position - ball.position).size > 0.3) {
-        attacker->control.obstacles = adversaries;
-    } else {
-        attacker->control.obstacles.clear();
-    }
-    attacker->control.obstacles.push_back(Point(attacker->pose.position.x, 0));
-    attacker->control.obstacles.push_back(Point(attacker->pose.position.x, field_height));
-    if (attacker->target.command == Command::UVF) {
-        attacker->control.obstacles.push_back(attacker->target.reference);
-    }
-
-//     auto atk_obs = adversaries;
-    attacker->control.obstacles.push_back(defender->pose.position);
-    attacker->control.obstacles.push_back(goalkeeper->pose.position);
-//     attacker->control.obstacles = atk_obs;
-
-    defender->control.obstacles = adversaries;
-//     defender->control.obstacles.clear();
-//     auto df_obs = adversaries;
-    defender->control.obstacles.push_back(attacker->pose.position);
-    defender->control.obstacles.push_back(goalkeeper->pose.position);
-//     defender->control.obstacles = df_obs;
-
-    goalkeeper->control.obstacles.clear();
 
  	if (attacker.has_robot()) {
 // 		if (defender.has_robot() &&

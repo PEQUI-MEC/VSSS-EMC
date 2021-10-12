@@ -6,6 +6,12 @@
 #include <Strategy3/Types.hpp>
 #include <Simulator/Wheel.hpp>
 
+struct Obstacle {
+	Geometry::Point position;
+	double weight;
+	double shift_closer_distance;
+};
+
 class Control {
 	public:
 	Pose pose;
@@ -18,7 +24,12 @@ class Control {
 	double uvf_n = 1.8;
 	double robot_size;
 
-    std::vector<Geometry::Point> obstacles;
+	using sc = std::chrono::system_clock;
+	using duration_ms = std::chrono::duration<double, std::milli>;
+	sc::time_point last_change_orientation = sc::now();
+	bool is_backwards = false;
+
+    std::vector<Obstacle> obstacles;
 
 	Control(const Pose &pose, const Target &target, double robot_size) :
 			pose(pose), target(target), robot_size(robot_size) {}
@@ -30,9 +41,9 @@ class Control {
 	Velocity position_control();
 	Velocity uvf_control();
 	Velocity orientation_control();
-	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 14);
+	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 12);
 	bool backwards_select(double theta_error);
-    double avoidance_field(Geometry::Point point, double target_theta);
+    double avoidance_field(Obstacle obs, double target_theta);
 };
 
 #endif //VSSS_SIMU_ROBOT_H

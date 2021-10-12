@@ -15,9 +15,9 @@ void GoalkeeperStrategy::run_strategy(const Ball &ball) {
 
 void GoalkeeperStrategy::protect_goal(const Ball& ball) {
 	if (at_location(ball.position, Location::OurUpperCorner)) {
-		robot->go_to_and_stop(our::area::upper::center);
+		robot->go_to_and_stop_orientation(our::area::upper::center, M_PI/2);
 	} else if (at_location(ball.position, Location::OurLowerCorner)) {
-		robot->go_to_and_stop(our::area::lower::center);
+		robot->go_to_and_stop_orientation(our::area::lower::center, M_PI/2);
 	} else if (std::abs(ball.velocity.theta) > M_PI/2
                 && ball.velocity.size > 0.1) {
 		// a bola está vindo para o nosso campo
@@ -28,19 +28,19 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball) {
         auto distance_ball_projection = dist_x_ball_goal / std::cos(M_PI - ball.velocity.theta);
         auto ball_goal_projection = ball.position + ball.velocity.with_size(distance_ball_projection);
 		if (match_y(ball_goal_projection, Location::OurBox))
-			robot->go_to_and_stop({our::area::box::upper_limit.x, ball_goal_projection.y});
+			robot->go_to_and_stop_orientation({our::area::box::upper_limit.x, ball_goal_projection.y}, M_PI/2);
 		else if (at_location(ball_goal_projection, Location::UpperField))
-			robot->go_to_and_stop(our::area::box::upper_limit);
+			robot->go_to_and_stop_orientation(our::area::box::upper_limit, M_PI/2);
 		else
-			robot->go_to_and_stop(our::area::box::lower_limit);
+			robot->go_to_and_stop_orientation(our::area::box::lower_limit, M_PI/2);
 	} else {
 		// fica na projeção da bola, sempre em frente ao gol
 		if (match_y(ball.position, Location::OurBox))
-			robot->go_to_and_stop({our::area::box::upper_limit.x, ball.position.y});
+			robot->go_to_and_stop_orientation({our::area::box::upper_limit.x, ball.position.y}, M_PI/2);
 		else if (at_location(ball.position, Location::UpperField))
-			robot->go_to_and_stop(our::area::box::upper_limit);
+			robot->go_to_and_stop_orientation(our::area::box::upper_limit, M_PI/2);
 		else
-			robot->go_to_and_stop(our::area::box::lower_limit);
+			robot->go_to_and_stop_orientation(our::area::box::lower_limit, M_PI/2);
 	}
 }
 
@@ -49,7 +49,7 @@ void GoalkeeperStrategy::spin_shot(const Point& ball) {
         robot->spin_kick_to_target(ball, their::goal::front::center);
     } else {
         // FIXME: Caso contrário o goleiro deve ficar parado para evitar fazer gol contra. Poderia fazer outra coisa?
-        robot->go_to_and_stop(robot->get_position());
+        robot->go_to_and_stop_orientation(robot->get_position(), M_PI/2);
     }
 }
 

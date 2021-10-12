@@ -28,6 +28,16 @@ void Robot3::go_to_and_stop(Geometry::Point point, std::optional<double> velocit
 	}
 }
 
+void Robot3::go_to_and_stop_orientation(Geometry::Point point, double orientation, std::optional<double> velocity) {
+	if (distance(point, pose.position) >= TARGET_OFFSET) {
+		target.command = Command::Position;
+		target.pose.position = point;
+		target.pose.velocity.linear = velocity.value_or(default_target_velocity);
+	} else {
+		set_target_orientation(Geometry::Vector{1, orientation});
+	}
+}
+
 void Robot3::go_in_direction(Geometry::Vector vector, std::optional<double> velocity) {
 	target.command = Command::Vector;
 	target.pose.orientation = vector.theta;
