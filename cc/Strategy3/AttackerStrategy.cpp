@@ -113,7 +113,8 @@ void AttackerStrategy::side_spin_shot(Point ball){
 	if(robot->get_position().x < ball.x-0.01 && (distance_to_ball > 0.07) ){
 		//para evitar o robo ficar dançando quando estiver na lateral correndo atrás da bola
 		robot->go_to(ball);
-	} else if (distance_to_ball <= 0.07 && robot->get_position().x < ball.x && distance(robot->get_position(), our::goal::back::center) < distance(ball, our::goal::back::center)){
+	}else
+	if (distance_to_ball <= 0.07 && robot->get_position().x < ball.x){
 		robot->spin_kick_to_target(ball, their::goal::front::center);
 	}else{
 		if(ball.y > their::goal::front::center.y){
