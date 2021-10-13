@@ -152,7 +152,11 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 				attacker->go_to_and_stop({0.31 * field_width, ynew});
 // 			}
 // 		} else {
+		if (is_penalty) {
+            attacker->go_to(ball.position_in_seconds(0.2), 2);
+        } else {
 			attacker.run_strategy(ball, is_penalty);
+        }
 // 		}
 
 // 		if (goalkeeper.has_robot() && at_location(*goalkeeper.robot, Location::TheirField)) {
