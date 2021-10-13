@@ -15,7 +15,7 @@ class Control {
 	Wheel right{};
 
 	double uvf_ref_distance = 0.1;
-	double uvf_n = 1.8;
+	double uvf_n = 1.7;
 	double robot_size;
 
 	float kgz = 0.2;

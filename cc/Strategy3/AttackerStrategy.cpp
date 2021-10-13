@@ -51,7 +51,7 @@ void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 
 	switch (uvf_state) {
 		case UvfState::seek_ball:
-			if (can_run_to_goal && (robot_to_ball.size < 0.12)) {
+			if (can_run_to_goal && (robot_to_ball.size < 0.13)) {
 				uvf_state = UvfState::close_to_ball;
                 uvf_run_direction = robot_to_ball;
 			}
@@ -63,7 +63,7 @@ void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 				uvf_state = UvfState::has_ball;
 			break;
 		case UvfState::has_ball:
-			if (error_bigger_than(90) || robot_to_ball.size > 0.2)
+			if (error_bigger_than(90) || robot_to_ball.size > 0.25)
 				uvf_state = UvfState::seek_ball;
 			break;
 	}
