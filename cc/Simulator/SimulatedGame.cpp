@@ -28,7 +28,7 @@ bool SimulatedGame::game_loop() {
 				}
 
 				if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.yellow_team().controlled){
-					if((rand() % 10 + 1) >=5){
+					if((rand() % 10 + 1) >= 3){
 						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty1");
 						client.send_placement(frame);
 					}else{
@@ -38,7 +38,7 @@ bool SimulatedGame::game_loop() {
 				}
 
 				if(client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.blue_team().controlled){
-					if((rand() % 10 + 1) >=5){
+					if((rand() % 10 + 1) >= 3){
 						VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty1");
 						client.send_placement(frame);
 					}else{
