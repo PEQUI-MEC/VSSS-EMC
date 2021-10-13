@@ -49,12 +49,17 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
         + 1.2 * (robot.get_position().x - field::our::goal::front::center.x);
 }
 
+bool is_penalty = false;
+
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
 	duration_ms since_last_foul = sc::now() - last_foul;
 	double add_score = 1;
 	if (since_last_foul.count() < 2000) {
 		add_score = 5;
-	}
+        is_penalty = true;
+	} else {
+        is_penalty = false;
+    }
     return score_atacker(team[formation[0]], ball) * add_score
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
         + 1.0 * score_goalkeeper(team[formation[1]], ball);
@@ -147,7 +152,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 				attacker->go_to_and_stop({0.31 * field_width, ynew});
 // 			}
 // 		} else {
-			attacker.run_strategy(ball);
+			attacker.run_strategy(ball, is_penalty);
 // 		}
 
 // 		if (goalkeeper.has_robot() && at_location(*goalkeeper.robot, Location::TheirField)) {

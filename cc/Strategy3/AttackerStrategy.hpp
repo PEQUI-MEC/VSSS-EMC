@@ -19,12 +19,12 @@ class AttackerStrategy : public RoleStrategy {
 	UvfState uvf_state = UvfState::seek_ball;
     Geometry::Vector uvf_run_direction;
 
-	void run_strategy(Ball& ball);
+	void run_strategy(Ball& ball, bool is_penalty);
 
 	/**	Robô vai para a bola usando o UVF
 	 *	@param ball posição da bola
 	 *	robô se move com velocidade "default_target_velocity" */
-	void uvf_to_goal(Ball& ball);
+	void uvf_to_goal(Ball& ball, bool is_penalty);
 
 	/**	Robô trava a bola no canto e faz um cruzamento
 	 * @param ball posição da bola

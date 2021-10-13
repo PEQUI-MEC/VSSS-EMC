@@ -4,7 +4,7 @@
 using namespace Geometry;
 using namespace field;
 
-void AttackerStrategy::run_strategy(Ball& ball) {
+void AttackerStrategy::run_strategy(Ball& ball, bool is_penalty) {
 	if (at_location(robot->get_position(), Location::TheirCornerAny)) {
 		crossing(ball.position);
 	} else if (has_ball(robot, ball) && at_location(robot->get_position(), Location::TheirAreaSideAny)) {
@@ -19,11 +19,11 @@ void AttackerStrategy::run_strategy(Ball& ball) {
 // 	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
 // 		exit_goal(ball.position);
 	} else {
-		uvf_to_goal(ball);
+		uvf_to_goal(ball, is_penalty);
 	}
 }
 
-void AttackerStrategy::uvf_to_goal(Ball& ball) {
+void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 	Point goal = their::goal::back::center;
 	Point target = ball.position + (ball.velocity * 0.05);
 
@@ -76,7 +76,11 @@ void AttackerStrategy::uvf_to_goal(Ball& ball) {
 			robot->go_to(ball.position);
 			break;
 		case UvfState::has_ball:
-			robot->go_to(goal, 1.5);
+            if (is_penalty) {
+                robot->go_in_direction(uvf_run_direction, 1.5);
+            } else {
+                robot->go_to(goal, 1.5);
+            }
 			break;
 	}
 }
