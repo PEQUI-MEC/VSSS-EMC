@@ -77,7 +77,7 @@ void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 			break;
 		case UvfState::has_ball:
             if (is_penalty) {
-                robot->go_in_direction(uvf_run_direction, 1.5);
+                robot->go_to(ball.position_in_seconds(0.2), 2);
             } else {
                 robot->go_to(goal, 1.5);
             }
