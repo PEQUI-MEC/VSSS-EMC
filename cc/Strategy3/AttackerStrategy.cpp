@@ -12,10 +12,10 @@ void AttackerStrategy::run_strategy(Ball& ball) {
 // 	} else if (at_location(robot->get_position(), Location::OurBox)) {
 		// Cobrar penalti
 // 		charged_shot(ball.position);
+    } else if (at_location(ball.position, Location::AnySide)){
+		side_spin_shot(ball.position);
  	} else if (is_ball_behind(our::area::front::center, ball) && !at_location(robot->get_position(), Location::AnyGoal)) {
  		protect_goal(ball.position);
-	} else if (at_location(ball.position, Location::AnySide)){
-		side_spin_shot(ball.position);
 // 	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
 // 		exit_goal(ball.position);
 	} else {
@@ -51,13 +51,13 @@ void AttackerStrategy::uvf_to_goal(Ball& ball) {
 
 	switch (uvf_state) {
 		case UvfState::seek_ball:
-			if (can_run_to_goal && (robot_to_ball.size < (robot->SIZE/2 + 0.02))) {
-				uvf_state = UvfState::has_ball;
+			if (can_run_to_goal && (robot_to_ball.size < 0.12)) {
+				uvf_state = UvfState::close_to_ball;
                 uvf_run_direction = robot_to_ball;
 			}
 			break;
 		case UvfState::close_to_ball:
-			if (error_bigger_than(70))
+			if (error_bigger_than(90))
 				uvf_state = UvfState::seek_ball;
 			else if (robot_to_ball.size < 0.1)
 				uvf_state = UvfState::has_ball;
@@ -76,7 +76,7 @@ void AttackerStrategy::uvf_to_goal(Ball& ball) {
 			robot->go_to(ball.position);
 			break;
 		case UvfState::has_ball:
-			robot->go_in_direction(uvf_run_direction, 1.5);
+			robot->go_to(goal, 1.5);
 			break;
 	}
 }

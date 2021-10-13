@@ -11,7 +11,7 @@ void Robot3::go_to(Geometry::Point point, std::optional<double> velocity) {
 void Robot3::go_to_pose(Geometry::Point point, Geometry::Vector direction, std::optional<double> velocity) {
 	target.command = Command::UVF;
 	target.pose.position = point;
-	target.reference= point + direction.with_size(0.12);
+	target.reference= point + direction.with_size(0.1);
 	target.pose.orientation = direction.theta;
 	target.pose.velocity.linear = velocity.value_or(default_target_velocity);
 }

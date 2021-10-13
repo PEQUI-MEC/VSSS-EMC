@@ -30,10 +30,11 @@ std::array<std::array<int, 3>, 6> all_possible_permutations() {
 }
 
 double score_atacker(const Robot3& robot, const Ball& ball) {
+    Point ball_estimate = ball.position_in_seconds(1);
     Point goal = their::goal::back::center;
-    Vector ball_to_goal = goal - ball.position;
-	Vector robot_to_ball = ball.position - robot.get_position();
-    return (robot.pose.position - ball.position).size
+    Vector ball_to_goal = goal - ball_estimate;
+	Vector robot_to_ball = ball_estimate - robot.get_position();
+    return (robot.pose.position - ball_estimate).size
         + 0.2 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 }
 
@@ -44,7 +45,8 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
     goalkeeper_y = std::max(goalkeeper_y, lower_goal.y);
     goalkeeper_y = std::min(goalkeeper_y, upper_goal.y);
     auto target = Point(field::our::goal::back::center.x, goalkeeper_y);
-    return (robot.pose.position - field::our::goal::front::center).size;
+    return (robot.pose.position - field::our::goal::front::center).size
+        + 1.2 * (robot.get_position().x - field::our::goal::front::center.x);
 }
 
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
@@ -55,7 +57,7 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
 	}
     return score_atacker(team[formation[0]], ball) * add_score
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
-        + 1.5 * score_goalkeeper(team[formation[1]], ball);
+        + 1.0 * score_goalkeeper(team[formation[1]], ball);
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
@@ -109,6 +111,8 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
     }
     attacker->control.obstacles.push_back(Point(attacker->pose.position.x, 0));
     attacker->control.obstacles.push_back(Point(attacker->pose.position.x, field_height));
+    attacker->control.obstacles.push_back(Point(field_width, attacker->pose.position.y));
+    attacker->control.obstacles.push_back(Point(0, attacker->pose.position.y));
     if (attacker->target.command == Command::UVF) {
         attacker->control.obstacles.push_back(attacker->target.reference);
     }
@@ -118,7 +122,8 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
     attacker->control.obstacles.push_back(goalkeeper->pose.position);
 //     attacker->control.obstacles = atk_obs;
 
-    defender->control.obstacles = adversaries;
+    defender->control.obstacles.clear();
+//     defender->control.obstacles = adversaries;
 //     defender->control.obstacles.clear();
 //     auto df_obs = adversaries;
     defender->control.obstacles.push_back(attacker->pose.position);
@@ -180,7 +185,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 		if (attacker.has_robot() && attacker->get_position().x < 0.3 * field_width) {
 // 			defender->stop();
 // 		} else {
-			defender.run_strategy(ball);
+			defender.run_strategy(ball, attacker->get_position());
 // 		}
 
 // 		if (at_location(defender->get_position(), Location::OurBox)) {

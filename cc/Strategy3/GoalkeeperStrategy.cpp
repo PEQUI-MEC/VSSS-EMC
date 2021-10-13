@@ -27,8 +27,15 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball) {
         auto dist_x_ball_goal = distance_x(ball.position, our::area::lower::center);
         auto distance_ball_projection = dist_x_ball_goal / std::cos(M_PI - ball.velocity.theta);
         auto ball_goal_projection = ball.position + ball.velocity.with_size(distance_ball_projection);
-		if (match_y(ball_goal_projection, Location::OurBox))
-			robot->go_to_and_stop_orientation({our::area::box::upper_limit.x, ball_goal_projection.y}, M_PI/2);
+		if (match_y(ball_goal_projection, Location::OurBox)) {
+            Point target{our::area::box::upper_limit.x, ball_goal_projection.y};
+            if (distance(robot->get_position(), target) < 0.02
+                && (distance(ball.position, target) < 0.25 || ball.position_in_seconds(0.5).x < target.x)) {
+                robot->spin_kick_to_target(ball.position, their::goal::front::center);
+            } else {
+                robot->go_to_and_stop_orientation(target, M_PI/2);
+            }
+        }
 		else if (at_location(ball_goal_projection, Location::UpperField))
 			robot->go_to_and_stop_orientation(our::area::box::upper_limit, M_PI/2);
 		else

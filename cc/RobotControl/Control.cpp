@@ -51,9 +51,9 @@ Velocity Control::vector_control_old(double target_theta, double velocity, bool 
 	auto error = Geometry::wrap(target_theta + avoidance_field_theta - pose.orientation);
 	if (enable_backwards && backwards_select(error)) {
 		auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
-		return {-velocity * std::cos(backwards_error), orientation_weight * backwards_error};
+		return {-velocity * std::cos(backwards_error) * 0.8, orientation_weight * backwards_error};
 	} else {
-		return {velocity * std::cos(error), orientation_weight * error};
+		return {velocity * std::cos(error) * 0.8, orientation_weight * error};
 	}
 }
 
@@ -62,8 +62,8 @@ Velocity Control::position_control() {
 									 target.pose.position.x - pose.position.x);
 	double error = std::sqrt(std::pow(target.pose.position.x - pose.position.x, 2.0f)
 							 + std::pow(target.pose.position.y - pose.position.y, 2.0f));
-	if (error < 0.02) return {0, 0};
-	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(20 * error), true, 15);
+	if (error < 0.005) return {0, 0};
+	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(30 * error), true, 25);
 }
 
 Velocity Control::uvf_control() {
@@ -88,7 +88,7 @@ double Control::avoidance_field(Geometry::Point point, double target_theta) {
 //
 //     }
     auto theta_diff = Geometry::wrap(target_theta - robot_to_point.theta);
-    return std::copysign(0.01, theta_diff) / robot_to_point.size;
+    return std::copysign(0.015, theta_diff) / robot_to_point.size;
 }
 
 double err(double theta) {

@@ -38,6 +38,10 @@ class Ball {
 		estimative = position;
 	}
 
+	Geometry::Point position_in_seconds(double time) const {
+        return position + velocity * time;
+    }
+
 	Ball get_inverted() const {
 		return Ball{position.inverted_coordinates(),
 			estimative.inverted_coordinates(), velocity.inverted_coordinates()};

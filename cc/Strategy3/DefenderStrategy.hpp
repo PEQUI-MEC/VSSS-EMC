@@ -11,7 +11,7 @@
 class DefenderStrategy : public RoleStrategy {
 	public:
 	// Behaviors
-	void run_strategy(const Ball& ball);
+	void run_strategy(const Ball& ball, const Geometry::Point attacker);
 	void protect_goal(const Geometry::Point &ball);
 	void wait_at_target(const Geometry::Point target, const Geometry::Point &ball);
 	void exit_goal();
