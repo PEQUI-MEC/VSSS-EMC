@@ -29,8 +29,11 @@ std::array<std::array<int, 3>, 6> all_possible_permutations() {
     return permutations;
 }
 
-double score_atacker(const Robot3& robot, const Ball& ball) {
+double Strategy3::score_atacker(const Robot3& robot, const Ball& ball) {
     Point ball_estimate = ball.position_in_seconds(1);
+    if (is_foul) { // evita correr pra tras no kickoff
+        ball_estimate = ball.position;
+    }
     Point goal = their::goal::back::center;
     Vector ball_to_goal = goal - ball_estimate;
 	Vector robot_to_ball = ball_estimate - robot.get_position();
@@ -52,12 +55,11 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
 	duration_ms since_last_foul = sc::now() - last_foul;
 	double add_score = 1;
-	if (since_last_foul.count() < 2000) {
+    is_foul = since_last_foul.count() < 2000;
+	if (is_foul && is_defending_foul &&
+            ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		add_score = 5;
-        is_foul = true;
-	} else {
-        is_foul = false;
-    }
+	}
     return score_atacker(team[formation[0]], ball) * add_score
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
         + 1.0 * score_goalkeeper(team[formation[1]], ball);
@@ -187,14 +189,13 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
                     }
                 } else if (cmd == Command::UVF) {
                     auto target_to_reference = attacker->target.reference - attacker->target.pose.position;
-                    auto target = attacker->target.pose.position + target_to_reference.with_size(-0.1);
-                    auto target2 = attacker->target.pose.position + target_to_reference.with_size(0.1);
-                    auto target3 = attacker->target.pose.position + target_to_reference.with_size(-0.15);
-                    auto target4 = attacker->target.pose.position + target_to_reference.with_size(0.15);
-                    if (at_location(attacker->target.pose.position, Location::OurBox)
-                        || at_location(target, Location::OurBox)
-//                         || at_location(target3, Location::OurBox)
-                    ) {
+                    bool enters_area = false;
+                    for (double i = 0; i < 0.1; i += 0.01) {
+                        auto target = attacker->target.pose.position + target_to_reference.with_size(-i);
+                        if (at_location(target, Location::OurBox))
+                            enters_area = true;
+                    }
+                    if (at_location(attacker->target.pose.position, Location::OurBox) || enters_area) {
                         attacker->stop();
                     }
                 }

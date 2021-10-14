@@ -35,6 +35,8 @@ class Strategy3 : public Strategy {
 	void swap_robots(RoleStrategy &role1, RoleStrategy &role2);
 	void swap_all_robots();
 
+    double score_atacker(const Robot3& robot, const Ball& ball);
+
 	bool is_collision(Robot3 *robot1, Robot3 *robot2);
 	bool is_collision_axis_y(Robot3 *robot1, Robot3 *robot2);
 	bool is_collision_axis_x(Robot3 *robot1, Robot3 *robot2);
