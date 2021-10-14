@@ -155,13 +155,18 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 		if (is_foul && !is_defending_foul &&
              ref_command.foul() == VSSRef::Foul::PENALTY_KICK
             ) {
+            //std::cout << "running penalty" << std::endl;
             attacker->go_to(ball.position, 2);
-        } else if (ref_command.foul() == VSSRef::Foul::KICKOFF
+        } else if (is_foul && ref_command.foul() == VSSRef::Foul::KICKOFF
             ) {
             attacker->go_to(ball.position, 2);
+            //std::cout << "running KICKOFF" << std::endl;
         } else {
 			attacker.run_strategy(ball, false);
+            //std::cout << "running Strategy" << std::endl;
         }
+
+        std::cout << ref_command.foul() << std::endl;
 // 		}
 
 // 		if (goalkeeper.has_robot() && at_location(*goalkeeper.robot, Location::TheirField)) {
