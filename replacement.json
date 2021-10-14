@@ -67,6 +67,74 @@
                 "y": 0.065,
                 "orientation": 0
             }
+        },
+        "free_ball_q1": {
+            "0": {
+                "x": 0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": 0.575,
+                "y": 0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": 0.3,
+                "y": -0.1,
+                "orientation": 0
+            }
+        },
+        "free_ball_q2": {
+            "0": {
+                "x": 0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": -0.175,
+                "y": 0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": -0.3,
+                "y": -0.1,
+                "orientation": 0
+            }
+        },
+        "free_ball_q3": {
+            "0": {
+                "x": 0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": -0.175,
+                "y": -0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": -0.3,
+                "y":  0.1,
+                "orientation": 0
+            }
+        },
+        "free_ball_q4": {
+            "0": {
+                "x": 0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": 0.575,
+                "y": -0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": 0.3,
+                "y": 0.1,
+                "orientation": 0
+            }
         }
     },
     "blue": {
@@ -135,6 +203,74 @@
             "2": {
                 "x": -0.250,
                 "y": -0.065,
+                "orientation": 0
+            }
+        },
+        "free_ball_q1": {
+            "0": {
+                "x": -0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": 0.175,
+                "y": 0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": 0.1,
+                "y": -0.3,
+                "orientation": 0
+            }
+        },
+        "free_ball_q2": {
+            "0": {
+                "x": -0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": -0.575,
+                "y": 0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": -0.1,
+                "y": -0.3,
+                "orientation": 0
+            }
+        },
+        "free_ball_q3": {
+            "0": {
+                "x": -0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": -0.575,
+                "y": -0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": -0.1,
+                "y": 0.3,
+                "orientation": 0
+            }
+        },
+        "free_ball_q4": {
+            "0": {
+                "x": -0.7000,
+                "y": 0.0,
+                "orientation": 90
+            },
+            "1": {
+                "x": 0.175,
+                "y": -0.4,
+                "orientation": 0
+            },
+            "2": {
+                "x": 0.1,
+                "y": 0.3,
                 "orientation": 0
             }
         }
