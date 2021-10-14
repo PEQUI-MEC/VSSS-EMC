@@ -37,7 +37,7 @@ double Strategy3::score_atacker(const Robot3& robot, const Ball& ball) {
     Point goal = their::goal::back::center;
     Vector ball_to_goal = goal - ball_estimate;
 	Vector robot_to_ball = ball_estimate - robot.get_position();
-    return (robot.pose.position - ball_estimate).size
+    return 0.8 * (robot.pose.position - ball_estimate).size
         + 0.2 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 }
 
@@ -48,8 +48,8 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
     goalkeeper_y = std::max(goalkeeper_y, lower_goal.y);
     goalkeeper_y = std::min(goalkeeper_y, upper_goal.y);
     auto target = Point(field::our::goal::back::center.x, goalkeeper_y);
-    return (robot.pose.position - field::our::goal::front::center).size
-        + 1.2 * (robot.get_position().x - field::our::goal::front::center.x);
+    return 0.15 * (robot.pose.position - field::our::goal::front::center).size
+        + 0.85 * (robot.get_position().x - field::our::goal::front::center.x);
 }
 
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
@@ -60,9 +60,9 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
             ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		add_score = 5;
 	}
-    return score_atacker(team[formation[0]], ball) * add_score
+    return 0.4 * score_atacker(team[formation[0]], ball) * add_score
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
-        + 1.0 * score_goalkeeper(team[formation[1]], ball);
+        + 0.6 * score_goalkeeper(team[formation[1]], ball);
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
@@ -190,8 +190,13 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
                 } else if (cmd == Command::UVF) {
                     auto target_to_reference = attacker->target.reference - attacker->target.pose.position;
                     bool enters_area = false;
-                    for (double i = 0; i < 0.1; i += 0.01) {
-                        auto target = attacker->target.pose.position + target_to_reference.with_size(-i);
+                    for (double i = -0.1; i <= 0; i += 0.002) {
+                        auto target = attacker->target.pose.position + target_to_reference.with_size(i);
+                        if (at_location(target, Location::OurBox))
+                            enters_area = true;
+                    }
+                    for (double i = 0; i <= 0.5; i += 0.005) {
+                        auto target = ball.position_in_seconds(i);
                         if (at_location(target, Location::OurBox))
                             enters_area = true;
                     }

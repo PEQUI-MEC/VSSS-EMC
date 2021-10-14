@@ -36,7 +36,7 @@
         },
         "kickoff": {
             "0": {
-                "x": 0.7000,
+                "x": 0.695,
                 "y": 0,
                 "orientation": 90
             },
@@ -53,7 +53,7 @@
         },
         "kickoff_defense": {
             "0": {
-                "x": 0.7000,
+                "x": 0.695,
                 "y": 0.0,
                 "orientation": 90
             },
@@ -106,7 +106,7 @@
         },
         "kickoff": {
             "0": {
-                "x": -0.7000,
+                "x": -0.695,
                 "y": 0,
                 "orientation": 90
             },
@@ -118,19 +118,19 @@
             "2": {
                 "x": -0.075,
                 "y": -0.01,
-                "orientation": -20
+                "orientation": 0
             }
         },
         "kickoff_defense": {
             "0": {
-                "x": -0.7000,
+                "x": -0.695,
                 "y": 0.0,
                 "orientation": 90
             },
             "1": {
                 "x": -0.3825,
                 "y": 0.095,
-                "orientation": 0
+                "orientation": 45
             },
             "2": {
                 "x": -0.250,

@@ -63,7 +63,7 @@ Velocity Control::position_control() {
 	double error = std::sqrt(std::pow(target.pose.position.x - pose.position.x, 2.0f)
 							 + std::pow(target.pose.position.y - pose.position.y, 2.0f));
 	if (error < 0.005) return {0, 0};
-	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(30 * error), true, 27);
+	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(40 * error), true, 20);
 }
 
 Velocity Control::uvf_control() {
@@ -76,7 +76,7 @@ Velocity Control::uvf_control() {
 }
 
 Velocity Control::orientation_control() {
-	return vector_control_old(target.pose.orientation, 0, true);
+	return vector_control_old(target.pose.orientation, 0, true, 10);
 }
 
 double Control::avoidance_field(Geometry::Point point, double target_theta) {
