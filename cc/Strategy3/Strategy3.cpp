@@ -166,7 +166,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
             //std::cout << "running Strategy" << std::endl;
         }
 
-        std::cout << ref_command.foul() << std::endl;
+//         std::cout << ref_command.foul() << std::endl;
 // 		}
 
 // 		if (goalkeeper.has_robot() && at_location(*goalkeeper.robot, Location::TheirField)) {
@@ -180,7 +180,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 				attacker->go_in_direction({0, 0.8});
 // 			} else
             auto cmd = attacker->target.command;
-            if (!at_location(attacker->pose.position, Location::OurBox)) {
+            if (!at_location(attacker->pose.position, Location::OurBox) && !is_foul) {
                 if (cmd == Command::Position || cmd == Command::Vector) {
                     if (at_location(attacker->target.pose.position, Location::OurBox)) {
                         attacker->stop();
@@ -193,7 +193,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
                     auto target4 = attacker->target.pose.position + target_to_reference.with_size(0.15);
                     if (at_location(attacker->target.pose.position, Location::OurBox)
                         || at_location(target, Location::OurBox)
-                        || at_location(target3, Location::OurBox)
+//                         || at_location(target3, Location::OurBox)
                     ) {
                         attacker->stop();
                     }
