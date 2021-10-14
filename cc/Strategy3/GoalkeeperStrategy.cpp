@@ -30,7 +30,7 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball) {
 		if (match_y(ball_goal_projection, Location::OurBox)) {
             Point target{our::area::box::upper_limit.x, ball_goal_projection.y};
             if (distance(robot->get_position(), target) < 0.02
-                && (distance(ball.position, target) < 0.25 || ball.position_in_seconds(0.6).x < target.x)) {
+                && (distance(ball.position, target) < 0.25 || ball.position_in_seconds(0.5).x < target.x)) {
                 robot->spin_kick_to_target(ball.position, their::goal::front::center);
             } else {
                 robot->go_to_and_stop_orientation(target, M_PI/2);

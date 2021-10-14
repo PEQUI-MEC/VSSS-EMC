@@ -30,15 +30,15 @@ std::array<std::array<int, 3>, 6> all_possible_permutations() {
 }
 
 double Strategy3::score_atacker(const Robot3& robot, const Ball& ball) {
-    Point ball_estimate = ball.position_in_seconds(1);
+    Point ball_estimate = ball.position_in_seconds(1.25);
     if (is_foul) { // evita correr pra tras no kickoff
         ball_estimate = ball.position;
     }
     Point goal = their::goal::back::center;
     Vector ball_to_goal = goal - ball_estimate;
 	Vector robot_to_ball = ball_estimate - robot.get_position();
-    return 0.8 * (robot.pose.position - ball_estimate).size
-        + 0.2 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
+    return 0.85 * (robot.pose.position - ball_estimate).size
+        + 0.15 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 }
 
 double score_goalkeeper(const Robot3& robot, const Ball& ball) {
@@ -60,9 +60,9 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
             ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		add_score = 5;
 	}
-    return 0.35 * score_atacker(team[formation[0]], ball) * add_score
+    return 0.4 * score_atacker(team[formation[0]], ball) * add_score
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
-        + 0.65 * score_goalkeeper(team[formation[1]], ball);
+        + 0.6 * score_goalkeeper(team[formation[1]], ball);
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
