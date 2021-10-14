@@ -21,6 +21,7 @@ namespace field {
 	const double corner_height = 0.3; //distancia entre a lateral do campo e a area do gol
 	const double free_ball_dist = 0.2; // distância de cobrança de falta entre bola e robô
 	const double free_ball_height = 0.25; // distância entre a lateral do campo em y e o ponto de falta
+	const double gk_line_x = 0.17;
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Enumera todas as localizações do campo de interesse
@@ -52,15 +53,15 @@ namespace field {
 		namespace area {
 			namespace box {
 				const Geometry::Line center_line({goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height});
-				const Geometry::Point lower_limit({goal_width+area_width/2, corner_height+(area_height-goal_height)/2});
-				const Geometry::Point upper_limit({goal_width+area_width/2,  + field_height-corner_height-(area_height-goal_height)/2});
+				const Geometry::Point lower_limit({gk_line_x, corner_height+(area_height-goal_height)/2});
+				const Geometry::Point upper_limit({gk_line_x,  + field_height-corner_height-(area_height-goal_height)/2});
 				const Geometry::Point center_line_point({goal_width+area_width/2, field_height/2});
 			}
 			namespace upper {
-				const Geometry::Point center({goal_width+area_width/2, area_height+corner_height});
+				const Geometry::Point center({gk_line_x, area_height+corner_height});
 			}
 			namespace lower {
-				const Geometry::Point center({goal_width+area_width/2, corner_height});
+				const Geometry::Point center({gk_line_x, corner_height});
 			}
 			namespace front {
 				const Geometry::Point center({goal_width+area_width, field_height/2});
