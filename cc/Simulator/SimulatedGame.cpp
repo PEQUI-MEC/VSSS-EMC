@@ -50,6 +50,18 @@ bool SimulatedGame::game_loop() {
 			case VSSRef::Foul::GOAL_KICK:
 			case VSSRef::Foul::FREE_BALL:
 			case VSSRef::Foul::KICKOFF:
+				game.stop_game();
+				game.ball.reset_ls();
+
+				if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.blue_team().controlled){
+					VSSRef::Frame* frame = placement_config.load_replacement("blue", "kickoff_defense");
+					client.send_placement(frame);
+				}
+				if (client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.yellow_team().controlled){
+					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "kickoff_defense");
+					client.send_placement(frame);
+				}
+				break;
 			case VSSRef::Foul::STOP:
 			case VSSRef::Foul::HALT:
 				game.stop_game();

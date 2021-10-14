@@ -34,21 +34,21 @@
                 "orientation": -10
             }
         },
-        "penalty_defense": {
+        "kickoff_defense": {
             "0": {
                 "x": 0.7125,
                 "y": 0,
                 "orientation": 0
             },
             "1": {
-                "x": -0.1125,
-                "y": -0.4,
+                "x": 0.1125,
+                "y": -0.25,
                 "orientation": 0
             },
             "2": {
-                "x": -0.1125,
-                "y": 0.25,
-                "orientation": 0
+                "x": 0.075,
+                "y": -0.01,
+                "orientation": -20
             }
         }
     },
@@ -87,21 +87,21 @@
                 "orientation": 10
             }
         },
-        "penalty_defense": {
+        "kickoff_defense": {
             "0": {
                 "x": -0.7125,
                 "y": 0,
                 "orientation": 0
             },
             "1": {
-                "x": 0.1125,
-                "y": -0.4,
+                "x": -0.1125,
+                "y": -0.25,
                 "orientation": 0
             },
             "2": {
-                "x": 0.1125,
-                "y": 0.25,
-                "orientation": 0
+                "x": -0.275,
+                "y": -0.01,
+                "orientation": -20
             }
         }
     }
