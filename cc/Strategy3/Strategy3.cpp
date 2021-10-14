@@ -156,6 +156,9 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
              ref_command.foul() == VSSRef::Foul::PENALTY_KICK
             ) {
             attacker->go_to(ball.position, 2);
+        } else if (ref_command.foul() == VSSRef::Foul::KICKOFF
+            ) {
+            attacker->go_to(ball.position, 2);
         } else {
 			attacker.run_strategy(ball, false);
         }
