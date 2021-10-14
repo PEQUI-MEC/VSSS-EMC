@@ -18,14 +18,14 @@ bool SimulatedGame::game_loop() {
 			case VSSRef::Foul::PENALTY_KICK:
 				game.stop_game();
 				game.ball.reset_ls();
-				if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.blue_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_defense");
-					client.send_placement(frame);
-				}
-				if (client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.yellow_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_defense");
-					client.send_placement(frame);
-				}
+				// if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.blue_team().controlled){
+				// 	VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_defense");
+				// 	client.send_placement(frame);
+				// }
+				// if (client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.yellow_team().controlled){
+				// 	VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_defense");
+				// 	client.send_placement(frame);
+				// }
 
 				if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.yellow_team().controlled){
 					if((rand() % 10 + 1) >= 3){
@@ -53,6 +53,16 @@ bool SimulatedGame::game_loop() {
 				game.stop_game();
 				game.ball.reset_ls();
 
+				if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.yellow_team().controlled){
+					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "kickoff");
+						client.send_placement(frame);
+					
+				}
+
+				if(client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.blue_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "kickoff");
+						client.send_placement(frame);					
+				}
 				if(client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.blue_team().controlled){
 					VSSRef::Frame* frame = placement_config.load_replacement("blue", "kickoff_defense");
 					client.send_placement(frame);
