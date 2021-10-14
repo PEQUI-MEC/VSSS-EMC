@@ -48,7 +48,55 @@ bool SimulatedGame::game_loop() {
 				}
 				break;
 			case VSSRef::Foul::GOAL_KICK:
+				game.stop_game();
+				game.ball.reset_ls();
+				break;
 			case VSSRef::Foul::FREE_BALL:
+				game.stop_game();
+				game.ball.reset_ls();
+
+				if (client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_1){
+					if(game.yellow_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q1");
+						client.send_placement(frame);
+					}
+					if( game.blue_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q1");
+						client.send_placement(frame);
+					}
+				}
+				if (client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_2){
+					if(game.yellow_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q2");
+						client.send_placement(frame);
+					}
+					if( game.blue_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q2");
+						client.send_placement(frame);
+					}
+				}
+				if (client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_3){
+					if(game.yellow_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q3");
+						client.send_placement(frame);
+					}
+					if( game.blue_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q3");
+						client.send_placement(frame);
+					}
+				}
+				if (client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_4){
+					if(game.yellow_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q4");
+						client.send_placement(frame);
+					}
+					if( game.blue_team().controlled){
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q4");
+						client.send_placement(frame);
+					}
+				}
+				break;
+
 			case VSSRef::Foul::KICKOFF:
 				game.stop_game();
 				game.ball.reset_ls();
