@@ -56,8 +56,11 @@ bool SimulatedGame::game_loop() {
 				game.ball.reset_ls();
 				break;
 		}
-		game.team->strategy->set_foul(client.ref_command);
-		game.adversary->strategy->set_foul(client.ref_command);
+		bool team_defending = (client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.team->robot_color == RobotColor::Yellow)
+            || (client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.team->robot_color == RobotColor::Blue);
+
+		game.team->strategy->set_foul(client.ref_command, team_defending);
+		game.adversary->strategy->set_foul(client.ref_command, !team_defending);
 	}
 
 	if (game.send_one_command) {

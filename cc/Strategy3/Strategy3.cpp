@@ -49,16 +49,14 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
         + 1.2 * (robot.get_position().x - field::our::goal::front::center.x);
 }
 
-bool is_penalty = false;
-
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
 	duration_ms since_last_foul = sc::now() - last_foul;
 	double add_score = 1;
 	if (since_last_foul.count() < 2000) {
 		add_score = 5;
-        is_penalty = true;
+        is_foul = true;
 	} else {
-        is_penalty = false;
+        is_foul = false;
     }
     return score_atacker(team[formation[0]], ball) * add_score
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
@@ -66,9 +64,11 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
-void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul) {
-	new_foul = true;
-	ref_command = foul;
+void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) {
+    if(foul.foul() != VSSRef::Foul::GAME_ON && foul.foul() != VSSRef::Foul::STOP && foul.foul() != VSSRef::Foul::HALT) {
+        ref_command = foul;
+        this->is_defending_foul = is_defending;
+    }
 	last_foul = sc::now();
 }
 
@@ -152,10 +152,17 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 				attacker->go_to_and_stop({0.31 * field_width, ynew});
 // 			}
 // 		} else {
-		if (is_penalty) {
+		if (is_foul && !is_defending_foul &&
+             ref_command.foul() == VSSRef::Foul::PENALTY_KICK
+            ) {
             attacker->go_to(ball.position_in_seconds(0.2), 2);
+        } else if (is_foul && is_defending_foul &&
+             ref_command.foul() == VSSRef::Foul::PENALTY_KICK
+            ) {
+            Point goal = their::goal::back::center;
+            attacker->go_to(goal, 2);
         } else {
-			attacker.run_strategy(ball, is_penalty);
+			attacker.run_strategy(ball, false);
         }
 // 		}
 

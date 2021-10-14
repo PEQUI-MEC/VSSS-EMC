@@ -13,7 +13,8 @@ class Strategy3 : public Strategy {
 	GoalkeeperStrategy goalkeeper;
 	Ball ball;
 
-	bool new_foul = false;
+	bool is_foul = false;
+    bool is_defending_foul = false;
 	VSSRef::ref_to_team::VSSRef_Command ref_command;
 
 	void
@@ -23,7 +24,7 @@ class Strategy3 : public Strategy {
 		return new Strategy3(*this);
 	}
 
-	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul);
+	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending);
 
 	using sc = std::chrono::system_clock;
 	using duration_ms = std::chrono::duration<double, std::milli>;

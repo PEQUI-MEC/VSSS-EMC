@@ -15,7 +15,7 @@ class NoStrategy : public Strategy {
 		return new NoStrategy(*this);
 	};
 
-	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul) {};
+	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) {};
 };
 
 #endif //VSSS_NOSTRATEGY_HPP
