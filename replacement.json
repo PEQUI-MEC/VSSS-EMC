@@ -7,14 +7,14 @@
                 "orientation": 0
             },
             "1": {
-                "x": -0.3,
+                "x": -0.32,
                 "y": 0.025,
-                "orientation": 25
+                "orientation": 24
             },
             "2": {
                 "x": 0.1125,
-                "y": 0.4,
-                "orientation": 0
+                "y": -0.51,
+                "orientation": 5
             }
         },
         "penalty2": {
@@ -24,14 +24,14 @@
                 "orientation": 0
             },
             "1": {
-                "x": -0.3,
+                "x": -0.32,
                 "y": -0.025,
-                "orientation": -25
+                "orientation": -24
             },
             "2": {
                 "x": 0.1125,
                 "y": 0.4,
-                "orientation": 0
+                "orientation": -10
             }
         },
         "penalty_defense": {
@@ -60,14 +60,14 @@
                 "orientation": 0
             },
             "1": {
-                "x": 0.3,
+                "x": 0.32,
                 "y": 0.025,
-                "orientation": -25
+                "orientation": -24
             },
             "2": {
                 "x": -0.1125,
-                "y": 0.4,
-                "orientation": 0
+                "y": -0.51,
+                "orientation": -10
             }
         },
         "penalty2": {
@@ -77,14 +77,14 @@
                 "orientation": 0
             },
             "1": {
-                "x": 0.3,
+                "x": 0.32,
                 "y": -0.025,
-                "orientation": 25
+                "orientation": 24
             },
             "2": {
                 "x": -0.1125,
                 "y": 0.4,
-                "orientation": 0
+                "orientation": 10
             }
         },
         "penalty_defense": {
