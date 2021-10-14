@@ -156,11 +156,6 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
              ref_command.foul() == VSSRef::Foul::PENALTY_KICK
             ) {
             attacker->go_to(ball.position, 2);
-        } else if (is_foul && is_defending_foul &&
-             ref_command.foul() == VSSRef::Foul::PENALTY_KICK
-            ) {
-            Point goal = their::goal::back::center;
-            attacker->go_to(goal, 2);
         } else {
 			attacker.run_strategy(ball, false);
         }
@@ -185,7 +180,13 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
                 } else if (cmd == Command::UVF) {
                     auto target_to_reference = attacker->target.reference - attacker->target.pose.position;
                     auto target = attacker->target.pose.position + target_to_reference.with_size(-0.1);
-                    if (at_location(attacker->target.pose.position, Location::OurBox) || at_location(target, Location::OurBox)) {
+                    auto target2 = attacker->target.pose.position + target_to_reference.with_size(0.1);
+                    auto target3 = attacker->target.pose.position + target_to_reference.with_size(-0.15);
+                    auto target4 = attacker->target.pose.position + target_to_reference.with_size(0.15);
+                    if (at_location(attacker->target.pose.position, Location::OurBox)
+                        || at_location(target, Location::OurBox)
+                        || at_location(target3, Location::OurBox)
+                    ) {
                         attacker->stop();
                     }
                 }
