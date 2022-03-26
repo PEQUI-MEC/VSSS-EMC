@@ -236,7 +236,19 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 		// }
 	}
 
-	if (goalkeeper.has_robot()) goalkeeper.run_strategy(ball);
+	if (goalkeeper.has_robot()) {
+		goalkeeper.run_strategy(ball);
+
+		auto cmd = goalkeeper->target.command;
+		if (at_location(attacker->pose.position, Location::OurBox) &&
+			!at_location(goalkeeper->pose.position, Location::OurBox)) {
+			if (cmd == Command::Position || cmd == Command::Vector) {
+				if (at_location(goalkeeper->target.pose.position, Location::OurBox)) {
+					goalkeeper->stop();
+				}
+			}
+		}
+	}
 }
 
 bool Strategy3::transitions() {
