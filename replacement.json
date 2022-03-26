@@ -1,10 +1,27 @@
 {
     "yellow": {
-        "penalty1": {
+        "penalty_defense": {
+            "0": {
+                "x": 0.786,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": -0.05,
+                "y": 0.4,
+                "orientation": -15
+            },
+            "2": {
+                "x": -0.05,
+                "y": -0.4,
+                "orientation": 15
+            }
+        },
+        "penalty_attack_1": {
             "0": {
                 "x": 0.675,
                 "y": 0,
-                "orientation": 0
+                "orientation": 90
             },
             "1": {
                 "x": -0.32,
@@ -12,16 +29,16 @@
                 "orientation": 24
             },
             "2": {
-                "x": 0.1125,
-                "y": -0.51,
-                "orientation": 5
+                "x": 0.05,
+                "y": -0.21,
+                "orientation": -8
             }
         },
-        "penalty2": {
+        "penalty_attack_2": {
             "0": {
                 "x": 0.675,
                 "y": 0,
-                "orientation": 0
+                "orientation": 90
             },
             "1": {
                 "x": -0.32,
@@ -29,9 +46,9 @@
                 "orientation": -24
             },
             "2": {
-                "x": 0.1125,
-                "y": 0.4,
-                "orientation": -10
+                "x": 0.05,
+                "y": 0.21,
+                "orientation": 8
             }
         },
         "kickoff": {
@@ -138,11 +155,28 @@
         }
     },
     "blue": {
-        "penalty1": {
+        "penalty_defense": {
+            "0": {
+                "x": -0.786,
+                "y": 0,
+                "orientation": 0
+            },
+            "1": {
+                "x": 0.05,
+                "y": 0.4,
+                "orientation": 15
+            },
+            "2": {
+                "x": 0.05,
+                "y": -0.4,
+                "orientation": -15
+            }
+        },
+        "penalty_attack_1": {
             "0": {
                 "x": -0.675,
                 "y": 0,
-                "orientation": 0
+                "orientation": 90
             },
             "1": {
                 "x": 0.32,
@@ -150,16 +184,16 @@
                 "orientation": -24
             },
             "2": {
-                "x": -0.1125,
-                "y": -0.51,
-                "orientation": -10
+                "x": -0.05,
+                "y": -0.21,
+                "orientation": 8
             }
         },
-        "penalty2": {
+        "penalty_attack_2": {
             "0": {
                 "x": -0.675,
                 "y": 0,
-                "orientation": 0
+                "orientation": 90
             },
             "1": {
                 "x": 0.32,
@@ -167,9 +201,9 @@
                 "orientation": 24
             },
             "2": {
-                "x": -0.1125,
-                "y": 0.4,
-                "orientation": 10
+                "x": -0.05,
+                "y": 0.21,
+                "orientation": -8
             }
         },
         "kickoff": {
