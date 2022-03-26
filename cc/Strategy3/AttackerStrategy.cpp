@@ -97,7 +97,10 @@ void AttackerStrategy::crossing(const Geometry::Point &ball){
 void AttackerStrategy::protect_goal(const Geometry::Point &ball) {
 	if (distance(robot->get_position(), ball) < robot->BALL_OFFSET) {
 		 // Se a bola chegar perto, gira para jogar a bola longe
-		robot->spin_kick_to_target(ball, their::goal::front::center);
+		if (at_location(ball, Location::UpperField))
+			robot->spin_kick_to_target(ball, {gk_line_x, field_height});
+		else
+			robot->spin_kick_to_target(ball, {gk_line_x, 0});
 	} else if (at_location(ball, Location::UpperField)) {
 		// bloquear area (cima)
 		robot->go_to_and_stop(our::corner::upper::attacker::point);
@@ -114,13 +117,12 @@ void AttackerStrategy::charged_shot(const Geometry::Point &ball) {
 void AttackerStrategy::side_spin_shot(Point ball){
 	double distance_to_ball = distance(robot->get_position(), ball);
 
-	if(robot->get_position().x < ball.x-0.01 && (distance_to_ball > 0.07) ){
+	if(robot->get_position().x < ball.x-0.01 && distance_to_ball > robot->BALL_OFFSET) {
 		//para evitar o robo ficar dançando quando estiver na lateral correndo atrás da bola
 		robot->go_to(ball);
-	}else
-	if (distance_to_ball <= 0.07 && robot->get_position().x < ball.x){
+	} else if (distance_to_ball <= robot->BALL_OFFSET && robot->get_position().x < ball.x) {
 		robot->spin_kick_to_target(ball, their::goal::front::center);
-	}else{
+	} else {
 		if(ball.y > their::goal::front::center.y){
 			Vector ball_to_side = {1,  degree_to_rad(45)};
 			robot->go_to_pose(ball, ball_to_side);

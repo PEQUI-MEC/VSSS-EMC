@@ -21,7 +21,7 @@ namespace field {
 	const double corner_height = 0.3; //distancia entre a lateral do campo e a area do gol
 	const double free_ball_dist = 0.2; // distância de cobrança de falta entre bola e robô
 	const double free_ball_height = 0.25; // distância entre a lateral do campo em y e o ponto de falta
-	const double gk_line_x = 0.17;
+	const double gk_line_x = 0.16;
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Enumera todas as localizações do campo de interesse
