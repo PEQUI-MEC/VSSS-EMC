@@ -187,6 +187,11 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 				if (at_location(target1, Location::OurBox))
 					enters_area1 = true;
 			}
+
+			if(distance(goalkeeper->get_position(), ball.position) < 0.15){
+				attacker->stop();
+			}
+
 			if((at_location(ball.position, Location::OurBox) || enters_area1) && at_location(goalkeeper->pose.position, Location::OurBox)) {
 				attacker->stop();
 			}
