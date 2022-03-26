@@ -189,7 +189,16 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 			if (at_location(attacker->get_position(), Location::OurBox)) {
 //                 std::cout << "here" << std::endl;
 // 				attacker->go_in_direction({0, 0.8});
-// 			} else
+// 			}
+			bool enters_area1 = false;
+			for (double i = -0.1; i <= 1.0; i += 0.005) {
+				auto target1 = ball.position_in_seconds(i);
+				if (at_location(target1, Location::OurBox))
+					enters_area1 = true;
+			}
+			if((at_location(ball.position, Location::OurBox) || enters_area1) && at_location(goalkeeper->pose.position, Location::OurBox)) {
+				attacker->stop();
+			}
             auto cmd = attacker->target.command;
             if (!at_location(attacker->pose.position, Location::OurBox) && !is_foul) {
                 if (cmd == Command::Position || cmd == Command::Vector) {
