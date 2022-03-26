@@ -9,15 +9,15 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Point attacker) {
     if (is_ball_behind(our::area::front::center + Vector{0.05, 0}, ball) ||
         (is_ball_behind(our::area::front::center + Vector{0.3, 0}, ball) && distance(attacker, ball.position) < 0.1)
     ) {
-//      Sai do caminho
-        robot->go_to_and_stop({defender::back::upper_limit.x, field_height - ball.position.y});
+		// Sai do caminho e se prepara pra substituir o goleiro
+		if (at_location(ball.position, Location::UpperField))
+			wait_at_target(defender::back::lower_limit, ball.position);
+		else
+			wait_at_target(defender::back::upper_limit, ball.position);
     } else if (is_ball_est_ahead(df_limit, ball, -0.08) && !at_location(robot->get_position(), Location::AnyGoal)) {
 		// Bola na na área adversária
-		if (at_location(attacker, Location::UpperField))
-			wait_at_target(defender::front::lower::wait_point, ball.position);
-		else
-			wait_at_target(defender::front::upper::wait_point, ball.position);
-
+		double pos_y = std::clamp(ball.position.y, defender::front::lower::wait_point.y, defender::front::upper::wait_point.y);
+		wait_at_target({attacker.x - robot->SIZE*5, pos_y}, ball.position);
 	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
 		exit_goal();
 	} else {
