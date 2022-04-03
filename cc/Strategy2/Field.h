@@ -133,8 +133,8 @@ namespace field {
 
 	namespace defender {
 		namespace back {
-			const Geometry::Point upper_limit({goal_width+area_width+0.13, field_height/2 + area_height/2});
-			const Geometry::Point lower_limit({goal_width+area_width+0.13, field_height/2 - area_height/2});
+			const Geometry::Point upper_limit({goal_width+area_width+0.09, field_height/2 + goal_height/2});
+			const Geometry::Point lower_limit({goal_width+area_width+0.09, field_height/2 - goal_height/2});
 			const Geometry::Line line(lower_limit, upper_limit);
 		}
 		namespace front {

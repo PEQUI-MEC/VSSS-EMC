@@ -231,9 +231,9 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 		if (at_location(defender->get_position(), Location::OurBox)) {
 // 			defender->go_in_direction({0, 0.8});
 // 		}
-		if (at_location(defender->target.pose.position, Location::OurBox)) {
-			defender->stop();
-		}
+		// if (at_location(defender->target.pose.position, Location::OurBox)) {
+		// 	defender->stop();
+		// }
 	}
 
 	if (goalkeeper.has_robot()) goalkeeper.run_strategy(ball);
