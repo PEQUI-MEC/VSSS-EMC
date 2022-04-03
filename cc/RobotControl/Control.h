@@ -20,6 +20,8 @@ class Control {
 
 	float kgz = 0.2;
 
+	bool is_penalty = false;
+
     std::vector<Geometry::Point> obstacles;
 
 	Control(const Pose &pose, const Target &target, double robot_size) :

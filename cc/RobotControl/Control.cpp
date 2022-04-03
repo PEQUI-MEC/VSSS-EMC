@@ -45,15 +45,26 @@ Velocity Control::run_control() {
 
 Velocity Control::vector_control_old(double target_theta, double velocity, bool enable_backwards, double orientation_weight) {
     double avoidance_field_theta = 0;
-    for (auto& obs : obstacles) {
-        avoidance_field_theta += avoidance_field(obs, target_theta);
-    }
+//     for (auto& obs : obstacles) {
+//         avoidance_field_theta += avoidance_field(obs, target_theta);
+//     }
 	auto error = Geometry::wrap(target_theta + avoidance_field_theta - pose.orientation);
-	if (enable_backwards && backwards_select(error)) {
-		auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
-		return {-velocity * std::cos(backwards_error) * 0.8, orientation_weight * backwards_error};
+	if (is_penalty) {
+		if (enable_backwards && backwards_select(error)) {
+			auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
+			return nonlinear_controller(backwards_error, velocity * std::cos(backwards_error), true);
+			//return {-velocity * std::abs(std::cos(backwards_error)) * 0.8, orientation_weight * backwards_error};
+		} else {
+			return nonlinear_controller(error, velocity * std::cos(error), false);
+			//return {velocity * std::cos(error) * 0.8, orientation_weight * error};
+		}
 	} else {
-		return {velocity * std::cos(error) * 0.8, orientation_weight * error};
+		if (enable_backwards && backwards_select(error)) {
+			auto backwards_error = Geometry::wrap(target_theta + avoidance_field_theta - (pose.orientation + M_PI));
+			return {-velocity * std::cos(backwards_error) * 0.8, orientation_weight * backwards_error};
+		} else {
+			return {velocity * std::cos(error) * 0.8, orientation_weight * error};
+		}
 	}
 }
 
@@ -63,7 +74,7 @@ Velocity Control::position_control() {
 	double error = std::sqrt(std::pow(target.pose.position.x - pose.position.x, 2.0f)
 							 + std::pow(target.pose.position.y - pose.position.y, 2.0f));
 	if (error < 0.005) return {0, 0};
-	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(35 * error), true, 25);
+	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(20 * error), true, 30);
 }
 
 Velocity Control::uvf_control() {

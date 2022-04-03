@@ -60,9 +60,9 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
             ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		add_score = 5;
 	}
-    return 0.35 * score_atacker(team[formation[0]], ball) * add_score
+    return 0.35 * score_atacker(team[formation[0]], ball)
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
-        + 0.65 * score_goalkeeper(team[formation[1]], ball);
+        + 0.65 * score_goalkeeper(team[formation[1]], ball) * add_score;
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
@@ -104,6 +104,15 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 	Robot3* goalkeeper_robot = find_robot_by_role(team, Role::Goalkeeper);
 	goalkeeper.set_robot(goalkeeper_robot);
 	this->ball = ball;
+
+	duration_ms since_last_foul = sc::now() - last_foul;
+    is_foul = since_last_foul.count() < 2000;
+	if (is_foul && is_defending_foul &&
+            ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
+		goalkeeper.robot->control.is_penalty = true;
+	} else {
+		goalkeeper.robot->control.is_penalty = false;
+	}
 
 // 	duration_ms since_last_transition = sc::now() - last_transition;
 // 	if(since_last_transition.count() > 2000) {
