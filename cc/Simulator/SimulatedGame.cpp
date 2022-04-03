@@ -1,7 +1,10 @@
 #include "SimulatedGame.hpp"
 
+time_point before = hrc::from_time_t(0);
 bool SimulatedGame::game_loop() {
-	if(!client.new_data && !client.new_ref_cmd) return false;
+	if(!client.new_data && !client.new_ref_cmd &&
+		!(game.playing_game && game.first_iteration))
+		return false;
 
 	std::lock_guard<std::mutex> guard(client.data_mutex);
 
@@ -10,6 +13,7 @@ bool SimulatedGame::game_loop() {
 		switch (client.ref_command.foul()) {
 			case VSSRef::Foul::GAME_ON:
 				game.playing_game = true;
+				game.first_iteration = true;
 				break;
 			case VSSRef::Foul::FREE_KICK:
 				game.stop_game();
@@ -129,46 +133,39 @@ bool SimulatedGame::game_loop() {
 		bool team_defending = (client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.team->robot_color == RobotColor::Yellow)
             || (client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.team->robot_color == RobotColor::Blue);
 
-		game.team->strategy->set_foul(client.ref_command, team_defending);
-		game.adversary->strategy->set_foul(client.ref_command, !team_defending);
+		game.team->strategy->set_foul(client.ref_command, team_defending, game.now());
+		game.adversary->strategy->set_foul(client.ref_command, !team_defending, game.now());
 	}
 
 	if (game.send_one_command) {
-		if (game.team->controlled) {
-			client.send_commands(*game.team.get());
-		}
-		if (game.adversary->controlled) {
-			client.send_commands(*game.adversary.get());
-		}
+		client.send_commands(*game.team.get(), *game.adversary.get());
 		game.send_one_command = false;
 	}
 
-	if(!client.new_data) return false;
+	if (!client.new_data && !game.first_iteration)
+		return false;
 
-	client.update_robots(game);
+	if(client.new_data) {
+		client.update_robots(game);
+	}
 
 	if (game.playing_game) {
 		auto inverted_team = game.team->get_inverted_robot_positions();
 		auto inverted_adv = game.adversary->get_inverted_robot_positions();
 		if (game.team->inverted_field) {
 			game.team->strategy->run_strategy(game.team->robots, inverted_adv,
-											  game.ball.get_inverted(), game.first_iteration);
+											  game.ball.get_inverted(), game.first_iteration, game.now());
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball, game.first_iteration);
+												   game.ball, game.first_iteration, game.now());
 		} else {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration, game.now());
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball.get_inverted(), game.first_iteration);
+												   game.ball.get_inverted(), game.first_iteration, game.now());
 		}
 		game.first_iteration = false;
 
-		if (game.team->controlled) {
-			client.send_commands(*game.team.get());
-		}
-		if (game.adversary->controlled) {
-			client.send_commands(*game.adversary.get());
-		}
+		client.send_commands(*game.team.get(), *game.adversary.get());
 	}
 
-    return true;
+	return true;
 }

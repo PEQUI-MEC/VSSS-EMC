@@ -13,9 +13,10 @@ class Strategy {
 	virtual void run_strategy(std::vector<Robot3> &team,
 							  std::vector<Geometry::Point> &adversaries,
 							  Ball ball,
-							  bool first_iteration) = 0;
+							  bool first_iteration,
+							  time_point now) = 0;
 	virtual Strategy * clone() = 0;
-	virtual void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) = 0;
+	virtual void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending, time_point foul_time) = 0;
 };
 
 #endif //VSSS_STRATEGY_HPP

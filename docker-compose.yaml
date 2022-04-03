@@ -55,6 +55,17 @@ services:
             dockerfile: dockerfile
         working_dir: /root/VSSS
         command: /root/VSSS/VSSS blue_headless.json
+    both_headless:
+        image: pequi-vsss
+        container_name: pequi-vsss-both-headless
+        stdin_open: true
+        ipc: 'host'
+        network_mode: "host"
+        build:
+            context: .
+            dockerfile: dockerfile
+        working_dir: /root/VSSS
+        command: /root/VSSS/VSSS both_headless.json
     firasim_gui:
         image: pequi-vsss
         container_name: pequi-firasim

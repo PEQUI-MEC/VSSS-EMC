@@ -5,7 +5,7 @@
 
 class NoStrategy : public Strategy {
 	void run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
-					  bool first_iteration) {
+					  bool first_iteration, time_point now) {
 		for (auto& robot : team) {
 			robot.send_no_command();
 		}
@@ -15,7 +15,7 @@ class NoStrategy : public Strategy {
 		return new NoStrategy(*this);
 	};
 
-	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) {};
+	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending, time_point foul_time) {};
 };
 
 #endif //VSSS_NOSTRATEGY_HPP

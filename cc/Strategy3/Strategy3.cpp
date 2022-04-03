@@ -53,7 +53,7 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
 }
 
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
-	duration_ms since_last_foul = sc::now() - last_foul;
+	duration_ms since_last_foul = now - last_foul;
 	double add_score = 1;
     is_foul = since_last_foul.count() < 2000;
 	if (is_foul && is_defending_foul &&
@@ -66,16 +66,17 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
-void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) {
+void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending, time_point foul_time) {
     if(foul.foul() != VSSRef::Foul::GAME_ON && foul.foul() != VSSRef::Foul::STOP && foul.foul() != VSSRef::Foul::HALT) {
         ref_command = foul;
         this->is_defending_foul = is_defending;
     }
-	last_foul = sc::now();
+	last_foul = foul_time;
 }
 
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
-							 bool first_iteration) {
+							 bool first_iteration, time_point now) {
+	this->now = now;
 
     auto vec = all_possible_permutations();
 //     for (auto v : vec) {
@@ -105,11 +106,11 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 	goalkeeper.set_robot(goalkeeper_robot);
 	this->ball = ball;
 
-// 	duration_ms since_last_transition = sc::now() - last_transition;
+// 	duration_ms since_last_transition = now() - last_transition;
 // 	if(since_last_transition.count() > 2000) {
 // 		bool transitioned = transitions();
 // 		if(transitioned)
-// 			last_transition = sc::now();
+// 			last_transition = now();
 // 	}
     if ((attacker->pose.position - ball.position).size > 0.3) {
         attacker->control.obstacles = adversaries;

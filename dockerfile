@@ -117,6 +117,7 @@ COPY img /root/VSSS/img
 COPY protobuf_msg /root/VSSS/protobuf_msg
 COPY yellow_headless.json /root/VSSS/
 COPY blue_headless.json /root/VSSS/
+COPY both_headless.json /root/VSSS/
 COPY replacement.json /root/VSSS/
 COPY python /root/VSSS/python
 COPY pack-capture-gui /root/VSSS/pack-capture-gui
