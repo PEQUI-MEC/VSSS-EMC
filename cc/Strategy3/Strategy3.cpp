@@ -37,8 +37,8 @@ double Strategy3::score_atacker(const Robot3& robot, const Ball& ball) {
     Point goal = their::goal::back::center;
     Vector ball_to_goal = goal - ball_estimate;
 	Vector robot_to_ball = ball_estimate - robot.get_position();
-    return 0.8 * (robot.pose.position - ball_estimate).size
-        + 0.2 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
+    return 0.85 * (robot.pose.position - ball_estimate).size
+        + 0.15 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 }
 
 double score_goalkeeper(const Robot3& robot, const Ball& ball) {
@@ -114,6 +114,13 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 		goalkeeper.robot->control.is_penalty = false;
 	}
 
+	goalkeeper.robot->control.kgz = 0.5;
+	attacker.robot->control.kgz = 0.22;
+	defender.robot->control.kgz = 0.22;
+	goalkeeper.robot->control.is_goalkeeper = true;
+	attacker.robot->control.is_goalkeeper = false;
+	defender.robot->control.is_goalkeeper = false;
+
 // 	duration_ms since_last_transition = sc::now() - last_transition;
 // 	if(since_last_transition.count() > 2000) {
 // 		bool transitioned = transitions();
@@ -147,6 +154,12 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 //     defender->control.obstacles = df_obs;
 
     goalkeeper->control.obstacles.clear();
+
+	goalkeeper.robot->control.avoidance_field_weigh = 0;
+	defender.robot->control.avoidance_field_weigh = 0.03;
+	attacker.robot->control.avoidance_field_weigh = 0.015;
+
+
 
  	if (attacker.has_robot()) {
 // 		if (defender.has_robot() &&
@@ -191,12 +204,18 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 				attacker->go_in_direction({0, 0.8});
 // 			}
 			bool enters_area1 = false;
+			bool enters_area2 = false;
 			for (double i = -0.1; i <= 1.0; i += 0.005) {
 				auto target1 = ball.position_in_seconds(i);
 				if (at_location(target1, Location::OurBox))
 					enters_area1 = true;
 			}
-			if((at_location(ball.position, Location::OurBox) || enters_area1) && at_location(goalkeeper->pose.position, Location::OurBox)) {
+			for (double i = 0.0; i <= 0.1; i += 0.005) {
+				auto position = attacker->position_in_seconds(i);
+				if (at_location(position, Location::OurBox))
+					enters_area2 = true;
+			}
+			if((at_location(ball.position, Location::OurBox) || enters_area1 || enters_area2) && at_location(goalkeeper->pose.position, Location::OurBox)) {
 				attacker->stop();
 			}
             auto cmd = attacker->target.command;

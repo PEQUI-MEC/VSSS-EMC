@@ -19,8 +19,10 @@ class Control {
 	double robot_size;
 
 	float kgz = 0.2;
+	double avoidance_field_weigh = 0.015;
 
 	bool is_penalty = false;
+	bool is_goalkeeper = false;
 
     std::vector<Geometry::Point> obstacles;
 

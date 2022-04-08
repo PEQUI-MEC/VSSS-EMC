@@ -104,3 +104,16 @@ Tag Robot3::to_tag(bool invert) const {
 	tag.orientation = pose.orientation;
 	return tag;
 }
+
+Geometry::Point Robot3::position_in_seconds(double time) const {
+	//Geometry::Point going_to = target.pose.position;
+	if (target.command == Command::UVF) {
+		auto going_to = target.pose.position - pose.position;
+		return pose.position + going_to.with_size(target.pose.velocity.linear) * time;
+	} else if (target.command == Command::Orientation) {
+		return pose.position;
+	} else {
+		auto going_to = target.pose.position - pose.position;
+		return pose.position + going_to.with_size(target.pose.velocity.linear) * time;
+	}
+}

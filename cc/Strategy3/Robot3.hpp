@@ -97,6 +97,7 @@ class Robot3 {
 	}
 
 	Tag to_tag(bool invert) const;
+	Geometry::Point position_in_seconds(double time) const;
 };
 
 #endif //VSSS_ROBOT3_HPP
