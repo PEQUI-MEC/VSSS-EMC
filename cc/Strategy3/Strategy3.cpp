@@ -30,7 +30,7 @@ std::array<std::array<int, 3>, 6> all_possible_permutations() {
 }
 
 double Strategy3::score_atacker(const Robot3& robot, const Ball& ball) {
-    Point ball_estimate = ball.position_in_seconds(1);
+    Point ball_estimate = ball.position_in_seconds(0.5);
     if (is_foul) { // evita correr pra tras no kickoff
         ball_estimate = ball.position;
     }
