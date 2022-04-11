@@ -18,9 +18,19 @@ Compile a imagem:
 
 `docker-compose build`
 
+Crie a pasta 'build' na raiz do repositório.
+
+Ex.: `mkdir build`
+
 Para rodar o programa, execute o `docker-compose up` listando os serviços desejados. Por exemplo, para rodar o VSSS-EMC com interface gráfica, execute:
 
 `docker-compose up pequi`
+
+Caso apareça o erro: "(VSSS:1): Gtk-WARNING : 20:25:57.464: cannot open display: unix:1"
+
+Execute o comando:
+
+`xhost +local:docker`
 
 E para simular um jogo no FIRASim controlando apenas o time amarelo, execute:
 
