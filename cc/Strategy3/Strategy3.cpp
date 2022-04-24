@@ -160,7 +160,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
     goalkeeper->control.obstacles.clear();
 
 	goalkeeper.robot->control.avoidance_field_weigh = 0;
-	defender.robot->control.avoidance_field_weigh = 0.03;
+	defender.robot->control.avoidance_field_weigh = 0.07;
 	attacker.robot->control.avoidance_field_weigh = 0.015;
 
 
