@@ -233,7 +233,10 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
                     bool enters_area = false;
                     for (double i = -0.1; i <= 0; i += 0.002) {
                         auto target = attacker->target.pose.position + target_to_reference.with_size(i);
-                        if (at_location(target, Location::OurBox))
+                        if (at_location(target, Location::OurBox) ||
+							(at_location(target, Location::OurUpperCorner) && at_location(attacker->target.pose.position, Location::OurLowerCorner)) ||
+							(at_location(target, Location::OurLowerCorner) && at_location(attacker->target.pose.position, Location::OurUpperCorner))
+						)
                             enters_area = true;
                     }
                     for (double i = 0; i <= 0.5; i += 0.005) {
