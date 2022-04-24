@@ -110,8 +110,10 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 	if (is_foul && is_defending_foul &&
             ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		goalkeeper.robot->control.is_penalty = true;
+		goalkeeper.penalty = true;
 	} else {
 		goalkeeper.robot->control.is_penalty = false;
+		goalkeeper.penalty = false;
 	}
 
 	goalkeeper.robot->control.kgz = 0.5;
@@ -265,7 +267,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 	}
 
 	if (goalkeeper.has_robot()) {
-		goalkeeper.run_strategy(ball);
+		goalkeeper.run_strategy(ball, adversaries);
 
 		auto cmd = goalkeeper->target.command;
 		if (at_location(attacker->pose.position, Location::OurBox) &&

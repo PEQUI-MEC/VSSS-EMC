@@ -4,13 +4,39 @@
 using namespace field;
 using namespace Geometry;
 
-void GoalkeeperStrategy::run_strategy(const Ball &ball) {
-	if (distance(robot->get_position(), ball.position) < robot->BALL_OFFSET && !at_location(robot->get_position(), Location::AnyGoal))
+void GoalkeeperStrategy::run_strategy(const Ball &ball, const std::vector<Geometry::Point> &adversaries) {
+	if (penalty)
+		defend_penalty(ball, adversaries);
+	else if (distance(robot->get_position(), ball.position) < robot->BALL_OFFSET && !at_location(robot->get_position(), Location::AnyGoal))
         spin_shot(ball.position);
 	else if (at_location(robot->get_position(), Location::AnyGoal))
 		exit_goal();
 	else
 		protect_goal(ball);
+}
+
+Geometry::Point get_attacker(const Ball &ball, const std::vector<Geometry::Point> &adversaries) {
+	Geometry::Point atk = adversaries[0];
+	for (auto& adv : adversaries) {
+		if (distance(ball.position, adv) < distance(ball.position, atk)) {
+			atk = adv;
+		}
+	}
+	return atk;
+}
+
+void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Geometry::Point> &adversaries) {
+	auto atk = get_attacker(ball, adversaries);
+	auto kick_dir = ball.position - atk;
+	auto dist_x_ball_goal = std::abs(ball.position.x - gk_line_x);
+	auto distance_ball_projection = dist_x_ball_goal / std::cos(M_PI - kick_dir.theta);
+	auto ball_goal_projection = ball.position + kick_dir.with_size(distance_ball_projection);
+	Point target{gk_line_x, ball_goal_projection.y};
+	if (distance(robot->get_position(), target) < 0.04) {
+		robot->spin_kick_to_target(ball.position, their::goal::front::center);
+	} else {
+		robot->go_to_and_stop_orientation(target, M_PI/2);
+	}
 }
 
 void GoalkeeperStrategy::protect_goal(const Ball& ball) {

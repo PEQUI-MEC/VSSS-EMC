@@ -9,8 +9,11 @@
 
 class GoalkeeperStrategy : public RoleStrategy {
 	public:
+	bool penalty = false;
+
 	// Beahviors
-	void run_strategy(const Ball& ball);
+	void run_strategy(const Ball& balll, const std::vector<Geometry::Point> &adversaries);
+	void defend_penalty(const Ball& ball, const std::vector<Geometry::Point> &adversaries);
 	void protect_goal(const Ball& ball);
 	void spin_shot(const Geometry::Point& ball);
 	void exit_goal();
