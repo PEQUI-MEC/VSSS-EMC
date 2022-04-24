@@ -106,14 +106,16 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 	this->ball = ball;
 
 	duration_ms since_last_foul = sc::now() - last_foul;
-    is_foul = since_last_foul.count() < 2000;
+    is_foul = since_last_foul.count() < 1000;
 	if (is_foul && is_defending_foul &&
             ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		goalkeeper.robot->control.is_penalty = true;
 		goalkeeper.penalty = true;
+		goalkeeper.has_arrived_penalty = false;
 	} else {
 		goalkeeper.robot->control.is_penalty = false;
 		goalkeeper.penalty = false;
+		goalkeeper.has_arrived_penalty = false;
 	}
 
 	goalkeeper.robot->control.kgz = 0.5;

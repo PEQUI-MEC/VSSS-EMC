@@ -31,8 +31,16 @@ void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Geom
 	auto dist_x_ball_goal = std::abs(ball.position.x - gk_line_x);
 	auto distance_ball_projection = dist_x_ball_goal / std::cos(M_PI - kick_dir.theta);
 	auto ball_goal_projection = ball.position + kick_dir.with_size(distance_ball_projection);
+	double MAX_GOAL_Y = our::goal::front::center.y + 0.15;
+	double MIN_GOAL_Y = our::goal::front::center.y - 0.15;
+	if (ball_goal_projection.y > MAX_GOAL_Y) {
+		ball_goal_projection.y = MAX_GOAL_Y;
+	} else if (ball_goal_projection.y < MIN_GOAL_Y) {
+		ball_goal_projection.y = MIN_GOAL_Y;
+	}
 	Point target{gk_line_x, ball_goal_projection.y};
-	if (distance(robot->get_position(), target) < 0.04) {
+	if (has_arrived_penalty || distance(robot->get_position(), target) < 0.04) {
+		has_arrived_penalty = true;
 		robot->spin_kick_to_target(ball.position, their::goal::front::center);
 	} else {
 		robot->go_to_and_stop_orientation(target, M_PI/2);

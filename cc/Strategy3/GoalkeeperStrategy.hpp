@@ -10,6 +10,7 @@
 class GoalkeeperStrategy : public RoleStrategy {
 	public:
 	bool penalty = false;
+	bool has_arrived_penalty = false;
 
 	// Beahviors
 	void run_strategy(const Ball& balll, const std::vector<Geometry::Point> &adversaries);
