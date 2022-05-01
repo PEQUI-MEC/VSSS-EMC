@@ -12,10 +12,11 @@ void AttackerStrategy::run_strategy(Ball& ball, bool is_penalty) {
 // 	} else if (at_location(robot->get_position(), Location::OurBox)) {
 		// Cobrar penalti
 // 		charged_shot(ball.position);
-    } else if (at_location(ball.position, Location::AnySide)){
-		side_spin_shot(ball.position);
+
  	} else if (is_ball_behind(our::area::front::center, ball) && !at_location(robot->get_position(), Location::AnyGoal)) {
  		protect_goal(ball.position);
+	} else if (at_location(ball.position, Location::AnySide)){
+		side_spin_shot(ball.position);
 // 	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
 // 		exit_goal(ball.position);
 	} else {
