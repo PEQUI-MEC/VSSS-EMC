@@ -284,6 +284,11 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 			}
 		}
 	}
+	if (is_foul && is_defending_foul &&
+            ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
+		defender->stop();
+		attacker->stop();
+	}
 }
 
 bool Strategy3::transitions() {
