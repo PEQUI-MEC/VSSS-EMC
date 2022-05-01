@@ -95,7 +95,7 @@ void AttackerStrategy::crossing(const Geometry::Point &ball){
 }
 
 void AttackerStrategy::protect_goal(const Geometry::Point &ball) {
-	if (distance(robot->get_position(), ball) < robot->BALL_OFFSET) {
+	if (distance(robot->get_position(), ball) < (robot->BALL_OFFSET+0.02)) {
 		 // Se a bola chegar perto, gira para jogar a bola longe
 		robot->spin_kick_to_target(ball, their::goal::front::center);
 	} else if (at_location(ball, Location::UpperField)) {

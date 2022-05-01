@@ -80,12 +80,12 @@ namespace field {
 		namespace corner {
 			namespace upper {
 				namespace attacker {
-					const Geometry::Point point({goal_width+area_width/2, corner_height+area_height+0.08});
+					const Geometry::Point point({gk_line_x, corner_height+area_height+0.15});
 				}
 			}
 			namespace lower {
 				namespace attacker {
-					const Geometry::Point point({goal_width+area_width/2, corner_height-0.08});
+					const Geometry::Point point({gk_line_x, corner_height-0.15});
 				}
 			}
 		}
@@ -140,6 +140,9 @@ namespace field {
 		namespace front {
 			namespace upper {
 				const Geometry::Point wait_point({0.62 * field_width, field_height/2+area_height/2});
+			}
+			namespace center {
+				const Geometry::Point wait_point({0.62 * field_width, field_height/2});
 			}
 			namespace lower {
 				const Geometry::Point wait_point({0.62 * field_width, field_height/2-area_height/2});
