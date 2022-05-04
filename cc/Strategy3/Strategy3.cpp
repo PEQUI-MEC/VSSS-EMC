@@ -57,7 +57,7 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
 	double add_score = 1;
     is_foul = since_last_foul.count() < 2000;
 	if (is_foul && is_defending_foul &&
-            ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
+            (ref_command.foul() == VSSRef::Foul::PENALTY_KICK)) {
 		add_score = 5;
 	}
     return 0.4 * score_atacker(team[formation[0]], ball)
@@ -96,9 +96,9 @@ void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::v
 	set_corner_obstacles(*attacker.robot);
 	set_corner_obstacles(*defender.robot);
 
-    if (attacker->target.command == Command::UVF) {
-        attacker->control.obstacles.push_back({attacker->target.reference, 0.03});
-    }
+    //if (attacker->target.command == Command::UVF) {
+    //    attacker->control.obstacles.push_back({attacker->target.reference, 0.03});
+    //}
 
     attacker->control.obstacles.push_back({defender->pose.position, 0.05});
     attacker->control.obstacles.push_back({goalkeeper->pose.position, 0.07});
@@ -213,21 +213,21 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 			bool enters_area2 = false;
 			for (double i = -0.1; i <= 1.0; i += 0.005) {
 				auto target1 = ball.position_in_seconds(i);
-				if (at_location(target1, Location::OurBox))
+				if (at_location(target1, Location::OurArea))
 					enters_area1 = true;
 			}
-			for (double i = 0.0; i <= 0.1; i += 0.005) {
-				auto position = attacker->position_in_seconds(i);
-				if (at_location(position, Location::OurBox))
-					enters_area2 = true;
-			}
-			if((at_location(ball.position, Location::OurBox) || enters_area1 || enters_area2) && at_location(goalkeeper->pose.position, Location::OurBox)) {
+// 			for (double i = 0.0; i <= 0.1; i += 0.005) {
+// 				auto position = attacker->position_in_seconds(i);
+// 				if (at_location(position, Location::OurArea))
+// 					enters_area2 = true;
+// 			}
+			if((at_location(ball.position, Location::OurArea) || enters_area1 || enters_area2) && at_location(goalkeeper->pose.position, Location::OurArea)) {
 				attacker->stop();
 			}
             auto cmd = attacker->target.command;
-            if (!at_location(attacker->pose.position, Location::OurBox) && !is_foul) {
+            if (!at_location(attacker->pose.position, Location::OurArea) && !is_foul) {
                 if (cmd == Command::Position || cmd == Command::Vector) {
-                    if (at_location(attacker->target.pose.position, Location::OurBox)) {
+                    if (at_location(attacker->target.pose.position, Location::OurArea)) {
                         attacker->stop();
                     }
                 } else if (cmd == Command::UVF) {
@@ -235,7 +235,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
                     bool enters_area = false;
                     for (double i = -0.1; i <= 0; i += 0.002) {
                         auto target = attacker->target.pose.position + target_to_reference.with_size(i);
-                        if (at_location(target, Location::OurBox) ||
+                        if (at_location(target, Location::OurArea) ||
 							(at_location(target, Location::OurUpperCorner) && at_location(attacker->target.pose.position, Location::OurLowerCorner)) ||
 							(at_location(target, Location::OurLowerCorner) && at_location(attacker->target.pose.position, Location::OurUpperCorner))
 						)
@@ -243,10 +243,10 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
                     }
                     for (double i = 0; i <= 0.5; i += 0.005) {
                         auto target = ball.position_in_seconds(i);
-                        if (at_location(target, Location::OurBox))
+                        if (at_location(target, Location::OurArea))
                             enters_area = true;
                     }
-                    if (at_location(attacker->target.pose.position, Location::OurBox) || enters_area) {
+                    if (at_location(attacker->target.pose.position, Location::OurArea) || enters_area) {
                         attacker->stop();
                     }
                 }
@@ -256,6 +256,13 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 				attacker->stop();
 // 			}
 // 		}
+	}
+
+	if (is_foul && is_defending_foul &&
+            ref_command.foul() == VSSRef::Foul::GOAL_KICK) {
+		if (at_location(attacker->target.pose.position, Location::OurArea)) {
+			attacker->go_to(ball.position);
+		}
 	}
 
 	if (defender.has_robot()) {
@@ -277,10 +284,10 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 		goalkeeper.run_strategy(ball, adversaries);
 
 		auto cmd = goalkeeper->target.command;
-		if (at_location(attacker->pose.position, Location::OurBox) &&
-			!at_location(goalkeeper->pose.position, Location::OurBox)) {
+		if (at_location(attacker->pose.position, Location::OurArea) &&
+			!at_location(goalkeeper->pose.position, Location::OurArea)) {
 			if (cmd == Command::Position || cmd == Command::Vector) {
-				if (at_location(goalkeeper->target.pose.position, Location::OurBox)) {
+				if (at_location(goalkeeper->target.pose.position, Location::OurArea)) {
 					goalkeeper->stop();
 				}
 			}

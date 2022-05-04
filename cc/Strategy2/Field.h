@@ -41,6 +41,7 @@ namespace field {
 			TheirAreaSideAny,  // laterais da área adversária (regiões da área que não ficam em frente ao gol)
 			AnySide,//qualquer lateral do campo
 			AnyGoal,
+			OurArea
 	};
 	// -----------------------------------------------------------------------------------------------------------------
 
@@ -58,10 +59,10 @@ namespace field {
 				const Geometry::Point center_line_point({goal_width+area_width/2, field_height/2});
 			}
 			namespace upper {
-				const Geometry::Point center({gk_line_x, area_height+corner_height});
+				const Geometry::Point center({gk_line_x, field_height/2+area_height/2});
 			}
 			namespace lower {
-				const Geometry::Point center({gk_line_x, corner_height});
+				const Geometry::Point center({gk_line_x,  field_height/2-area_height/2});
 			}
 			namespace front {
 				const Geometry::Point center({goal_width+area_width, field_height/2});

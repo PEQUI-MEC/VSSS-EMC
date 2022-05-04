@@ -30,6 +30,8 @@ bool field::at_location(const Geometry::Point &position, const Location location
 		case Location::TheirCornerAny:
 			return position.x >= their::area::front::center.x && (position.y >= their::area::upper::center.y
 																  || position.y <= their::area::lower::center.y);
+		case Location::OurArea:
+			return position.x <= our::area::front::center.x && position.y >= our::area::lower::center.y && position.y <= our::area::upper::center.y;
 		case Location::WideDangerZone:
 			return position.x < our::free_ball::upper::point.x;
 		case Location::TheirAreaSideAny:
