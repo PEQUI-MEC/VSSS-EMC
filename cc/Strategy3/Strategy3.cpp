@@ -151,7 +151,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 		goalkeeper.has_arrived_penalty = false;
 	}
 
-	goalkeeper.robot->control.kgz = 0.5;
+	goalkeeper.robot->control.kgz = 0.6;
 	attacker.robot->control.kgz = 0.25;
 	defender.robot->control.kgz = 0.25;
 	goalkeeper.robot->control.is_goalkeeper = true;
@@ -221,7 +221,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 				if (at_location(position, Location::OurArea))
 // 					enters_area2 = true;
 // 			}
-			if((at_location(ball.position, Location::OurArea) || enters_area1 || enters_area2) && at_location(goalkeeper->pose.position, Location::OurArea)) {
+			if((at_location(ball.position, Location::OurArea) || enters_area1 || enters_area2) && at_location(goalkeeper->pose.position, Location::OurArea) && !at_location(attacker->pose.position, Location::OurArea)) {
 				attacker->stop();
 			}
             auto cmd = attacker->target.command;
