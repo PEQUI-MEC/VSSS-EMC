@@ -30,6 +30,7 @@ class Strategy3 : public Strategy {
 	using duration_ms = std::chrono::duration<double, std::milli>;
 	sc::time_point last_foul = sc::now();
 
+	void set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball);
 	bool transitions();
 	bool trainstion_by_collision();
 	void swap_robots(RoleStrategy &role1, RoleStrategy &role2);

@@ -92,8 +92,8 @@ Velocity Control::orientation_control() {
 	return vector_control_old(target.pose.orientation, 0, true, 10);
 }
 
-double Control::avoidance_field(Geometry::Point point, double target_theta) {
-    auto robot_to_point = point - pose.position;
+double Control::avoidance_field(Obstacle obs, double target_theta) {
+    auto robot_to_point = obs.position - pose.position;
 //     double max_shift = 0.06;
 //     if (robot_to_point > max_shift) {
 //         point = point + robot_to_point.with_size(-max_shift);
@@ -101,7 +101,7 @@ double Control::avoidance_field(Geometry::Point point, double target_theta) {
 //
 //     }
     auto theta_diff = Geometry::wrap(target_theta - robot_to_point.theta);
-    return std::copysign(avoidance_field_weigh, theta_diff) / robot_to_point.size;
+    return std::copysign(obs.avoidance_field_weigh, theta_diff) / robot_to_point.size;
 }
 
 double err(double theta) {
