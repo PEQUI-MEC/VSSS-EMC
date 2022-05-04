@@ -6,6 +6,11 @@
 #include <Strategy3/Types.hpp>
 #include <Simulator/Wheel.hpp>
 
+struct Obstacle {
+	Geometry::Point position;
+	double avoidance_field_weigh;
+};
+
 class Control {
 	public:
 	Pose pose;
@@ -19,12 +24,11 @@ class Control {
 	double robot_size;
 
 	float kgz = 0.2;
-	double avoidance_field_weigh = 0.015;
 
 	bool is_penalty = false;
 	bool is_goalkeeper = false;
 
-    std::vector<Geometry::Point> obstacles;
+    std::vector<Obstacle> obstacles;
 
 	Control(const Pose &pose, const Target &target, double robot_size) :
 			pose(pose), target(target), robot_size(robot_size) {}
@@ -38,7 +42,7 @@ class Control {
 	Velocity orientation_control();
 	Velocity vector_control(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 12.5);
 	bool backwards_select(double theta_error);
-    double avoidance_field(Geometry::Point point, double target_theta);
+    double avoidance_field(Obstacle obs, double target_theta);
 	Velocity vector_control_old(double target_theta, double velocity, bool enable_backwards, double orientation_weight = 12);
 	Velocity nonlinear_controller(float theta_error, float velocity, bool backwards);
 };

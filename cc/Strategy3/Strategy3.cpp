@@ -74,6 +74,39 @@ void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defen
 	last_foul = sc::now();
 }
 
+void set_corner_obstacles(Robot3 &robot) {
+	robot.control.obstacles.push_back({Point(robot.pose.position.x, 0), 0.03});
+	robot.control.obstacles.push_back({Point(robot.pose.position.x, field_height), 0.03});
+	robot.control.obstacles.push_back({Point(field_width, robot.pose.position.y), 0.03});
+	robot.control.obstacles.push_back({Point(0, robot.pose.position.y), 0.03});
+}
+
+void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball) {
+	attacker->control.obstacles.clear();
+	defender->control.obstacles.clear();
+	goalkeeper->control.obstacles.clear();
+
+	for (auto adv: adversaries) {
+		if (distance(adv, ball.position) > 0.4) {
+			attacker->control.obstacles.push_back({adv, 0.07});
+			defender->control.obstacles.push_back({adv, 0.07});
+		}
+	}
+
+	set_corner_obstacles(*attacker.robot);
+	set_corner_obstacles(*defender.robot);
+
+    if (attacker->target.command == Command::UVF) {
+        attacker->control.obstacles.push_back({attacker->target.reference, 0.03});
+    }
+
+    attacker->control.obstacles.push_back({defender->pose.position, 0.05});
+    attacker->control.obstacles.push_back({goalkeeper->pose.position, 0.07});
+
+    defender->control.obstacles.push_back({attacker->pose.position, 0.07});
+    defender->control.obstacles.push_back({goalkeeper->pose.position, 0.07});
+}
+
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
 							 bool first_iteration) {
 
@@ -119,11 +152,13 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 	}
 
 	goalkeeper.robot->control.kgz = 0.5;
-	attacker.robot->control.kgz = 0.22;
-	defender.robot->control.kgz = 0.22;
+	attacker.robot->control.kgz = 0.25;
+	defender.robot->control.kgz = 0.25;
 	goalkeeper.robot->control.is_goalkeeper = true;
 	attacker.robot->control.is_goalkeeper = false;
 	defender.robot->control.is_goalkeeper = false;
+
+	set_obstacle_avoidance_targets(team, adversaries, ball);
 
 // 	duration_ms since_last_transition = sc::now() - last_transition;
 // 	if(since_last_transition.count() > 2000) {
@@ -131,39 +166,6 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 		if(transitioned)
 // 			last_transition = sc::now();
 // 	}
-    if ((attacker->pose.position - ball.position).size > 0.3) {
-        attacker->control.obstacles = adversaries;
-    } else {
-        attacker->control.obstacles.clear();
-    }
-    attacker->control.obstacles.push_back(Point(attacker->pose.position.x, 0));
-    attacker->control.obstacles.push_back(Point(attacker->pose.position.x, field_height));
-    attacker->control.obstacles.push_back(Point(field_width, attacker->pose.position.y));
-    attacker->control.obstacles.push_back(Point(0, attacker->pose.position.y));
-    if (attacker->target.command == Command::UVF) {
-        attacker->control.obstacles.push_back(attacker->target.reference);
-    }
-
-//     auto atk_obs = adversaries;
-    attacker->control.obstacles.push_back(defender->pose.position);
-    attacker->control.obstacles.push_back(goalkeeper->pose.position);
-//     attacker->control.obstacles = atk_obs;
-
-    defender->control.obstacles.clear();
-//     defender->control.obstacles = adversaries;
-//     defender->control.obstacles.clear();
-//     auto df_obs = adversaries;
-    defender->control.obstacles.push_back(attacker->pose.position);
-    defender->control.obstacles.push_back(goalkeeper->pose.position);
-//     defender->control.obstacles = df_obs;
-
-    goalkeeper->control.obstacles.clear();
-
-	goalkeeper.robot->control.avoidance_field_weigh = 0;
-	defender.robot->control.avoidance_field_weigh = 0.07;
-	attacker.robot->control.avoidance_field_weigh = 0.015;
-
-
 
  	if (attacker.has_robot()) {
 // 		if (defender.has_robot() &&
