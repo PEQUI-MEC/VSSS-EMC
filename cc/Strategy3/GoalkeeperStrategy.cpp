@@ -68,7 +68,7 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball) {
 	} else {
 		std::cout << "their" << std::endl;
 	}
-	if (std::abs(ball.velocity.theta) < M_PI/2 && ball.velocity.size > 0.005) {
+	if (std::abs(ball.velocity.theta) > M_PI/2 && ball.velocity.size > 0.005) {
 		target = ball_goal_projection;
 	}
 	if (target.y > our::area::upper::center.y)
