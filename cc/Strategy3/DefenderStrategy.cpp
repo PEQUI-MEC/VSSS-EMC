@@ -4,20 +4,20 @@
 using namespace Geometry;
 using namespace field;
 
-void DefenderStrategy::run_strategy(const Ball &ball, const Point attacker) {
+void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 	auto df_limit = Point{1.0, field_height/2};
     if (is_ball_behind(our::area::front::center + Vector{0.05, 0}, ball) ||
-        (is_ball_behind(our::area::front::center + Vector{0.3, 0}, ball) && distance(attacker, ball.position) < 0.1)
+        (is_ball_behind(our::area::front::center + Vector{0.3, 0}, ball) && attacker && distance(attacker->get_position(), ball.position) < 0.1)
     ) {
 		// Sai do caminho e se prepara pra substituir o goleiro
 		if (at_location(ball.position, Location::UpperField))
 			wait_at_target(defender::back::lower_limit, ball.position);
 		else
 			wait_at_target(defender::back::upper_limit, ball.position);
-    } else if (is_ball_est_ahead(df_limit, ball, -0.08) && !at_location(robot->get_position(), Location::AnyGoal)) {
+    } else if (attacker && is_ball_est_ahead(df_limit, ball, -0.08) && !at_location(robot->get_position(), Location::AnyGoal)) {
 		// Bola na na área adversária
 		double pos_y = std::clamp(ball.position.y, defender::front::lower::wait_point.y, defender::front::upper::wait_point.y);
-		wait_at_target({attacker.x - robot->SIZE*5, pos_y}, ball.position);
+		wait_at_target({attacker->get_position().x - robot->SIZE*5, pos_y}, ball.position);
 	} else if (at_location(robot->get_position(), Location::AnyGoal)) {
 		exit_goal();
 	} else {

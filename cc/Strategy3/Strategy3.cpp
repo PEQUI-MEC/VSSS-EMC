@@ -82,46 +82,62 @@ void set_corner_obstacles(Robot3 &robot) {
 }
 
 void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball) {
-	attacker->control.obstacles.clear();
-	defender->control.obstacles.clear();
-	goalkeeper->control.obstacles.clear();
+	if (attacker.has_robot())
+		attacker->control.obstacles.clear();
+	if (defender.has_robot())
+		defender->control.obstacles.clear();
+	if (goalkeeper.has_robot())
+		goalkeeper->control.obstacles.clear();
 
 	for (auto adv: adversaries) {
 		if (distance(adv, ball.position) > 0.4) {
-			attacker->control.obstacles.push_back({adv, 0.07});
-			defender->control.obstacles.push_back({adv, 0.07});
+			if (attacker.has_robot())
+				attacker->control.obstacles.push_back({adv, 0.07});
+			if (defender.has_robot())
+				defender->control.obstacles.push_back({adv, 0.07});
 		}
 	}
 
-	set_corner_obstacles(*attacker.robot);
-	set_corner_obstacles(*defender.robot);
+	if (attacker.has_robot())
+		set_corner_obstacles(*attacker.robot);
+	if (defender.has_robot())
+		set_corner_obstacles(*defender.robot);
 
-    if (attacker->target.command == Command::UVF) {
+    if (attacker.has_robot() && attacker->target.command == Command::UVF) {
         attacker->control.obstacles.push_back({attacker->target.reference, 0.03});
     }
 
-    attacker->control.obstacles.push_back({defender->pose.position, 0.05});
-    attacker->control.obstacles.push_back({goalkeeper->pose.position, 0.07});
+    if (attacker.has_robot() && defender.has_robot())
+		attacker->control.obstacles.push_back({defender->pose.position, 0.05});
+	if (attacker.has_robot() && goalkeeper.has_robot())
+		attacker->control.obstacles.push_back({goalkeeper->pose.position, 0.07});
 
-    defender->control.obstacles.push_back({attacker->pose.position, 0.07});
-    defender->control.obstacles.push_back({goalkeeper->pose.position, 0.07});
+	if (defender.has_robot() && attacker.has_robot())
+		defender->control.obstacles.push_back({attacker->pose.position, 0.07});
+	if (defender.has_robot() && goalkeeper.has_robot())
+		defender->control.obstacles.push_back({goalkeeper->pose.position, 0.07});
+}
+
+bool has_all_robots(std::vector<Robot3> &team) {
+	Robot3* attacker_robot = find_robot_by_role(team, Role::Attacker);
+	Robot3* defender_robot = find_robot_by_role(team, Role::Defender);
+	Robot3* goalkeeper_robot = find_robot_by_role(team, Role::Goalkeeper);
+	return attacker_robot && defender_robot && goalkeeper_robot;
 }
 
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
 							 bool first_iteration) {
 
-    auto vec = all_possible_permutations();
-//     for (auto v : vec) {
-//         std::cout << v[0] << ", " << v[1] <<  ", " << v[2] << std::endl;
-//     }
-//     std::cout << "end" << std::endl;
+	if (has_all_robots(team)) {
+		auto vec = all_possible_permutations();
 
-    auto best_formation = *std::min_element(vec.begin(), vec.end(), [&](std::array<int, 3> f1, std::array<int, 3> f2) {
-        return score_formation(f1, team, ball) < score_formation(f2, team, ball);
-	});
-    attacker.set_robot(&team[best_formation[0]]);
-    goalkeeper.set_robot(&team[best_formation[1]]);
-    defender.set_robot(&team[best_formation[2]]);
+		auto best_formation = *std::min_element(vec.begin(), vec.end(), [&](std::array<int, 3> f1, std::array<int, 3> f2) {
+			return score_formation(f1, team, ball) < score_formation(f2, team, ball);
+		});
+		attacker.set_robot(&team[best_formation[0]]);
+		goalkeeper.set_robot(&team[best_formation[1]]);
+		defender.set_robot(&team[best_formation[2]]);
+	}
 
 
 	// if (new_foul) {
@@ -140,23 +156,32 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 
 	duration_ms since_last_foul = sc::now() - last_foul;
     is_foul = since_last_foul.count() < 1000;
-	if (is_foul && is_defending_foul &&
-            ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
-		goalkeeper.robot->control.is_penalty = true;
-		goalkeeper.penalty = true;
-		goalkeeper.has_arrived_penalty = false;
-	} else {
-		goalkeeper.robot->control.is_penalty = false;
-		goalkeeper.penalty = false;
-		goalkeeper.has_arrived_penalty = false;
+
+	if (goalkeeper.has_robot()) {
+		if (is_foul && is_defending_foul &&
+				ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
+			goalkeeper.robot->control.is_penalty = true;
+			goalkeeper.penalty = true;
+			goalkeeper.has_arrived_penalty = false;
+		} else {
+			goalkeeper.robot->control.is_penalty = false;
+			goalkeeper.penalty = false;
+			goalkeeper.has_arrived_penalty = false;
+		}
 	}
 
-	goalkeeper.robot->control.kgz = 0.7;
-	attacker.robot->control.kgz = 0.22;
-	defender.robot->control.kgz = 0.22;
-	goalkeeper.robot->control.is_goalkeeper = true;
-	attacker.robot->control.is_goalkeeper = false;
-	defender.robot->control.is_goalkeeper = false;
+	if (attacker.has_robot()) {
+		attacker.robot->control.kgz = 0.22;
+		attacker.robot->control.is_goalkeeper = false;
+	}
+	if (defender.has_robot()) {
+		defender.robot->control.kgz = 0.22;
+		defender.robot->control.is_goalkeeper = false;
+	}
+	if (goalkeeper.has_robot()) {
+		goalkeeper.robot->control.is_goalkeeper = true;
+		goalkeeper.robot->control.kgz = 0.7;
+	}
 
 	set_obstacle_avoidance_targets(team, adversaries, ball);
 
@@ -221,7 +246,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 				if (at_location(position, Location::OurArea))
 					enters_area2 = true;
 			}
-			if((at_location(ball.position, Location::OurArea) || enters_area1 || enters_area2) && at_location(goalkeeper->pose.position, Location::OurBox)) {
+			if(goalkeeper.has_robot() && (at_location(ball.position, Location::OurArea) || enters_area1 || enters_area2) && at_location(goalkeeper->pose.position, Location::OurBox)) {
 				attacker->stop();
 			}
             auto cmd = attacker->target.command;
@@ -262,7 +287,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 // 		if (attacker.has_robot() && attacker->get_position().x < 0.3 * field_width) {
 // 			defender->stop();
 // 		} else {
-			defender.run_strategy(ball, attacker->get_position());
+			defender.run_strategy(ball, attacker.robot);
 // 		}
 
 // 		if (at_location(defender->get_position(), Location::OurBox)) {
@@ -277,7 +302,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Po
 		goalkeeper.run_strategy(ball, adversaries);
 
 		auto cmd = goalkeeper->target.command;
-		if (at_location(attacker->pose.position, Location::OurArea) &&
+		if (attacker.has_robot() && at_location(attacker->pose.position, Location::OurArea) &&
 			!at_location(goalkeeper->pose.position, Location::OurArea)) {
 			if (cmd == Command::Position || cmd == Command::Vector) {
 				if (at_location(goalkeeper->target.pose.position, Location::OurArea)) {
