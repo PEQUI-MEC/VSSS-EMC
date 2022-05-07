@@ -18,6 +18,7 @@ class GoalkeeperStrategy : public RoleStrategy {
 	void protect_goal(const Ball& ball);
 	void spin_shot(const Geometry::Point& ball);
 	void exit_goal();
+	void handle_corner(const Ball &ball);
 
 	Role get_role() {
 		return Role::Goalkeeper;

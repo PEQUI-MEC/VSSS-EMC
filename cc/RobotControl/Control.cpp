@@ -89,7 +89,7 @@ Velocity Control::uvf_control() {
 }
 
 Velocity Control::orientation_control() {
-	return vector_control_old(target.pose.orientation, 0, true, 10);
+	return vector_control_old(target.pose.orientation, 0, true, 7);
 }
 
 double Control::avoidance_field(Obstacle obs, double target_theta) {

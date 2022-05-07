@@ -22,6 +22,7 @@ namespace field {
 	const double free_ball_dist = 0.2; // distância de cobrança de falta entre bola e robô
 	const double free_ball_height = 0.25; // distância entre a lateral do campo em y e o ponto de falta
 	const double gk_line_x = 0.17;
+	const double reach_ball_distance = (0.08 * std::sqrt(2))/2 + 0.045/2;
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Enumera todas as localizações do campo de interesse
@@ -41,6 +42,8 @@ namespace field {
 			TheirAreaSideAny,  // laterais da área adversária (regiões da área que não ficam em frente ao gol)
 			AnySide,//qualquer lateral do campo
 			AnyGoal,
+			OurArea,
+			GoalkeeperCorner
 	};
 	// -----------------------------------------------------------------------------------------------------------------
 
@@ -54,14 +57,14 @@ namespace field {
 			namespace box {
 				const Geometry::Line center_line({goal_width+area_width/2, 0}, {goal_width+area_width/2, field_height});
 				const Geometry::Point lower_limit({gk_line_x, corner_height+(area_height-goal_height)/2});
-				const Geometry::Point upper_limit({gk_line_x,  + field_height-corner_height-(area_height-goal_height)/2});
+				const Geometry::Point upper_limit({gk_line_x, field_height-corner_height-(area_height-goal_height)/2});
 				const Geometry::Point center_line_point({goal_width+area_width/2, field_height/2});
 			}
 			namespace upper {
-				const Geometry::Point center({gk_line_x, area_height+corner_height});
+				const Geometry::Point center({gk_line_x, field_height/2+area_height/2});
 			}
 			namespace lower {
-				const Geometry::Point center({gk_line_x, corner_height});
+				const Geometry::Point center({gk_line_x, field_height/2-area_height/2});
 			}
 			namespace front {
 				const Geometry::Point center({goal_width+area_width, field_height/2});
@@ -148,6 +151,14 @@ namespace field {
 		namespace middle {
 			const Geometry::Point wait_point(0.25 * field_width, field_height/2 );
 		}
+	}
+	namespace goalkeeper {
+		const Geometry::Point upper_limit({gk_line_x, field_height/2 + area_height/2 - 0.08/2});
+		const Geometry::Point lower_limit({gk_line_x, field_height/2 - area_height/2 + 0.08/2});
+		const Geometry::Point goal_upper_limit({gk_line_x, field_height/2 + goal_height/2});
+		const Geometry::Point goal_lower_limit({gk_line_x, field_height/2 - goal_height/2});
+		const Geometry::Point center({gk_line_x, field_height/2});
+		const Geometry::Point reach_line({gk_line_x+reach_ball_distance, field_height/2});
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 

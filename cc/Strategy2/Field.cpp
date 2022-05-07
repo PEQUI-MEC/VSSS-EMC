@@ -20,6 +20,11 @@ bool field::at_location(const Geometry::Point &position, const Location location
 		case Location::OurBox:
 			return position.x >= our::goal::front::center.x && position.x <= our::area::front::center.x
 				   && position.y >= our::area::box::lower_limit.y && position.y <= our::area::box::upper_limit.y;
+		case Location::OurArea:
+			return position.x <= our::area::front::center.x && position.y >= our::area::lower::center.y && position.y <= our::area::upper::center.y;
+		case Location::GoalkeeperCorner:
+			return position.x >= our::goal::front::center.x && position.x <= goalkeeper::reach_line.x
+				   && (position.y >= goalkeeper::goal_upper_limit.y || position.y <= goalkeeper::goal_lower_limit.y);
 		case Location::TheirBox:
 			return position.x <= their::goal::front::center.x && position.x >= their::area::front::center.x
 				   && position.y >= their::area::lower::center.y && position.y <= their::area::upper::center.y;
@@ -59,6 +64,8 @@ bool field::match_y(const Geometry::Point &position, const Location &location) {
 	switch (location) {
 		case Location::OurBox:
 			return position.y >= our::area::box::lower_limit.y && position.y <= our::area::box::upper_limit.y;
+		case Location::OurArea:
+			return position.y >= our::area::lower::center.y && position.y <= our::area::upper::center.y;
 		default:
 			return false;
 	}
