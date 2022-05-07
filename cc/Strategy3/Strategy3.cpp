@@ -103,9 +103,9 @@ void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::v
 	if (defender.has_robot())
 		set_corner_obstacles(*defender.robot);
 
-    if (attacker.has_robot() && attacker->target.command == Command::UVF) {
-        attacker->control.obstacles.push_back({attacker->target.reference, 0.03});
-    }
+//     if (attacker.has_robot() && attacker->target.command == Command::UVF) {
+//         attacker->control.obstacles.push_back({attacker->target.reference, 0.03});
+//     }
 
     if (attacker.has_robot() && defender.has_robot())
 		attacker->control.obstacles.push_back({defender->pose.position, 0.05});
