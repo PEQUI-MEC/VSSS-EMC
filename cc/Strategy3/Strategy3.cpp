@@ -81,7 +81,7 @@ void set_corner_obstacles(Robot3 &robot) {
 	robot.control.obstacles.push_back({Point(0, robot.pose.position.y), 0.03});
 }
 
-void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball) {
+void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball) {
 	if (attacker.has_robot())
 		attacker->control.obstacles.clear();
 	if (defender.has_robot())
@@ -92,11 +92,11 @@ void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::v
 	bool attacker_avoid_obs = attacker.has_robot() && distance(attacker->pose.position, ball.position) > 0.3;
 
 	for (auto adv: adversaries) {
-		if (distance(adv, ball.position) > 0.4) {
+		if (distance(adv.position, ball.position) > 0.4) {
 			if (attacker.has_robot() && attacker_avoid_obs)
-				attacker->control.obstacles.push_back({adv, 0.07});
+				attacker->control.obstacles.push_back({adv.position, 0.07});
 			if (defender.has_robot())
-				defender->control.obstacles.push_back({adv, 0.07});
+				defender->control.obstacles.push_back({adv.position, 0.07});
 		}
 	}
 
@@ -127,7 +127,7 @@ bool has_all_robots(std::vector<Robot3> &team) {
 	return attacker_robot && defender_robot && goalkeeper_robot;
 }
 
-void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
+void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
 							 bool first_iteration) {
 
 	if (has_all_robots(team)) {

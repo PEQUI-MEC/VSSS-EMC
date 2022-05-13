@@ -3,6 +3,7 @@
 
 #include "Robot3.hpp"
 #include "Strategy3.hpp"
+#include "Adversary.hpp"
 #include <vector>
 
 enum class RobotColor {
@@ -27,7 +28,7 @@ class Team {
 	};
 
 //	Times adversários usam coordenadas diferentes
-	std::vector<Geometry::Point> get_inverted_robot_positions();
+	std::vector<Adversary> get_inverted_robot_adversary();
 };
 
 #endif //VSSS_TEAM_HPP

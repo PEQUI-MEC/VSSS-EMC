@@ -2,6 +2,7 @@
 #define VSSS_ROLESTRATEGY_HPP
 
 #include "Robot3.hpp"
+#include "Adversary.hpp"
 
 class RoleStrategy {
 	public:

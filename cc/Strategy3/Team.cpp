@@ -1,11 +1,12 @@
 #include "Team.hpp"
 
-std::vector<Geometry::Point> Team::get_inverted_robot_positions() {
-	std::vector<Geometry::Point> positions(robots.size());
+std::vector<Adversary> Team::get_inverted_robot_adversary() {
+	std::vector<Adversary> adversaries(robots.size());
 	for (ulong i = 0; i < robots.size(); i++) {
-		positions[i] = robots[i].pose.position.inverted_coordinates();
+		Geometry::Vector velocity(robots[i].pose.velocity.linear, robots[i].pose.orientation);
+		adversaries[i] = Adversary{robots[i].pose.position.inverted_coordinates(), velocity.inverted_coordinates()};
 	}
-	return positions;
+	return adversaries;
 }
 
 std::string to_string(RobotColor color) {

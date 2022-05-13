@@ -7,11 +7,12 @@
 #include "Types.hpp"
 #include "Ball.hpp"
 #include "vssref_command.pb.h"
+#include "Adversary.hpp"
 
 class Strategy {
 	public:
 	virtual void run_strategy(std::vector<Robot3> &team,
-							  std::vector<Geometry::Point> &adversaries,
+							  std::vector<Adversary> &adversaries,
 							  Ball ball,
 							  bool first_iteration) = 0;
 	virtual Strategy * clone() = 0;

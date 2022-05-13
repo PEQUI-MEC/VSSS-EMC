@@ -150,8 +150,8 @@ bool SimulatedGame::game_loop() {
 	client.update_robots(game);
 
 	if (game.playing_game) {
-		auto inverted_team = game.team->get_inverted_robot_positions();
-		auto inverted_adv = game.adversary->get_inverted_robot_positions();
+		auto inverted_team = game.team->get_inverted_robot_adversary();
+		auto inverted_adv = game.adversary->get_inverted_robot_adversary();
 		if (game.team->inverted_field) {
 			game.team->strategy->run_strategy(game.team->robots, inverted_adv,
 											  game.ball.get_inverted(), game.first_iteration);

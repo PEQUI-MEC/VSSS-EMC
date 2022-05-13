@@ -22,7 +22,7 @@ AIStrategy::AIStrategy() {
 }
 
 void AIStrategy::run_strategy(std::vector<Robot3> &team,
-							  std::vector<Geometry::Point> &adversaries,
+							  std::vector<Adversary> &adversaries,
 							  Ball ball,
 							  bool first_iteration) {
 	if (module == nullptr) return;
@@ -31,9 +31,9 @@ void AIStrategy::run_strategy(std::vector<Robot3> &team,
 	auto robot2 = team[1].python_pose();
 	auto robot3 = team[2].python_pose();
 //	Adversary positions
-	auto adv0 = adversaries[0].to_python();
-	auto adv1 = adversaries[1].to_python();
-	auto adv2 = adversaries[2].to_python();
+	auto adv0 = adversaries[0].position.to_python();
+	auto adv1 = adversaries[1].position.to_python();
+	auto adv2 = adversaries[2].position.to_python();
 //	Ball position
 	auto ball_pos = ball.position.to_python();
 //	First iteration

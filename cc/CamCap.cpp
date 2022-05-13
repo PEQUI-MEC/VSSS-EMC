@@ -199,8 +199,8 @@ bool CamCap::capture_and_show() {
 	if (game.playing_game) {
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );
 
-		auto inverted_team = game.team->get_inverted_robot_positions();
-		auto inverted_adv = game.adversary->get_inverted_robot_positions();
+		auto inverted_team = game.team->get_inverted_robot_adversary();
+		auto inverted_adv = game.adversary->get_inverted_robot_adversary();
 		if (game.team->inverted_field) {
 			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted(), game.first_iteration);
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball, game.first_iteration);

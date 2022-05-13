@@ -4,7 +4,7 @@
 #include "Strategy.hpp"
 
 class NoStrategy : public Strategy {
-	void run_strategy(std::vector<Robot3> &team, std::vector<Geometry::Point> &adversaries, Ball ball,
+	void run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
 					  bool first_iteration) {
 		for (auto& robot : team) {
 			robot.send_no_command();

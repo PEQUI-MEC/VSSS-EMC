@@ -4,7 +4,7 @@
 using namespace field;
 using namespace Geometry;
 
-void GoalkeeperStrategy::run_strategy(const Ball &ball, const std::vector<Geometry::Point> &adversaries) {
+void GoalkeeperStrategy::run_strategy(const Ball &ball, const std::vector<Adversary> &adversaries) {
 	if (penalty)
 		defend_penalty(ball, adversaries);
 // 	else if (distance(robot->get_position(), ball.position) < robot->BALL_OFFSET && !at_location(robot->get_position(), Location::AnyGoal))
@@ -17,17 +17,17 @@ void GoalkeeperStrategy::run_strategy(const Ball &ball, const std::vector<Geomet
 		protect_goal(ball);
 }
 
-Geometry::Point get_attacker(const Ball &ball, const std::vector<Geometry::Point> &adversaries) {
-	Geometry::Point atk = adversaries[0];
+Geometry::Point get_attacker(const Ball &ball, const std::vector<Adversary> &adversaries) {
+	Geometry::Point atk = adversaries[0].position;
 	for (auto& adv : adversaries) {
-		if (distance(ball.position, adv) < distance(ball.position, atk)) {
-			atk = adv;
+		if (distance(ball.position, adv.position) < distance(ball.position, atk)) {
+			atk = adv.position;
 		}
 	}
 	return atk;
 }
 
-void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Geometry::Point> &adversaries) {
+void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Adversary> &adversaries) {
 	auto atk = get_attacker(ball, adversaries);
 	auto kick_dir = ball.position - atk;
 	auto dist_x_ball_goal = std::abs(ball.position.x - gk_line_x);
