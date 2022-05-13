@@ -72,6 +72,13 @@ Vector Vector::inverted_coordinates(bool invert) const {
 	else return *this;
 }
 
+Point Vector::tangent_to_circle(Point origin, Point circle_center) const {
+	auto origin_to_center = circle_center - origin;
+	auto tangent_theta = origin_to_center.angle_to(*this);
+	auto distance_origin_to_tangent = origin_to_center.size * std::cos(tangent_theta);
+	return origin + this->with_size(distance_origin_to_tangent);
+}
+
 Vector::Vector(const Point &p) {
 	size = distance(p, {0,0});
 	theta = std::atan2(p.y, p.x);

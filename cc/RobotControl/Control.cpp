@@ -76,7 +76,7 @@ Velocity Control::position_control() {
 	double error = std::sqrt(std::pow(target.pose.position.x - pose.position.x, 2.0f)
 							 + std::pow(target.pose.position.y - pose.position.y, 2.0f));
 	if (error < 0.005) return {0, 0};
-	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(20 * error), true, 20);
+	else return vector_control_old(target_theta, target.pose.velocity.linear * std::tanh(15 * error), true, 20);
 }
 
 Velocity Control::uvf_control() {
@@ -145,5 +145,14 @@ Velocity Control::vector_control(double target_theta, double velocity, bool enab
 }
 
 bool Control::backwards_select(double theta_error) {
-	return std::abs(theta_error) > M_PI / 2;
+	bool closest_to_backwards = std::abs(theta_error) > M_PI / 2;
+	//return closest_to_backwards;
+	bool adjusted_error = closest_to_backwards ? Geometry::wrap(theta_error + M_PI) : theta_error;
+	bool is_spinning_fast = std::abs(pose.velocity.angular) > 30;
+	bool is_spinning_oposite = std::signbit(pose.velocity.angular) != std::signbit(adjusted_error);
+	if (is_goalkeeper && is_spinning_fast && is_spinning_oposite) {
+		return !closest_to_backwards;
+	} else {
+		return closest_to_backwards;
+	}
 }

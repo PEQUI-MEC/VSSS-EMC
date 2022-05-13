@@ -11,8 +11,8 @@ void GoalkeeperStrategy::run_strategy(const Ball &ball, const std::vector<Geomet
 //         spin_shot(ball.position);
 	else if (at_location(robot->get_position(), Location::AnyGoal))
 		exit_goal();
-	else if (at_location(ball.position, Location::GoalkeeperCorner))
-		handle_corner(ball);
+	//else if (at_location(ball.position, Location::GoalkeeperCorner))
+//		handle_corner(ball);
 	else
 		protect_goal(ball);
 }
@@ -63,19 +63,38 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball) {
 
 	Geometry::Point target = Geometry::Point{gk_line_x, ball.position.y};
 
-	if (std::abs(ball.velocity.theta) < M_PI/2) {
-		std::cout << "our" << std::endl;
-	} else {
-		std::cout << "their" << std::endl;
-	}
 	if (std::abs(ball.velocity.theta) > M_PI/2 && ball.velocity.size > 0.005) {
 		target = ball_goal_projection;
 	}
-	if (target.y > our::area::upper::center.y)
+
+	if (at_location(ball.position, Location::GoalkeeperCorner))
+		if (ball.position.y > goalkeeper::center.y)
+			target = goalkeeper::upper_limit;
+		else
+			target = goalkeeper::lower_limit;
+	else if (target.y > our::area::upper::center.y)
 		target = goalkeeper::goal_upper_limit;
 	else if (target.y < our::area::lower::center.y)
 		target = goalkeeper::goal_lower_limit;
 
+	auto tangent = ball.velocity.tangent_to_circle(ball.position, robot->get_position());
+	//std::cout << ball.velocity.theta << std::endl;
+	//std::cout << tangent << std::endl;
+	//ball.position_in_seconds(1).x < target.x)
+	// std::abs(ball.velocity.theta) > M_PI/2
+	auto ball_to_robot = robot->get_position() - ball.position;
+	bool should_spin = (distance(robot->get_position(), tangent) < reach_ball_distance
+							&& distance(robot->get_position(), target) < 0.02
+							&& std::abs(ball_to_robot.angle_to(ball.velocity)) < M_PI/2
+							&& (distance(ball.position, ball.position_in_seconds(0.6)) > distance(ball.position, robot->get_position())))
+						|| distance(robot->get_position(), ball.position) < reach_ball_distance;
+	if (should_spin) {
+		robot->spin_kick_to_target(ball.position, their::goal::front::center);
+	} else {
+		robot->go_to_and_stop_orientation(target, M_PI/2);
+	}
+
+	/**
 	Geometry::Point reach_line_intersection = get_reach_line_intersection(ball);
 
 	bool should_spin = (distance(reach_line_intersection, robot->get_position()) < 0.1 && ball.position_in_seconds(0.6).x < target.x) ||
@@ -87,6 +106,7 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball) {
 	} else {
 		robot->go_to_and_stop_orientation(target, M_PI/2);
 	}
+	**/
 }
 /**
 void GoalkeeperStrategy::protect_goal(const Ball& ball) {

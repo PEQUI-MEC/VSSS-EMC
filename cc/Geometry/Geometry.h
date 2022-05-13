@@ -20,6 +20,7 @@ namespace Geometry {
 		Vector unitary() const;
 		Vector with_size(double new_size) const;
 		Vector inverted_coordinates(bool invert = true) const;
+		Point tangent_to_circle(Point origin, Point circle_center) const;
 		double angle_to(const Vector &v) const;
 	};
 
