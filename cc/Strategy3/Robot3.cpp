@@ -55,6 +55,7 @@ void Robot3::spin(double angular_velocity) {
 	target.command = Command::Velocity;
 	target.pose.velocity.linear = 0;
 	target.pose.velocity.angular = angular_velocity;
+	control.spinning = true;
 }
 
 void Robot3::set_target_wheel_velocity(double left, double right) {

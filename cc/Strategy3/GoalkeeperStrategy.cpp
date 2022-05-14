@@ -34,17 +34,20 @@ std::optional<Geometry::Point> get_attacker(const Ball &ball, const std::vector<
 	Vector ball_to_upper = upper_goal - ball.position;
 	Vector ball_to_lower = lower_goal - ball.position;
 	Vector ball_to_goal = goal - ball.position;
+	std::optional<Geometry::Point> atk = std::nullopt;
 	for (auto& adv : adversaries) {
 		Vector adv_to_ball = ball.position - adv.position;
 		auto can_run_to_goal = adv_to_ball.angle_to(ball_to_upper) < degree_to_rad(15) &&
 							adv_to_ball.angle_to(ball_to_lower) > degree_to_rad(-15);
 		if (can_run_to_goal && std::abs(adv.velocity.angle_to(adv_to_ball)) < degree_to_rad(45) && adv.velocity.size > 0.1) {
 			//std::cout << "has atk"  << std::endl;
-			return {adv.position};
+			if (atk == std::nullopt || (distance(*atk, ball.position) > distance(adv.position, ball.position))) {
+				atk = adv.position;
+			}
 		}
 
 	}
-	return std::nullopt;
+	return atk;
 }
 
 void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Adversary> &adversaries) {
@@ -83,7 +86,12 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball, const std::vector<Advers
 
 	Geometry::Point target = Geometry::Point{gk_line_x, ball.position.y};
 
-	if (std::abs(ball.velocity.theta) > M_PI/2 && ball.velocity.size > 0.005) {
+	const double FAST_BALL_LIMIT = 0.2;
+	bool fast_ball_to_goal = std::abs(ball.velocity.theta) > M_PI/2 && ball.velocity.size > FAST_BALL_LIMIT;
+	bool slow_ball_to_goal = std::abs(ball.velocity.theta) > M_PI/2 && ball.velocity.size > 0.005
+		&& ball.velocity.size < FAST_BALL_LIMIT;
+
+	if (slow_ball_to_goal) {
 		target = ball_goal_projection;
 	}
 
@@ -94,15 +102,21 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball, const std::vector<Advers
 		target = atk_ball_projection;
 	}
 
-	if (at_location(ball.position, Location::GoalkeeperCorner))
+	// If ball is fast, go to ball projection instead of atk projection
+	if (fast_ball_to_goal) {
+		target = ball_goal_projection;
+	}
+
+	if (at_location(ball.position, Location::GoalkeeperCorner)) {
 		if (ball.position.y > goalkeeper::center.y)
 			target = goalkeeper::upper_limit;
 		else
 			target = goalkeeper::lower_limit;
-	else if (target.y > our::area::upper::center.y)
+	} else if (target.y > goalkeeper::goal_upper_limit.y) {
 		target = goalkeeper::goal_upper_limit;
-	else if (target.y < our::area::lower::center.y)
+	} else if (target.y < goalkeeper::goal_lower_limit.y) {
 		target = goalkeeper::goal_lower_limit;
+	}
 
 	auto tangent = ball.velocity.tangent_to_circle(ball.position, robot->get_position());
 	//std::cout << ball.velocity.theta << std::endl;

@@ -23,6 +23,8 @@ class Control {
 	double uvf_n = 1.7;
 	double robot_size;
 
+	bool spinning = false;
+
 	float kgz = 0.2;
 
 	bool is_penalty = false;

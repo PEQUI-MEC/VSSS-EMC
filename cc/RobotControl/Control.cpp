@@ -4,12 +4,26 @@ WheelVelocity Control::control_step(const Pose &pose, const Target &target, doub
 //	Sets current pose and runs robot control
 	this->pose = pose;
 	this->target = target;
+
 	auto target_vel = run_control();
+
+	if (is_goalkeeper && spinning && target.command != Command::Velocity
+		&& std::abs(left.target_vel + right.target_vel) < 0.2) {
+		if (std::abs(pose.velocity.angular) < 2.5) {
+			spinning = false;
+		} else {
+			target_vel = vector_control_old(M_PI/2, 0, true, 15);
+		}
+		//return {0, 0};
+	}
+
 	auto target_wheel_vel = target_vel.to_wheel_velocity(robot_size);
 
 //	Sets target wheel velocity and runs wheel control
 	left.target_vel = target_wheel_vel.left;
 	right.target_vel = target_wheel_vel.right;
+
+
 
 	// Usando velocidade diretamente em vez de PID
 	return {left.target_vel, right.target_vel};
