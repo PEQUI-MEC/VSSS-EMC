@@ -48,8 +48,8 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
     goalkeeper_y = std::max(goalkeeper_y, lower_goal.y);
     goalkeeper_y = std::min(goalkeeper_y, upper_goal.y);
     auto target = Point(field::our::goal::back::center.x, goalkeeper_y);
-    return 0.3 * (robot.pose.position - field::our::goal::front::center).size
-        + 0.7 * (robot.get_position().x - field::our::goal::front::center.x);
+    return 0.25 * (robot.pose.position - field::our::goal::front::center).size
+        + 0.75 * (robot.get_position().x - field::our::goal::front::center.x);
 }
 
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
@@ -60,9 +60,9 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
             ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		add_score = 5;
 	}
-    return 0.4 * score_atacker(team[formation[0]], ball)
+    return 0.35 * score_atacker(team[formation[0]], ball)
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
-        + 0.6 * score_goalkeeper(team[formation[1]], ball) * add_score;
+        + 0.65 * score_goalkeeper(team[formation[1]], ball) * add_score;
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 

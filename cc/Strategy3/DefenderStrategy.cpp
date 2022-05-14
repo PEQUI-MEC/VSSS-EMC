@@ -45,5 +45,5 @@ void DefenderStrategy::protect_goal(const Geometry::Point &ball) {
 }
 
 void DefenderStrategy::exit_goal() {
-	robot->go_in_direction(Vector{0,0.8});
+	robot->go_to_and_stop(center::point);
 }

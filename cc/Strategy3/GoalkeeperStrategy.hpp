@@ -15,7 +15,7 @@ class GoalkeeperStrategy : public RoleStrategy {
 	// Beahviors
 	void run_strategy(const Ball& balll, const std::vector<Adversary> &adversaries);
 	void defend_penalty(const Ball& ball, const std::vector<Adversary> &adversaries);
-	void protect_goal(const Ball& ball);
+	void protect_goal(const Ball& ball, const std::vector<Adversary> &adversaries);
 	void spin_shot(const Geometry::Point& ball);
 	void exit_goal();
 	void handle_corner(const Ball &ball);
