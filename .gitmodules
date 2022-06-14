@@ -1,0 +1,3 @@
+[submodule "cc/lib/joystick"]
+	path = cc/lib/joystick
+	url = git@github.com:drewnoakes/joystick.git

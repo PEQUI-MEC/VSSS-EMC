@@ -101,13 +101,16 @@ set(SOURCE_FILES cc/main.cpp
     cc/RobotControl/Control.cpp cc/RobotControl/Control.h cc/Simulator/Wheel.hpp
     cc/Strategy3/helper.hpp cc/Strategy3/helper.cpp
     cc/vision/Tags.hpp
-    cc/GUI/XbeeSelectGUI.cpp cc/GUI/XbeeSelectGUI.hpp)
+    cc/GUI/XbeeSelectGUI.cpp cc/GUI/XbeeSelectGUI.hpp
+    cc/lib/joystick/joystick.hh cc/lib/joystick/joystick.cc
+    cc/JoystickStrategy.cpp cc/JoystickStrategy.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/
     cc/Fuzzy/
     cc/vision/
     cc/lib/
+    cc/lib/joystick/
     cc/Strategy2/
     cc/Geometry/
     pack-capture/capture/

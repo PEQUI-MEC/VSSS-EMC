@@ -1,11 +1,13 @@
 #include "Game.hpp"
 #include <Strategy2/AIStrategy.hpp>
 #include "NoStrategy.hpp"
+#include "JoystickStrategy.hpp"
 
 Game::Game() {
 	robot_count = 3;
 	strategies.emplace("Manual Strategy", new Strategy3());
 	strategies.emplace("AI Strategy", new AIStrategy());
+	strategies.emplace("Joystick 0", new JoystickStrategy("/dev/input/js0"));
 	strategies.emplace("No Strategy", new NoStrategy());
 	team = std::make_unique<Team>(robot_count, 0, false, RobotColor::Blue);
 	set_strategy(*team, "Manual Strategy");
