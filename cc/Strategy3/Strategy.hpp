@@ -14,7 +14,9 @@ class Strategy {
 	virtual void run_strategy(std::vector<Robot3> &team,
 							  std::vector<Adversary> &adversaries,
 							  Ball ball,
-							  bool first_iteration) = 0;
+							  bool first_iteration,
+							  bool is_simulation,
+							  bool is_inverted) = 0;
 	virtual Strategy * clone() = 0;
 	virtual void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) = 0;
 };

@@ -18,6 +18,7 @@ class Team {
 	std::unique_ptr<Strategy> strategy; // IA ou manual
 	bool controlled = false;
 	bool inverted_field = false;
+	bool using_joystick = false;
 	RobotColor robot_color;
 
 	Team(int robot_number, int starting_tag, bool inverted_field, RobotColor color) :

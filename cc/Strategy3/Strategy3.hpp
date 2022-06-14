@@ -18,7 +18,7 @@ class Strategy3 : public Strategy {
 	VSSRef::ref_to_team::VSSRef_Command ref_command;
 
 	void
-	run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball, bool first_iteration);
+	run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball, bool first_iteration, bool is_simulation, bool is_inverted);
 
 	Strategy3 * clone() {
 		return new Strategy3(*this);

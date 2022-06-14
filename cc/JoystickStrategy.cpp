@@ -9,25 +9,13 @@ short JoystickStrategy::value(uint8_t type, uint8_t number) {
 	return controller_state[key];
 }
 
-Velocity JoystickStrategy::vector_control(Robot3& robot, Geometry::Vector direction) {
-	double lin_vel = direction.size;
-	double error = Geometry::wrap(direction.theta - robot.pose.orientation);
-	if (std::abs(error) > M_PI / 2) {
-        error = Geometry::wrap(direction.theta - (robot.pose.orientation + M_PI));
-        lin_vel = -direction.size;
-	}
-    return {lin_vel * std::cos(error) * 0.75, error * 10};
-}
-
 void JoystickStrategy::set_cmd_by_input(Robot3& robot, Ball ball, double x_axis, double y_axis, short spin_kick) {
 	if (spin_kick > 0) {
 		robot.spin_kick_to_target(ball.position, field::their::goal::front::center);
 	} else {
 		if (std::abs(x_axis) > AXIS_DEADZONE || std::abs(y_axis) > AXIS_DEADZONE) {
 			Geometry::Vector analog_direction(Geometry::Point{x_axis/MAX_AXES_VALUE, y_axis/MAX_AXES_VALUE});
-			auto cmd_velocity = vector_control(robot, analog_direction);
-			auto wheel_vel = cmd_velocity.to_wheel_velocity(robot.SIZE);
-			robot.set_target_wheel_velocity(wheel_vel.left,wheel_vel.right);
+			robot.go_in_direction(analog_direction, analog_direction.size * 0.8);
 		} else {
 			robot.stop();
 		}
@@ -37,7 +25,8 @@ void JoystickStrategy::set_cmd_by_input(Robot3& robot, Ball ball, double x_axis,
 void JoystickStrategy::run_strategy(std::vector<Robot3> &team,
 							  std::vector<Adversary> &adversaries,
 							  Ball ball,
-							  bool first_iteration) {
+							  bool first_iteration, bool is_simulation,
+							  bool is_inverted) {
 	if (joystick.isFound()) {
 		JoystickEvent event;
 		while (joystick.sample(&event)) {
@@ -62,12 +51,13 @@ void JoystickStrategy::run_strategy(std::vector<Robot3> &team,
 		team[third_robot_index].stop();
 	}
 
-	if (team.inverted_field) {
-		set_cmd_by_input(team[left_robot_index], ball, value(2, 0), -value(2, 1), value(1, 6));
-		set_cmd_by_input(team[right_robot_index], ball, value(2, 3), -value(2, 4), value(1, 7));
+	int axis_direction = is_inverted ? -1 : 1;
+	if (is_simulation) {
+		set_cmd_by_input(team[left_robot_index], ball, value(2, 0)*axis_direction, -value(2, 1)*axis_direction, value(1, 6));
+		set_cmd_by_input(team[right_robot_index], ball, value(2, 3)*axis_direction, -value(2, 4)*axis_direction, value(1, 7));
 	} else {
-		set_cmd_by_input(team[left_robot_index], ball, -value(2, 0), value(2, 1), value(1, 6));
-		set_cmd_by_input(team[right_robot_index], ball, -value(2, 3), value(2, 4), value(1, 7));
+		set_cmd_by_input(team[left_robot_index], ball, -value(2, 1)*axis_direction, -value(2, 0)*axis_direction, value(1, 6));
+		set_cmd_by_input(team[right_robot_index], ball, -value(2, 4)*axis_direction, -value(2, 3)*axis_direction, value(1, 7));
 	}
 }
 

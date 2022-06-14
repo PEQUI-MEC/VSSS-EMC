@@ -154,13 +154,13 @@ bool SimulatedGame::game_loop() {
 		auto inverted_adv = game.adversary->get_inverted_robot_adversary();
 		if (game.team->inverted_field) {
 			game.team->strategy->run_strategy(game.team->robots, inverted_adv,
-											  game.ball.get_inverted(), game.first_iteration);
+											  game.ball.get_inverted(), game.first_iteration, true, game.team->inverted_field);
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball, game.first_iteration);
+												   game.ball, game.first_iteration, true, game.adversary->inverted_field);
 		} else {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration, true, game.team->inverted_field);
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team,
-												   game.ball.get_inverted(), game.first_iteration);
+												   game.ball.get_inverted(), game.first_iteration, true, game.adversary->inverted_field);
 		}
 		game.first_iteration = false;
 

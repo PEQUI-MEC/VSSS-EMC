@@ -12,7 +12,7 @@ class JoystickStrategy : public Strategy {
 	~JoystickStrategy(){};
 
 	void run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
-						bool first_iteration);
+						bool first_iteration, bool is_simulation, bool is_inverted);
 
 	JoystickStrategy * clone() {
 		return new JoystickStrategy(*this);
@@ -27,7 +27,6 @@ class JoystickStrategy : public Strategy {
 	using EventKey = std::pair<uint8_t, uint8_t>;
 	std::map<EventKey, short> controller_state;
 
-	Velocity vector_control(Robot3& robot, Geometry::Vector direction);
 	void set_cmd_by_input(Robot3& robot, Ball ball, double x_axis, double y_axis, short spin_kick);
 	short value(uint8_t type, uint8_t number);
 	void print_buttons_state();
