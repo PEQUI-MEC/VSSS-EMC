@@ -11,7 +11,7 @@ class AIStrategy : public Strategy {
 		AIStrategy();
 		~AIStrategy();
 		void run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
-						  bool first_iteration);
+						  bool first_iteration, bool is_simulation, bool is_inverted);
 
 	AIStrategy * clone() {
 		return new AIStrategy(*this);

@@ -1,11 +1,13 @@
 #include "Game.hpp"
 #include <Strategy2/AIStrategy.hpp>
 #include "NoStrategy.hpp"
+#include "JoystickStrategy.hpp"
 
 Game::Game() {
 	robot_count = 3;
 	strategies.emplace("Manual Strategy", new Strategy3());
 	strategies.emplace("AI Strategy", new AIStrategy());
+	strategies.emplace("Joystick 0", new JoystickStrategy("/dev/input/js0"));
 	strategies.emplace("No Strategy", new NoStrategy());
 	team = std::make_unique<Team>(robot_count, 0, false, RobotColor::Blue);
 	set_strategy(*team, "Manual Strategy");
@@ -23,6 +25,7 @@ void Game::set_strategy(Team &team, std::string strategy_name) {
 	}
 //	Times sem estratégia não são controlados, não usam a pick-a-tag
 	team.controlled = typeid(*team.strategy) != typeid(*strategies["No Strategy"]);
+	team.using_joystick = typeid(*team.strategy) == typeid(*strategies["Joystick 0"]);
 }
 
 std::optional<std::string> Game::get_strategy_name(Team &team) {

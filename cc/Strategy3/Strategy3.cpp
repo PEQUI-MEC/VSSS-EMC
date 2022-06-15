@@ -128,7 +128,7 @@ bool has_all_robots(std::vector<Robot3> &team) {
 }
 
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
-							 bool first_iteration) {
+							 bool first_iteration, bool is_simulation, bool is_inverted) {
 
 	if (has_all_robots(team)) {
 		auto vec = all_possible_permutations();

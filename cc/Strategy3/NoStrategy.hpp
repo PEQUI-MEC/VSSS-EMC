@@ -5,7 +5,7 @@
 
 class NoStrategy : public Strategy {
 	void run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
-					  bool first_iteration) {
+					  bool first_iteration, bool is_simulation, bool is_inverted) {
 		for (auto& robot : team) {
 			robot.send_no_command();
 		}

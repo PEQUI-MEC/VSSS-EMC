@@ -79,6 +79,28 @@ bool CamCap::start_signal(bool b) {
 	return true;
 } // start_signal
 
+void CamCap::joystick_loop() {
+	auto now = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = now - latest_joystick_update;
+	if (elapsed.count() > 1.0/30.0) {
+		latest_joystick_update = now;
+		fps_update();
+
+		auto inverted_team = game.team->get_inverted_robot_adversary();
+		auto inverted_adv = game.adversary->get_inverted_robot_adversary();
+		if (game.team->using_joystick) {
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration, false, game.team->inverted_field);
+		}
+		if (game.adversary->using_joystick) {
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted(),
+												game.first_iteration, false, game.adversary->inverted_field);
+		}
+		game.first_iteration = false;
+		notify_data_ready(false);
+	}
+}
+
+
 bool CamCap::run_game_loop() {
 	if (!game.is_simulated && has_camera) {
 		if (game.send_one_command) {
@@ -86,6 +108,9 @@ bool CamCap::run_game_loop() {
 			game.send_one_command = false;
 		}
 		capture_and_show();
+	} else if (!game.is_simulated && !has_camera && game.playing_game
+		&& (game.team->using_joystick || game.adversary->using_joystick)) {
+		joystick_loop();
 	} else if (game.is_simulated) {
 		if (has_camera) interface.bt_start.activate();
 		if (width != 640 || height != 480) {
@@ -202,12 +227,12 @@ bool CamCap::capture_and_show() {
 		auto inverted_team = game.team->get_inverted_robot_adversary();
 		auto inverted_adv = game.adversary->get_inverted_robot_adversary();
 		if (game.team->inverted_field) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted(), game.first_iteration);
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball, game.first_iteration);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted(), game.first_iteration, false, game.team->inverted_field);
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball, game.first_iteration, false, game.adversary->inverted_field);
 		} else {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration, false, game.team->inverted_field);
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted(),
-												   game.first_iteration);
+												   game.first_iteration, false, game.adversary->inverted_field);
 		}
 		game.first_iteration = false;
 
@@ -310,6 +335,8 @@ CamCap::CamCap(bool isLowRes) : simulator(game),
 								interface(game, robotGUI, isLowRes) {
 	fm.set_label("imageView");
 	fm.add(interface.imageView);
+
+	latest_joystick_update = std::chrono::high_resolution_clock::now();
 
 	set_image_resolution(640, 480);
 

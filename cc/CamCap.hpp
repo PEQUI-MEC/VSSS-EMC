@@ -68,6 +68,8 @@ class CamCap : public Gtk::HBox {
 		double fps_average = 0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> timer_start;
 
+		std::chrono::time_point<std::chrono::high_resolution_clock> latest_joystick_update;
+
 		Gtk::Frame fm;
 		Gtk::Frame info_fm;
 		Gtk::VBox camera_vbox;
@@ -77,6 +79,7 @@ class CamCap : public Gtk::HBox {
 	sigc::connection on_idle;
 
 	void set_image_resolution(int width, int height);
+	void joystick_loop();
 	bool run_game_loop();
 	void update_simulated_image();
 		void simulated_game_loop();
