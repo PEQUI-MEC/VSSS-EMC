@@ -4,7 +4,7 @@ import re
 import time
 from tqdm import trange
 
-game_count = 3
+game_count = 5
 
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 

@@ -26,7 +26,7 @@ void JoystickStrategy::run_strategy(std::vector<Robot3> &team,
 							  std::vector<Adversary> &adversaries,
 							  Ball ball,
 							  bool first_iteration, bool is_simulation,
-							  bool is_inverted) {
+							  bool is_inverted, time_point now) {
 	if (joystick.isFound()) {
 		JoystickEvent event;
 		while (joystick.sample(&event)) {

@@ -12,13 +12,13 @@ class JoystickStrategy : public Strategy {
 	~JoystickStrategy(){};
 
 	void run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
-						bool first_iteration, bool is_simulation, bool is_inverted);
+						bool first_iteration, bool is_simulation, bool is_inverted, time_point now);
 
 	JoystickStrategy * clone() {
 		return new JoystickStrategy(*this);
 	}
 
-	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) {};
+	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending, time_point foul_time) {};
 
 	private:
 	Joystick joystick;

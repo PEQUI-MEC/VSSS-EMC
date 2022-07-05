@@ -89,11 +89,12 @@ void CamCap::joystick_loop() {
 		auto inverted_team = game.team->get_inverted_robot_adversary();
 		auto inverted_adv = game.adversary->get_inverted_robot_adversary();
 		if (game.team->using_joystick) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration, false, game.team->inverted_field);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration,
+											  false, game.team->inverted_field, game.now());
 		}
 		if (game.adversary->using_joystick) {
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted(),
-												game.first_iteration, false, game.adversary->inverted_field);
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball. get_inverted(),
+												   game.first_iteration, false, game.adversary->inverted_field, game.now());
 		}
 		game.first_iteration = false;
 		notify_data_ready(false);
