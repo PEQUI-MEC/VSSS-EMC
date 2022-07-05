@@ -3,6 +3,9 @@
 
 #include <Geometry/Geometry.h>
 
+using hrc = std::chrono::high_resolution_clock;
+using time_point = hrc::time_point;
+
 // Forward declarations
 struct Velocity;
 struct WheelVelocity;

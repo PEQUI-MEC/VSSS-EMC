@@ -6,6 +6,7 @@
 #include "Types.hpp"
 #include "Team.hpp"
 #include "Ball.hpp"
+#include <chrono>
 
 class Game {
 	public:
@@ -17,10 +18,12 @@ class Game {
 
 	bool is_simulated = false;
 	bool playing_game = false;
-	bool first_iteration = true;
+	bool first_iteration = false;
 	bool send_one_command = false;
 
 	unsigned robot_count = 0;
+
+	time_point simulated_time = hrc::from_time_t(0);
 
 	Game();
 	void swap_teams();
@@ -30,6 +33,7 @@ class Game {
 	Team& blue_team();
 	Tags to_tags();
 	void stop_game();
+	time_point now();
 };
 
 #endif //VSSS_GAME_HPP

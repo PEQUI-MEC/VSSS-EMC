@@ -16,19 +16,20 @@ class Strategy3 : public Strategy {
 	bool is_foul = false;
     bool is_defending_foul = false;
 	VSSRef::ref_to_team::VSSRef_Command ref_command;
+	time_point now;
 
 	void
-	run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball, bool first_iteration, bool is_simulation, bool is_inverted);
+	run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball, bool first_iteration, bool is_simulation, bool is_inverted, time_point now);
 
 	Strategy3 * clone() {
 		return new Strategy3(*this);
 	}
 
-	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending);
+	void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending, time_point foul_time);
 
 	using sc = std::chrono::system_clock;
 	using duration_ms = std::chrono::duration<double, std::milli>;
-	sc::time_point last_foul = sc::now();
+	time_point last_foul = hrc::from_time_t(0);
 
 	void set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball);
 	bool transitions();

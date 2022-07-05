@@ -37,7 +37,7 @@ class SimulatorClient {
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_msg_time;
 	std::chrono::duration<double> elapsed_time;
 
-	SimulatorClient();
+	SimulatorClient(Game& game);
 	~SimulatorClient() {
 		vision_server.Stop(true);
 		referee_server.Stop(true);
@@ -48,7 +48,7 @@ class SimulatorClient {
 
 	void update_team(Team &team, const Repeated<fira_message::Robot>& robots_msg);
 	void update_robots(Game& game);
-	void send_commands(Team &team);
+	void send_commands(Team &team, Team &adv);
 	void send_placement(VSSRef::Frame* frame);
 };
 

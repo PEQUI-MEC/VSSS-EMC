@@ -5,13 +5,14 @@
 
 class SimulatedGame {
 
-    SimulatorClient client;
     Game& game;
+    SimulatorClient client;
+
 
     jsonSaveManager placement_config;
 
     public:
-    SimulatedGame(Game& game) : game(game), placement_config(game, nullptr) {};
+    SimulatedGame(Game& game) : game(game), client(game), placement_config(game, nullptr) {};
     bool game_loop();
 };
 

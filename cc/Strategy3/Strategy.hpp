@@ -16,9 +16,10 @@ class Strategy {
 							  Ball ball,
 							  bool first_iteration,
 							  bool is_simulation,
-							  bool is_inverted) = 0;
+							  bool is_inverted,
+                              time_point now) = 0;
 	virtual Strategy * clone() = 0;
-	virtual void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) = 0;
+	virtual void set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending, time_point foul_time) = 0;
 };
 
 #endif //VSSS_STRATEGY_HPP

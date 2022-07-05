@@ -24,7 +24,7 @@ AIStrategy::AIStrategy() {
 void AIStrategy::run_strategy(std::vector<Robot3> &team,
 							  std::vector<Adversary> &adversaries,
 							  Ball ball,
-							  bool first_iteration, bool is_simulation, bool is_inverted) {
+							  bool first_iteration, bool is_simulation, bool is_inverted, time_point now) {
 	if (module == nullptr) return;
 //	Robot positions
 	auto robot1 = team[0].python_pose();

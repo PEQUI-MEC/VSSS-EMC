@@ -53,7 +53,7 @@ double score_goalkeeper(const Robot3& robot, const Ball& ball) {
 }
 
 double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robot3> &team, Ball& ball) {
-	duration_ms since_last_foul = sc::now() - last_foul;
+	duration_ms since_last_foul = now - last_foul;
 	double add_score = 1;
     is_foul = since_last_foul.count() < 2000;
 	if (is_foul && is_defending_foul &&
@@ -66,12 +66,12 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
-void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending) {
+void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defending, time_point foul_time) {
     if(foul.foul() != VSSRef::Foul::GAME_ON && foul.foul() != VSSRef::Foul::STOP && foul.foul() != VSSRef::Foul::HALT) {
         ref_command = foul;
         this->is_defending_foul = is_defending;
     }
-	last_foul = sc::now();
+	last_foul = foul_time;
 }
 
 void set_corner_obstacles(Robot3 &robot) {
@@ -128,7 +128,7 @@ bool has_all_robots(std::vector<Robot3> &team) {
 }
 
 void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball,
-							 bool first_iteration, bool is_simulation, bool is_inverted) {
+							 bool first_iteration, bool is_simulation, bool is_inverted, time_point now) {
 
 	if (has_all_robots(team)) {
 		auto vec = all_possible_permutations();
@@ -156,7 +156,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &
 	goalkeeper.set_robot(goalkeeper_robot);
 	this->ball = ball;
 
-	duration_ms since_last_foul = sc::now() - last_foul;
+	duration_ms since_last_foul = now - last_foul;
     is_foul = since_last_foul.count() < 1000;
 
 	if (goalkeeper.has_robot()) {
@@ -191,7 +191,7 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &
 // 	if(since_last_transition.count() > 2000) {
 // 		bool transitioned = transitions();
 // 		if(transitioned)
-// 			last_transition = sc::now();
+// 			last_transition = now();
 // 	}
 
  	if (attacker.has_robot()) {

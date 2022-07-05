@@ -1,6 +1,6 @@
 #include "SimulatorClient.hpp"
 
-SimulatorClient::SimulatorClient() {
+SimulatorClient::SimulatorClient(Game& game) {
 
 	referee_client.Connect("224.5.23.2", 10004);	
 	client.Connect("127.0.0.1", 20011);
@@ -10,7 +10,7 @@ SimulatorClient::SimulatorClient() {
 		packet.ParseFromArray(msg->data(), (int) msg->size());
 		if (packet.has_frame()) {
 			new_data = true;
-			auto now = std::chrono::high_resolution_clock::now();
+			auto now = game.now();
 			elapsed_time = now - last_msg_time;
 			last_msg_time = now;
 		}
@@ -30,6 +30,8 @@ SimulatorClient::SimulatorClient() {
 void SimulatorClient::update_robots(Game &game) {
 	new_data = false;
 	fira_message::Frame frame = packet.frame();
+	std::chrono::milliseconds step(packet.step());
+	game.simulated_time = time_point(step);
 	if (game.team->robot_color == RobotColor::Blue) {
 		update_team(*game.team.get(), frame.robots_blue());
 		update_team(*game.adversary.get(), frame.robots_yellow());
@@ -65,7 +67,7 @@ void SimulatorClient::update_team(Team &team, const Repeated<fira_message::Robot
 	}
 }
 
-void SimulatorClient::send_commands(Team &team) {
+void SimulatorClient::send_commands(Team &team, Team &adv) {
 	fira_message::sim_to_ref::Packet cmds_packet;
 	for (uint i = 0; i < team.robots.size(); i++) {
 		auto& robot = team.robots[i];
@@ -73,6 +75,20 @@ void SimulatorClient::send_commands(Team &team) {
 		if (team.controlled) {
 			fira_message::sim_to_ref::Command* command = cmds_packet.mutable_cmd()->add_robot_commands();
 			command->set_yellowteam(team.robot_color == RobotColor::Yellow);
+			command->set_id(i);
+
+			WheelVelocity target_wheel_vel = robot.control.control_step(robot.pose, robot.target, elapsed_time.count());
+			auto angular_wheel_vel = target_wheel_vel.to_angular(simulated_wheel_radius);
+			command->set_wheel_left(angular_wheel_vel.left);
+			command->set_wheel_right(angular_wheel_vel.right);
+		}
+	}
+	for (uint i = 0; i < adv.robots.size(); i++) {
+		auto& robot = adv.robots[i];
+
+		if (adv.controlled) {
+			fira_message::sim_to_ref::Command* command = cmds_packet.mutable_cmd()->add_robot_commands();
+			command->set_yellowteam(adv.robot_color == RobotColor::Yellow);
 			command->set_id(i);
 
 			WheelVelocity target_wheel_vel = robot.control.control_step(robot.pose, robot.target, elapsed_time.count());

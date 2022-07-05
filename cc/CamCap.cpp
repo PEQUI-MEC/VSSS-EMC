@@ -227,12 +227,12 @@ bool CamCap::capture_and_show() {
 		auto inverted_team = game.team->get_inverted_robot_adversary();
 		auto inverted_adv = game.adversary->get_inverted_robot_adversary();
 		if (game.team->inverted_field) {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted(), game.first_iteration, false, game.team->inverted_field);
-			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball, game.first_iteration, false, game.adversary->inverted_field);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball.get_inverted(), game.first_iteration, false, game.team->inverted_field, game.now());
+			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball, game.first_iteration, false, game.adversary->inverted_field, game.now());
 		} else {
-			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration, false, game.team->inverted_field);
+			game.team->strategy->run_strategy(game.team->robots, inverted_adv, game.ball, game.first_iteration, false, game.team->inverted_field, game.now());
 			game.adversary->strategy->run_strategy(game.adversary->robots, inverted_team, game.ball.get_inverted(),
-												   game.first_iteration, false, game.adversary->inverted_field);
+												   game.first_iteration, false, game.adversary->inverted_field, game.now());
 		}
 		game.first_iteration = false;
 
@@ -273,10 +273,10 @@ bool CamCap::capture_and_show() {
 
 void CamCap::fps_update() {
 	if (frameCounter == 0) {
-		timer_start = std::chrono::high_resolution_clock::now();
+		timer_start = hrc::now();
 	}
 	if (frameCounter == 20) {
-		auto timer_finish = std::chrono::high_resolution_clock::now();
+		auto timer_finish = hrc::now();
 		std::chrono::duration<double> elapsed = timer_finish - timer_start;
 		fps_average = 20 / elapsed.count();
 		interface.updateFPS((int) std::round(fps_average));

@@ -75,3 +75,11 @@ void Game::stop_game() {
 	send_one_command = true;
 	playing_game = false;
 }
+
+time_point Game::now() {
+	if (is_simulated) {
+		return simulated_time;
+	} else {
+		return hrc::now();
+	}
+}
