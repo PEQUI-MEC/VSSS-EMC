@@ -3,7 +3,7 @@
 #include "NoStrategy.hpp"
 #include "JoystickStrategy.hpp"
 
-Game::Game() {
+Game::Game(int simulation_id) : simulation_id(simulation_id) {
 	robot_count = 3;
 	strategies.emplace("Manual Strategy", new Strategy3());
 	strategies.emplace("AI Strategy", new AIStrategy());

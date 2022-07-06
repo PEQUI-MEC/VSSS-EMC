@@ -1,9 +1,12 @@
 #include "SimulatorClient.hpp"
 
 SimulatorClient::SimulatorClient(Game& game) {
-
-	referee_client.Connect("224.5.23.2", 10004);	
-	client.Connect("127.0.0.1", 20011);
+	if (game.simulation_id == 0) {
+		referee_client.Connect("224.5.23.2", 10004);
+	} else {
+		referee_client.Connect("224.5.23.2", 50000 + game.simulation_id);
+	}
+	client.Connect("127.0.0.1", 20011 + game.simulation_id);
 
 	vision_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
 		std::lock_guard<std::mutex> guard(data_mutex);
@@ -15,7 +18,7 @@ SimulatorClient::SimulatorClient(Game& game) {
 			last_msg_time = now;
 		}
 	});
-	vision_server.Init(10002);
+	vision_server.Init(10002 + game.simulation_id);
 	vision_server.Start();
 
 	referee_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
@@ -23,7 +26,11 @@ SimulatorClient::SimulatorClient(Game& game) {
 		ref_command.ParseFromArray(msg->data(), (int) msg->size());
 		new_ref_cmd = true;
 	});
-	referee_server.Init(10003);
+	if (game.simulation_id == 0) {
+		referee_server.Init(10003);
+	} else {
+		referee_server.Init(40000 + game.simulation_id);
+	}
 	referee_server.Start();
 }
 

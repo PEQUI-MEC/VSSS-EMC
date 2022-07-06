@@ -90,7 +90,7 @@ class CamCap : public Gtk::HBox {
 		void notify_data_ready(bool send_ekf_data);
 		double distance(cv::Point a, cv::Point b);
 		void fps_update();
-		explicit CamCap(bool isLowRes);
+		explicit CamCap(bool isLowRes, int simulation_id = 0);
 		~CamCap() override;
 };
 

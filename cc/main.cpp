@@ -30,9 +30,13 @@ int main(int argc, char **argv) {
 
 // 	Ativa headless se receber nome do arquivo json pelo terminal
 	bool headless = argc >= 2;
+
+	int simulation_id = argc >= 3 ? std::stoi(argv[2]) : 0;
+
+	std::cout << simulation_id << std::endl;
 	
 	if (headless) {
-		Game game;
+		Game game(simulation_id);
 		SimulatedGame simulator(game);
 
 		jsonSaveManager config(game, nullptr);
@@ -59,7 +63,7 @@ int main(int argc, char **argv) {
 		// bool isLowRes = screen_width <= 1920;
 		bool isLowRes = true;
 
-		CamCap camcap(isLowRes);
+		CamCap camcap(isLowRes, simulation_id);
 		window.add(camcap);
 
 		window.show_all();

@@ -22,10 +22,11 @@ class Game {
 	bool send_one_command = false;
 
 	unsigned robot_count = 0;
+	int simulation_id = 0;
 
 	time_point simulated_time = hrc::from_time_t(0);
 
-	Game();
+	Game(int simulation_id = 0);
 	void swap_teams();
 	void set_strategy(Team& team, std::string strategy_name);
 	std::optional<std::string> get_strategy_name(Team& team);

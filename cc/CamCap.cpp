@@ -328,7 +328,8 @@ double CamCap::distance(cv::Point a, cv::Point b) {
 	return sqrt(pow(double(b.x - a.x), 2) + pow(double(b.y - a.y), 2));
 }
 
-CamCap::CamCap(bool isLowRes) : simulator(game),
+CamCap::CamCap(bool isLowRes, int simulation_id) : game(simulation_id),
+								simulator(game),
 								visionImage(height, width, CV_8UC3),
 								frameCounter(0),
 								msg_thread(&CamCap::send_cmd_thread, this),

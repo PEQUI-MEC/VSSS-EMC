@@ -21,7 +21,7 @@ def parse_output(output):
             data[parts[1]] = parts[2]
     return data
 
-vsss_emc_pipe = subprocess.Popen(['docker-compose', 'up', 'both_headless'],
+vsss_emc_pipe = subprocess.Popen(['/home/thiago/Workspace/VSSS-EMC/run_both_with_id.sh', '0'],
                                  cwd=r'/home/thiago/Workspace/VSSS-EMC',
                                  stdout=subprocess.PIPE)
 firasim_pipe = subprocess.Popen(['/home/thiago/Workspace/FIRASim/bin/FIRASim', '-H', '--fast'],
