@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
 
 		while (true) {
 			simulator.game_loop();
+			std::this_thread::sleep_for(std::chrono::microseconds(500));
 		}
 	} else {
 		Gtk::Main kit(argc, argv);

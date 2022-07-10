@@ -4,7 +4,7 @@ import re
 import time
 from tqdm import trange
 
-game_count = 5
+game_count = 2
 
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
@@ -21,17 +21,19 @@ def parse_output(output):
             data[parts[1]] = parts[2]
     return data
 
-vsss_emc_pipe = subprocess.Popen(['/home/thiago/Workspace/VSSS-EMC/run_both_with_id.sh', '0'],
-                                 cwd=r'/home/thiago/Workspace/VSSS-EMC',
+vsss_emc_pipe = subprocess.Popen(['/root/src/VSSS', 'both_headless.json'],
+                                 cwd=r'/root/src',
                                  stdout=subprocess.PIPE)
-firasim_pipe = subprocess.Popen(['/home/thiago/Workspace/FIRASim/bin/FIRASim', '-H', '--fast'],
+firasim_pipe = subprocess.Popen(['/root/FIRASim/bin/FIRASim', '-H', '--fast'],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
 time.sleep(5)
 for game in trange(game_count):
-    referee_pipe = subprocess.Popen(['/home/thiago/Workspace/VSSReferee/bin/VSSReferee',
+    print(" ")
+    referee_pipe = subprocess.Popen(['/root/VSSReferee/bin/VSSReferee',
                                      '--3v3', '--record', 'false', '--fast', '--headless'],
                                     stdout=subprocess.PIPE)
+    time.sleep(20)
     output, errs = referee_pipe.communicate()
     data = parse_output(output)
     print(data)
@@ -43,8 +45,4 @@ print("Avg right: " + str(total_right/game_count))
 
 referee_pipe.terminate()
 firasim_pipe.terminate()
-compose_down = subprocess.Popen(['docker-compose', 'down'],
-                                cwd=r'/home/thiago/Workspace/VSSS-EMC',
-                                stdout=subprocess.PIPE)
-compose_down.communicate()
 vsss_emc_pipe.terminate()

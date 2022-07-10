@@ -116,4 +116,23 @@ services:
         environment:
             - DISPLAY=unix$DISPLAY
         working_dir: /root/VSSReferee/bin
-        command: /root/VSSReferee/bin/VSSReferee --3v3
+        command: /root/VSSReferee/bin/VSSReferee --3v3 --record false
+    fast_simulation:
+        image: pequi-vsss
+        container_name: pequi-fast-simulation
+        ipc: 'host'
+        network_mode: "host"
+        privileged: true
+        stdin_open: true
+        tty: true
+        build:
+            context: .
+            dockerfile: dockerfile
+        volumes:
+            - ./:/root/src/
+            - $HOME/.Xauthority:/root/.Xauthority:rw
+            - /tmp/.X11-unix:/tmp/.X11-unix
+        environment:
+            - DISPLAY=unix$DISPLAY
+        working_dir: /root/src
+        command: bash -c "cd /root/src/build && cmake .. && make -j$$(nproc) && cd .. && /root/src/python/fast_simulation_multithread.py"

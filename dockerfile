@@ -75,6 +75,7 @@ RUN git clone --recurse-submodules https://github.com/Qihoo360/evpp.git &&\
 RUN pip3 install --upgrade setuptools pip
 RUN pip3 install scikit-build
 RUN pip3 install gym tensorflow==1.14.0 opencv-python
+RUN pip3 install tdqm
 
 RUN git clone https://github.com/BrunoBSM/stable-baselines &&\
     cd ./stable-baselines/ &&\
@@ -97,15 +98,17 @@ RUN git clone https://github.com/jpfeltracco/vartypes.git &&\
     rm -rf *
 
 WORKDIR /root/
-RUN git clone https://github.com/VSSSLeague/FIRASim.git &&\
+RUN git clone -b docker_headless_fix https://github.com/thiagohenrique1/FIRASim.git &&\
     mkdir ./FIRASim/build &&\
     cd ./FIRASim/build &&\
     cmake ..  &&\
     make -j$(nproc)
 
+RUN echo "will build referee 2"
+
 # Referee
 WORKDIR /root/
-RUN git clone https://github.com/thiagohenrique1/VSSReferee.git &&\
+RUN git clone -b feat/sim-time-step https://github.com/thiagohenrique1/VSSReferee.git &&\
     mkdir ./VSSReferee/build &&\
     cd ./VSSReferee/build &&\
     qmake .. &&\
