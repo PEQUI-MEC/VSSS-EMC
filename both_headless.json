@@ -1,0 +1,55 @@
+{
+    "Adversary": {
+        "Color": 0,
+        "Inverted": false,
+        "Robots": {
+            "0": {
+                "ID": "D",
+                "role": 2,
+                "speed": 1.0,
+                "tag": 0
+            },
+            "1": {
+                "ID": "E",
+                "role": 1,
+                "speed": 1.0,
+                "tag": 1
+            },
+            "2": {
+                "ID": "F",
+                "role": 3,
+                "speed": 1.0,
+                "tag": 2
+            },
+            "Count": 3
+        },
+        "Strategy": "Manual Strategy"
+    },
+    "Team": {
+        "Color": 1,
+        "Inverted": true,
+        "Robots": {
+            "0": {
+                "ID": "A",
+                "role": 2,
+                "speed": 1.0,
+                "tag": 0
+            },
+            "1": {
+                "ID": "B",
+                "role": 3,
+                "speed": 1.0,
+                "tag": 1
+            },
+            "2": {
+                "ID": "C",
+                "role": 1,
+                "speed": 1.0,
+                "tag": 2
+            },
+            "Count": 3
+        },
+        "Strategy": "Manual Strategy"
+    },
+    "use_simulator": true
+}
