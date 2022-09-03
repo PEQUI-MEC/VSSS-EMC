@@ -63,7 +63,7 @@ void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Adve
 	} else if (ball_goal_projection.y < MIN_GOAL_Y) {
 		ball_goal_projection.y = MIN_GOAL_Y;
 	}
-	Point target{gk_line_x, ball_goal_projection.y};
+	Point target{penalty_gk_line_x, ball_goal_projection.y};
 	if (has_arrived_penalty || distance(robot->get_position(), target) < 0.04) {
 		has_arrived_penalty = true;
 		robot->spin_kick_to_target(ball.position, their::goal::front::center);
