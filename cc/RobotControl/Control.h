@@ -25,7 +25,7 @@ class Control {
 
 	bool spinning = false;
 
-	float kgz = 0.2;
+	float kgz = 0.25;
 
 	bool is_penalty = false;
 	bool is_goalkeeper = false;
