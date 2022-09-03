@@ -37,8 +37,8 @@ double Strategy3::score_atacker(const Robot3& robot, const Ball& ball) {
     Point goal = their::goal::back::center;
     Vector ball_to_goal = goal - ball_estimate;
 	Vector robot_to_ball = ball_estimate - robot.get_position();
-    return 0.8 * (robot.pose.position - ball_estimate).size
-        + 0.2 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
+    return 0.85 * (robot.pose.position - ball_estimate).size
+        + 0.15 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 }
 
 double score_goalkeeper(const Robot3& robot, const Ball& ball) {
