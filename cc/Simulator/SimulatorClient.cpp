@@ -2,7 +2,7 @@
 
 SimulatorClient::SimulatorClient() {
 
-	referee_client.Connect("224.5.23.2", 10004);	
+	referee_client.Connect("127.0.0.1", 10004);
 	client.Connect("127.0.0.1", 20011);
 
 	vision_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
