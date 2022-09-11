@@ -75,10 +75,10 @@ void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defen
 }
 
 void set_corner_obstacles(Robot3 &robot) {
-	robot.control.obstacles.push_back({Point(robot.pose.position.x, 0), 0.03});
-	robot.control.obstacles.push_back({Point(robot.pose.position.x, field_height), 0.03});
-	robot.control.obstacles.push_back({Point(field_width, robot.pose.position.y), 0.03});
-	robot.control.obstacles.push_back({Point(0, robot.pose.position.y), 0.03});
+	robot.control.obstacles.push_back({Point(robot.pose.position.x, 0), 0.04});
+	robot.control.obstacles.push_back({Point(robot.pose.position.x, field_height), 0.04});
+	robot.control.obstacles.push_back({Point(field_width, robot.pose.position.y), 0.04});
+	robot.control.obstacles.push_back({Point(0, robot.pose.position.y), 0.04});
 }
 
 void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball) {
