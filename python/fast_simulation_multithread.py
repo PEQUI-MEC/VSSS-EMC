@@ -3,6 +3,7 @@ import subprocess
 import re
 import time
 import sys
+import json
 
 running_games = 0
 completed_games = 0
@@ -30,13 +31,17 @@ def parse_output(output):
             data[parts[1]] = parts[2]
     return data
 
+def run_vsss_emc(config_filename):
+    json_file = open(config_filename)
+    configs = json.load(json_file)
+    json_file.close()
+    return subprocess.Popen(['/root/src/VSSS', json.dumps(configs), str(i+1)],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+
 for i in range(thread_count):
-    vsss_emc_pipe_yellow = subprocess.Popen(['/root/src/VSSS', 'yellow_headless.json', str(i+1)],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-    vsss_emc_pipe_blue = subprocess.Popen(['/root/src/VSSS', 'blue_headless.json', str(i+1)],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+    vsss_emc_pipe_yellow = run_vsss_emc('yellow_headless.json')
+    vsss_emc_pipe_blue = run_vsss_emc('blue_headless.json')
     vsss_emc_list.append((vsss_emc_pipe_yellow, vsss_emc_pipe_blue))
     #vsss_emc_pipe = subprocess.Popen(['/root/src/VSSS', 'both_headless.json', str(i+1)],
                                     #stdout=subprocess.PIPE,

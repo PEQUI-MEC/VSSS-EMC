@@ -41,7 +41,6 @@ int main(int argc, char **argv) {
 		jsonSaveManager config(game, nullptr);
 		std::string arg_str = argv[1];
 		if(arg_str.substr(arg_str.find_last_of(".") + 1) == "json") {
-			std::cout << "loading file " << arg_str << std::endl;
 			config.load(arg_str);
 		} else {
 			config.load_json_text(arg_str);
