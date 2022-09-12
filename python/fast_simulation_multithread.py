@@ -4,10 +4,10 @@ import re
 import time
 import sys
 
-games = 96
 running_games = 0
 completed_games = 0
 thread_count = 12
+games = thread_count * 6
 
 referee_list = []
 for i in range(thread_count):
@@ -31,10 +31,17 @@ def parse_output(output):
     return data
 
 for i in range(thread_count):
-    vsss_emc_pipe = subprocess.Popen(['/root/src/VSSS', 'both_headless.json', str(i+1)],
+    vsss_emc_pipe_yellow = subprocess.Popen(['/root/src/VSSS', 'yellow_headless.json', str(i+1)],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
-    vsss_emc_list.append(vsss_emc_pipe)
+    vsss_emc_pipe_blue = subprocess.Popen(['/root/src/VSSS', 'blue_headless.json', str(i+1)],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+    vsss_emc_list.append((vsss_emc_pipe_yellow, vsss_emc_pipe_blue))
+    #vsss_emc_pipe = subprocess.Popen(['/root/src/VSSS', 'both_headless.json', str(i+1)],
+                                    #stdout=subprocess.PIPE,
+                                    #stderr=subprocess.PIPE)
+    #vsss_emc_list.append(vsss_emc_pipe)
     firasim_pipe = subprocess.Popen(['/root/FIRASim/bin/FIRASim', '-H', '--fast', '--id', str(i+1)],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
@@ -60,6 +67,7 @@ def process_and_quit(referee):
         referee.terminate()
         return True, int(data["left_goals"]), int(data["right_goals"])
     else:
+        print("could not find goals in output")
         return False, 0, 0
 
 print(f"Simulating {games} games with {thread_count} threads")
@@ -68,9 +76,9 @@ while games > completed_games:
     for i, referee in enumerate(referee_list):
         if is_done(referee):
             success, left_goals, right_goals = process_and_quit(referee)
+            referee_list[i] = None
+            running_games -= 1
             if success:
-                referee_list[i] = None
-                running_games -= 1
                 completed_games += 1
                 print(f"{completed_games}/{games} - left: {left_goals}, right: {right_goals}, "
                     f"avg left: {total_left/completed_games:.2f}, avg right: {total_right/completed_games:.2f}")
@@ -83,8 +91,12 @@ while games > completed_games:
 print(f"Average left: {total_left/games:.3f}")
 print(f"Average right: {total_right/games:.3f}")
 
-for vsss_emc in vsss_emc_list:
-    vsss_emc.terminate()
+#for vsss_emc in vsss_emc_list:
+    #vsss_emc.terminate()
+
+for vsss_emc_yellow, vsss_emc_blue in vsss_emc_list:
+    vsss_emc_yellow.terminate()
+    vsss_emc_blue.terminate()
 
 for firasim in firasim_list:
     firasim.terminate()

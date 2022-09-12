@@ -104,8 +104,6 @@ RUN git clone -b docker_headless_fix https://github.com/thiagohenrique1/FIRASim.
     cmake ..  &&\
     make -j$(nproc)
 
-RUN echo "will build referee 2"
-
 # Referee
 WORKDIR /root/
 RUN git clone -b feat/sim-time-step https://github.com/thiagohenrique1/VSSReferee.git &&\
