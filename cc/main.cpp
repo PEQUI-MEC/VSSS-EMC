@@ -38,9 +38,15 @@ int main(int argc, char **argv) {
 	if (headless) {
 		Game game(simulation_id);
 		SimulatedGame simulator(game);
-
 		jsonSaveManager config(game, nullptr);
-		config.load(argv[1]);
+		std::string arg_str = argv[1];
+		if(arg_str.substr(arg_str.find_last_of(".") + 1) == "json") {
+			std::cout << "loading file " << arg_str << std::endl;
+			config.load(arg_str);
+		} else {
+			config.load_json_text(arg_str);
+			std::cout << "loading json" << std::endl;
+		}
 		game.is_simulated = true;
 
 // 		Permite parar a simulacão manualmente

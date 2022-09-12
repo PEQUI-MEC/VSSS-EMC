@@ -29,6 +29,7 @@ class jsonSaveManager {
 	public:
 		explicit jsonSaveManager(Game& game, capture::V4LInterface *interf) : game(game), interface(interf) {};
 		void load(std::string file_path = "quicksave.json");
+		void load_json_text(const std::string json_text);
 		void save(std::string file_path = "quicksave.json");
 		VSSRef::Frame* load_replacement(std::string team, std::string fault, std::string file_path = "replacement.json");
 };		

@@ -247,6 +247,19 @@ void jsonSaveManager::write_configs_to_file(string file_path) {
 	file.close();
 }
 
+void jsonSaveManager::load_json_text(const string json_text) {
+	json_text >> configs;
+
+	if (exists(configs, "use_simulator"))
+		game.is_simulated = configs["use_simulator"];
+	if (interface)
+		load_camera();
+	load_team(*game.team, "Team");
+	load_team(*game.adversary, "Adversary");
+
+	std::cout << "loaded " << file_path << std::endl;
+}
+
 void jsonSaveManager::load(const string file_path) {
 	int error = read_configs_from_file(file_path);
 
