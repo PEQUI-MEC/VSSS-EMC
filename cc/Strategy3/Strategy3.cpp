@@ -37,8 +37,8 @@ double Strategy3::score_atacker(const Robot3& robot, const Ball& ball) {
     Point goal = their::goal::back::center;
     Vector ball_to_goal = goal - ball_estimate;
 	Vector robot_to_ball = ball_estimate - robot.get_position();
-    return 0.8 * (robot.pose.position - ball_estimate).size
-        + 0.2 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
+    return 0.85 * (robot.pose.position - ball_estimate).size
+        + 0.15 * std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 }
 
 double score_goalkeeper(const Robot3& robot, const Ball& ball) {
@@ -75,10 +75,10 @@ void Strategy3::set_foul(VSSRef::ref_to_team::VSSRef_Command foul, bool is_defen
 }
 
 void set_corner_obstacles(Robot3 &robot) {
-	robot.control.obstacles.push_back({Point(robot.pose.position.x, 0), 0.02});
-	robot.control.obstacles.push_back({Point(robot.pose.position.x, field_height), 0.02});
-	robot.control.obstacles.push_back({Point(field_width, robot.pose.position.y), 0.02});
-	robot.control.obstacles.push_back({Point(0, robot.pose.position.y), 0.02});
+	robot.control.obstacles.push_back({Point(robot.pose.position.x, 0), 0.04});
+	robot.control.obstacles.push_back({Point(robot.pose.position.x, field_height), 0.04});
+	robot.control.obstacles.push_back({Point(field_width, robot.pose.position.y), 0.04});
+	robot.control.obstacles.push_back({Point(0, robot.pose.position.y), 0.04});
 }
 
 void Strategy3::set_obstacle_avoidance_targets(std::vector<Robot3> &team, std::vector<Adversary> &adversaries, Ball ball) {

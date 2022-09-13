@@ -62,7 +62,7 @@ RUN apt-get install -y wget autoconf automake libtool \
         libglu1-mesa-dev libode-dev mesa-utils libgl1-mesa-glx libnvidia-gl-440 protobuf-compiler libprotoc-dev
 
 # EVPP (TCP/UDP library)
-RUN git clone --recurse-submodules https://github.com/Qihoo360/evpp.git &&\
+RUN git clone --recurse-submodules https://github.com/thiagohenrique1/evpp.git &&\
     mkdir ./evpp/build &&\
     cd ./evpp/build &&\
     cmake .. && \

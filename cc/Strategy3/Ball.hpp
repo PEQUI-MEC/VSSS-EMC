@@ -29,7 +29,7 @@ class Ball {
 		ls_y.addValue(position.y);
 		estimative.x = ls_x.estimate(10);
 		estimative.y = ls_y.estimate(10);
-		velocity = (position - estimative) * (30); //30fps;
+		velocity = (estimative - position) * (3); //30fps;
 	}
 
 	void reset_ls() {

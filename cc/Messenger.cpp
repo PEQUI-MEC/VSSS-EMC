@@ -45,7 +45,8 @@ void Messenger::send_old_format(string cmd) {
 void Messenger::send_commands(const std::vector<Robot3> &robots) {
 	if (!has_xbee() || ++send_cmd_count <= frameskip) return;
 	for (const Robot3& robot : robots) {
-		send_command(robot.ID, robot.target);
+		if (robot.role != Role::None)
+			send_command(robot.ID, robot.target);
 	}
 	update_msg_time();
 	send_cmd_count = 0;
@@ -87,7 +88,7 @@ void Messenger::send_command(char id, Target target) {
 }
 
 void Messenger::send_ekf_data(const Robot3 &robot) {
-	if(!has_xbee()) return;
+	if(!has_xbee() || robot.role == Role::None) return;
 	string msg = "E" + rounded_str(robot.pose.position.x * 100) + ";"
 				 + rounded_str(robot.pose.position.y * 100)
 				 + ";" + rounded_str(robot.pose.orientation * 180/M_PI);

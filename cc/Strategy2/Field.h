@@ -22,6 +22,7 @@ namespace field {
 	const double free_ball_dist = 0.2; // distância de cobrança de falta entre bola e robô
 	const double free_ball_height = 0.25; // distância entre a lateral do campo em y e o ponto de falta
 	const double gk_line_x = 0.17;
+	const double penalty_gk_line_x = 0.17 - 0.025;
 	const double reach_ball_distance = (0.08 * std::sqrt(2))/2 + 0.04/2;
 	// -----------------------------------------------------------------------------------------------------------------
 
@@ -159,6 +160,7 @@ namespace field {
 		const Geometry::Point goal_lower_limit({gk_line_x, field_height/2 - goal_height/2});
 		const Geometry::Point center({gk_line_x, field_height/2});
 		const Geometry::Point reach_line({gk_line_x+reach_ball_distance, field_height/2});
+		const Geometry::Point penalty_center({penalty_gk_line_x, field_height/2});
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 
