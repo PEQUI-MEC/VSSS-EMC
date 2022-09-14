@@ -73,15 +73,15 @@ RUN git clone --recurse-submodules https://github.com/thiagohenrique1/evpp.git &
 
 # AI
 RUN pip3 install --upgrade setuptools pip
-RUN pip3 install scikit-build
-RUN pip3 install gym tensorflow==1.14.0 opencv-python
-RUN pip3 install tdqm
+#RUN pip3 install scikit-build
+#RUN pip3 install gym tensorflow==1.14.0
+RUN pip3 install opencv-python tdqm GitPython
 
-RUN git clone https://github.com/BrunoBSM/stable-baselines &&\
-    cd ./stable-baselines/ &&\
-    pip3 install -e . &&\
-    cd /dependecies &&\
-    rm -rf *
+#RUN git clone https://github.com/BrunoBSM/stable-baselines &&\
+#    cd ./stable-baselines/ &&\
+#    pip3 install -e . &&\
+#    cd /dependecies &&\
+#    rm -rf *
 
 # FIRASim
 ENV QT_X11_NO_MITSHM=1
