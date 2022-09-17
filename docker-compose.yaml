@@ -135,4 +135,4 @@ services:
         environment:
             - DISPLAY=unix$DISPLAY
         working_dir: /root/src
-        command: bash -c "cd /root/src/build && cmake .. && make -j$$(nproc) && cd .. && /root/src/python/fast_simulation_multithread.py"
+        command: bash -c "cd /root/src/build && cmake .. && make -j$$(nproc) && cd .. && /root/src/python/run_simulations.py"

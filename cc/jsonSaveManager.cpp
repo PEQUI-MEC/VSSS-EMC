@@ -31,6 +31,19 @@ void jsonSaveManager::save_team(Team &team, std::string name) {
 	}
 }
 
+void jsonSaveManager::load_params(Team &team, std::string name) {
+	if (!exists(configs, name)) return;
+	json &team_config = configs[name];
+	if (!exists(team_config, "Parameters")) return;
+	json &params = team_config["Parameters"];
+	for (auto& robot : team.robots) {
+		set(params, robot.control.kgz, "kgz");
+		set(params, robot.default_target_velocity, "default_target_velocity");
+		set(params, robot.control.position_control_error_weight, "position_control_error_weight");
+		set(params, robot.control.position_control_orientation_weight, "position_control_orientation_weight");
+	}
+}
+
 void jsonSaveManager::load_team(Team &team, std::string name) {
 	if (!exists(configs, name)) return;
 	json &team_config = configs[name];
@@ -63,6 +76,8 @@ void jsonSaveManager::load_team(Team &team, std::string name) {
 		if (exists(robot_config, "speed"))
 			robot.default_target_velocity = robot_config["speed"];
 	}
+
+	load_params(*game.team, "Team");
 }
 
 void jsonSaveManager::save_camera() {

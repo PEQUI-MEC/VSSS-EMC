@@ -17,6 +17,7 @@ class jsonSaveManager {
 
 		const std::string cielab_calib[4] = {"Main", "Green", "Ball", "Opp."};
 		void save_team(Team &team, std::string name);
+		void load_params(Team &team, std::string name);
 		void load_team(Team &team, std::string name);
 		void save_camera();
 		void load_camera();
@@ -32,6 +33,13 @@ class jsonSaveManager {
 		void load_json_text(const std::string& json_text);
 		void save(std::string file_path = "quicksave.json");
 		VSSRef::Frame* load_replacement(std::string team, std::string fault, std::string file_path = "replacement.json");
+
+		template<typename TYPE>
+		void set(json &config, TYPE& variable, std::string name) {
+			if (exists(config, name)) {
+				variable = config[name];
+			}
+		}
 };		
 
 #endif //VSSS_CONFIGFILEMANAGER_H

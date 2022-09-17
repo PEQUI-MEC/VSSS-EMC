@@ -10,10 +10,7 @@ import os
 
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
-total_this = 0
-total_other = 0
-
-def get_other_code(other_branch):
+def load_other_branch(other_branch):
     path = os.path.abspath("/root/src/other_code")
     if os.path.isdir(path):
         repo = Repo(path)
@@ -31,7 +28,29 @@ def get_other_code(other_branch):
     os.system("cmake .. && make -j12")
     os.chdir("/root/src")
 
-def init_programs(thread_count):
+def to_full_configs(configs, team_color):
+    full_configs = configs.copy()
+    full_configs["Team"]["Color"] = team_color
+    full_configs["Team"]["Strategy"] = "Manual Strategy"
+    full_configs["Adversary"] = full_configs["Team"].copy()
+    full_configs["Adversary"]["Strategy"] = "No Strategy"
+    if team_color == 0:
+        full_configs["Team"]["Inverted"] = False
+        full_configs["Adversary"]["Color"] = 1
+        full_configs["Adversary"]["Inverted"] = True
+    else:
+        full_configs["Team"]["Inverted"] = True
+        full_configs["Adversary"]["Color"] = 0
+        full_configs["Adversary"]["Inverted"] = False
+    return full_configs
+
+def run_vsss_emc(bin_name, configs, team_color, i):
+    full_configs = to_full_configs(configs, team_color)
+    return subprocess.Popen([bin_name, json.dumps(full_configs), str(i+1)],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+
+def init_programs(thread_count, this_configs, other_configs):
     referee_list = []
     for i in range(thread_count):
         referee_list.append(None)
@@ -39,12 +58,12 @@ def init_programs(thread_count):
     firasim_list = []
 
     for i in range(thread_count):
-        if i % 2 == 0:
-            this_vsss = run_vsss_emc('/root/src/VSSS', '/root/src/yellow_headless.json', i)
-            other_vsss = run_vsss_emc('/root/src/other_code/VSSS', '/root/src/blue_headless.json', i)
+        if i % 2 == 0: # even threads use yellow for this code and blue for other code
+            this_vsss = run_vsss_emc('/root/src/VSSS', this_configs, 1, i)
+            other_vsss = run_vsss_emc('/root/src/other_code/VSSS', other_configs, 0, i)
         else:
-            this_vsss = run_vsss_emc('/root/src/VSSS', '/root/src/blue_headless.json', i)
-            other_vsss = run_vsss_emc('/root/src/other_code/VSSS', '/root/src/yellow_headless.json', i)
+            this_vsss = run_vsss_emc('/root/src/VSSS', this_configs, 0, i)
+            other_vsss = run_vsss_emc('/root/src/other_code/VSSS', other_configs, 1, i)
         vsss_emc_list.append((this_vsss, other_vsss))
         firasim_pipe = subprocess.Popen(['/root/FIRASim/bin/FIRASim', '-H', '--fast', '--id', str(i+1)],
                                         stdout=subprocess.PIPE,
@@ -64,14 +83,6 @@ def parse_output(output):
             data[parts[1]] = parts[2]
     return data
 
-def run_vsss_emc(bin_name, config_filename, i):
-    json_file = open(config_filename)
-    configs = json.load(json_file)
-    json_file.close()
-    return subprocess.Popen([bin_name, json.dumps(configs), str(i+1)],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-
 def is_done(referee):
     return (referee is not None) and (referee.poll() is not None)
 
@@ -81,7 +92,6 @@ def start_referee(ref_id):
                             stdout=subprocess.PIPE)
 
 def process_and_quit(referee, i):
-    global total_this, total_other
     output, errs = referee.communicate()
     data = parse_output(output)
     if "blue_goals" in data and "yellow_goals" in data:
@@ -91,22 +101,20 @@ def process_and_quit(referee, i):
         else:
             this_goals = int(data["blue_goals"])
             other_goals = int(data["yellow_goals"])
-        total_this += this_goals
-        total_other += other_goals
         referee.terminate()
         return True, this_goals, other_goals
     else:
         print("could not find goals in output")
         return False, 0, 0
 
-def simulate_games(thread_count, game_multiplier, other_branch):
+def simulate_games(thread_count, game_multiplier, print_partial_results, this_configs, other_configs):
     running_games = 0
     completed_games = 0
+    total_this = 0
+    total_other = 0
     games = thread_count * game_multiplier
 
-    get_other_code(other_branch)
-
-    referee_list, vsss_emc_list, firasim_list = init_programs(thread_count)
+    referee_list, vsss_emc_list, firasim_list = init_programs(thread_count, this_configs, other_configs)
 
     print(f"Simulating {games} games with {thread_count} threads")
     while games > completed_games:
@@ -117,9 +125,12 @@ def simulate_games(thread_count, game_multiplier, other_branch):
                 referee_list[i] = None
                 running_games -= 1
                 if success:
+                    total_this += this_goals
+                    total_other += other_goals
                     completed_games += 1
-                    print(f"{completed_games}/{games} - this: {this_goals}, {other_branch}: {other_goals}, "
-                        f"avg this: {total_this/completed_games:.2f}, avg {other_branch}: {total_other/completed_games:.2f}")
+                    if (print_partial_results):
+                        print(f"{completed_games}/{games} - this: {this_goals}, other: {other_goals}, "
+                            f"avg this: {total_this/completed_games:.2f}, avg other: {total_other/completed_games:.2f}")
                 else:
                     print("failed to complete game")
             if games > (completed_games + running_games) and referee_list[i] is None:
@@ -127,7 +138,7 @@ def simulate_games(thread_count, game_multiplier, other_branch):
                 running_games += 1
 
     print(f"Average this: {total_this/games:.3f}")
-    print(f"Average {other_branch}: {total_other/games:.3f}")
+    print(f"Average other: {total_other/games:.3f}")
 
     for this_vsss, other_vsss in vsss_emc_list:
         this_vsss.terminate()
@@ -135,5 +146,3 @@ def simulate_games(thread_count, game_multiplier, other_branch):
 
     for firasim in firasim_list:
         firasim.terminate()
-
-simulate_games(thread_count=12, game_multiplier=3, other_branch="fast_simulation")
