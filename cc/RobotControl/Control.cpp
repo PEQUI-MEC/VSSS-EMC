@@ -8,7 +8,7 @@ WheelVelocity Control::control_step(const Pose &pose, const Target &target, doub
 	auto target_vel = run_control();
 
 	if (is_goalkeeper && spinning && target.command != Command::Velocity
-		&& std::abs(left.target_vel + right.target_vel) < 0.2) {
+		&& std::abs(left.target_vel + right.target_vel) < 0.4) {
 		if (std::abs(pose.velocity.angular) < 2.5) {
 			spinning = false;
 		} else {
