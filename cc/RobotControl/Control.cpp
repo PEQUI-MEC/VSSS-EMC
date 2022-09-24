@@ -9,7 +9,7 @@ WheelVelocity Control::control_step(const Pose &pose, const Target &target, doub
 
 	if (is_goalkeeper && spinning && target.command != Command::Velocity
 		&& std::abs(left.target_vel + right.target_vel) < 0.2) {
-		if (std::abs(pose.velocity.angular) < 2.5) {
+		if (std::abs(pose.velocity.angular) < 1) {
 			spinning = false;
 		} else {
 			target_vel = vector_control_old(M_PI/2, 0, true, 15);
@@ -161,7 +161,7 @@ Velocity Control::vector_control(double target_theta, double velocity, bool enab
 
 bool Control::backwards_select(double theta_error) {
 	bool closest_to_backwards = std::abs(theta_error) > M_PI / 2;
-	//return closest_to_backwards;
+	return closest_to_backwards;
 	bool adjusted_error = closest_to_backwards ? Geometry::wrap(theta_error + M_PI) : theta_error;
 	bool is_spinning_fast = std::abs(pose.velocity.angular) > 30;
 	bool is_spinning_oposite = std::signbit(pose.velocity.angular) != std::signbit(adjusted_error);

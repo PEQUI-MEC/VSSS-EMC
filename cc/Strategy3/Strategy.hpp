@@ -8,9 +8,11 @@
 #include "Ball.hpp"
 #include "vssref_command.pb.h"
 #include "Adversary.hpp"
+#include "Parameters.hpp"
 
 class Strategy {
 	public:
+	Parameters params;
 	virtual void run_strategy(std::vector<Robot3> &team,
 							  std::vector<Adversary> &adversaries,
 							  Ball ball,

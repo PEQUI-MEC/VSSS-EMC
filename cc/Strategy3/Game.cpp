@@ -26,6 +26,7 @@ void Game::set_strategy(Team &team, std::string strategy_name) {
 //	Times sem estratégia não são controlados, não usam a pick-a-tag
 	team.controlled = typeid(*team.strategy) != typeid(*strategies["No Strategy"]);
 	team.using_joystick = typeid(*team.strategy) == typeid(*strategies["Joystick 0"]);
+	team.strategy->params = team.params;
 }
 
 std::optional<std::string> Game::get_strategy_name(Team &team) {

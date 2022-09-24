@@ -5,6 +5,7 @@
 #include "Strategy3.hpp"
 #include "Adversary.hpp"
 #include <vector>
+#include "Parameters.hpp"
 
 enum class RobotColor {
 	Blue, Yellow
@@ -20,6 +21,8 @@ class Team {
 	bool inverted_field = false;
 	bool using_joystick = false;
 	RobotColor robot_color;
+
+	Parameters params;
 
 	Team(int robot_number, int starting_tag, bool inverted_field, RobotColor color) :
 							inverted_field(inverted_field), robot_color(color) {

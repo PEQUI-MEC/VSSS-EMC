@@ -60,9 +60,13 @@ double Strategy3::score_formation(std::array<int, 3> formation, std::vector<Robo
             ref_command.foul() == VSSRef::Foul::PENALTY_KICK) {
 		add_score = 5;
 	}
-    return 0.35 * score_atacker(team[formation[0]], ball)
+	if (is_foul && !is_defending_foul &&
+            ref_command.foul() == VSSRef::Foul::GOAL_KICK) {
+		add_score = 0.1;
+	}
+    return 0.3 * score_atacker(team[formation[0]], ball)
         // - 1.2 * score_goalkeeper(team[formation[0]], ball)
-        + 0.65 * score_goalkeeper(team[formation[1]], ball) * add_score;
+        + 0.7 * score_goalkeeper(team[formation[1]], ball) * add_score;
 //         + 0.5 * (score_goalkeeper(team[formation[1]], ball) * (team[formation[0]].pose.position - team[formation[1]].pose.position).size);
 }
 
@@ -173,11 +177,11 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &
 	}
 
 	if (attacker.has_robot()) {
-		attacker.robot->control.kgz = 0.22;
+		attacker.robot->control.kgz = params.get("kgz", 0.22);
 		attacker.robot->control.is_goalkeeper = false;
 	}
 	if (defender.has_robot()) {
-		defender.robot->control.kgz = 0.22;
+		defender.robot->control.kgz = params.get("kgz", 0.22);
 		defender.robot->control.is_goalkeeper = false;
 	}
 	if (goalkeeper.has_robot()) {

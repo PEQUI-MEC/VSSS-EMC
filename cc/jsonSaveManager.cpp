@@ -45,6 +45,7 @@ void jsonSaveManager::load_params(Team &team, std::string name) {
 }
 
 void jsonSaveManager::load_team(Team &team, std::string name) {
+	team.params.parameter_json = configs[name]["Parameters"];
 	if (!exists(configs, name)) return;
 	json &team_config = configs[name];
 

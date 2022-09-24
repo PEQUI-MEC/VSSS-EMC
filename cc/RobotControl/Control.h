@@ -27,7 +27,7 @@ class Control {
 
 	float kgz = 0.25;
 
-	double position_control_error_weight = 15;
+	double position_control_error_weight = 5;
 	double position_control_orientation_weight = 20;
 
 	bool is_penalty = false;
