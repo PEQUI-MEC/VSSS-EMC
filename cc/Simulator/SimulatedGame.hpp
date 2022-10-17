@@ -13,6 +13,7 @@ class SimulatedGame {
 
     public:
     SimulatedGame(Game& game) : game(game), client(game), placement_config(game, nullptr) {};
+    void process_referee_cmds(bool send_placement);
     bool game_loop();
 };
 
