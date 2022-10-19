@@ -12,6 +12,8 @@ class GoalkeeperStrategy : public RoleStrategy {
 	bool penalty = false;
 	bool has_arrived_penalty = false;
 
+	const double SPIN_THRESHOLD = 0.04;
+
 	// Beahviors
 	void run_strategy(const Ball& balll, const std::vector<Adversary> &adversaries);
 	void defend_penalty(const Ball& ball, const std::vector<Adversary> &adversaries);

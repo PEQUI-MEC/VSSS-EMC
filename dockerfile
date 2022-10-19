@@ -62,7 +62,7 @@ RUN apt-get install -y wget autoconf automake libtool \
         libglu1-mesa-dev libode-dev mesa-utils libgl1-mesa-glx libnvidia-gl-440 protobuf-compiler libprotoc-dev
 
 # EVPP (TCP/UDP library)
-RUN git clone --recurse-submodules https://github.com/thiagohenrique1/evpp.git &&\
+RUN git clone --recurse-submodules -b interface_change https://github.com/thiagohenrique1/evpp.git  &&\
     mkdir ./evpp/build &&\
     cd ./evpp/build &&\
     cmake .. && \
@@ -98,7 +98,7 @@ RUN git clone https://github.com/jpfeltracco/vartypes.git &&\
     rm -rf *
 
 WORKDIR /root/
-RUN git clone -b docker_headless_fix https://github.com/thiagohenrique1/FIRASim.git &&\
+RUN git clone -b docker_headless_fix https://github.com/thiagohenrique1/FIRASim.git  &&\
     mkdir ./FIRASim/build &&\
     cd ./FIRASim/build &&\
     cmake ..  &&\

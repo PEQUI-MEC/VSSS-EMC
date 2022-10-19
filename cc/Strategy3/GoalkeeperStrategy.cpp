@@ -64,7 +64,7 @@ void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Adve
 		ball_goal_projection.y = MIN_GOAL_Y;
 	}
 	Point target{penalty_gk_line_x, ball_goal_projection.y};
-	if (has_arrived_penalty || distance(robot->get_position(), target) < 0.04) {
+	if (has_arrived_penalty || distance(robot->get_position(), target) < SPIN_THRESHOLD) {
 		has_arrived_penalty = true;
 		robot->spin_kick_to_target(ball.position, their::goal::front::center);
 	} else {
@@ -95,12 +95,12 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball, const std::vector<Advers
 		target = ball_goal_projection;
 	}
 
-	if (auto atk = get_attacker(ball, adversaries)) {
-		Vector atk_to_ball = ball.position - *atk;
-		auto distance_atk_ball_projection = dist_x_ball_goal / std::cos(M_PI - atk_to_ball.theta);
-		auto atk_ball_projection = ball.position + atk_to_ball.with_size(distance_atk_ball_projection);
-		target = atk_ball_projection;
-	}
+	// if (auto atk = get_attacker(ball, adversaries)) {
+	// 	Vector atk_to_ball = ball.position - *atk;
+	// 	auto distance_atk_ball_projection = dist_x_ball_goal / std::cos(M_PI - atk_to_ball.theta);
+	// 	auto atk_ball_projection = ball.position + atk_to_ball.with_size(distance_atk_ball_projection);
+	// 	target = atk_ball_projection;
+	// }
 
 	// If ball is fast, go to ball projection instead of atk projection
 	if (fast_ball_to_goal) {
@@ -127,7 +127,7 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball, const std::vector<Advers
 	bool should_spin = (distance(robot->get_position(), tangent) < reach_ball_distance
 							&& distance(robot->get_position(), target) < 0.02
 							&& std::abs(ball_to_robot.angle_to(ball.velocity)) < M_PI/2
-							&& (distance(ball.position, ball.position_in_seconds(0.6)) > distance(ball.position, robot->get_position())))
+							&& (distance(ball.position, ball.position_in_seconds(2.0)) > distance(ball.position, robot->get_position())))
 						|| distance(robot->get_position(), ball.position) < reach_ball_distance;
 	if (should_spin) {
 		robot->spin_kick_to_target(ball.position, their::goal::front::center);

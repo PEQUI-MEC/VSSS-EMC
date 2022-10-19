@@ -307,6 +307,9 @@ void Strategy3::run_strategy(std::vector<Robot3> &team, std::vector<Adversary> &
 	}
 
 	if (goalkeeper.has_robot()) {
+		auto dist = distance(goalkeeper->get_position(), ball.position);
+		// std::cout << dist << std::endl;
+
 		goalkeeper.run_strategy(ball, adversaries);
 
 		auto cmd = goalkeeper->target.command;
