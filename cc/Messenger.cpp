@@ -70,7 +70,7 @@ void Messenger::send_command(char id, Target target) {
 			case Command::UVF:
 				return "U" + rounded_str(target.pose.position.x * 100) + ";" + rounded_str(target.pose.position.y * 100)
 					   + ";" + rounded_str(target.reference.x * 100) + ";" + rounded_str(target.reference.y * 100)
-					   + ";" + rounded_str(0.9) + ";" + rounded_str(target.pose.velocity.linear);
+					   + ";" + rounded_str(1.2) + ";" + rounded_str(target.pose.velocity.linear);
 			case Command::Orientation:
 				return "O" + rounded_str(target.pose.orientation * 180/M_PI)
 							 + ";" + rounded_str(target.pose.velocity.linear);

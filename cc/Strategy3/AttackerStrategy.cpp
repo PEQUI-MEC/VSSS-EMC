@@ -36,9 +36,11 @@ void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 	Vector pred_to_goal = goal - target;
 	Vector robot_to_ball = ball.position - robot->get_position();
 
-	auto can_run_to_goal = robot_to_ball.angle_to(ball_to_upper) > 0 &&
-							robot_to_ball.angle_to(ball_to_lower) < 0;
+	auto can_run_to_goal = robot_to_ball.angle_to(ball_to_upper) > degree_to_rad(-5) &&
+							robot_to_ball.angle_to(ball_to_lower) < degree_to_rad(5);
 
+	// bool use_ball_vel = std::abs(wrap(ball.velocity.theta - M_PI/2)) < 15;
+	bool use_ball_vel = std::abs(ball.velocity.size) > 0.02;
 
 	double orientation_error = std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 //	double orientation_error_backwards = std::abs(wrap(robot_to_ball.theta - (ball_to_goal.theta + M_PI)));
@@ -49,9 +51,18 @@ void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 		return orientation_error > degree_to_rad(theta);
 	};
 
+	bool in_dir_of_goal = std::abs(ball.velocity.theta) < degree_to_rad(90) && std::abs(ball.velocity.size) > 0.05;
+	// bool in_dir_of_goal = std::abs(ball.velocity.theta) < degree_to_rad(90);
+	auto oposite_ball_vel = Vector{1, wrap(ball.velocity.theta + M_PI)};
+	auto target_dir = in_dir_of_goal ? ball.velocity : oposite_ball_vel;
+	// auto target_dir = ball_to_goal;
+	// robot->target.n = in_dir_of_goal ? 1.7 : 1.7;
+
+	target_dir = use_ball_vel ? target_dir : ball_to_goal;
+
 	switch (uvf_state) {
 		case UvfState::seek_ball:
-			if (can_run_to_goal && (robot_to_ball.size < 0.13)) {
+			if (can_run_to_goal) {
 				uvf_state = UvfState::close_to_ball;
                 uvf_run_direction = robot_to_ball;
 			}
@@ -70,7 +81,7 @@ void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 
 	switch (uvf_state) {
 		case UvfState::seek_ball:
-			robot->go_to_pose(target, ball_to_goal);
+			robot->go_to_pose(ball.position, target_dir);
 			break;
 		case UvfState::close_to_ball:
 			robot->go_to(ball.position);
