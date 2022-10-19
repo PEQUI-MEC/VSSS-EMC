@@ -125,9 +125,9 @@ void GoalkeeperStrategy::protect_goal(const Ball& ball, const std::vector<Advers
 	// std::abs(ball.velocity.theta) > M_PI/2
 	auto ball_to_robot = robot->get_position() - ball.position;
 	bool should_spin = (distance(robot->get_position(), tangent) < reach_ball_distance
-							&& distance(robot->get_position(), target) < 0.02
+							&& distance(robot->get_position(), target) < 0.03
 							&& std::abs(ball_to_robot.angle_to(ball.velocity)) < M_PI/2
-							&& (distance(ball.position, ball.position_in_seconds(2.0)) > distance(ball.position, robot->get_position())))
+							&& (distance(ball.position, ball.position_in_seconds(1.0)) > distance(ball.position, robot->get_position())))
 						|| distance(robot->get_position(), ball.position) < reach_ball_distance;
 	if (should_spin) {
 		robot->spin_kick_to_target(ball.position, their::goal::front::center);
