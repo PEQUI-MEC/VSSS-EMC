@@ -20,7 +20,7 @@ class Control {
 	Wheel right{};
 
 	double uvf_ref_distance = 0.1;
-	double uvf_n = 1.7;
+	double uvf_n = 1.9;
 	double robot_size;
 
 	bool spinning = false;
