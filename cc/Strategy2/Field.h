@@ -23,7 +23,7 @@ namespace field {
 	const double free_ball_height = 0.25; // distância entre a lateral do campo em y e o ponto de falta
 	const double gk_line_x = 0.17;
 	const double penalty_gk_line_x = 0.17 - 0.025;
-	const double reach_ball_distance = (0.08 * std::sqrt(2))/2 + 0.04/2;
+	const double reach_ball_distance = (0.08 * std::sqrt(2))/2 + 0.045/2;
 	// -----------------------------------------------------------------------------------------------------------------
 
 	// Enumera todas as localizações do campo de interesse

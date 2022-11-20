@@ -51,8 +51,8 @@ std::optional<Geometry::Point> get_attacker(const Ball &ball, const std::vector<
 }
 
 void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Adversary> &adversaries) {
-	auto atk = get_attacker_on_penalty(ball, adversaries);
-	auto kick_dir = ball.position - atk;
+	// auto atk = get_attacker_on_penalty(ball, adversaries);
+	auto kick_dir = ball.velocity;
 	auto dist_x_ball_goal = std::abs(ball.position.x - gk_line_x);
 	auto distance_ball_projection = dist_x_ball_goal / std::cos(M_PI - kick_dir.theta);
 	auto ball_goal_projection = ball.position + kick_dir.with_size(distance_ball_projection);
@@ -64,7 +64,7 @@ void GoalkeeperStrategy::defend_penalty(const Ball& ball, const std::vector<Adve
 		ball_goal_projection.y = MIN_GOAL_Y;
 	}
 	Point target{penalty_gk_line_x, ball_goal_projection.y};
-	if (has_arrived_penalty || distance(robot->get_position(), target) < 0.04) {
+	if (has_arrived_penalty || (distance(robot->get_position(), target) < 0.04 && std::abs(ball.velocity.size) > 0.01)) {
 		has_arrived_penalty = true;
 		robot->spin_kick_to_target(ball.position, their::goal::front::center);
 	} else {
