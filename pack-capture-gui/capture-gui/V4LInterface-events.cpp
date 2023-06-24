@@ -506,7 +506,7 @@ void V4LInterface::event_start_game_bt_signal_clicked() {
 		visionGUI.en_video_name.set_state(Gtk::STATE_INSENSITIVE);
 
 	} else {
-		if (controlGUI.messenger.has_xbee())
+		if (controlGUI.messenger.has_serial())
 			controlGUI.test_start_bt.set_state(Gtk::STATE_NORMAL);
 
 		record_video_checkbox.set_sensitive(true);

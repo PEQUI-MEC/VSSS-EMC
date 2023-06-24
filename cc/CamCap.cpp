@@ -219,9 +219,6 @@ bool CamCap::capture_and_show() {
 		interface.imageView.refresh();
 	}
 
-	if (interface.controlGUI.messenger.measuring_acks)
-		interface.controlGUI.update_dropped_frames();
-
 	// ----------- ESTRATEGIA -----------------//
 	if (game.playing_game) {
 //		strategyGUI.strategy.get_uvf_targets( interface.robot_list );

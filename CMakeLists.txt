@@ -58,7 +58,6 @@ set(SOURCE_FILES cc/main.cpp
     cc/filechooser.cpp
     cc/CamCap.cpp
     cc/StrategyGUI.cpp
-    cc/Xbee.cpp
     cc/Messenger.cpp
     cc/jsonSaveManager.cpp
     cc/TestFrame.cpp
@@ -103,7 +102,8 @@ set(SOURCE_FILES cc/main.cpp
     cc/vision/Tags.hpp
     cc/GUI/XbeeSelectGUI.cpp cc/GUI/XbeeSelectGUI.hpp
     cc/lib/joystick/joystick.hh cc/lib/joystick/joystick.cc
-    cc/JoystickStrategy.cpp cc/JoystickStrategy.hpp)
+    cc/JoystickStrategy.cpp cc/JoystickStrategy.hpp
+    cc/Esp32Serial.cpp cc/Esp32Serial.hpp)
 
 #Define diretorios com .h e .hpp. Novos diretorios devem ser inclusos aqui
 include_directories(cc/

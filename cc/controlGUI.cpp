@@ -135,7 +135,7 @@ void ControlGUI::_create_status_frame() {
 
 void ControlGUI::update_ack_interface() {
 	bool is_active = radio_acks_chbt.get_active();
-	messenger.set_ack_enabled(is_active);
+	// messenger.set_ack_enabled(is_active);
 	if (is_active) {
 		for (Gtk::Label &label : dropped_frames) {
 			label.show();
@@ -157,19 +157,19 @@ void ControlGUI::ekf_always_send_enable() {
 void ControlGUI::update_dropped_frames() {
 	for (int i = 0; i < TOTAL_ROBOTS; ++i) {
 		char id = get_robot_id(i);
-		ack_count ack = messenger.get_ack_count(id);
-		if (ack.total == -1) return;
+		// ack_count ack = messenger.get_ack_count(id);
+		// if (ack.total == -1) return;
 
-		std::stringstream stream;
-		stream << "Lost ACKs: ";
-		stream << std::fixed << std::setprecision(2) << ack.lost_rate << "%";
-		stream << ", Total: " << ack.total;
-		dropped_frames[i].set_text(stream.str());
+		// std::stringstream stream;
+		// stream << "Lost ACKs: ";
+		// stream << std::fixed << std::setprecision(2) << ack.lost_rate << "%";
+		// stream << ", Total: " << ack.total;
+		// dropped_frames[i].set_text(stream.str());
 	}
 }
 
 void ControlGUI::reset_lost_acks() {
-	messenger.reset_lost_acks();
+	// messenger.reset_lost_acks();
 	update_dropped_frames();
 }
 
@@ -430,7 +430,7 @@ void ControlGUI::_create_commands_frame() {
 }
 
 void ControlGUI::adjust_widgets_state() {
-	if (messenger.has_xbee()) {
+	if (messenger.has_serial()) {
 		//Commands Frame
 		commands_L_hsc.set_state(Gtk::STATE_NORMAL);
 		commands_R_hsc.set_state(Gtk::STATE_NORMAL);
