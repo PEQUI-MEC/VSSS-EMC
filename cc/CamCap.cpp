@@ -198,6 +198,10 @@ bool CamCap::capture_and_show() {
 													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
 
+	// replace visionImage with a file read from the disk
+	Cv::Mat image = cv::imread("test.png");
+	image.copyTo(visionImage);
+
 	auto tags = interface.visionGUI.vision->run(visionImage, game.yellow_team().controlled,
 												game.blue_team().controlled);
 
