@@ -2,6 +2,7 @@
 #define ESP32SERIAL_HPP
 
 #include <string>
+#include <vector>
 
 class Esp32Serial {
     public:
