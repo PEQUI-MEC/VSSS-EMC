@@ -58,10 +58,17 @@ Esp32Serial::Esp32Serial(const std::string &port, int baud) {
         printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
         return;
     }
+
+    // receive_thread
+    receive_thread = std::thread(&Esp32Serial::receive_msgs_thread, this);
 }
 
 Esp32Serial::~Esp32Serial() {
-
+    if (serial_port > 0) {
+        close(serial_port);
+    }
+    stop_receive_thread = true;
+    receive_thread.join();
 }
 
 void Esp32Serial::add_robot_mac(const char ID, const std::string& mac) {
@@ -83,9 +90,50 @@ void Esp32Serial::send_msg(const char ID, const std::string& msg) {
 }
 
 std::string Esp32Serial::send_get_answer(const char ID, const std::string& msg) {
-    return std::string();
+    if (serial_port < 0) {
+        return "";
+    }
+    received_messages.clear();
+    std::string full_msg = std::string(1, ID) + '@' + msg;
+    write(serial_port, full_msg.c_str(), full_msg.length());
+    usleep(100000);
+    for (auto msg : received_messages) {
+        if (msg[0] == ID) {
+            return msg;
+        }
+    }
+    received_messages.clear();
+    return "";
 }
 
-std::string Esp32Serial::receive_msgs_thread() {
-    
+void Esp32Serial::receive_msgs_thread() {
+    std::string line;
+    while (!stop_receive_thread) {
+        if (serial_port < 0) {
+            usleep(1000000);
+            continue;
+        }
+        char read_buf[256];
+        int num_bytes = read(serial_port, read_buf, 255);
+        if (num_bytes > 0) {
+            for (int i = 0; i < num_bytes; i++) {
+                if (read_buf[i] == '\n') {
+                    // check if message follows the format: <ID>@<msg>
+                    // if first value is a upper case letter and second is @
+                    if (line.length() >= 2 && line[0] >= 'A' && line[0] <= 'Z' && line[1] == '@') {
+                        received_messages.push_back(line);
+                    }
+                    line.clear();
+                } else {
+                    line += read_buf[i];
+                }
+            }
+        }
+        for (auto msg : received_messages) {
+            std::cout << msg << std::endl;
+        }
+        received_messages.clear();
+        // sleep for 100ms
+        usleep(100000);
+    }
 }

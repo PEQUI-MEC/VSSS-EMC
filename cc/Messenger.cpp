@@ -4,7 +4,7 @@ using std::string;
 using std::vector;
 
 void Messenger::start_xbee(const string &port, int baud) {
-	esp32 = std::make_optional<Esp32Serial>(port, baud);
+	esp32.emplace(port, baud);
 }
 
 void Messenger::stop_xbee(const string &port) {
