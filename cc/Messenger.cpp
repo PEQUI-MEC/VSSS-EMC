@@ -27,43 +27,54 @@ void Messenger::send_old_format(string cmd) {
 
 void Messenger::send_commands(const std::vector<Robot3> &robots) {
 	if (esp32.has_value() || ++send_cmd_count <= frameskip) return;
+	std::string all_msgs;
 	for (const Robot3& robot : robots) {
-		if (robot.role != Role::None)
-			send_command(robot.ID, robot.target);
+		if (robot.role != Role::None) {
+			std::string msg = command_to_msg(robot.target);
+			if (!msg.empty()) {
+				if (!all_msgs.empty()) all_msgs += ',';
+				all_msgs += std::string(1, robot.ID) + '@' + msg;
+			}
+		}
+	}
+	if (!all_msgs.empty()) {
+		esp32->send_string_msg(all_msgs);
 	}
 	update_msg_time();
 	send_cmd_count = 0;
 }
 
 constexpr float robot_size = 0.0675f;
+std::string Messenger::command_to_msg(Target target) {
+	switch (target.command) {
+		case Command::Position:
+			return "P" + rounded_str(target.pose.position.x * 100)
+							+ ";" + rounded_str(target.pose.position.y * 100)
+									+ ";" + rounded_str(target.pose.velocity.linear);
+		case Command::Velocity: // tratar casos em que velocity.linear != 0
+			return "W" + rounded_str(target.pose.velocity.angular*robot_size/2)
+					+ ";" + rounded_str(-target.pose.velocity.angular*robot_size/2);
+		case Command::Vector:
+			return ("V" + rounded_str(target.pose.orientation * 180.0f/M_PI)
+							+ ";" + rounded_str(target.pose.velocity.linear));
+		case Command::UVF:
+			return "U" + rounded_str(target.pose.position.x * 100) + ";" + rounded_str(target.pose.position.y * 100)
+					+ ";" + rounded_str(target.reference.x * 100) + ";" + rounded_str(target.reference.y * 100)
+					+ ";" + rounded_str(1.2) + ";" + rounded_str(target.pose.velocity.linear);
+		case Command::Orientation:
+			return "O" + rounded_str(target.pose.orientation * 180/M_PI)
+							+ ";" + rounded_str(target.pose.velocity.linear);
+		case Command::WheelVelocity:
+			return "W" + rounded_str(target.pose.wheel_velocity.left)
+					+ ";" + rounded_str(target.pose.wheel_velocity.right);
+		default:
+			return string();
+	}
+}
+
 void Messenger::send_command(char id, Target target) {
 	if(!esp32.has_value()) return;
-	const string msg = [&] {
-		switch (target.command) {
-			case Command::Position:
-				return "P" + rounded_str(target.pose.position.x * 100)
-							 + ";" + rounded_str(target.pose.position.y * 100)
-									 + ";" + rounded_str(target.pose.velocity.linear);
-			case Command::Velocity: // tratar casos em que velocity.linear != 0
-				return rounded_str(target.pose.velocity.angular*robot_size/2)
-					   + ";" + rounded_str(-target.pose.velocity.angular*robot_size/2);
-			case Command::Vector:
-				return ("V" + rounded_str(target.pose.orientation * 180.0f/M_PI)
-							  + ";" + rounded_str(target.pose.velocity.linear));
-			case Command::UVF:
-				return "U" + rounded_str(target.pose.position.x * 100) + ";" + rounded_str(target.pose.position.y * 100)
-					   + ";" + rounded_str(target.reference.x * 100) + ";" + rounded_str(target.reference.y * 100)
-					   + ";" + rounded_str(1.2) + ";" + rounded_str(target.pose.velocity.linear);
-			case Command::Orientation:
-				return "O" + rounded_str(target.pose.orientation * 180/M_PI)
-							 + ";" + rounded_str(target.pose.velocity.linear);
-			case Command::WheelVelocity:
-				return rounded_str(target.pose.wheel_velocity.right)
-					   + ";" + rounded_str(target.pose.wheel_velocity.left);
-			default:
-				return string();
-		}
-	}();
+	const string msg = command_to_msg(target);
 	if (!msg.empty()) {
 		esp32->send_msg(id, msg);
 //		if(id == 'A') std::cout << msg << std::endl;

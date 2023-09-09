@@ -24,16 +24,18 @@ class Messenger {
 		int frameskip, send_cmd_count;
 		std::chrono::system_clock::time_point previous_msg_time;
 
-		std::string rounded_str(double num);
-
 	public:
 //		std::ofstream ekf_data_file;
 		Messenger();
 		Messenger(const Messenger&) = delete; // Não permite fazer cópias do objeto Messenger
 		Messenger& operator=(const Messenger&) = delete;
+		std::string command_to_msg(Target target);
 		void send_commands(const std::vector<Robot3> &robots);
 		void send_command(char id, Target target);
 		void send_ekf_data(const Robot3 &robot);
+
+
+		std::string rounded_str(double num);
 
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);

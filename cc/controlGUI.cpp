@@ -69,7 +69,8 @@ void ControlGUI::_robot_status() {
 
 void ControlGUI::_send_test() {
 	int pos = commands_robots_cb.get_active_row_number();
-	std::string cmd = std::to_string(commands_L_hsc.get_value()) + ";" + std::to_string(commands_R_hsc.get_value());
+	std::string cmd = "W" + messenger.rounded_str((commands_L_hsc.get_value()))
+		 + ";" + messenger.rounded_str(commands_R_hsc.get_value());
 
 	if (pos == -1) {
 		return;
