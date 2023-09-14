@@ -190,7 +190,7 @@ void VisionGUI::__create_frm_cielab() {
 
 	bt_CIELAB_left.set_label(" < ");
 	grid->attach(bt_CIELAB_left, 2, 0, 1, 1);
-	CIELAB_label.set_text("Main");
+	CIELAB_label.set_text(vision::Vision::Color_Name[Img_id]);
 	grid->attach(CIELAB_label, 3, 0, 1, 1);
 	bt_CIELAB_right.set_label(" > ");
 	grid->attach(bt_CIELAB_right, 4, 0, 1, 1);
@@ -471,7 +471,7 @@ void VisionGUI::selectFrame(int sector) {
 			break;
 
 		case 1:
-			Img_id = 3;
+			Img_id = vision::Color::Blue;
 			rb_original_view.set_active(true);
 			__event_rb_split_mode_clicked();
 			__event_bt_right_CIELAB_clicked();
@@ -481,7 +481,7 @@ void VisionGUI::selectFrame(int sector) {
 			}
 			break;
 		case 2:
-			Img_id = 0;
+			Img_id = vision::Color::Yellow;
 			rb_original_view.set_active(true);
 			__event_rb_split_mode_clicked();
 			__event_bt_right_CIELAB_clicked();
@@ -491,7 +491,7 @@ void VisionGUI::selectFrame(int sector) {
 			}
 			break;
 		case 3:
-			Img_id = 1;
+			Img_id = vision::Color::Green;
 			rb_original_view.set_active(true);
 			__event_rb_split_mode_clicked();
 			__event_bt_right_CIELAB_clicked();
@@ -507,7 +507,7 @@ void VisionGUI::selectFrame(int sector) {
 
 void VisionGUI::__event_bt_right_CIELAB_clicked() {
 
-	if (Img_id == 3)
+	if (Img_id == vision::Vision::MAX_COLORS - 1)
 		Img_id = 0;
 	else
 		Img_id++;
@@ -528,27 +528,13 @@ void VisionGUI::__event_bt_right_CIELAB_clicked() {
 	HScale_Blur.set_value(vision->getBlur(Img_id));
 	HScale_Amin.set_value(vision->getAmin(Img_id));
 
-	switch (Img_id) {
-		case 0:
-			CIELAB_label.set_text("Main");
-			break;
-		case 1:
-			CIELAB_label.set_text("Green");
-			break;
-		case 2:
-			CIELAB_label.set_text("Ball");
-			break;
-		case 3:
-			CIELAB_label.set_text("Opp.");
-			break;
-		default:break;
-	}
+	CIELAB_label.set_text(vision::Vision::Color_Name[Img_id]);
 }
 
 void VisionGUI::__event_bt_left_CIELAB_clicked() {
 
 	if (Img_id == 0)
-		Img_id = 3;
+		Img_id = vision::Vision::MAX_COLORS - 1;
 	else
 		Img_id--;
 
@@ -568,21 +554,7 @@ void VisionGUI::__event_bt_left_CIELAB_clicked() {
 	HScale_Blur.set_value(vision->getBlur(Img_id));
 	HScale_Amin.set_value(vision->getAmin(Img_id));
 
-	switch (Img_id) {
-		case 0:
-			CIELAB_label.set_text("Main");
-			break;
-		case 1:
-			CIELAB_label.set_text("Green");
-			break;
-		case 2:
-			CIELAB_label.set_text("Ball");
-			break;
-		case 3:
-			CIELAB_label.set_text("Opp.");
-			break;
-		default:break;
-	}
+	CIELAB_label.set_text(vision::Vision::Color_Name[Img_id]);
 }
 
 void VisionGUI::event_draw_info_checkbox_signal_clicked() {

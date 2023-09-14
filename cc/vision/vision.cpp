@@ -4,6 +4,16 @@
 
 using namespace vision;
 
+const char * const Vision::Color_Name[] = {
+	"Yellow",
+	"Red",
+	"Green",
+	"Cyan",
+	"Magenta",
+	"Ball",
+	"Blue"
+};
+
 Tags Vision::run(cv::Mat raw_frame, bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 	in_frame = raw_frame.clone();
 
@@ -104,6 +114,7 @@ std::vector<Tag> Vision::tags_without_orientation(Color color) {
 std::vector<Tag> Vision::pick_a_tag(Color color) {
 	std::vector<Tag> found_tags(3); // 3 robôs, por enquanto
 	for (auto& main_tag : tags.at(color)) {
+
 		cv::Point position = main_tag.position;
 //		Tags secundarias do mesmo robô
 		std::vector<Tag> secondary_tags;
@@ -505,14 +516,21 @@ Vision::Vision(int w, int h)
 		width(w),
 		height(h),
 		threshold_frame(MAX_COLORS),
-		tags(MAX_COLORS),
-		cieL{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
-		cieA{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
-		cieB{{0, 255}, {0, 255}, {0, 255}, {0, 255}},
-		dilate{0, 0, 0, 0},
-		erode{0, 0, 0, 0},
-		blur{3, 3, 3, 3},
-		areaMin{50, 20, 30, 30} {
+		tags(MAX_COLORS)
+{
+		for( unsigned int i = 0; i < MAX_COLORS; i++ )
+		{
+			cieL[i][0] = 0;
+			cieL[i][1] = 255;
+			cieA[i][0] = 0;
+			cieA[i][1] = 255;
+			cieB[i][0] = 0;
+			cieB[i][1] = 255;
+			dilate[i] = 0;
+			erode[i] = 0;
+			blur[i] = 3;
+			areaMin[i] = 30; //Valores antigos: Yellow=50, Green=20, Ball=30, Blue=30
+		}
 }
 
 Vision::~Vision() = default;

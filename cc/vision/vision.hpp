@@ -23,7 +23,10 @@ namespace vision {
 	// Todas as cores que serão encontradas pela visão:
 	enum Color {
 		Yellow,
+		Red,
 		Green,
+		Cyan,
+		Magenta,
 		Ball,
 		Blue
 	};
@@ -38,6 +41,8 @@ namespace vision {
 
 	class Vision {
 	public:
+		// Precisa ser static se não a gtk reclama. Atribuição está no arquivo cpp
+		static const char * const Color_Name[];
 
 		static const unsigned int MAX_COLORS = Color::Blue - Color::Yellow + 1;
 //		Numero da tag é definido pela sua posicao no std::array retornado
