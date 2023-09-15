@@ -21,14 +21,16 @@
 
 namespace vision {
 	// Todas as cores que serão encontradas pela visão:
+	// Qualquer alteração nesse enum precisa ser refletido na variável Color_Name no arquivo cpp.
 	enum Color {
 		Yellow,
+		Blue,
 		Red,
 		Green,
 		Cyan,
 		Magenta,
 		Ball,
-		Blue
+		ENUM_COLOR_LAST_ENTRY // Usado para descobrir a quantidade de elementos do enum
 	};
 
 	// Limites Min e Max dos tresholds:
@@ -41,11 +43,8 @@ namespace vision {
 
 	class Vision {
 	public:
-		// Precisa ser static se não a gtk reclama. Atribuição está no arquivo cpp
-		static const char * const Color_Name[];
-
-		static const unsigned int MAX_COLORS = Color::Blue - Color::Yellow + 1;
-//		Numero da tag é definido pela sua posicao no std::array retornado
+		static const char * const Color_Name[]; // Atribuição está no arquivo cpp
+		static const unsigned int MAX_COLORS = Color::ENUM_COLOR_LAST_ENTRY;
 
 	private:
 

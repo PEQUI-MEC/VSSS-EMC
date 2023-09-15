@@ -4,14 +4,16 @@
 
 using namespace vision;
 
+// Todas as cores que serão encontradas pela visão:
+// Qualquer alteração nessa variável precisa ser refletida no enum Color no arquivo hpp.
 const char * const Vision::Color_Name[] = {
 	"Yellow",
+	"Blue",
 	"Red",
 	"Green",
 	"Cyan",
 	"Magenta",
-	"Ball",
-	"Blue"
+	"Ball"
 };
 
 Tags Vision::run(cv::Mat raw_frame, bool yellow_pick_at_tag, bool blue_pick_at_tag) {
