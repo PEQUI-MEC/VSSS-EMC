@@ -100,21 +100,24 @@ void Vision::searchTags(const unsigned long color) {
 	}
 }
 
-std::vector<Tag> Vision::tags_without_orientation(Color color) {
-	auto tags_sorted_by_area = tags.at(color);
-	std::sort(tags_sorted_by_area.begin(), tags_sorted_by_area.end(), [](Tag& tag1, Tag& tag2) {
-		return tag1.area > tag2.area;
-	});
-//	Limita a 3 tags
-	if (tags_sorted_by_area.size() <= 3)  {
-		return tags_sorted_by_area;
-	} else {
-		return {tags_sorted_by_area.begin(), tags_sorted_by_area.begin() + 3};
-	}
+// Retorna o id da tag de acordo com as
+// Regras IEEE Very Small Size Soccer (VSSS) - Série A; Anexo 1 - Padrão de Cores
+int Vision::get_tag_id(Color left, Color right) {
+	if ( left == Color::Red     && right == Color::Green )   return 0;
+	if ( left == Color::Red     && right == Color::Cyan )    return 1;
+	if ( left == Color::Green   && right == Color::Red )     return 2;
+	if ( left == Color::Green   && right == Color::Cyan )    return 3;
+	if ( left == Color::Green   && right == Color::Magenta ) return 4;
+	if ( left == Color::Cyan    && right == Color::Red )     return 5;
+	if ( left == Color::Cyan    && right == Color::Green )   return 6;
+	if ( left == Color::Cyan    && right == Color::Magenta ) return 7;
+	if ( left == Color::Magenta && right == Color::Green )   return 8;
+	if ( left == Color::Magenta && right == Color::Cyan )    return 9;
+	return -1;
 }
 
 std::vector<Tag> Vision::pick_a_tag(Color color) {
-	std::vector<Tag> found_tags(3); // 3 robôs, por enquanto
+	std::vector<Tag> found_tags;
 	for (auto& main_tag : tags.at(color)) {
 
 		cv::Point position = main_tag.position;
@@ -125,46 +128,63 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 		main_tag.orientation = atan2((main_tag.front_point.y - position.y) * field::field_height / height,
 									 (main_tag.front_point.x - position.x) * field::field_width / width);
 
-		// Para cada tag principal, verifica quais são as secundárias correspondentes
-		for (Tag &secondary_tag : tags.at(Color::Green)) {
-			// Altera a orientação caso esteja invertida
-			int tag_side = in_sphere(secondary_tag.position, main_tag);
-			if (tag_side != 0) {
-				secondary_tag.left = tag_side > 0;
-				secondary_tags.push_back(secondary_tag);
+		// Para cada tag principal, verifica quais são as tags de cores secundárias correspondentes.
+		const Color Secondary_Colors[] = { Color::Red, Color::Green, Color::Cyan, Color::Magenta };
+		for (Color secondary_color : Secondary_Colors) {
+			for (Tag &secondary_tag : tags.at(secondary_color)) {
+				// Confere se a tag pertence ao robô.
+				// Calcula a orientação do robô.
+				// Altera a orientação caso esteja invertida.
+				// Retorna 1 para tag secundária à esquerda, -1 para direita e 0 caso não faz parte do robô.
+				int tag_side = in_sphere(secondary_tag.position, main_tag);
+				if (tag_side != 0) {
+						secondary_tag.left = tag_side > 0;
+						secondary_tag.color = secondary_color;
+						secondary_tags.push_back(secondary_tag);
+				}
 			}
 		}
 
-		if (secondary_tags.size() > 1) {
-			// tag 3 tem duas tags secundárias
-			found_tags[2] = main_tag;
-		} else if (!secondary_tags.empty()) {
-			if (secondary_tags[0].left) {
-				found_tags[0] = main_tag;
-			} else {
-				found_tags[1] = main_tag;
+		if (secondary_tags.size() == 2) {
+			// Ajusta o centro do robô.
+			// O centro da main_tag é o centro da cor principal, desse modo é necessário
+			// mover o centro em direção às tags secundárias.
+			cv::Point center_correction = secondary_tags[0].position/4 + secondary_tags[1].position/4 - main_tag.position/2;
+			main_tag.position += center_correction;
+			main_tag.front_point += center_correction;
+			main_tag.rear_point += center_correction;
+
+			// Coloca a tag à esquerda na primeira posição do array.
+			if (!secondary_tags[0].left) {
+				std::swap(secondary_tags[0], secondary_tags[1]);
+			}
+
+			main_tag.id = get_tag_id((Color) secondary_tags[0].color, (Color) secondary_tags[1].color);
+			if (main_tag.id >= 0) {
+				found_tags.push_back(main_tag);
 			}
 		}
 	}
-	return found_tags;
+
+	// Ordena as tags de acordo com o seu id.
+	std::sort(found_tags.begin(), found_tags.end(), [](Tag& tag1, Tag& tag2) {return tag1.id < tag2.id;});
+
+	// Limita a 3 tags.
+	if (found_tags.size() <= 3)  {
+		return found_tags;
+	} else {
+		return {found_tags.begin(), found_tags.begin() + 3};
+	}
 }
 
 Tags Vision::find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 	Tags found_tags;
 
 	found_tags.yellow_has_orientation = yellow_pick_at_tag;
-	if (yellow_pick_at_tag) {
-		found_tags.yellow = pick_a_tag(Color::Yellow);
-	} else {
-		found_tags.yellow = tags_without_orientation(Color::Yellow);
-	}
+	found_tags.yellow = pick_a_tag(Color::Yellow);
 
 	found_tags.blue_has_orientation = blue_pick_at_tag;
-	if (blue_pick_at_tag) {
-		found_tags.blue = pick_a_tag(Color::Blue);
-	} else {
-		found_tags.blue = tags_without_orientation(Color::Blue);
-	}
+	found_tags.blue = pick_a_tag(Color::Blue);
 
 	// BALL POSITION
 	if (!tags[Color::Ball].empty()) {

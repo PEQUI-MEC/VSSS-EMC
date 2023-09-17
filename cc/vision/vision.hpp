@@ -79,6 +79,7 @@ namespace vision {
 		void segmentAndSearch(unsigned long color);
 		void searchTags(unsigned long color);
 		void findTags();
+		int get_tag_id(Color left, Color right);
 		std::vector<Tag> tags_without_orientation(Color color);
 		std::vector<Tag> pick_a_tag(Color color);
 		Tags find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag);

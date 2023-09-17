@@ -6,8 +6,10 @@ Tag::Tag(cv::Point pos, double myarea) : position(std::move(pos)), front_point(0
 }
 
 void Tag::setLine(cv::Vec4f myLine) {
-	float vx = myLine[0];
-	float vy = myLine[1];
+	// Linha rotacionada em 90 graus
+	float vx = myLine[1];
+	float vy = -myLine[0];
+
 	float x = myLine[2];
 	float y = myLine[3];
 	Tag::front_point = cv::Point((int) (x + vx * ROBOT_RADIUS), (int) (y + vy * ROBOT_RADIUS));
