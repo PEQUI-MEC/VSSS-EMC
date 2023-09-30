@@ -26,7 +26,7 @@ void Messenger::send_old_format(string cmd) {
 }
 
 void Messenger::send_commands(const std::vector<Robot3> &robots) {
-	if (esp32.has_value() || ++send_cmd_count <= frameskip) return;
+	if (!esp32.has_value()) return;
 	std::string all_msgs;
 	for (const Robot3& robot : robots) {
 		if (robot.role != Role::None) {
@@ -41,7 +41,6 @@ void Messenger::send_commands(const std::vector<Robot3> &robots) {
 		esp32->send_string_msg(all_msgs);
 	}
 	update_msg_time();
-	send_cmd_count = 0;
 }
 
 constexpr float robot_size = 0.0675f;
