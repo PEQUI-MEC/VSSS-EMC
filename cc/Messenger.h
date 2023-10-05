@@ -39,7 +39,6 @@ class Messenger {
 
 		void send_msg(char id, std::string msg);
 		void send_old_format(std::string cmd);
-		double get_battery(char id);
 		void start_xbee(const std::string &port, int baud = 115200);
 		void stop_xbee(const std::string &port);
 		void update_msg_time();
@@ -48,6 +47,7 @@ class Messenger {
 		double get_time() { return time_between_msgs; }
 		bool using_port(const std::string& port) { return esp32.has_value() && esp32->port == port; }
 		bool has_serial() { return esp32.has_value(); }
+		std::unordered_map<char, float> read_batteries();
 };
 
 #endif //VSSS_MESSENGER_H

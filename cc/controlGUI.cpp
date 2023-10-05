@@ -51,12 +51,14 @@ void ControlGUI::_robot_status() {
 	dateString.append(std::string(ctime(&tt)).substr(0, 24));
 	lastUpdate_lb.set_text(dateString);
 
+	auto batteries = messenger.read_batteries();
+
 	// update robot status
 	for (int i = 0; i < TOTAL_ROBOTS; ++i) {
 		char id = get_robot_id(i);
-		double voltage = messenger.get_battery(id);
-		double battery = ((voltage - 6.4) / 2.0) * 100;
-		if (voltage != -1) {
+		if (batteries.find(id) != batteries.end()) {
+			double voltage = batteries[id];
+			double battery = (voltage - 6.4) / (8.4 - 6.4) * 100.0;
 			updateInterfaceStatus(battery, voltage, i);
 		} else {
 			status_img[i].set("img/offline.png");

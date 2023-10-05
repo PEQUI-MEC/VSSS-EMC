@@ -89,13 +89,6 @@ void Messenger::send_ekf_data(const Robot3 &robot) {
 //	if(robot.get_ID() == 'A') std::cout << msg << std::endl;
 }
 
-double Messenger::get_battery(char id) {
-	if (!esp32.has_value()) return -1;
-	string msg = esp32->send_get_answer(id, "B");
-	if (msg.empty() || msg[0] != 'B') return -1;
-	else return stod(msg.substr(1));
-}
-
 string Messenger::rounded_str(double num) {
 	double rounded_num = round(num * 100) / 100;
 	std::ostringstream ss;
@@ -108,6 +101,17 @@ void Messenger::update_msg_time() {
 	std::chrono::duration<double, std::milli> time_diff = now - previous_msg_time;
 	time_between_msgs = time_diff.count();
 	previous_msg_time = now;
+}
+
+std::unordered_map<char, float> Messenger::read_batteries() {
+	// from A to D
+	if (!esp32.has_value()) return {};
+	esp32->batteries.clear();
+	for (char id = 'A'; id <= 'D'; id++) {
+		esp32->send_msg(id, "B");
+	}
+	usleep(200000);
+	return esp32->batteries;
 }
 
 Messenger::Messenger()

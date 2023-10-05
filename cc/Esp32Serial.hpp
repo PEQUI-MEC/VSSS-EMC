@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <queue>
+#include <unordered_map>
 
 class Esp32Serial {
     public:
@@ -14,6 +16,11 @@ class Esp32Serial {
 
     bool stop_receive_thread = false;
     std::thread receive_thread;
+    std::thread send_thread;
+
+    std::unordered_map<char, float> batteries;
+
+    std::queue<std::string> serial_queue;
     
     Esp32Serial(const std::string &port, int baud);
     ~Esp32Serial();
@@ -22,6 +29,7 @@ class Esp32Serial {
     void send_msg(const char ID, const std::string& msg);
     std::string send_get_answer(const char ID, const std::string& msg);
     void receive_msgs_thread();
+    void send_msg_thread();
 };
 
 #endif // ESP32SERIAL_HPP

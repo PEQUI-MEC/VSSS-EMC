@@ -121,7 +121,11 @@ void Esp32Serial::receive_msgs_thread() {
                     // check if message follows the format: <ID>@<msg>
                     // if first value is a upper case letter and second is @
                     if (line.length() >= 2 && line[0] >= 'A' && line[0] <= 'Z' && line[1] == '@') {
-                        received_messages.push_back(line);
+                        if (line[2] == 'B') {
+                            batteries[line[0]] = stof(line.substr(3));    
+                        } else {
+                            received_messages.push_back(line);
+                        }
                     }
                     line.clear();
                 } else {
