@@ -118,51 +118,86 @@ int Vision::get_tag_id(Color left, Color right) {
 
 std::vector<Tag> Vision::pick_a_tag(Color color) {
 	std::vector<Tag> found_tags;
-	for (auto& main_tag : tags.at(color)) {
+	std::vector<std::reference_wrapper<Tag>> main_tags;
 
-		cv::Point position = main_tag.position;
-//		Tags secundarias do mesmo robô
-		std::vector<Tag> secondary_tags;
+	// Adiciona todas as tags principais em um vetor
+	// de referências para facilidade de iteração.
+	const Color Main_Colors[] = { Color::Yellow, Color::Blue };
+	for (Color main_color : Main_Colors) {
+		for (Tag & main_tag : tags.at(main_color)) {
+			main_tag.color = main_color;
+			main_tags.push_back(main_tag);
+		}
+	}
 
-		// Cálculo da orientação de acordo com os pontos rear e front
-		main_tag.orientation = atan2((main_tag.front_point.y - position.y) * field::field_height / height,
-									 (main_tag.front_point.x - position.x) * field::field_width / width);
+	// While loop enquanto existe uma tag principal associada à exatamente duas tags secundárias.
+	// A cada iteração, quando existe alguma ambiguidade com uma tag principal próxima de
+	// mais de duas tags secundárias, ela é ignorada e testada de novo na próxima iteração, esperando
+	// que a ambiguidade já tenha sido resolvida usando a variável already_assigned_to_robot.
+	while (true) {
+		bool found_a_new_tag = false;
+		for (Tag & main_tag : main_tags) {
+			if (main_tag.already_assigned_to_robot) continue;
 
-		// Para cada tag principal, verifica quais são as tags de cores secundárias correspondentes.
-		const Color Secondary_Colors[] = { Color::Red, Color::Green, Color::Cyan, Color::Magenta };
-		for (Color secondary_color : Secondary_Colors) {
-			for (Tag &secondary_tag : tags.at(secondary_color)) {
-				// Confere se a tag pertence ao robô.
-				// Calcula a orientação do robô.
-				// Altera a orientação caso esteja invertida.
-				// Retorna 1 para tag secundária à esquerda, -1 para direita e 0 caso não faz parte do robô.
-				int tag_side = in_sphere(secondary_tag.position, main_tag);
-				if (tag_side != 0) {
-						secondary_tag.left = tag_side > 0;
-						secondary_tag.color = secondary_color;
-						secondary_tags.push_back(secondary_tag);
+			cv::Point position = main_tag.position;
+			// Tags secundárias dentro do ROBOT_RADIUS.
+			std::vector<std::reference_wrapper<Tag>> secondary_tags;
+
+			// Cálculo da orientação de acordo com os pontos rear e front
+			main_tag.orientation = atan2((main_tag.front_point.y - position.y) * field::field_height / height,
+			                             (main_tag.front_point.x - position.x) * field::field_width / width);
+
+			// Para cada tag principal, verifica quais são as tags de cores secundárias correspondentes.
+			const Color Secondary_Colors[] = { Color::Red, Color::Green, Color::Cyan, Color::Magenta };
+			for (Color secondary_color : Secondary_Colors) {
+				for (Tag & secondary_tag : tags.at(secondary_color)) {
+					if (secondary_tag.already_assigned_to_robot) continue;
+					// Confere se a tag pertence ao robô.
+					// Calcula a orientação do robô.
+					// Altera a orientação caso esteja invertida.
+					// Retorna 1 para tag secundária à esquerda, -1 para direita e 0 caso não faz parte do robô.
+					int tag_side = in_sphere(secondary_tag.position, main_tag);
+					if (tag_side != 0) {
+							secondary_tag.left = tag_side > 0;
+							secondary_tag.color = secondary_color;
+							secondary_tags.push_back(secondary_tag);
+					}
+				}
+			}
+
+			if (secondary_tags.size() == 2) {
+				// Ajusta o centro do robô.
+				// O centro da main_tag é o centro da cor principal, desse modo é necessário
+				// mover o centro em direção às tags secundárias.
+				cv::Point center_correction = secondary_tags[0].get().position/4 + secondary_tags[1].get().position/4 - main_tag.position/2;
+				main_tag.position += center_correction;
+				main_tag.front_point += center_correction;
+				main_tag.rear_point += center_correction;
+
+				// Coloca a tag à esquerda na primeira posição do array.
+				if (!secondary_tags[0].get().left) {
+					std::swap(secondary_tags[0], secondary_tags[1]);
+				}
+
+				main_tag.id = get_tag_id((Color) secondary_tags[0].get().color, 
+				                         (Color) secondary_tags[1].get().color);
+				if (main_tag.id >= 0) {
+					found_a_new_tag = true;
+					main_tag.already_assigned_to_robot = true;
+					for ( Tag & secondary_tag : secondary_tags ){
+						secondary_tag.already_assigned_to_robot = true;
+					}
 				}
 			}
 		}
+		if (!found_a_new_tag) break;
+	}
 
-		if (secondary_tags.size() == 2) {
-			// Ajusta o centro do robô.
-			// O centro da main_tag é o centro da cor principal, desse modo é necessário
-			// mover o centro em direção às tags secundárias.
-			cv::Point center_correction = secondary_tags[0].position/4 + secondary_tags[1].position/4 - main_tag.position/2;
-			main_tag.position += center_correction;
-			main_tag.front_point += center_correction;
-			main_tag.rear_point += center_correction;
-
-			// Coloca a tag à esquerda na primeira posição do array.
-			if (!secondary_tags[0].left) {
-				std::swap(secondary_tags[0], secondary_tags[1]);
-			}
-
-			main_tag.id = get_tag_id((Color) secondary_tags[0].color, (Color) secondary_tags[1].color);
-			if (main_tag.id >= 0) {
-				found_tags.push_back(main_tag);
-			}
+	// Adiciona tags da cor selecionada para o vetor de retorno.
+	for (Tag & main_tag : main_tags) {
+		if ( main_tag.color == color && 
+		     main_tag.already_assigned_to_robot ) {
+			found_tags.push_back(main_tag);
 		}
 	}
 

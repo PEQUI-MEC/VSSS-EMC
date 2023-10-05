@@ -26,6 +26,7 @@ class Tag {
 	// TODO Alterar o Constructor para incluir a variável color.
 	// Atualmente ela não é confiável, já que só é inicializada na função Vision::pick_a_tag()
 	int color = -1;
+    bool already_assigned_to_robot = false;
 
 	Tag() = default;
 
