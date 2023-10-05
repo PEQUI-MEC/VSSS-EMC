@@ -18,6 +18,15 @@ class Tag {
 
 	bool left = false;
 
+	int id = -1;
+
+	// TODO Alterar o tipo de int para enum Color.
+	// No momento seria uma mudança grande já que haveria a necessidade de
+	// mover vision::Color e vision::Vision::Color_Name para Tag.hpp
+	// TODO Alterar o Constructor para incluir a variável color.
+	// Atualmente ela não é confiável, já que só é inicializada na função Vision::pick_a_tag()
+	int color = -1;
+
 	Tag() = default;
 
 	/// Constroi a tag

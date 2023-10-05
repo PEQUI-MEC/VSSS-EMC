@@ -15,7 +15,6 @@ class jsonSaveManager {
 		
 		bool exists(json &config, std::string name);
 
-		const std::string cielab_calib[4] = {"Main", "Green", "Ball", "Opp."};
 		void save_team(Team &team, std::string name);
 		void load_params(Team &team, std::string name);
 		void load_team(Team &team, std::string name);

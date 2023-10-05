@@ -86,7 +86,7 @@ void jsonSaveManager::save_camera() {
 
 	Vision &vision = *(interface->visionGUI.vision);
 	for (unsigned int i = 0; i < vision::Vision::MAX_COLORS; ++i) {
-		json &lab = camera_config["CIELAB Calibration"][cielab_calib[i]];
+		json &lab = camera_config["CIELAB Calibration"][vision::Vision::Color_Name[i]];
 
 		lab["L_min"] = vision.getCIE_L(i, 0);
 		lab["L_max"] = vision.getCIE_L(i, 1);
@@ -142,7 +142,7 @@ void jsonSaveManager::load_camera() {
 	
 	Vision &vision = *(interface->visionGUI.vision);
 	for (unsigned int i = 0; i < vision::Vision::MAX_COLORS; ++i) {
-		json &lab = camera_config["CIELAB Calibration"][cielab_calib[i]];
+		json &lab = camera_config["CIELAB Calibration"][vision::Vision::Color_Name[i]];
 
 		if (exists(lab, "L_min")) vision.setCIE_L(i, 0, lab["L_min"]);
 		if (exists(lab, "L_max")) vision.setCIE_L(i, 1, lab["L_max"]);
