@@ -5,18 +5,20 @@
 #include <iostream>
 #include <vector>
 
-#define ROBOT_RADIUS 15 // valor encontrado empiricamente (quanto menor, mais próximos os robôs podem ficar sem dar errado)
+#define ROBOT_RADIUS 20 // valor encontrado empiricamente (quanto menor, mais próximos os robôs podem ficar sem dar errado)
 
 class Tag {
 	public:
-	cv::Point position = {ROBOT_RADIUS/2, 0};
-	cv::Point front_point = {ROBOT_RADIUS, 0};
-	cv::Point rear_point = {0, 0};
+	cv::Point_<double> position = {ROBOT_RADIUS/2.0, 0.0};
+
+    // Usado apenas para desenhar a linha
+    // TODO:: Remover a dependência de front_point e rear_point
+	cv::Point_<double> front_point = {ROBOT_RADIUS, 0};
+	cv::Point_<double> rear_point = {0, 0};
+
 	double orientation = 0;
 
 	double area = 0;
-
-	bool left = false;
 
 	int id = -1;
 
@@ -33,7 +35,7 @@ class Tag {
 	/// Constroi a tag
 	/// pos: Posição da tag
 	/// myarea: Corresponde ao tagArea
-	Tag(cv::Point pos, double myarea);
+	Tag(cv::Point_<double> pos, double myarea);
 
 	/// Seta os pontos frontPoint e rearPoint aleatoriamente
 	/// myLine: Linha encontrada pelo fitline</param>

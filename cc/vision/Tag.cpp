@@ -2,7 +2,7 @@
 
 #include "Tag.hpp"
 
-Tag::Tag(cv::Point pos, double myarea) : position(std::move(pos)), front_point(0), rear_point(0), area(myarea), left(false) {
+Tag::Tag(cv::Point_<double> pos, double myarea) : position(std::move(pos)), front_point(0), rear_point(0), area(myarea){
 }
 
 void Tag::setLine(cv::Vec4f myLine) {
