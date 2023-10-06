@@ -35,7 +35,6 @@ class Messenger {
 		std::string command_to_msg(Target target);
 		void send_commands(const std::vector<Robot3> &robots);
 		void send_command(char id, Target target);
-		void send_ekf_data(std::vector<Robot3> robots);
 		std::string vision_to_msg(Pose pose);
 
 

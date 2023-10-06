@@ -36,6 +36,7 @@ Esp32Serial::Esp32Serial(const std::string &port, int baud) {
     tty.c_cflag |= CREAD | CLOCAL; // Enable receiver, ignore control lines
 
     tty.c_lflag &= ICANON; // Disable canonical mode
+    // tty.c_lflag |= ICANON; // Enable canonical mode
     tty.c_lflag &= ECHO; // Disable echo
     tty.c_lflag &= ECHOE; // Disable erasing of input line
     tty.c_lflag &= ECHONL; // Disable new-line echo
@@ -84,7 +85,7 @@ void Esp32Serial::send_string_msg(const std::string& msg) {
 }
 
 void Esp32Serial::send_msg(const char ID, const std::string& msg) {
-    std::string full_msg = std::string(1, ID) + '@' + msg;
+    std::string full_msg = std::string(1, ID) + '@' + msg + '#';
     if (serial_port > 0) {
         serial_queue.push(full_msg);
     }
@@ -113,10 +114,11 @@ void Esp32Serial::receive_msgs_thread() {
             continue;
         }
         char read_buf[256];
+        std::string buffer;
         int num_bytes = read(serial_port, read_buf, 255);
         if (num_bytes > 0) {
             for (int i = 0; i < num_bytes; i++) {
-                if (read_buf[i] == '\n') {
+                if (read_buf[i] == '#') {
                     // check if message follows the format: <ID>@<msg>
                     // if first value is a upper case letter and second is @
                     if (line.length() >= 2 && line[0] >= 'A' && line[0] <= 'Z' && line[1] == '@') {
