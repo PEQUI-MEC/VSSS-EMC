@@ -59,8 +59,8 @@ std::string Messenger::command_to_msg(Target target) {
 							+ ";" + rounded_str(target.pose.position.y * 100)
 									+ ";" + rounded_str(target.pose.velocity.linear);
 		case Command::Velocity: // tratar casos em que velocity.linear != 0
-			return "W" + rounded_str(target.pose.velocity.angular*robot_size/2)
-					+ ";" + rounded_str(-target.pose.velocity.angular*robot_size/2);
+			return "W" + rounded_str(-target.pose.velocity.angular*robot_size/2)
+					+ ";" + rounded_str(target.pose.velocity.angular*robot_size/2);
 		case Command::Vector:
 			return ("V" + rounded_str(target.pose.orientation * 180.0f/M_PI)
 							+ ";" + rounded_str(target.pose.velocity.linear));
