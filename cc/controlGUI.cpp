@@ -59,6 +59,7 @@ void ControlGUI::_robot_status() {
 		if (batteries.find(id) != batteries.end()) {
 			double voltage = batteries[id];
 			double battery = (voltage - 6.4) / (8.4 - 6.4) * 100.0;
+			std::cout << "Robot " << id << " battery: " << battery << "%, " << voltage << "V" << std::endl;
 			updateInterfaceStatus(battery, voltage, i);
 		} else {
 			status_img[i].set("img/offline.png");

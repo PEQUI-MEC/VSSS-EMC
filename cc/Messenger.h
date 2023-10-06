@@ -25,6 +25,9 @@ class Messenger {
 		std::chrono::system_clock::time_point previous_msg_time;
 
 	public:
+		bool send_vision_data = false;
+		bool send_commands_data = false;
+
 //		std::ofstream ekf_data_file;
 		Messenger();
 		Messenger(const Messenger&) = delete; // Não permite fazer cópias do objeto Messenger
@@ -32,7 +35,8 @@ class Messenger {
 		std::string command_to_msg(Target target);
 		void send_commands(const std::vector<Robot3> &robots);
 		void send_command(char id, Target target);
-		void send_ekf_data(const Robot3 &robot);
+		void send_ekf_data(std::vector<Robot3> robots);
+		std::string vision_to_msg(Pose pose);
 
 
 		std::string rounded_str(double num);

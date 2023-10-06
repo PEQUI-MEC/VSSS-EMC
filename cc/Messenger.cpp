@@ -29,7 +29,16 @@ void Messenger::send_commands(const std::vector<Robot3> &robots) {
 	if (!esp32.has_value()) return;
 	std::string all_msgs;
 	for (const Robot3& robot : robots) {
-		if (robot.role != Role::None) {
+		if (robot.role != Role::None && send_vision_data) {
+			std::string msg = vision_to_msg(robot.pose);
+			if (!msg.empty()) {
+				if (!all_msgs.empty()) all_msgs += ',';
+				all_msgs += std::string(1, robot.ID) + '@' + msg;
+			}
+		}
+	}
+	for (const Robot3& robot : robots) {
+		if (robot.role != Role::None && send_commands_data) {
 			std::string msg = command_to_msg(robot.target);
 			if (!msg.empty()) {
 				if (!all_msgs.empty()) all_msgs += ',';
@@ -80,13 +89,26 @@ void Messenger::send_command(char id, Target target) {
 	}
 }
 
-void Messenger::send_ekf_data(const Robot3 &robot) {
-	if(!esp32.has_value() || robot.role == Role::None) return;
-	string msg = "E" + rounded_str(robot.pose.position.x * 100) + ";"
+
+std::string Messenger::vision_to_msg(Pose pose) {
+	return  "E" + rounded_str(pose.position.x * 100)
+		+ ";" + rounded_str(pose.position.y * 100)
+		+ ";" + rounded_str(pose.orientation * 180/M_PI);
+}
+
+void Messenger::send_ekf_data(std::vector<Robot3> robots) {
+	if(!esp32.has_value()) return;
+	std::string msgs = "";
+	for (auto &robot : robots) {
+		if (robot.role != Role::None) {
+			msgs += "E" + rounded_str(robot.pose.position.x * 100) + ";"
 				 + rounded_str(robot.pose.position.y * 100)
 				 + ";" + rounded_str(robot.pose.orientation * 180/M_PI);
-	esp32->send_msg(robot.ID, msg);
-//	if(robot.get_ID() == 'A') std::cout << msg << std::endl;
+		}
+	}
+	if (!msgs.empty()) {
+		esp32->send_string_msg(msgs);
+	}
 }
 
 string Messenger::rounded_str(double num) {

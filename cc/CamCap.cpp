@@ -97,7 +97,9 @@ void CamCap::joystick_loop() {
 												   game.first_iteration, false, game.adversary->inverted_field, game.now());
 		}
 		game.first_iteration = false;
-		notify_data_ready(false);
+		interface.controlGUI.messenger.send_commands_data = true;
+		interface.controlGUI.messenger.send_vision_data = false;
+		notify_data_ready(true, interface.controlGUI.ekf_always_send);
 	}
 }
 
@@ -106,7 +108,8 @@ bool CamCap::run_game_loop() {
 	if (!game.is_simulated && has_camera) {
 		simulator.process_referee_cmds(false);
 		if (game.send_one_command) {
-			notify_data_ready(false);
+			interface.controlGUI.messenger.send_commands_data = true;
+			notify_data_ready(true, interface.controlGUI.ekf_always_send || game.playing_game);
 			game.send_one_command = false;
 		}
 		capture_and_show();
@@ -207,10 +210,6 @@ bool CamCap::capture_and_show() {
 
 	interface.updateFPS(fps_average);
 
-	if (interface.controlGUI.ekf_always_send || game.playing_game || is_test_on_click_on) {
-		notify_data_ready(true);
-	}
-
 	if (interface.visionGUI.getIsSplitView()) {
 		interface.imageView.set_data(interface.visionGUI.vision->getSplitFrame().clone().data);
 		interface.imageView.refresh();
@@ -236,14 +235,16 @@ bool CamCap::capture_and_show() {
 		game.first_iteration = false;
 
 		interface.controlGUI.update_msg_time();
-		notify_data_ready(false);
-
+		interface.controlGUI.messenger.send_commands_data = true;
 	} // ---------- TEST ON CLICK --------------//
 	else if (is_test_on_click_on) {
 		interface.controlGUI.test_controller.run();
 		interface.controlGUI.update_msg_time();
-		notify_data_ready(false);
+		interface.controlGUI.messenger.send_commands_data = true;
 	}
+
+	notify_data_ready(game.playing_game || is_test_on_click_on, interface.controlGUI.ekf_always_send || game.playing_game || is_test_on_click_on);
+
 
 	robotGUI.update_robot_ids();
 	robotGUI.update_speed_progressBars();
@@ -295,30 +296,19 @@ void CamCap::send_cmd_thread() {
 			return;
 		}
 		data_ready_flag = false;
-		if (ekf_data_ready) {
-			if (game.team->controlled) {
-				for (auto &robot : game.team->robots)
-					interface.controlGUI.messenger.send_ekf_data(robot);
-			}
-			if (game.adversary->controlled) {
-				for (auto &robot : game.adversary->robots)
-					interface.controlGUI.messenger.send_ekf_data(robot);
-			}
-			ekf_data_ready = false;
-		} else {
-			if (game.team->controlled) {
-				interface.controlGUI.messenger.send_commands(game.team->robots);
-			}
-			if (game.adversary->controlled) {
-				interface.controlGUI.messenger.send_commands(game.adversary->robots);
-			}
+		if (game.team->controlled) {
+			interface.controlGUI.messenger.send_commands(game.team->robots);
+		}
+		if (game.adversary->controlled) {
+			interface.controlGUI.messenger.send_commands(game.adversary->robots);
 		}
 	}
 }
 
-void CamCap::notify_data_ready(bool send_ekf_data) {
+void CamCap::notify_data_ready(bool send_cmd, bool send_vision) {
+	interface.controlGUI.messenger.send_commands_data = send_cmd;
+	interface.controlGUI.messenger.send_vision_data = has_camera && send_vision;
 	data_ready_flag = true;
-	ekf_data_ready = send_ekf_data;
 	data_ready_cond.notify_all();
 }
 

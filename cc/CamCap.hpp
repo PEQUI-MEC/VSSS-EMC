@@ -87,7 +87,7 @@ class CamCap : public Gtk::HBox {
 		bool start_signal(bool b);
 		bool capture_and_show();
 		void send_cmd_thread();
-		void notify_data_ready(bool send_ekf_data);
+		void notify_data_ready(bool send_cmd, bool send_vision);
 		double distance(cv::Point a, cv::Point b);
 		void fps_update();
 		explicit CamCap(bool isLowRes, int simulation_id = 0);

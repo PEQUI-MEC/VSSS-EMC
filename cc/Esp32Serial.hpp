@@ -27,7 +27,6 @@ class Esp32Serial {
     void add_robot_mac(const char ID, const std::string& mac);
     void send_string_msg(const std::string& msg);
     void send_msg(const char ID, const std::string& msg);
-    std::string send_get_answer(const char ID, const std::string& msg);
     void receive_msgs_thread();
     void send_msg_thread();
 };

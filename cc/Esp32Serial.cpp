@@ -61,6 +61,7 @@ Esp32Serial::Esp32Serial(const std::string &port, int baud) {
 
     // receive_thread
     receive_thread = std::thread(&Esp32Serial::receive_msgs_thread, this);
+    send_thread = std::thread(&Esp32Serial::send_msg_thread, this);
 }
 
 Esp32Serial::~Esp32Serial() {
@@ -78,32 +79,30 @@ void Esp32Serial::add_robot_mac(const char ID, const std::string& mac) {
 void Esp32Serial::send_string_msg(const std::string& msg) {
     // std::cout << "string: " << msg << std::endl;
     if (serial_port > 0) {
-        write(serial_port, msg.c_str(), msg.length());
+        serial_queue.push(msg);
     }
 }
 
 void Esp32Serial::send_msg(const char ID, const std::string& msg) {
     std::string full_msg = std::string(1, ID) + '@' + msg;
     if (serial_port > 0) {
-        write(serial_port, full_msg.c_str(), full_msg.length());
+        serial_queue.push(full_msg);
     }
 }
 
-std::string Esp32Serial::send_get_answer(const char ID, const std::string& msg) {
-    if (serial_port < 0) {
-        return "";
-    }
-    received_messages.clear();
-    std::string full_msg = std::string(1, ID) + '@' + msg;
-    write(serial_port, full_msg.c_str(), full_msg.length());
-    usleep(100000);
-    for (auto msg : received_messages) {
-        if (msg[0] == ID) {
-            return msg;
+void Esp32Serial::send_msg_thread() {
+    while (!stop_receive_thread) {
+        if (serial_port < 0) {
+            usleep(1000000);
+            continue;
         }
+        if (!serial_queue.empty()) {
+            std::string msg = serial_queue.front();
+            serial_queue.pop();
+            write(serial_port, msg.c_str(), msg.length());
+        }
+        usleep(1000);
     }
-    received_messages.clear();
-    return "";
 }
 
 void Esp32Serial::receive_msgs_thread() {
@@ -122,7 +121,8 @@ void Esp32Serial::receive_msgs_thread() {
                     // if first value is a upper case letter and second is @
                     if (line.length() >= 2 && line[0] >= 'A' && line[0] <= 'Z' && line[1] == '@') {
                         if (line[2] == 'B') {
-                            batteries[line[0]] = stof(line.substr(3));    
+                            batteries[line[0]] = stof(line.substr(3));
+                            // std::cout << "Battery: " << line.substr(3) << std::endl;
                         } else {
                             received_messages.push_back(line);
                         }
