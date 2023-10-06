@@ -81,23 +81,17 @@ void Vision::searchTags(const unsigned long color) {
 	for (const auto &contour : contours) {
 		double area = contourArea(contour);
 		if (area >= areaMin[color]) {
-			cv::Moments moment = moments((cv::Mat) contour);
-			auto moment_x = static_cast<int>(moment.m10 / area);
-			auto moment_y = static_cast<int>(moment.m01 / area);
-			// seta as linhas para as tags principais do pick-a-tag
-			if (color == Color::Yellow || color == Color::Blue) {
-				tags.at(color).emplace_back(cv::Point(moment_x, moment_y), area);
+            // Calcula o centro do contour
+            cv::Point_<double> sum(0,0);
+            for(cv::Point point : contour)
+            {
+                sum += static_cast<cv::Point_<double>>(point);
+            }
+            cv::Point_<double> center = sum/(float)contour.size();
 
-				// tem que ter jogado a tag no vetor antes de mexer nos valores dela
-				cv::Vec4f line;
-				cv::fitLine(cv::Mat(contour), line, 2, 0, 0.01, 0.01);
-				unsigned long tagsInVec = tags.at(color).size() - 1;
-				tags.at(color).at(tagsInVec).setLine(line);
-			} else {
-				tags.at(color).emplace_back(cv::Point(moment_x, moment_y), area);
-			}
-		}
-	}
+            tags.at(color).emplace_back(center, area);
+        }
+    }
 }
 
 // Retorna o id da tag de acordo com as
@@ -139,26 +133,15 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 		for (Tag & main_tag : main_tags) {
 			if (main_tag.already_assigned_to_robot) continue;
 
-			cv::Point position = main_tag.position;
 			// Tags secundárias dentro do ROBOT_RADIUS.
 			std::vector<std::reference_wrapper<Tag>> secondary_tags;
-
-			// Cálculo da orientação de acordo com os pontos rear e front
-			main_tag.orientation = atan2((main_tag.front_point.y - position.y) * field::field_height / height,
-			                             (main_tag.front_point.x - position.x) * field::field_width / width);
 
 			// Para cada tag principal, verifica quais são as tags de cores secundárias correspondentes.
 			const Color Secondary_Colors[] = { Color::Red, Color::Green, Color::Cyan, Color::Magenta };
 			for (Color secondary_color : Secondary_Colors) {
 				for (Tag & secondary_tag : tags.at(secondary_color)) {
 					if (secondary_tag.already_assigned_to_robot) continue;
-					// Confere se a tag pertence ao robô.
-					// Calcula a orientação do robô.
-					// Altera a orientação caso esteja invertida.
-					// Retorna 1 para tag secundária à esquerda, -1 para direita e 0 caso não faz parte do robô.
-					int tag_side = in_sphere(secondary_tag.position, main_tag);
-					if (tag_side != 0) {
-							secondary_tag.left = tag_side > 0;
+                    if (calcDistance(main_tag.position, secondary_tag.position) <= ROBOT_RADIUS) {
 							secondary_tag.color = secondary_color;
 							secondary_tags.push_back(secondary_tag);
 					}
@@ -169,24 +152,28 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 				// Ajusta o centro do robô.
 				// O centro da main_tag é o centro da cor principal, desse modo é necessário
 				// mover o centro em direção às tags secundárias.
-				cv::Point center_correction = secondary_tags[0].get().position/4 + secondary_tags[1].get().position/4 - main_tag.position/2;
+				cv::Point_<double> center_correction = secondary_tags[0].get().position/4 + secondary_tags[1].get().position/4 - main_tag.position/2;
 				main_tag.position += center_correction;
-				main_tag.front_point += center_correction;
-				main_tag.rear_point += center_correction;
 
 				// Coloca a tag à esquerda na primeira posição do array.
-				if (!secondary_tags[0].get().left) {
+                // Compara se as tags estão no sentido horário, assim a primeira estaria à esquerda.
+                if (!are_secondary_tags_clockwise(main_tag, secondary_tags[0].get(), secondary_tags[1].get()))
+                {
 					std::swap(secondary_tags[0], secondary_tags[1]);
 				}
 
 				main_tag.id = get_tag_id((Color) secondary_tags[0].get().color, 
 				                         (Color) secondary_tags[1].get().color);
+
+                // Verifica se a tag é válida
 				if (main_tag.id >= 0) {
 					found_a_new_tag = true;
 					main_tag.already_assigned_to_robot = true;
 					for ( Tag & secondary_tag : secondary_tags ){
 						secondary_tag.already_assigned_to_robot = true;
 					}
+
+                    calculate_orientation_and_front_and_rear(main_tag, secondary_tags[0].get(), secondary_tags[1].get());
 				}
 			}
 		}
@@ -320,23 +307,44 @@ std::map<unsigned int, RecognizedTag> Vision::pick_a_tag() {
 /// -1, caso a secundária esteja à esquerda;
 /// 1, caso a secundária esteja à direita
 /// </returns>
-int Vision::in_sphere(cv::Point secondary, Tag &main_tag) {
-	// se esta secundária faz parte do robô
-	if (calcDistance(main_tag.position, secondary) <= ROBOT_RADIUS) {
-		if (calcDistance(main_tag.front_point, secondary) < calcDistance(main_tag.rear_point, secondary)) {
-			main_tag.switchPoints();
-			// calcula a orientação do robô
-			main_tag.orientation = atan2((main_tag.front_point.y - main_tag.position.y) * field::field_height / height,
-										 (main_tag.front_point.x - main_tag.position.x) * field::field_width / width);
-		}
 
-		double secSide = atan2((secondary.y - main_tag.position.y) * field::field_height / height,
-							  (secondary.x - main_tag.position.x) * field::field_width / width);
+bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
+{
+    // Vetores com origem em main_tag
+    cv::Point_<double> vec0 = tag0.position - main_tag.position;
+    cv::Point_<double> vec1 = tag1.position - main_tag.position;
 
-		// Cálculo do ângulo de orientação para diferenciar robôs de mesma cor
-		return (atan2(sin(secSide - main_tag.orientation + M_PI*2), cos(secSide - main_tag.orientation + M_PI*2))) > 0 ? 1 : -1;
-	}
-	return 0;
+    // Ajusta o aspect ratio dos vetores
+    vec0 = cv::Point_<double>(vec0.y * field::field_height / height,
+                              vec0.x * field::field_width / width);
+    vec1 = cv::Point_<double>(vec1.y * field::field_height / height,
+                              vec1.x * field::field_width / width);
+    // Recebe o ângulo do vetor comparado ao eixo x
+    float angle0 = atan2(vec0.y, vec0.x);
+    float angle1 = atan2(vec1.y, vec1.x);
+
+    float signed_angle = angle0 - angle1;
+
+    // Se o ângulo é menor que 180 graus, um valor positivo significa sentido horário.
+    bool is_clockwise = (abs(signed_angle) <= 3.1415926535/2)? signed_angle > 0 : signed_angle < 0;
+
+    return is_clockwise;
+}
+
+void Vision::calculate_orientation_and_front_and_rear(Tag & main_tag, Tag left_tag, Tag right_tag)
+{
+    cv::Point_<double> front = main_tag.position;
+    cv::Point_<double> rear = 0.5*left_tag.position + 0.5*right_tag.position;
+    cv::Point_<double> direction_vector = front-rear;
+
+    // Calcula o ângulo relativo ao eixo x.
+    main_tag.orientation = atan2(direction_vector.y * field::field_height / height,
+                                 direction_vector.x * field::field_width / width);
+
+    // Usado apenas para desenhar a linha
+    // TODO:: Remover a dependência de front_point e rear_point
+    main_tag.front_point = front+1.5 *2.5*direction_vector;
+    main_tag.rear_point = rear-1.5 *1.5*direction_vector;
 }
 
 double Vision::calcDistance(const cv::Point p1, const cv::Point p2) const {

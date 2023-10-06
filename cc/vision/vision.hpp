@@ -85,6 +85,8 @@ namespace vision {
 		Tags find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag);
 //		std::map<unsigned int, RecognizedTag> pick_a_tag();
 		int in_sphere(cv::Point secondary, Tag &main_tag);
+        void calculate_orientation_and_front_and_rear(Tag & main_tag, Tag left_tag, Tag right_tag);
+        bool are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1);
 
 	public:
 
