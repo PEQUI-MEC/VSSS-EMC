@@ -48,12 +48,14 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 				closest_x = (find_rounded_x - 1) * (sizex / (grid_x - 1));
 				closest_y = (find_rounded_y + 2 ) * (sizey / (grid_y - 1));
 				closest = {closest_x , closest_y};
-				robot->go_to_and_stop(closest);
+				//robot->go_to_and_stop(closest);
+				robot->spin(30);
 			} else{
 				closest_x = (find_rounded_x - 1) * (sizex / (grid_x - 1));
 				closest_y = (find_rounded_y - 2 ) * (sizey / (grid_y - 1));
 				closest = {closest_x , closest_y};
-				robot->go_to_and_stop(closest);
+				//robot->go_to_and_stop(closest);
+				robot->spin(2);
 			}
 
 		} else {
@@ -64,6 +66,7 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 			closest_y = (find_rounded_y - 2 ) * (sizey / (grid_y - 1));
 			closest = {closest_x , closest_y};
 			robot->go_to_and_stop(closest);
+			robot->spin(10);
 
 		}
 		//double pos_y = std::clamp(ball.position_in_seconds(1).y, defender::front::lower::wait_point.y, defender::front::upper::wait_point.y);
