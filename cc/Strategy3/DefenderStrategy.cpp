@@ -14,19 +14,20 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 			wait_at_target(defender::back::lower_limit, ball.position);
 		else
 			wait_at_target(defender::back::upper_limit, ball.position);
-    } else if (attacker && !at_location(robot->get_position(), Location::AnyGoal) && at_location(robot->get_position(), Location::TheirField)) {
+    } else if (attacker && !at_location(robot->get_position(), Location::AnyGoal) && at_location(ball.position, Location::TheirField)) {
 		// Bola na na área adversária
 		//std::vector<float> DefenderPoints = {Point{}, Point{}, Point{}};
 		//robot->go_to_and_stop({defender::back::upper_limit.x, ball.y});
 		//atacante + bola, defensor atras espelhado
 		//atk sem bola, defensor ponto + prox atras da bola 
-		double max_y = their::area::front::center.y;
-		double min_y = center::point.y;
-		double sizey = (max_y - min_y);
 
-		double max_x = field_height;
+		double max_x = their::area::front::center.x;
 		double min_x = center::point.x;
 		double sizex = (max_x - min_x);
+
+		double max_y = field_height;
+		double min_y = center::point.y;
+		double sizey = (max_y - min_y);
 
 		int grid_x = 3;
 		int grid_y = 4;
@@ -48,14 +49,12 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 				closest_x = (find_rounded_x - 1) * (sizex / (grid_x - 1));
 				closest_y = (find_rounded_y + 2 ) * (sizey / (grid_y - 1));
 				closest = {closest_x , closest_y};
-				//robot->go_to_and_stop(closest);
-				robot->spin(30);
+				robot->go_to_and_stop(closest);
 			} else{
 				closest_x = (find_rounded_x - 1) * (sizex / (grid_x - 1));
 				closest_y = (find_rounded_y - 2 ) * (sizey / (grid_y - 1));
 				closest = {closest_x , closest_y};
-				//robot->go_to_and_stop(closest);
-				robot->spin(2);
+				robot->go_to_and_stop(closest);
 			}
 
 		} else {
@@ -66,8 +65,6 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 			closest_y = (find_rounded_y - 2 ) * (sizey / (grid_y - 1));
 			closest = {closest_x , closest_y};
 			robot->go_to_and_stop(closest);
-			robot->spin(10);
-
 		}
 		//double pos_y = std::clamp(ball.position_in_seconds(1).y, defender::front::lower::wait_point.y, defender::front::upper::wait_point.y);
 		//wait_at_target({attacker->get_position().x - robot->SIZE*5, pos_y}, ball.position);
