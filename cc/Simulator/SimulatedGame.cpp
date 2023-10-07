@@ -3,11 +3,15 @@
 time_point before = hrc::from_time_t(0);
 
 void SimulatedGame::process_referee_cmds(bool send_placement) {
-	if (!client.new_ref_cmd) return;
-	
-	client.new_ref_cmd = false;
+	if (client.ref_command_queue.empty()) return;
 
-	switch (client.ref_command.foul()) {
+	auto ref_command = client.ref_command_queue.front();
+	client.ref_command_queue.pop();
+
+	std::vector<Target> blue_targets;
+	std::vector<Target> yellow_targets;
+
+	switch (ref_command.foul()) {
 		case VSSRef::Foul::GAME_ON:
 			game.playing_game = true;
 			game.first_iteration = true;
@@ -20,33 +24,51 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			game.stop_game();
 			game.ball.reset_ls();
 
-			if(send_placement && client.ref_command.teamcolor() == VSSRef::Color::YELLOW) {
+			if(ref_command.teamcolor() == VSSRef::Color::YELLOW) {
 				if (game.blue_team().controlled) {
-					VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_defense");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_defense");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "penalty_defense");
 				}
 				if(game.yellow_team().controlled) {
 					if((rand() % 10 + 1) >= 3) {
-						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_attack_1");
-						client.send_placement(frame);
+						if (send_placement) {
+							VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_attack_1");
+							client.send_placement(frame);
+						}
+						yellow_targets = placement_config.load_positioning_targets("yellow", "penalty_attack_1");
 					} else {
-						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_attack_2");
-						client.send_placement(frame);
+						if (send_placement) {
+							VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_attack_2");
+							client.send_placement(frame);
+						}
+						yellow_targets = placement_config.load_positioning_targets("yellow", "penalty_attack_2");
 					}
 				}
 			}
-			if (send_placement && client.ref_command.teamcolor() == VSSRef::Color::BLUE) {
+			if (ref_command.teamcolor() == VSSRef::Color::BLUE) {
 				if (game.yellow_team().controlled) {
-					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_defense");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "penalty_defense");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "penalty_defense");
 				}
 				if(game.blue_team().controlled){
 					if((rand() % 10 + 1) >= 3){
-						VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_attack_1");
-						client.send_placement(frame);
+						if (send_placement) {
+							VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_attack_1");
+							client.send_placement(frame);
+						}
+						blue_targets = placement_config.load_positioning_targets("blue", "penalty_attack_1");
 					} else {
-						VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_attack_2");
-						client.send_placement(frame);
+						if (send_placement) {
+							VSSRef::Frame* frame = placement_config.load_replacement("blue", "penalty_attack_2");
+							client.send_placement(frame);
+						}
+						blue_targets = placement_config.load_positioning_targets("blue", "penalty_attack_2");
 					}
 				}
 			}
@@ -59,44 +81,68 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			game.stop_game();
 			game.ball.reset_ls();
 
-			if (send_placement && client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_1) {
+			if (ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_1) {
 				if(game.yellow_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q1");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q1");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "free_ball_q1");
 				}
 				if( game.blue_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q1");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q1");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "free_ball_q1");
 				}
 			}
-			if (send_placement && client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_2) {
+			if (ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_2) {
 				if(game.yellow_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q2");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q2");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "free_ball_q2");
 				}
-				if( game.blue_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q2");
-					client.send_placement(frame);
+				if(game.blue_team().controlled){
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q2");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "free_ball_q2");
 				}
 			}
-			if (send_placement && client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_3){
+			if (ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_3){
 				if(game.yellow_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q3");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q3");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "free_ball_q3");
 				}
 				if( game.blue_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q3");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q3");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "free_ball_q3");
 				}
 			}
-			if (send_placement && client.ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_4){
+			if (ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_4){
 				if(game.yellow_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q4");
-					client.send_placement(frame);
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_ball_q4");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "free_ball_q4");
 				}
-				if( game.blue_team().controlled){
-					VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q4");
-					client.send_placement(frame);
+				if(game.blue_team().controlled){
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_ball_q4");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "free_ball_q4");
 				}
 			}
 			break;
@@ -105,22 +151,33 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			game.stop_game();
 			game.ball.reset_ls();
 
-			if(send_placement && client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.yellow_team().controlled){
-				VSSRef::Frame* frame = placement_config.load_replacement("yellow", "kickoff");
+			if(ref_command.teamcolor() == VSSRef::Color::YELLOW && game.yellow_team().controlled){
+				if (send_placement) {
+					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "kickoff");
 					client.send_placement(frame);
-				
+				}
+				yellow_targets = placement_config.load_positioning_targets("yellow", "kickoff");
 			}
-			if(send_placement && client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.blue_team().controlled){
+			if(ref_command.teamcolor() == VSSRef::Color::BLUE && game.blue_team().controlled){
+				if (send_placement) {
 					VSSRef::Frame* frame = placement_config.load_replacement("blue", "kickoff");
-					client.send_placement(frame);					
+					client.send_placement(frame);
+				}
+				blue_targets = placement_config.load_positioning_targets("blue", "kickoff");
 			}
-			if(send_placement && client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.blue_team().controlled){
-				VSSRef::Frame* frame = placement_config.load_replacement("blue", "kickoff_defense");
-				client.send_placement(frame);
+			if(ref_command.teamcolor() == VSSRef::Color::YELLOW && game.blue_team().controlled){
+				if (send_placement) {
+					VSSRef::Frame* frame = placement_config.load_replacement("blue", "kickoff_defense");
+					client.send_placement(frame);
+				}
+				blue_targets = placement_config.load_positioning_targets("blue", "kickoff_defense");
 			}
-			if (send_placement && client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.yellow_team().controlled){
-				VSSRef::Frame* frame = placement_config.load_replacement("yellow", "kickoff_defense");
-				client.send_placement(frame);
+			if (ref_command.teamcolor() == VSSRef::Color::BLUE && game.yellow_team().controlled){
+				if (send_placement) {
+					VSSRef::Frame* frame = placement_config.load_replacement("yellow", "kickoff_defense");
+					client.send_placement(frame);
+				}
+				yellow_targets = placement_config.load_positioning_targets("yellow", "kickoff_defense");
 			}
 			break;
 		case VSSRef::Foul::STOP:
@@ -129,11 +186,54 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			game.ball.reset_ls();
 			break;
 	}
-	bool team_defending = (client.ref_command.teamcolor() == VSSRef::Color::BLUE && game.team->robot_color == RobotColor::Yellow)
-		|| (client.ref_command.teamcolor() == VSSRef::Color::YELLOW && game.team->robot_color == RobotColor::Blue);
+	// print fould:
+	switch (ref_command.foul()) {
+		case VSSRef::Foul::GAME_ON:
+			std::cout << "GAME ON" << std::endl;
+			break;
+		case VSSRef::Foul::FREE_KICK:
+			std::cout << "FREE KICK" << std::endl;
+			break;
+		case VSSRef::Foul::PENALTY_KICK:
+			std::cout << "PENALTY KICK" << std::endl;
+			break;
+		case VSSRef::Foul::GOAL_KICK:
+			std::cout << "GOAL KICK" << std::endl;
+			break;
+		case VSSRef::Foul::FREE_BALL:
+			std::cout << "FREE BALL" << std::endl;
+			break;
+		case VSSRef::Foul::KICKOFF:
+			std::cout << "KICKOFF" << std::endl;
+			break;
+		case VSSRef::Foul::STOP:
+			std::cout << "STOP" << std::endl;
+			break;
+		case VSSRef::Foul::HALT:
+			std::cout << "HALT" << std::endl;
+			break;
+	}
 
-	game.team->strategy->set_foul(client.ref_command, team_defending, game.now());
-	game.adversary->strategy->set_foul(client.ref_command, !team_defending, game.now());
+
+	bool team_defending = (ref_command.teamcolor() == VSSRef::Color::BLUE && game.team->robot_color == RobotColor::Yellow)
+		|| (ref_command.teamcolor() == VSSRef::Color::YELLOW && game.team->robot_color == RobotColor::Blue);
+
+	game.team->strategy->set_foul(ref_command, team_defending, game.now());
+	game.adversary->strategy->set_foul(ref_command, !team_defending, game.now());
+
+	if (!game.is_simulated) {
+		for (int i = 0; i < 3; i++) {
+			if (blue_targets.size() > i && game.blue_team().controlled) {
+				game.blue_team().robots[i].go_to_and_stop_orientation(blue_targets[i].pose.position, blue_targets[i].pose.orientation, 0.8);
+				std::cout << "blue " << i << " go to " << blue_targets[i].pose.position << std::endl;
+			}
+			if (yellow_targets.size() > i && game.yellow_team().controlled) {
+				game.yellow_team().robots[i].go_to_and_stop_orientation(yellow_targets[i].pose.position, blue_targets[i].pose.orientation, 0.8);
+				std::cout << "yellow " << i << " go to " << blue_targets[i].pose.position << std::endl;
+			}
+		}
+		game.send_one_command = true;
+	}
 }
 
 

@@ -307,6 +307,39 @@ void jsonSaveManager::save(const string file_path) {
 	write_configs_to_file(file_path);
 }
 
+std::vector<Target> jsonSaveManager::load_positioning_targets(std::string team, std::string fault, std::string file_path) {
+	int error = read_configs_from_file(file_path);
+
+	if (error == 1) {
+		cout << "File " << file_path << " not found" << endl;
+		return {};
+	} else if (error == 2) {
+		cout << file_path << " is not a valid JSON file" << endl;
+		return {};
+	}
+
+	json& fault_config = configs[team][fault];
+
+	std::vector<Target> targets;
+	for (int i = 0; i < 3; i++) {
+		json& robot_config = fault_config[std::to_string(i)];
+
+		Target target {
+			.command = Command::Position,
+			.pose = {
+				.position = Geometry::Point::from_simulator(robot_config["x"], robot_config["y"]),
+				.orientation = double(robot_config["orientation"]) * M_PI / 180,
+				.velocity = {0.8, 0},
+				.wheel_velocity = {0, 0}
+			},
+			.reference = Geometry::Point(0, 0),
+			.n = 1.7
+		};
+		targets.push_back(target);
+	}
+	return targets;
+}
+
 VSSRef::Frame* jsonSaveManager::load_replacement(std::string team, std::string fault, std::string file_path) {
 	int error = read_configs_from_file(file_path);
 

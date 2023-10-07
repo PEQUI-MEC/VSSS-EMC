@@ -20,6 +20,8 @@ class SimulatorClient {
 	fira_message::sim_to_ref::Environment packet;
 	VSSRef::ref_to_team::VSSRef_Command ref_command;
 
+	std::queue<VSSRef::ref_to_team::VSSRef_Command> ref_command_queue;
+
 	evpp::udp::Server vision_server;
 	evpp::udp::Server referee_server;
 	evpp::udp::sync::Client client;

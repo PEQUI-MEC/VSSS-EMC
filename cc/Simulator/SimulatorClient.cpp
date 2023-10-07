@@ -24,6 +24,9 @@ SimulatorClient::SimulatorClient(Game& game) {
 	referee_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
 		std::lock_guard<std::mutex> guard(data_mutex);
 		ref_command.ParseFromArray(msg->data(), (int) msg->size());
+		VSSRef::ref_to_team::VSSRef_Command new_ref_command;
+		new_ref_command.ParseFromArray(msg->data(), (int) msg->size());
+		ref_command_queue.push(new_ref_command);
 		new_ref_cmd = true;
 	});
 	if (game.simulation_id == 0) {
