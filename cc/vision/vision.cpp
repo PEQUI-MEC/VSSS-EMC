@@ -326,7 +326,7 @@ bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
     float signed_angle = angle0 - angle1;
 
     // Se o ângulo é menor que 180 graus, um valor positivo significa sentido horário.
-    bool is_clockwise = (abs(signed_angle) <= 3.1415926535/2)? signed_angle > 0 : signed_angle < 0;
+    bool is_clockwise = (abs(signed_angle) < 3.1415926535)? signed_angle > 0 : signed_angle < 0;
 
     return is_clockwise;
 }
