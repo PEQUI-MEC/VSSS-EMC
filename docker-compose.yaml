@@ -32,7 +32,7 @@ services:
         environment:
             - DISPLAY=unix$DISPLAY
         working_dir: /root/src
-        command: bash -c "cd ./build && cmake .. && make -j$$(nproc) && cd .. && /root/src/VSSS"
+        command: bash -c "if [ ! -d "build" ]; then mkdir build; fi && cd ./build && cmake .. && make -j$$(nproc) && cd .. && /root/src/VSSS"
     yellow_headless:
         image: pequi-vsss
         container_name: pequi-vsss-yellow-headless

@@ -36,6 +36,7 @@ class Messenger {
 		void send_commands(const std::vector<Robot3> &robots);
 		void send_command(char id, Target target);
 		std::string vision_to_msg(Pose pose);
+		//std::string obstacle_to_msg()
 
 
 		std::string rounded_str(double num);

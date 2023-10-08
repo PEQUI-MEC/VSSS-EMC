@@ -27,7 +27,23 @@ void Messenger::send_old_format(string cmd) {
 
 void Messenger::send_commands(const std::vector<Robot3> &robots) {
 	if (!esp32.has_value()) return;
+
 	std::string all_msgs;
+	for (const Robot3& robot : robots) {
+		std::string msg;
+		for (const Obstacle& obstacle : robot.control.obstacles){
+			if(!msg.empty()){
+				msg += ';';
+			}
+			//std::string msg = obstacle_to_msg(obstacle.position)
+			msg +=  rounded_str(obstacle.position.x * 100) + 
+				';' + rounded_str(obstacle.position.y * 100) + 
+				';' + rounded_str(obstacle.avoidance_field_weigh * 100);
+		}
+		if (!msg.empty()){
+			all_msgs += std::string(1, robot.ID) + '@' + msg + '#';
+		}
+	}
 	for (const Robot3& robot : robots) {
 		if (robot.role != Role::None && send_vision_data) {
 			std::string msg = vision_to_msg(robot.pose);
@@ -94,6 +110,12 @@ std::string Messenger::vision_to_msg(Pose pose) {
 		+ ";" + rounded_str(pose.position.y * 100)
 		+ ";" + rounded_str(pose.orientation * 180/M_PI);
 }
+
+/*std::string Messenger::obstacle_to_msg() {
+	return "H" + rounded_str(obstacle.position.x * 100)
+		+ ";" + rounded_str(obstacles.position.y * 100)
+		+ ";" + rounded_str(obstacle.avoidance_field_weigh * 100);
+}*/
 
 string Messenger::rounded_str(double num) {
 	double rounded_num = round(num * 100) / 100;
