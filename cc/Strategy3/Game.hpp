@@ -21,6 +21,8 @@ class Game {
 	bool first_iteration = false;
 	bool send_one_command = false;
 
+	bool use_shared_vision = false;
+
 	unsigned robot_count = 0;
 	int simulation_id = 0;
 

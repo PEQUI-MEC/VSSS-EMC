@@ -21,6 +21,17 @@ SimulatorClient::SimulatorClient(Game& game) {
 	vision_server.Init(10002 + game.simulation_id);
 	vision_server.Start();
 
+	shared_vision_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
+		std::lock_guard<std::mutex> guard(data_mutex);
+		wrapper.ParseFromArray(msg->data(), (int) msg->size());
+		if (wrapper.has_detection()) {
+			shared_vision_new_data = true;
+			// std::cout << "NEW PACKET" << std::endl;
+		}
+	});
+	shared_vision_server.Init(10322);
+	shared_vision_server.Start();
+
 	referee_server.SetMessageHandler([&]([[maybe_unused]] evpp::EventLoop* loop, evpp::udp::MessagePtr& msg) {
 		std::lock_guard<std::mutex> guard(data_mutex);
 		ref_command.ParseFromArray(msg->data(), (int) msg->size());
@@ -30,11 +41,56 @@ SimulatorClient::SimulatorClient(Game& game) {
 		new_ref_cmd = true;
 	});
 	if (game.simulation_id == 0) {
-		referee_server.Init(10003);
+		referee_server.Init(10312);
 	} else {
 		referee_server.Init(40000 + game.simulation_id);
 	}
 	referee_server.Start();
+}
+
+void SimulatorClient::update_team_shared_vision(Team &team, const Repeated<SSL_DetectionRobot>& robots_msg) {
+	auto size = std::min(robots_msg.size(), (int) team.robots.size());
+	for (int i = 0; i < size; i++) {
+		std::cout << "Robot " << i << std::endl;
+		auto& robot = team.robots[i];
+		auto& robot_msg = robots_msg.Get(i);
+		if (team.inverted_field) {
+
+			std::cout << "Inverted pos" << std::endl;
+			robot.pose.position = Geometry::Point::from_shared_vision(robot_msg.x(), robot_msg.y())
+					.inverted_coordinates();
+			std::cout << "Inverted ori: " << robot_msg.orientation() << std::endl;
+			robot.pose.orientation = Geometry::wrap(robot_msg.orientation() + M_PI);
+		} else {
+			std::cout << "Pos" << std::endl;
+			robot.pose.position = Geometry::Point::from_shared_vision(robot_msg.x(), robot_msg.y());
+			std::cout << "Ori: " << robot_msg.orientation() << std::endl;
+			robot.pose.orientation = Geometry::wrap(robot_msg.orientation() * (M_PI/180.0));
+		}
+		std::cout << "Done Robot " << i << std::endl;
+	}
+	std::cout << "Done team" << std::endl;
+}
+
+void SimulatorClient::update_robots_shared_vision(Game& game) {
+	auto frame = this->wrapper.detection();
+	if (frame.balls().size() > 0) {
+		std::cout << "Ball" << std::endl;
+		auto ball = frame.balls(0);
+		game.ball.set_position(Geometry::Point::from_shared_vision(ball.x(), ball.y()));
+	}
+	if (game.team->robot_color == RobotColor::Blue) {
+		std::cout << "Update team" << std::endl;
+		update_team_shared_vision(*game.team.get(), frame.robots_blue());
+		std::cout << "Update adv" << std::endl;
+		update_team_shared_vision(*game.adversary.get(), frame.robots_yellow());
+	} else {
+		std::cout << "Update adv" << std::endl;
+		update_team_shared_vision(*game.adversary.get(), frame.robots_blue());
+		std::cout << "Update team" << std::endl;
+		update_team_shared_vision(*game.team.get(), frame.robots_yellow());
+	}
+	std::cout << "Done update" << std::endl;
 }
 
 void SimulatorClient::update_robots(Game &game) {

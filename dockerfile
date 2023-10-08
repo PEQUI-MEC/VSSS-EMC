@@ -106,7 +106,7 @@ RUN git clone -b docker_headless_fix https://github.com/thiagohenrique1/FIRASim.
 
 # Referee
 WORKDIR /root/
-RUN git clone -b feat/sim-time-step https://github.com/thiagohenrique1/VSSReferee.git &&\
+RUN git clone https://github.com/VSSSLeague/VSSReferee.git &&\
     mkdir ./VSSReferee/build &&\
     cd ./VSSReferee/build &&\
     qmake .. &&\

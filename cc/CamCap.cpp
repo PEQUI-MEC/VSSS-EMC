@@ -105,7 +105,27 @@ void CamCap::joystick_loop() {
 
 
 bool CamCap::run_game_loop() {
-	if (!game.is_simulated && has_camera) {
+	if (!game.is_simulated && game.use_shared_vision) {
+		if (has_camera) interface.bt_start.activate();
+		if (width != 640 || height != 480) {
+			set_image_resolution(640, 480);
+		}
+		if(!simulator.client.shared_vision_new_data && !simulator.client.new_ref_cmd &&
+			!(game.playing_game && game.first_iteration))
+			return true;
+		
+		simulator.process_referee_cmds(false);
+
+		if (game.send_one_command) {
+			interface.controlGUI.messenger.send_commands_data = true;
+			notify_data_ready(true, interface.controlGUI.ekf_always_send || game.playing_game);
+			game.send_one_command = false;
+		}
+
+		if(simulator.client.shared_vision_new_data) {
+			simulator.client.update_robots_shared_vision(game);
+		}
+	} else if (!game.is_simulated && has_camera) {
 		simulator.process_referee_cmds(false);
 		if (game.send_one_command) {
 			interface.controlGUI.messenger.send_commands_data = true;

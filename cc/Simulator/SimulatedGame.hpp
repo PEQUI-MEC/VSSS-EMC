@@ -6,6 +6,7 @@
 class SimulatedGame {
 
     Game& game;
+    public:
     SimulatorClient client;
 
 

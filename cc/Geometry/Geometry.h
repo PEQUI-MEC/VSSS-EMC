@@ -40,6 +40,7 @@ namespace Geometry {
 		cv::Point to_cv_point() const;
 		PyObject * to_python() const;
 		Point inverted_coordinates(bool invert = true) const;
+		static Point from_shared_vision(double x, double y);
 		static Point from_simulator(double x, double y);
 	};
 

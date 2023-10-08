@@ -48,6 +48,9 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
     protobuf_msg/vssref_placement.proto
     protobuf_msg/vssref_common.proto
     protobuf_msg/vssref_command.proto
+    protobuf_msg/messages_robocup_ssl_detection.proto
+    protobuf_msg/messages_robocup_ssl_geometry.proto
+    protobuf_msg/wrapper.proto
 )
 
 #Define arquivos a serem compilados. Novos arquivos devem ser inclusos aqui

@@ -7,6 +7,7 @@
 #include "command.pb.h"
 #include "vssref_command.pb.h"
 #include "vssref_placement.pb.h"
+#include "wrapper.pb.h"
 
 #include <evpp/udp/udp_server.h>
 #include <evpp/udp/udp_message.h>
@@ -29,7 +30,11 @@ class SimulatorClient {
 	std::vector<char> buffer;
 	std::vector<char> placement_buffer;
 
+	SSL_WrapperPacket wrapper;
+	evpp::udp::Server shared_vision_server;
+
 	bool new_data = false;
+	bool shared_vision_new_data = true;
 	bool new_ref_cmd = false;
 	std::mutex data_mutex;
 
@@ -50,6 +55,8 @@ class SimulatorClient {
 
 	void update_team(Team &team, const Repeated<fira_message::Robot>& robots_msg);
 	void update_robots(Game& game);
+	void update_team_shared_vision(Team &team, const Repeated<SSL_DetectionRobot>& robots_msg);
+	void update_robots_shared_vision(Game& game);
 	void send_commands(Team &team, Team &adv);
 	void send_placement(VSSRef::Frame* frame);
 };

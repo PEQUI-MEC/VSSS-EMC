@@ -62,6 +62,10 @@ Point Point::from_simulator(double x, double y) {
 	return {x + field::field_width/2, y + field::field_height/2};
 }
 
+Point Point::from_shared_vision(double x, double y) {
+	return {x/1000.0 + field::field_width/2, y/1000.0 + field::field_height/2};
+}
+
 Point Point::inverted_coordinates(bool invert) const {
 	if (invert) return Point(field::field_width - x, field::field_height - y);
 	else return *this;
