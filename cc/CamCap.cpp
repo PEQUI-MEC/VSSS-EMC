@@ -13,14 +13,24 @@ void CamCap::update_positions(Tags &tags) {
 	for (auto &robot : game.yellow_team().robots) {
 		if (robot.TAG < tags.yellow.size()) {
 			auto tag = tags.yellow[robot.TAG];
-			robot.set_pose(tag.position, tag.orientation, game.yellow_team().inverted_field);
+            if(!tag.is_valid_tag) {
+                robot.has_valid_tag = false;
+            } else {
+                robot.has_valid_tag = true;
+                robot.set_pose(tag.position, tag.orientation, game.yellow_team().inverted_field);
+            }
 		}
 	}
 
 	for (auto &robot : game.blue_team().robots) {
 		if (robot.TAG < tags.blue.size()) {
 			auto tag = tags.blue[robot.TAG];
-			robot.set_pose(tag.position, tag.orientation, game.blue_team().inverted_field);
+            if(!tag.is_valid_tag) {
+                robot.has_valid_tag = false;
+            } else {
+                robot.has_valid_tag = true;
+                robot.set_pose(tag.position, tag.orientation, game.blue_team().inverted_field);
+            }
 		}
 	}
 

@@ -80,8 +80,7 @@ namespace vision {
 		void searchTags(unsigned long color);
 		void findTags();
 		int get_tag_id(Color left, Color right);
-		std::vector<Tag> tags_without_orientation(Color color);
-		std::vector<Tag> pick_a_tag(Color color);
+        std::vector<Tag> pick_a_tag(Color color, bool assume_the_first_three_color_ids);
 		Tags find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag);
 //		std::map<unsigned int, RecognizedTag> pick_a_tag();
 		int in_sphere(cv::Point secondary, Tag &main_tag);

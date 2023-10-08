@@ -29,7 +29,7 @@ void Messenger::send_commands(const std::vector<Robot3> &robots) {
 	if (!esp32.has_value()) return;
 	std::string all_msgs;
 	for (const Robot3& robot : robots) {
-		if (robot.role != Role::None && send_vision_data) {
+		if (robot.has_valid_tag && robot.role != Role::None && send_vision_data) {
 			std::string msg = vision_to_msg(robot.pose);
 			if (!msg.empty()) {
 				all_msgs += std::string(1, robot.ID) + '@' + msg + '#';
