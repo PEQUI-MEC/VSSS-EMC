@@ -94,7 +94,7 @@ void Esp32Serial::send_msg(const char ID, const std::string& msg) {
 void Esp32Serial::send_msg_thread() {
     while (!stop_receive_thread) {
         if (serial_port < 0) {
-            usleep(1000000);
+            usleep(1000);
             continue;
         }
         if (!serial_queue.empty()) {
@@ -139,7 +139,7 @@ void Esp32Serial::receive_msgs_thread() {
             std::cout << msg << std::endl;
         }
         received_messages.clear();
-        // sleep for 100ms
-        usleep(100000);
+        // sleep for 1ms
+        usleep(1000);
     }
 }

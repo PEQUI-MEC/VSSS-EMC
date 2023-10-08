@@ -110,12 +110,13 @@ void Messenger::update_msg_time() {
 }
 
 std::unordered_map<char, float> Messenger::read_batteries() {
-	// from A to D
+	// from A to F
 	if (!esp32.has_value()) return {};
 	esp32->batteries.clear();
-	for (char id = 'A'; id <= 'D'; id++) {
-		esp32->send_msg(id, "B");
-	}
+	// for (char id = 'A'; id <= 'F'; id++) {
+	// 	esp32->send_msg(id, "B");
+	// }
+	esp32->send_msg('X', "B");
 	usleep(200000);
 	return esp32->batteries;
 }
