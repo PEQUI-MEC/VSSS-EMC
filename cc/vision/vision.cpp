@@ -159,7 +159,9 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
                 // Compara se as tags estão no sentido horário, assim a primeira estaria à esquerda.
                 if (are_secondary_tags_clockwise(main_tag, secondary_tags[0].get(), secondary_tags[1].get()))
                 {
+                    std::cout << "Before swap: " << secondary_tags[0].get().id << " " << secondary_tags[1].get().id << std::endl;
 					std::swap(secondary_tags[0], secondary_tags[1]);
+                    std::cout << "after swap: " << secondary_tags[0].get().id << " " << secondary_tags[1].get().id << std::endl;
 				}
 
 				main_tag.id = get_tag_id((Color) secondary_tags[0].get().color, 
