@@ -157,7 +157,7 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 
 				// Coloca a tag à esquerda na primeira posição do array.
                 // Compara se as tags estão no sentido horário, assim a primeira estaria à esquerda.
-                if (!are_secondary_tags_clockwise(main_tag, secondary_tags[0].get(), secondary_tags[1].get()))
+                if (are_secondary_tags_clockwise(main_tag, secondary_tags[0].get(), secondary_tags[1].get()))
                 {
 					std::swap(secondary_tags[0], secondary_tags[1]);
 				}
@@ -315,19 +315,15 @@ bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
     cv::Point_<double> vec1 = tag1.position - main_tag.position;
 
     // Ajusta o aspect ratio dos vetores
-    vec0 = cv::Point_<double>(vec0.y * field::field_height / height,
-                              vec0.x * field::field_width / width);
-    vec1 = cv::Point_<double>(vec1.y * field::field_height / height,
-                              vec1.x * field::field_width / width);
-    // Recebe o ângulo do vetor comparado ao eixo x
-    float angle0 = atan2(vec0.y, vec0.x);
-    float angle1 = atan2(vec1.y, vec1.x);
-
-    float signed_angle = angle0 - angle1;
-
-    // Se o ângulo é menor que 180 graus, um valor positivo significa sentido horário.
-    bool is_clockwise = (abs(signed_angle) < 3.1415926535)? signed_angle > 0 : signed_angle < 0;
-
+    vec0 = cv::Point_<double>(vec0.x * field::field_width / width,
+                              vec0.y * field::field_height / height);
+    vec0 = cv::Point_<double>(vec1.x * field::field_width / width,
+                              vec1.y * field::field_height / height);
+    // https://stackoverflow.com/questions/14066933/direct-way-of-computing-the-clockwise-angle-between-two-vectors
+    double dot_product = vec0.x*vec1.x + vec0.y*vec1.y;
+    double determinant = vec0.x*vec1.y - vec1.x*vec0.y;
+    double signed_angle = atan2(determinant, dot_product);
+    bool is_clockwise = signed_angle > 0;
     return is_clockwise;
 }
 
