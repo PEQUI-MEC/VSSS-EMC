@@ -323,7 +323,7 @@ bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
     double dot_product = vec0.x*vec1.x + vec0.y*vec1.y;
     double determinant = vec0.x*vec1.y - vec1.x*vec0.y;
     double signed_angle = atan2(determinant, dot_product);
-    bool is_clockwise = signed_angle < 0;
+    bool is_clockwise = signed_angle > 0;
     return is_clockwise;
 }
 
