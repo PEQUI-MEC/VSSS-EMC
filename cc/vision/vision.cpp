@@ -110,7 +110,7 @@ int Vision::get_tag_id(Color left, Color right) {
 	return -1;
 }
 
-std::vector<Tag> Vision::pick_a_tag(Color color) {
+std::vector<Tag> Vision::pick_a_tag(Color color, bool hardcoded_order) {
 	std::vector<Tag> found_tags;
 	std::vector<std::reference_wrapper<Tag>> main_tags;
 
@@ -188,8 +188,27 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 		}
 	}
 
-	// Ordena as tags de acordo com o seu id.
-	std::sort(found_tags.begin(), found_tags.end(), [](Tag& tag1, Tag& tag2) {return tag1.id < tag2.id;});
+    if(hardcoded_order){
+        std::vector temp_tags = found_tags;
+        found_tags.clear;
+        int valid_ids[] = {0,1,2};
+        for(int id : valid_ids){
+            bool tag_exists = false;
+            for(Tag tag : temp_tags){
+                if(temp_tags.id == id){
+                    found_tags.push_back(tag);
+                    tag_exists = true;
+                    break;
+                }
+            }
+            if(!tag_exists){
+                found_tags.push_back(Tag());
+            }
+        }
+    }else{
+        // Ordena as tags de acordo com o seu id.
+        std::sort(found_tags.begin(), found_tags.end(), [](Tag& tag1, Tag& tag2) {return tag1.id < tag2.id;});
+    }
 
 	// Limita a 3 tags.
 	if (found_tags.size() <= 3)  {
@@ -203,10 +222,10 @@ Tags Vision::find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 	Tags found_tags;
 
 	found_tags.yellow_has_orientation = yellow_pick_at_tag;
-	found_tags.yellow = pick_a_tag(Color::Yellow);
+	found_tags.yellow = pick_a_tag(Color::Yellow, yellow_pick_at_tag);
 
 	found_tags.blue_has_orientation = blue_pick_at_tag;
-	found_tags.blue = pick_a_tag(Color::Blue);
+	found_tags.blue = pick_a_tag(Color::Blue, blue_pick_at_tag);
 
 	// BALL POSITION
 	if (!tags[Color::Ball].empty()) {
