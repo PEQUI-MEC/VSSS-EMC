@@ -110,7 +110,7 @@ int Vision::get_tag_id(Color left, Color right) {
 	return -1;
 }
 
-std::vector<Tag> Vision::pick_a_tag(Color color) {
+std::vector<Tag> Vision::pick_a_tag(Color color, bool use_hardcoded_tag_order) {
 	std::vector<Tag> found_tags;
 	std::vector<std::reference_wrapper<Tag>> main_tags;
 
@@ -127,11 +127,11 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 	// While loop enquanto existe uma tag principal associada à exatamente duas tags secundárias.
 	// A cada iteração, quando existe alguma ambiguidade com uma tag principal próxima de
 	// mais de duas tags secundárias, ela é ignorada e testada de novo na próxima iteração, esperando
-	// que a ambiguidade já tenha sido resolvida usando a variável already_assigned_to_robot.
+	// que a ambiguidade já tenha sido resolvida usando a variável is_valid_tag.
 	while (true) {
 		bool found_a_new_tag = false;
 		for (Tag & main_tag : main_tags) {
-			if (main_tag.already_assigned_to_robot) continue;
+			if (main_tag.is_valid_tag) continue;
 
 			// Tags secundárias dentro do ROBOT_RADIUS.
 			std::vector<std::reference_wrapper<Tag>> secondary_tags;
@@ -140,7 +140,7 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 			const Color Secondary_Colors[] = { Color::Red, Color::Green, Color::Cyan, Color::Magenta };
 			for (Color secondary_color : Secondary_Colors) {
 				for (Tag & secondary_tag : tags.at(secondary_color)) {
-					if (secondary_tag.already_assigned_to_robot) continue;
+					if (secondary_tag.is_valid_tag) continue;
                     if (calcDistance(main_tag.position, secondary_tag.position) <= ROBOT_RADIUS) {
 							secondary_tag.color = secondary_color;
 							secondary_tags.push_back(secondary_tag);
@@ -168,9 +168,9 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
                 // Verifica se a tag é válida
 				if (main_tag.id >= 0) {
 					found_a_new_tag = true;
-					main_tag.already_assigned_to_robot = true;
+					main_tag.is_valid_tag = true;
 					for ( Tag & secondary_tag : secondary_tags ){
-						secondary_tag.already_assigned_to_robot = true;
+						secondary_tag.is_valid_tag = true;
 					}
 
                     calculate_orientation_and_front_and_rear(main_tag, secondary_tags[0].get(), secondary_tags[1].get());
@@ -183,13 +183,43 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 	// Adiciona tags da cor selecionada para o vetor de retorno.
 	for (Tag & main_tag : main_tags) {
 		if ( main_tag.color == color && 
-		     main_tag.already_assigned_to_robot ) {
+		     main_tag.is_valid_tag ) {
 			found_tags.push_back(main_tag);
 		}
 	}
 
-	// Ordena as tags de acordo com o seu id.
-	std::sort(found_tags.begin(), found_tags.end(), [](Tag& tag1, Tag& tag2) {return tag1.id < tag2.id;});
+	if(use_hardcoded_tag_order)
+	{
+		std::vector<Tag> temp_tags;
+		for(Tag tag : found_tags)
+		{
+			temp_tags.push_back(tag);
+		}
+		found_tags.clear();
+
+		int valid_tag_ids[] = {0, 1, 2};
+		for(int id : valid_tag_ids)
+		{
+			bool found_tag_id = false;
+			for(Tag tag : temp_tags)
+			{
+				if(tag.id == id)
+				{
+					found_tag_id = true;
+					found_tags.push_back(tag);
+					break;
+				}
+			}
+			if(!found_tag_id)
+			{
+				found_tags.push_back(Tag());
+			}
+		}
+
+	} else {
+		// Ordena as tags de acordo com o seu id.
+		std::sort(found_tags.begin(), found_tags.end(), [](Tag& tag1, Tag& tag2) {return tag1.id < tag2.id;});
+	}
 
 	// Limita a 3 tags.
 	if (found_tags.size() <= 3)  {
@@ -203,10 +233,10 @@ Tags Vision::find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 	Tags found_tags;
 
 	found_tags.yellow_has_orientation = yellow_pick_at_tag;
-	found_tags.yellow = pick_a_tag(Color::Yellow);
+	found_tags.yellow = pick_a_tag(Color::Yellow, yellow_pick_at_tag);
 
 	found_tags.blue_has_orientation = blue_pick_at_tag;
-	found_tags.blue = pick_a_tag(Color::Blue);
+	found_tags.blue = pick_a_tag(Color::Blue, blue_pick_at_tag);
 
 	// BALL POSITION
 	if (!tags[Color::Ball].empty()) {
@@ -315,18 +345,23 @@ bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
     cv::Point_<double> vec1 = tag1.position - main_tag.position;
 
     // Ajusta o aspect ratio dos vetores
-    vec0 = cv::Point_<double>(vec0.y * field::field_height / height,
-                              vec0.x * field::field_width / width);
-    vec1 = cv::Point_<double>(vec1.y * field::field_height / height,
-                              vec1.x * field::field_width / width);
+    vec0 = cv::Point_<double>(vec0.x * field::field_width / width,
+                              vec0.y * field::field_height / height);
+    vec1 = cv::Point_<double>(vec1.x * field::field_width / width,
+                              vec1.y * field::field_height / height);
     // Recebe o ângulo do vetor comparado ao eixo x
     float angle0 = atan2(vec0.y, vec0.x);
     float angle1 = atan2(vec1.y, vec1.x);
 
     float signed_angle = angle0 - angle1;
 
-    // Se o ângulo é menor que 180 graus, um valor positivo significa sentido horário.
-    bool is_clockwise = (abs(signed_angle) < 3.1415926535)? signed_angle > 0 : signed_angle < 0;
+    // angle wrap to [-180,180].
+	signed_angle = std::fmod(signed_angle, 2 * M_PI);
+	while (signed_angle > M_PI){signed_angle -= 2 * M_PI;}
+	while (signed_angle < -M_PI){signed_angle += 2 * M_PI;}
+
+    // Se o ângulo é menor que 90 graus, um valor positivo significa sentido horário.
+    bool is_clockwise = (abs(signed_angle) < M_PI/2.0f)? signed_angle > 0 : signed_angle < 0;
 
     return is_clockwise;
 }

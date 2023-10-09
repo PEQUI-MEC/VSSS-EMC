@@ -13,14 +13,24 @@ void CamCap::update_positions(Tags &tags) {
 	for (auto &robot : game.yellow_team().robots) {
 		if (robot.TAG < tags.yellow.size()) {
 			auto tag = tags.yellow[robot.TAG];
-			robot.set_pose(tag.position, tag.orientation, game.yellow_team().inverted_field);
+			if(tag.is_valid_tag) {
+				robot.has_valid_tag = true;
+				robot.set_pose(tag.position, tag.orientation, game.yellow_team().inverted_field);
+			} else {
+				robot.has_valid_tag = false;
+			}
 		}
 	}
 
 	for (auto &robot : game.blue_team().robots) {
 		if (robot.TAG < tags.blue.size()) {
 			auto tag = tags.blue[robot.TAG];
-			robot.set_pose(tag.position, tag.orientation, game.blue_team().inverted_field);
+			if(tag.is_valid_tag) {
+				robot.has_valid_tag = true;
+				robot.set_pose(tag.position, tag.orientation, game.blue_team().inverted_field);
+			} else {
+				robot.has_valid_tag = false;
+			}
 		}
 	}
 
@@ -200,6 +210,12 @@ bool CamCap::capture_and_show() {
 		chessBoardFound = cv::findChessboardCorners(visionImage, CHESSBOARD_DIMENSION, foundPoints,
 													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
+
+	// Camera test with image
+	//cv::Mat image_rgb = cv::imread("campo_com_tags.jpg");
+	//cv::Mat image_bgr = image_rgb;
+	//cv::cvtColor(image_bgr, image_rgb, cv::COLOR_RGB2BGR);
+	//image_bgr.copyTo(visionImage);
 
 	auto tags = interface.visionGUI.vision->run(visionImage, game.yellow_team().controlled,
 												game.blue_team().controlled);

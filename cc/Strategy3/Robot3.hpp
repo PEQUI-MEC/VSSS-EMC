@@ -10,6 +10,8 @@ class Robot3 {
 	Pose pose;
 	Target target;
 
+	bool has_valid_tag = false;
+
 	unsigned int TAG = 0;
 	char ID = 'A';
 	Role role = Role::None;
