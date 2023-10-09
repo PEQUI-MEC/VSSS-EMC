@@ -225,11 +225,9 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 		for (int i = 0; i < 3; i++) {
 			if (blue_targets.size() > i && game.blue_team().controlled) {
 				game.blue_team().robots[i].go_to_and_stop_orientation(blue_targets[i].pose.position, blue_targets[i].pose.orientation, 0.8);
-				std::cout << "blue " << i << " go to " << blue_targets[i].pose.position << std::endl;
 			}
 			if (yellow_targets.size() > i && game.yellow_team().controlled) {
-				game.yellow_team().robots[i].go_to_and_stop_orientation(yellow_targets[i].pose.position, blue_targets[i].pose.orientation, 0.8);
-				std::cout << "yellow " << i << " go to " << blue_targets[i].pose.position << std::endl;
+				game.yellow_team().robots[i].go_to_and_stop_orientation(yellow_targets[i].pose.position, yellow_targets[i].pose.orientation, 0.8);
 			}
 		}
 		game.send_one_command = true;
