@@ -49,14 +49,14 @@ void ImageArt::draw(cv::Mat &frame, const Tags &tags, Team &team, bool is_game_o
 	// Strategy targets
 	if (is_game_on) {
 		for (auto robot : team.robots) {
-			draw_targets(robot, frame, false, team.robot_color);
+			draw_targets(robot, frame, team.inverted_field, team.robot_color);
 		}
 	}
 
 	// Test On Click
 	if (test_on_click.is_active() && test_on_click.has_robot()) {
 		Robot3* robot = test_on_click.get_selected_robot();
-		draw_targets(*robot, frame, false, team.robot_color);
+		draw_targets(*robot, frame, team.inverted_field, team.robot_color);
 		cv::circle(frame, robot->get_position().to_cv_point(), 13, test_color, 2, cv::LINE_AA);
 	}
 
