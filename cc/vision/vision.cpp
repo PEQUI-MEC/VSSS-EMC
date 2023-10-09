@@ -191,7 +191,7 @@ std::vector<Tag> Vision::pick_a_tag(Color color, bool hardcoded_order) {
     if(hardcoded_order){
         std::vector temp_tags = found_tags;
         found_tags.clear();
-        int valid_ids[] = {0,1,2};
+        int valid_ids[] = {0,2,4};
         for(int id : valid_ids){
             bool tag_exists = false;
             for(Tag tag : temp_tags){
