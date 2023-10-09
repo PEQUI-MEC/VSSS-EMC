@@ -190,12 +190,12 @@ std::vector<Tag> Vision::pick_a_tag(Color color, bool hardcoded_order) {
 
     if(hardcoded_order){
         std::vector temp_tags = found_tags;
-        found_tags.clear;
+        found_tags.clear();
         int valid_ids[] = {0,1,2};
         for(int id : valid_ids){
             bool tag_exists = false;
             for(Tag tag : temp_tags){
-                if(temp_tags.id == id){
+                if(tag.id == id){
                     found_tags.push_back(tag);
                     tag_exists = true;
                     break;
