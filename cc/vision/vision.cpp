@@ -159,9 +159,7 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
                 // Compara se as tags estão no sentido horário, assim a primeira estaria à esquerda.
                 if (are_secondary_tags_clockwise(main_tag, secondary_tags[0].get(), secondary_tags[1].get()))
                 {
-                    std::cout << "Before swap: " << secondary_tags[0].get().color << " " << secondary_tags[1].get().color << std::endl;
 					std::swap(secondary_tags[0], secondary_tags[1]);
-                    std::cout << "after swap: " << secondary_tags[0].get().color << " " << secondary_tags[1].get().color << std::endl;
 				}
 
 				main_tag.id = get_tag_id((Color) secondary_tags[0].get().color, 
@@ -319,7 +317,7 @@ bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
     // Ajusta o aspect ratio dos vetores
     vec0 = cv::Point_<double>(vec0.x * field::field_width / width,
                               vec0.y * field::field_height / height);
-    vec0 = cv::Point_<double>(vec1.x * field::field_width / width,
+    vec1 = cv::Point_<double>(vec1.x * field::field_width / width,
                               vec1.y * field::field_height / height);
     // https://stackoverflow.com/questions/14066933/direct-way-of-computing-the-clockwise-angle-between-two-vectors
     double dot_product = vec0.x*vec1.x + vec0.y*vec1.y;
