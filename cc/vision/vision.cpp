@@ -110,7 +110,7 @@ int Vision::get_tag_id(Color left, Color right) {
 	return -1;
 }
 
-std::vector<Tag> Vision::pick_a_tag(Color color) {
+std::vector<Tag> Vision::pick_a_tag(Color color, bool hardcoded_order) {
 	std::vector<Tag> found_tags;
 	std::vector<std::reference_wrapper<Tag>> main_tags;
 
@@ -157,7 +157,7 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 
 				// Coloca a tag à esquerda na primeira posição do array.
                 // Compara se as tags estão no sentido horário, assim a primeira estaria à esquerda.
-                if (!are_secondary_tags_clockwise(main_tag, secondary_tags[0].get(), secondary_tags[1].get()))
+                if (are_secondary_tags_clockwise(main_tag, secondary_tags[0].get(), secondary_tags[1].get()))
                 {
 					std::swap(secondary_tags[0], secondary_tags[1]);
 				}
@@ -188,8 +188,27 @@ std::vector<Tag> Vision::pick_a_tag(Color color) {
 		}
 	}
 
-	// Ordena as tags de acordo com o seu id.
-	std::sort(found_tags.begin(), found_tags.end(), [](Tag& tag1, Tag& tag2) {return tag1.id < tag2.id;});
+    if(hardcoded_order){
+        std::vector temp_tags = found_tags;
+        found_tags.clear();
+        int valid_ids[] = {0,2,4};
+        for(int id : valid_ids){
+            bool tag_exists = false;
+            for(Tag tag : temp_tags){
+                if(tag.id == id){
+                    found_tags.push_back(tag);
+                    tag_exists = true;
+                    break;
+                }
+            }
+            if(!tag_exists){
+                found_tags.push_back(Tag());
+            }
+        }
+    }else{
+        // Ordena as tags de acordo com o seu id.
+        std::sort(found_tags.begin(), found_tags.end(), [](Tag& tag1, Tag& tag2) {return tag1.id < tag2.id;});
+    }
 
 	// Limita a 3 tags.
 	if (found_tags.size() <= 3)  {
@@ -203,10 +222,10 @@ Tags Vision::find_all_tags(bool yellow_pick_at_tag, bool blue_pick_at_tag) {
 	Tags found_tags;
 
 	found_tags.yellow_has_orientation = yellow_pick_at_tag;
-	found_tags.yellow = pick_a_tag(Color::Yellow);
+	found_tags.yellow = pick_a_tag(Color::Yellow, yellow_pick_at_tag);
 
 	found_tags.blue_has_orientation = blue_pick_at_tag;
-	found_tags.blue = pick_a_tag(Color::Blue);
+	found_tags.blue = pick_a_tag(Color::Blue, blue_pick_at_tag);
 
 	// BALL POSITION
 	if (!tags[Color::Ball].empty()) {
@@ -315,19 +334,15 @@ bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
     cv::Point_<double> vec1 = tag1.position - main_tag.position;
 
     // Ajusta o aspect ratio dos vetores
-    vec0 = cv::Point_<double>(vec0.y * field::field_height / height,
-                              vec0.x * field::field_width / width);
-    vec1 = cv::Point_<double>(vec1.y * field::field_height / height,
-                              vec1.x * field::field_width / width);
-    // Recebe o ângulo do vetor comparado ao eixo x
-    float angle0 = atan2(vec0.y, vec0.x);
-    float angle1 = atan2(vec1.y, vec1.x);
-
-    float signed_angle = angle0 - angle1;
-
-    // Se o ângulo é menor que 180 graus, um valor positivo significa sentido horário.
-    bool is_clockwise = (abs(signed_angle) < 3.1415926535)? signed_angle > 0 : signed_angle < 0;
-
+    vec0 = cv::Point_<double>(vec0.x * field::field_width / width,
+                              vec0.y * field::field_height / height);
+    vec1 = cv::Point_<double>(vec1.x * field::field_width / width,
+                              vec1.y * field::field_height / height);
+    // https://stackoverflow.com/questions/14066933/direct-way-of-computing-the-clockwise-angle-between-two-vectors
+    double dot_product = vec0.x*vec1.x + vec0.y*vec1.y;
+    double determinant = vec0.x*vec1.y - vec1.x*vec0.y;
+    double signed_angle = atan2(determinant, dot_product);
+    bool is_clockwise = signed_angle > 0;
     return is_clockwise;
 }
 
