@@ -20,6 +20,7 @@ class Game {
 	bool playing_game = false;
 	bool first_iteration = false;
 	bool send_one_command = false;
+	bool automatic_positioning = false;
 
 	unsigned robot_count = 0;
 	int simulation_id = 0;

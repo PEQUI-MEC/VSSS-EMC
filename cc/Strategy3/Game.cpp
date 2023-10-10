@@ -75,6 +75,7 @@ void Game::stop_game() {
 	}
 	send_one_command = true;
 	playing_game = false;
+	automatic_positioning = false;
 }
 
 time_point Game::now() {

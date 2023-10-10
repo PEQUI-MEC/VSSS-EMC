@@ -119,9 +119,9 @@ void CamCap::joystick_loop() {
 bool CamCap::run_game_loop() {
 	if (!game.is_simulated && has_camera) {
 		simulator.process_referee_cmds(false);
-		if (game.send_one_command) {
+		if (game.send_one_command || game.automatic_positioning) {
 			interface.controlGUI.messenger.send_commands_data = true;
-			notify_data_ready(true, interface.controlGUI.ekf_always_send || game.playing_game);
+			notify_data_ready(true, interface.controlGUI.ekf_always_send || game.playing_game || game.automatic_positioning);
 			game.send_one_command = false;
 		}
 		capture_and_show();
