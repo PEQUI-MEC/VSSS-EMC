@@ -33,27 +33,23 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 		int grid_y = 4;
 
 		double find_rounded_x = round(attacker->get_position().x * ((grid_x - 1)/ sizex));
-		//double closest_x = find_rounded_x * (sizex / (grid_x - 1));
-		double closest_x;
-		double closest_y;
+		double closest_x = find_rounded_x * (sizex / (grid_x - 1));
+
 		double find_rounded_y = round(attacker->get_position().y * ((grid_y - 1)/ sizey));
-		//double closest_y = find_rounded_y * (sizey / (grid_y - 1));
+		double closest_y = find_rounded_y * (sizey / (grid_y - 1));
 
 		Point closest = {closest_x , closest_y};
 
 		double distance_attacker_ball = distance(attacker->get_position() , ball.position);
 		
-	
+
 		if (distance_attacker_ball <= 0.3){
 
 			if(at_location(attacker->get_position(), field::Location::LowerField)){
-				
 				closest_x = (find_rounded_x - 1) * (sizex / (grid_x - 1));
 				closest_y = (find_rounded_y + 2 ) * (sizey / (grid_y - 1));
 				closest = {closest_x , closest_y};
-				for(closest){
-					robot->go_to_and_stop(closest);
-					}
+				robot->go_to_and_stop(closest);
 			} else{
 				closest_x = (find_rounded_x - 1) * (sizex / (grid_x - 1));
 				closest_y = (find_rounded_y - 2 ) * (sizey / (grid_y - 1));
