@@ -40,7 +40,7 @@ void AttackerStrategy::uvf_to_goal(Ball& ball, bool is_penalty) {
 							robot_to_ball.angle_to(ball_to_lower) < degree_to_rad(5);
 
 	// bool use_ball_vel = std::abs(wrap(ball.velocity.theta - M_PI/2)) < 15;
-	bool use_ball_vel = std::abs(ball.velocity.size) > 0.02;
+	bool use_ball_vel = std::abs(ball.velocity.size) > 0.04;
 
 	double orientation_error = std::abs(wrap(robot_to_ball.theta - ball_to_goal.theta));
 //	double orientation_error_backwards = std::abs(wrap(robot_to_ball.theta - (ball_to_goal.theta + M_PI)));
