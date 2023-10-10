@@ -2,6 +2,28 @@
 
 time_point before = hrc::from_time_t(0);
 
+double total_reposition_distance(std::vector<Target>& target, std::vector<Robot3>& robots) {
+	double total_distance = 0;
+	for (int i = 0; i < 3; i++) {
+		total_distance += distance(target[i].pose.position, robots[i].get_position());
+	}
+	return total_distance;
+}
+
+// Defined in Strategy3.cpp
+extern std::array<std::array<int, 3>, 6> all_possible_permutations();
+
+std::vector<Target> select_best_reposition(std::vector<Target> targets, std::vector<Robot3>& robots) {
+	std::array<std::array<int, 3>, 6> permutations = all_possible_permutations();
+	auto best_target_order = *std::min_element(permutations.begin(), permutations.end(),
+									[&](std::array<int, 3> p1, std::array<int, 3> p2) {
+		std::vector<Target> targets1 = {targets[p1[0]], targets[p1[1]], targets[p1[2]]};
+		std::vector<Target> targets2 = {targets[p2[0]], targets[p2[1]], targets[p2[2]]};
+		return total_reposition_distance(targets1, robots) < total_reposition_distance(targets2, robots);
+	});
+	return {targets[best_target_order[0]], targets[best_target_order[1]], targets[best_target_order[2]]};
+}
+
 void SimulatedGame::process_referee_cmds(bool send_placement) {
 	if (client.ref_command_queue.empty()) return;
 
@@ -181,6 +203,9 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			}
 			break;
 		case VSSRef::Foul::STOP:
+			game.stop_game();
+			game.ball.reset_ls();
+			break;
 		case VSSRef::Foul::HALT:
 			game.stop_game();
 			game.ball.reset_ls();
@@ -222,15 +247,23 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 	game.adversary->strategy->set_foul(ref_command, !team_defending, game.now());
 
 	if (!game.is_simulated) {
-		for (int i = 0; i < 3; i++) {
-			if (blue_targets.size() > i && game.blue_team().controlled) {
-				game.blue_team().robots[i].go_to_and_stop_orientation(blue_targets[i].pose.position, blue_targets[i].pose.orientation, 0.8);
-			}
-			if (yellow_targets.size() > i && game.yellow_team().controlled) {
-				game.yellow_team().robots[i].go_to_and_stop_orientation(yellow_targets[i].pose.position, yellow_targets[i].pose.orientation, 0.8);
+		if (game.blue_team().controlled && blue_targets.size() >= 3) {
+			auto best_target_order = select_best_reposition(blue_targets, game.blue_team().robots);
+			for (int i = 0; i < 3; i++) {
+				game.blue_team().robots[i].go_to_and_stop_orientation(best_target_order[i].pose.position,
+					best_target_order[i].pose.orientation, 0.5);
 			}
 		}
-		game.send_one_command = true;
+		if (game.yellow_team().controlled && yellow_targets.size() >= 3) {
+			auto best_target_order = select_best_reposition(yellow_targets, game.yellow_team().robots);
+			for (int i = 0; i < 3; i++) {
+				game.yellow_team().robots[i].go_to_and_stop_orientation(best_target_order[i].pose.position,
+					best_target_order[i].pose.orientation, 0.5);
+			}
+		}
+	}
+	if (blue_targets.size() > 0 || yellow_targets.size() > 0) {
+		game.automatic_positioning = true; // is set to false on game.stop_game()
 	}
 }
 

@@ -126,5 +126,4 @@ void SimulatorClient::send_placement(VSSRef::Frame* frame){
 	placement.SerializeToArray(placement_buffer.data(), (int) placement.ByteSize());
 
 	referee_client.Send(placement_buffer.data(), (ulong) placement.ByteSize());
-
 }
