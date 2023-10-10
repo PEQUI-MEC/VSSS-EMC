@@ -14,8 +14,11 @@ void DefenderStrategy::run_strategy(const Ball &ball, const Robot3 * attacker) {
 			wait_at_target(defender::back::lower_limit, ball.position);
 		else
 			wait_at_target(defender::back::upper_limit, ball.position);
+    } else if (attacker && !at_location(robot->get_position(), Location::AnyGoal) && at_location(ball.position, Location::TheirField) && ( distance(attacker->get_position() , ball.position) > 0.3 )) {
+        Point target = {ball.position.x - 0.3, ball.position.y};
+        robot->go_to_and_stop(target);
     } else if (attacker && !at_location(robot->get_position(), Location::AnyGoal) && at_location(ball.position, Location::TheirField)) {
-        Point target = ( distance(attacker->get_position() , ball.position) <= 0.3 )? attacker->get_position() : ball.position;
+        Point target = attacker->get_position();
 
         int grid_width = 3;
         int grid_height = 4;
