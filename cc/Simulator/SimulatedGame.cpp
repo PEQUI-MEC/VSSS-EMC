@@ -24,22 +24,40 @@ std::vector<Target> select_best_reposition(std::vector<Target> targets, std::vec
 	return {targets[best_target_order[0]], targets[best_target_order[1]], targets[best_target_order[2]]};
 }
 
+void SimulatedGame::reposition_robots() {
+	if (game.blue_team().controlled && blue_targets.size() >= 3) {
+		auto best_target_order = select_best_reposition(blue_targets, game.blue_team().robots);
+		for (int i = 0; i < 3; i++) {
+			game.blue_team().robots[i].go_to_and_stop_orientation(best_target_order[i].pose.position,
+				best_target_order[i].pose.orientation, best_target_order[i].pose.velocity.linear);
+		}
+	}
+	if (game.yellow_team().controlled && yellow_targets.size() >= 3) {
+		auto best_target_order = select_best_reposition(yellow_targets, game.yellow_team().robots);
+		for (int i = 0; i < 3; i++) {
+			game.yellow_team().robots[i].go_to_and_stop_orientation(best_target_order[i].pose.position,
+				best_target_order[i].pose.orientation, 0.5);
+		}
+	}
+}
+
 void SimulatedGame::process_referee_cmds(bool send_placement) {
 	if (client.ref_command_queue.empty()) return;
 
 	auto ref_command = client.ref_command_queue.front();
 	client.ref_command_queue.pop();
 
-	std::vector<Target> blue_targets;
-	std::vector<Target> yellow_targets;
+	// clear to prevent positioning on next CMD
+	blue_targets.clear();
+	yellow_targets.clear();
+
+	game.playing_game = ref_command.foul() == VSSRef::Foul::GAME_ON;
 
 	switch (ref_command.foul()) {
 		case VSSRef::Foul::GAME_ON:
-			game.playing_game = true;
 			game.first_iteration = true;
 			break;
 		case VSSRef::Foul::FREE_KICK:
-			game.stop_game();
 			game.ball.reset_ls();
 
 			if (ref_command.teamcolor() == VSSRef::Color::YELLOW) {
@@ -76,7 +94,6 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 
 			break;
 		case VSSRef::Foul::PENALTY_KICK:
-			game.stop_game();
 			game.ball.reset_ls();
 
 			if(ref_command.teamcolor() == VSSRef::Color::YELLOW) {
@@ -129,7 +146,6 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			}
 			break;
 		case VSSRef::Foul::GOAL_KICK:
-			game.stop_game();
 			game.ball.reset_ls();
 
 			if (ref_command.teamcolor() == VSSRef::Color::YELLOW) {
@@ -166,7 +182,6 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 
 			break;
 		case VSSRef::Foul::FREE_BALL:
-			game.stop_game();
 			game.ball.reset_ls();
 
 			if (ref_command.foulquadrant() == VSSRef::Quadrant::QUADRANT_1) {
@@ -236,7 +251,6 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			break;
 
 		case VSSRef::Foul::KICKOFF:
-			game.stop_game();
 			game.ball.reset_ls();
 
 			if(ref_command.teamcolor() == VSSRef::Color::YELLOW && game.yellow_team().controlled){
@@ -277,6 +291,7 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			game.ball.reset_ls();
 			break;
 	}
+
 	// print fould:
 	switch (ref_command.foul()) {
 		case VSSRef::Foul::GAME_ON:
@@ -305,32 +320,13 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 			break;
 	}
 
-
 	bool team_defending = (ref_command.teamcolor() == VSSRef::Color::BLUE && game.team->robot_color == RobotColor::Yellow)
 		|| (ref_command.teamcolor() == VSSRef::Color::YELLOW && game.team->robot_color == RobotColor::Blue);
 
 	game.team->strategy->set_foul(ref_command, team_defending, game.now());
 	game.adversary->strategy->set_foul(ref_command, !team_defending, game.now());
 
-	if (!game.is_simulated) {
-		if (game.blue_team().controlled && blue_targets.size() >= 3) {
-			auto best_target_order = select_best_reposition(blue_targets, game.blue_team().robots);
-			for (int i = 0; i < 3; i++) {
-				game.blue_team().robots[i].go_to_and_stop_orientation(best_target_order[i].pose.position,
-					best_target_order[i].pose.orientation, 0.5);
-			}
-		}
-		if (game.yellow_team().controlled && yellow_targets.size() >= 3) {
-			auto best_target_order = select_best_reposition(yellow_targets, game.yellow_team().robots);
-			for (int i = 0; i < 3; i++) {
-				game.yellow_team().robots[i].go_to_and_stop_orientation(best_target_order[i].pose.position,
-					best_target_order[i].pose.orientation, 0.5);
-			}
-		}
-	}
-	if (blue_targets.size() > 0 || yellow_targets.size() > 0) {
-		game.automatic_positioning = true; // is set to false on game.stop_game()
-	}
+	game.automatic_positioning = blue_targets.size() > 0 || yellow_targets.size() > 0;
 }
 
 

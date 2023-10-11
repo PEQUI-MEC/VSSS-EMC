@@ -318,7 +318,8 @@ std::vector<Target> jsonSaveManager::load_positioning_targets(std::string team, 
 		return {};
 	}
 
-	json& fault_config = configs[team][fault];
+	// json& fault_config = configs[team][fault];
+	json& fault_config = configs["yellow"][fault];
 
 	std::vector<Target> targets;
 	for (int i = 0; i < 3; i++) {
@@ -327,16 +328,18 @@ std::vector<Target> jsonSaveManager::load_positioning_targets(std::string team, 
 		Target target {
 			.command = Command::Position,
 			.pose = {
-				.position = Geometry::Point::from_simulator(robot_config["x"], robot_config["y"]),
-				.orientation = double(robot_config["orientation"]) * M_PI / 180,
+				.position = Geometry::Point::from_simulator(robot_config["x"], robot_config["y"]).inverted_coordinates(),
+				.orientation = Geometry::wrap(double(robot_config["orientation"]) * M_PI / 180 + M_PI),
 				.velocity = {0.8, 0},
 				.wheel_velocity = {0, 0}
 			},
 			.reference = Geometry::Point(0, 0),
 			.n = 1.7
 		};
+
 		targets.push_back(target);
 	}
+	
 	return targets;
 }
 
