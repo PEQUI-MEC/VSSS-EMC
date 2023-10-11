@@ -152,6 +152,74 @@
                 "y": 0.2,
                 "orientation": 90
             }
+        },
+        "free_kick_attack": {
+            "0": {
+                "x": 1.0,
+                "y": 0.5,
+                "orientation": 0.0
+            },
+            "2": {
+                "x": 1.0,
+                "y": 1.0,
+                "orientation": 0.0
+            },
+            "1": {
+                "x": 1.0,
+                "y": 1.5,
+                "orientation": 0.0
+            }
+        },
+        "free_kick_defense": {
+            "0": {
+                "x": 1.0,
+                "y": 0.5,
+                "orientation": 0.0
+            },
+            "2": {
+                "x": 1.0,
+                "y": 1.0,
+                "orientation": 0.0
+            },
+            "1": {
+                "x": 1.0,
+                "y": 1.5,
+                "orientation": 0.0
+            }
+        },
+        "goal_kick_attack": {
+            "0": {
+                "x": 0.68,
+                "y": 0.27,
+                "orientation": -45.0
+            },
+            "2": {
+                "x": 0.45,
+                "y": 0.32,
+                "orientation": 0.0
+            },
+            "1": {
+                "x": 0.3,
+                "y": -0.47,
+                "orientation": 0.0
+            }
+        },
+        "goal_kick_defense": {
+            "0": {
+                "x": 0.68,
+                "y": 0.0,
+                "orientation": 0.0
+            },
+            "2": {
+                "x": -0.225,
+                "y": 0.1,
+                "orientation": 0.0
+            },
+            "1": {
+                "x": -0.15,
+                "y": -0.32,
+                "orientation": 0.0
+            }
         }
     },
     "blue": {

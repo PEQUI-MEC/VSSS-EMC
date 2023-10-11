@@ -41,6 +41,39 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 		case VSSRef::Foul::FREE_KICK:
 			game.stop_game();
 			game.ball.reset_ls();
+
+			if (ref_command.teamcolor() == VSSRef::Color::YELLOW) {
+				if (game.blue_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_kick_defense");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "free_kick_defense");
+				}
+				if (game.yellow_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_kick_attack");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "free_kick_attack");
+				}
+			} else if (ref_command.teamcolor() == VSSRef::Color::BLUE) {
+				if (game.yellow_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "free_kick_defense");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "free_kick_defense");
+				}
+				if (game.blue_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "free_kick_attack");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "free_kick_attack");
+				}
+			}
+
 			break;
 		case VSSRef::Foul::PENALTY_KICK:
 			game.stop_game();
@@ -98,6 +131,39 @@ void SimulatedGame::process_referee_cmds(bool send_placement) {
 		case VSSRef::Foul::GOAL_KICK:
 			game.stop_game();
 			game.ball.reset_ls();
+
+			if (ref_command.teamcolor() == VSSRef::Color::YELLOW) {
+				if (game.blue_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "goal_kick_defense");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "goal_kick_defense");
+				}
+				if (game.yellow_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "goal_kick_attack");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "goal_kick_attack");
+				}
+			} else if (ref_command.teamcolor() == VSSRef::Color::BLUE) {
+				if (game.yellow_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("yellow", "goal_kick_defense");
+						client.send_placement(frame);
+					}
+					yellow_targets = placement_config.load_positioning_targets("yellow", "goal_kick_defense");
+				}
+				if (game.blue_team().controlled) {
+					if (send_placement) {
+						VSSRef::Frame* frame = placement_config.load_replacement("blue", "goal_kick_attack");
+						client.send_placement(frame);
+					}
+					blue_targets = placement_config.load_positioning_targets("blue", "goal_kick_attack");
+				}
+			}
+
 			break;
 		case VSSRef::Foul::FREE_BALL:
 			game.stop_game();
