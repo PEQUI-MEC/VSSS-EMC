@@ -216,6 +216,16 @@ bool CamCap::capture_and_show() {
 													cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 	}
 
+    // Substitutes camera feed with an image for debug purposes
+    bool DEBUG_IMAGE = false;
+    if(DEBUG_IMAGE) {
+        cv::Mat image_rgb = cv::imread("campo_com_tags.jpg");
+        cv::Mat image_bgr = image_rgb;
+        cv::cvtColor(image_bgr, image_rgb, cv::COLOR_RGB2BGR);
+        image_bgr.copyTo(visionImage);
+    }
+
+
 	auto tags = interface.visionGUI.vision->run(visionImage, game.yellow_team().controlled,
 												game.blue_team().controlled);
 

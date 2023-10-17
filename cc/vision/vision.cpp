@@ -329,19 +329,32 @@ std::map<unsigned int, RecognizedTag> Vision::pick_a_tag() {
 
 bool Vision::are_secondary_tags_clockwise(Tag main_tag, Tag tag0, Tag tag1)
 {
+    bool DEBUG_PRINT = false;
+
     // Vetores com origem em main_tag
     cv::Point_<double> vec0 = tag0.position - main_tag.position;
     cv::Point_<double> vec1 = tag1.position - main_tag.position;
+    if(DEBUG_PRINT) std::cout << "Vector 0 = " << vec0 << std::endl;
+    if(DEBUG_PRINT) std::cout << "Vector 1 = " << vec1 << std::endl;
 
-    // Ajusta o aspect ratio dos vetores
-    vec0 = cv::Point_<double>(vec0.x * field::field_width / width,
-                              vec0.y * field::field_height / height);
-    vec1 = cv::Point_<double>(vec1.x * field::field_width / width,
-                              vec1.y * field::field_height / height);
-    // https://stackoverflow.com/questions/14066933/direct-way-of-computing-the-clockwise-angle-between-two-vectors
-    double dot_product = vec0.x*vec1.x + vec0.y*vec1.y;
-    double determinant = vec0.x*vec1.y - vec1.x*vec0.y;
-    double signed_angle = atan2(determinant, dot_product);
+    // Calculating signed angle using relative x-axis angles
+    // Demonstration: https://www.desmos.com/calculator/hcqad3wcca
+
+    double angle0 = atan2(vec0.y,vec0.x);
+    double angle1 = atan2(vec1.y,vec1.x);
+    if(DEBUG_PRINT) std::cout << "angle 0 = " << angle0 << std::endl;
+    if(DEBUG_PRINT) std::cout << "angle 1 = " << angle1 << std::endl;
+
+    double difference = angle0 - angle1;
+    if(DEBUG_PRINT) std::cout << "difference = " << difference << std::endl;
+
+    double pi = 3.141592653589793;
+    double signed_angle;
+    if(difference < -pi) signed_angle = difference + 2*pi;
+    else if(difference > pi) signed_angle = difference - 2*pi;
+    else signed_angle = difference;
+    if(DEBUG_PRINT) std::cout << "signed_angle = " << signed_angle << std::endl;
+
     bool is_clockwise = signed_angle > 0;
     return is_clockwise;
 }
